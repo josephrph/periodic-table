@@ -1,5 +1,6 @@
 
-<title>Periodic Table of Cannabis Plant Molecules — v2.0 | Acannability™</title>
+<!-- saved from url=(0076)file:///Users/josephfriedman/Downloads/Periodic_Table_V3_Interactive_41.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><title>Periodic Table of Cannabis Plant Molecules — v2.0 | Acannability™</title>
 <style>
 :root {
   --bg:#F5F0E6; --surface:#FDFAF4; --surface2:#EDE8DC;
@@ -352,22 +353,25 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 /* END WELCOME OVERLAY */
 </style>
 
-<header class="hdr">
+</head><body><header class="hdr">
   <div class="hdr-brand">
     <svg width="38" height="44" viewBox="0 0 50 58" xmlns="http://www.w3.org/2000/svg">
-      <path d="M25 2 L47 12 L47 36 Q47 54 25 57 Q3 54 3 36 L3 12 Z" fill="#8B6914"/>
+      <path d="M25 2 L47 12 L47 36 Q47 54 25 57 Q3 54 3 36 L3 12 Z" fill="#8B6914"></path>
       <text x="25" y="43" text-anchor="middle" font-family="Georgia,serif" font-size="26" font-weight="400" fill="#FFF8E8">A</text>
     </svg>
     <div class="hdr-txt">
       <div class="hdr-title">Periodic Table of <em>Cannabis</em> Plant Molecules</div>
-      <div class="hdr-sub">Mechanism Based &middot; Clinically Structured &middot; Evidence Informed</div>
+      <div class="hdr-sub">Mechanism Based · Clinically Structured · Evidence Informed</div>
     </div>
   </div>
   <div class="hdr-ctrl">
-    <input class="srch" id="srchInput" type="text" placeholder="Search molecules&#8230;" oninput="filterSearch(this.value)">
-    <button class="btn-filter" id="filterBtn" onclick="toggleFilter()">Show Health Conditions</button>
-    <button class="btn-filter" id="entBtn" onclick="showEntourage()" title="Explore synergistic molecule combinations by health condition">&#x2B22; Entourage Effect</button>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;flex:1;min-width:300px">
+    <input class="srch" id="molSearch" type="text" placeholder="Search molecules…" oninput="filterByMolecule(this.value)" title="Search by molecule symbol or name" style="flex:1;min-width:150px">
+    <input class="srch" id="condSearch" type="text" placeholder="Search conditions…" oninput="filterByCondition(this.value)" title="Search by health condition or entourage effect" style="flex:1;min-width:150px">
   </div>
+  <button class="btn-filter" id="filterBtn" onclick="toggleFilter()">Show Health Conditions</button>
+    <button class="btn-filter" id="entBtn" onclick="showEntourage()" title="Explore synergistic molecule combinations by health condition">⬢ Entourage Effect</button>
+  </div><div id="searchResultCount" class="search-result-count" style="display:none"></div>
   <button id="wlcHelp" onclick="showWelcome()" title="How to use this table">? How to Use</button>
 </header>
 
@@ -376,7 +380,7 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
   <div id="wlcBox" onclick="event.stopPropagation()">
     <div class="wlc-hd">
       <svg width="32" height="37" viewBox="0 0 50 58" xmlns="http://www.w3.org/2000/svg">
-        <path d="M25 2 L47 12 L47 36 Q47 54 25 57 Q3 54 3 36 L3 12 Z" fill="#8B6914"/>
+        <path d="M25 2 L47 12 L47 36 Q47 54 25 57 Q3 54 3 36 L3 12 Z" fill="#8B6914"></path>
         <text x="25" y="43" text-anchor="middle" font-family="Georgia,serif" font-size="26" font-weight="400" fill="#FFF8E8">A</text>
       </svg>
       <div class="wlc-ttl">Interactive Periodic Table of Cannabis Plant Molecules</div>
@@ -385,62 +389,77 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
     <div class="wlc-bd">
       <div class="wlc-cards">
         <div class="wlc-card">
-          <span class="wlc-ci">&#x2B22;</span>
+          <span class="wlc-ci">🔍</span>
+          <div class="wlc-ct">Search Molecules &amp; Conditions</div>
+          <div class="wlc-cd">Use the two search bars at the top: search by molecule name/symbol (CBD, THC) or by health condition (pain, anxiety, sleep). Results update instantly.</div>
+        </div>
+        <div class="wlc-card">
+          <span class="wlc-ci">⬢</span>
           <div class="wlc-ct">Explore Molecules</div>
           <div class="wlc-cd">Click any molecule tile to open its full molecular profile with peer-reviewed citations and direct PubMed links.</div>
         </div>
         <div class="wlc-card">
-          <span class="wlc-ci">&#x2665;</span>
+          <span class="wlc-ci">♥</span>
           <div class="wlc-ct">Find by Condition</div>
           <div class="wlc-cd">Click "Show Health Conditions" to highlight which molecules have evidence for anxiety, pain, sleep, and more.</div>
         </div>
         <div class="wlc-card">
-          <span class="wlc-ci">&#x2299;</span>
+          <span class="wlc-ci">⊙</span>
           <div class="wlc-ct">Filter by Receptor</div>
           <div class="wlc-cd">Hover the receptor bar above the grid to learn each pathway, then click to filter by CB1, CB2, TRP, 5-HT, or PPAR.</div>
         </div>
       </div>
       <div class="wlc-ev">
         <div class="wlc-evl">Evidence Grades</div>
-        <div class="wlc-evc"><span class="wlc-evd" style="background:var(--ev-a)"></span>A &mdash; Clinical Human Trials</div>
-        <div class="wlc-evc"><span class="wlc-evd" style="background:var(--ev-b)"></span>B &mdash; Observational Studies</div>
-        <div class="wlc-evc"><span class="wlc-evd" style="background:var(--ev-c)"></span>C &mdash; Preclinical / In Vitro</div>
-        <div class="wlc-evc"><span class="wlc-evd" style="background:var(--ev-d)"></span>D &mdash; Emerging / Theoretical</div>
+        <div class="wlc-evc"><span class="wlc-evd" style="background:var(--ev-a)"></span>A — Clinical Human Trials</div>
+        <div class="wlc-evc"><span class="wlc-evd" style="background:var(--ev-b)"></span>B — Observational Studies</div>
+        <div class="wlc-evc"><span class="wlc-evd" style="background:var(--ev-c)"></span>C — Preclinical / In Vitro</div>
+        <div class="wlc-evc"><span class="wlc-evd" style="background:var(--ev-d)"></span>D — Emerging / Theoretical</div>
       </div>
       <div class="wlc-ft">
         <div style="flex:1">
-          <div class="wlc-disc">For educational purposes only &middot; Not medical advice &middot; Always consult a licensed healthcare professional before making clinical decisions.</div>
-          <button class="wlc-ref" style="cursor:pointer;border:none;background:none;padding:0;text-align:left" onclick="document.getElementById('wlc-faqs').style.display=document.getElementById('wlc-faqs').style.display==='none'?'block':'none';this.textContent=document.getElementById('wlc-faqs').style.display==='block'?'&#x2715; Close FAQ\'s':'&#x2753; Frequently Asked Questions ↓'">&#x2753; Frequently Asked Questions &#x2193;</button>
+          <div class="wlc-disc">For educational purposes only · Not medical advice · Always consult a licensed healthcare professional before making clinical decisions.</div>
+          <button class="wlc-ref" style="cursor:pointer;border:none;background:none;padding:0;text-align:left" onclick="document.getElementById(&#39;wlc-faqs&#39;).style.display=document.getElementById(&#39;wlc-faqs&#39;).style.display===&#39;none&#39;?&#39;block&#39;:&#39;none&#39;;this.textContent=document.getElementById(&#39;wlc-faqs&#39;).style.display===&#39;block&#39;?&#39;✕ Close FAQ\&#39;s&#39;:&#39;❓ Frequently Asked Questions ↓&#39;">❓ Frequently Asked Questions ↓</button>
         <div id="wlc-faqs" style="display:none;margin-top:16px;max-height:55vh;overflow-y:auto;border-top:1px solid var(--border);padding-top:12px">
 
           <details class="faq-item">
             <summary><span class="faq-q" style="font-size:.95rem">What is new in Version 2 of the Acannability Table?</span><span class="faq-icon" style="width:22px;height:22px;font-size:1.1rem">+</span></summary>
             <div class="faq-content" style="font-size:.82rem">
               <p>Version 2 is a comprehensive upgrade across every dimension of the tool:</p>
-              <p><u>65 molecules</u> (up from 51) &mdash; 14 newly characterized compounds added, including rare cannabinoids like THCP and CBDP.</p>
-              <p><u>New Rare &amp; Novel category</u> &mdash; A dedicated fifth section for emerging cannabinoids with unique pharmacological properties.</p>
-              <p><u>Receptor system mapping</u> &mdash; Each molecule tile identifies which of five receptor systems it engages: CB1, CB2, TRP, PPAR, and 5HT.</p>
-              <p><u>Evidence ratings (A&ndash;D)</u> &mdash; Letter-grade reflecting strength of published clinical and preclinical evidence.</p>
-              <p><u>40 health conditions</u> (up from 30) &mdash; Six condition groups including 11 specific cancer subtypes.</p>
-              <p><u>Cancer sub-type research</u> &mdash; Molecule-level citations for 11 cancer types with relevance scores.</p>
-              <p><u>Entourage Effect mapping</u> &mdash; Visualize known synergistic molecule combinations.</p>
-              <p><u>Adverse findings</u> &mdash; Dedicated tab surfaces published safety signals alongside benefits.</p>
-              <p><u>Linked research articles</u> &mdash; Direct PDF access to primary literature for each molecule.</p>
+              <p><u>65 molecules</u> (up from 51) — 14 newly characterized compounds added, including rare cannabinoids like THCP and CBDP.</p>
+              <p><u>New Rare &amp; Novel category</u> — A dedicated fifth section for emerging cannabinoids with unique pharmacological properties.</p>
+              <p><u>Receptor system mapping</u> — Each molecule tile identifies which of five receptor systems it engages: CB1, CB2, TRP, PPAR, and 5HT.</p>
+              <p><u>Evidence ratings (A–D)</u> — Letter-grade reflecting strength of published clinical and preclinical evidence.</p>
+              <p><u>40 health conditions</u> (up from 30) — Six condition groups including 11 specific cancer subtypes.</p>
+              <p><u>Cancer sub-type research</u> — Molecule-level citations for 11 cancer types with relevance scores.</p>
+              <p><u>Entourage Effect mapping</u> — Visualize known synergistic molecule combinations.</p>
+              <p><u>Adverse findings</u> — Dedicated tab surfaces published safety signals alongside benefits.</p>
+              <p><u>Linked research articles</u> — Direct PDF access to primary literature for each molecule.</p>
             </div>
           </details>
+
+          <details class="faq-item">
+            <summary><span class="faq-q" style="font-size:.95rem">How do I use the search bars?</span><span class="faq-icon" style="width:22px;height:22px;font-size:1.1rem">+</span></summary>
+            <div class="faq-content" style="font-size:.82rem">
+              <p><strong>Molecule Search (left):</strong> Type a molecule's symbol or name to instantly filter the grid. Examples: "CBD", "THC", "limonene", "cannabidiol". Results update in real-time as you type.</p>
+              <p><strong>Condition Search (right):</strong> Type a health condition or entourage effect to find all molecules with evidence or potential for that condition. Examples: "pain", "anxiety", "sleep", "inflammation", "entourage".</p>
+              <p>Both search boxes are case-insensitive and work independently. Clear the search to see all 65 molecules again.</p>
+            </div>
+          </details>
+
 
           <details class="faq-item">
             <summary><span class="faq-q" style="font-size:.95rem">What do the boxes shown represent?</span><span class="faq-icon" style="width:22px;height:22px;font-size:1.1rem">+</span></summary>
             <div class="faq-content" style="font-size:.82rem">
               <p>Each of the 65 boxes represents either a molecule of the cannabis plant or a precursor acid. There are 56 molecules (cannabinoids, terpenes, flavonoids, and rare &amp; novel cannabinoids) and 9 precursor acids shown.</p>
-              <p>A <strong>molecule</strong> is a group of atoms bonded together&mdash;the smallest unit of a chemical compound that retains its chemical properties. A <strong>precursor acid</strong> is a compound that converts into its active non-acidic form under certain conditions (e.g., THCA becomes THC when heated).</p>
+              <p>A <strong>molecule</strong> is a group of atoms bonded together—the smallest unit of a chemical compound that retains its chemical properties. A <strong>precursor acid</strong> is a compound that converts into its active non-acidic form under certain conditions (e.g., THCA becomes THC when heated).</p>
             </div>
           </details>
 
           <details class="faq-item">
             <summary><span class="faq-q" style="font-size:.95rem">How were the boxes selected?</span><span class="faq-icon" style="width:22px;height:22px;font-size:1.1rem">+</span></summary>
             <div class="faq-content" style="font-size:.82rem">
-              <p>Boxes were selected as molecules having known or suspected medicinal value based on Acannability&rsquo;s review of published research. The selection process was led by Acannability Advisor Mr. Joseph Friedman, RPh, MBA, a Medical Cannabis Pharmacist and Pharmacology Expert. Version 2 expanded the table from 51 to 65 entries as scientific literature has matured to support additional compounds.</p>
+              <p>Boxes were selected as molecules having known or suspected medicinal value based on Acannability’s review of published research. The selection process was led by Acannability Advisor Mr. Joseph Friedman, RPh, MBA, a Medical Cannabis Pharmacist and Pharmacology Expert. Version 2 expanded the table from 51 to 65 entries as scientific literature has matured to support additional compounds.</p>
             </div>
           </details>
 
@@ -461,9 +480,9 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
           <details class="faq-item">
             <summary><span class="faq-q" style="font-size:.95rem">What does each section represent?</span><span class="faq-icon" style="width:22px;height:22px;font-size:1.1rem">+</span></summary>
             <div class="faq-content" style="font-size:.82rem">
-              <p><strong>Cannabinoids</strong> interact with the body&rsquo;s endocannabinoid system to regulate pain, mood, appetite, and immune function. Over 100 have been identified in cannabis.</p>
+              <p><strong>Cannabinoids</strong> interact with the body’s endocannabinoid system to regulate pain, mood, appetite, and immune function. Over 100 have been identified in cannabis.</p>
               <p><strong>Terpenes</strong> are aromatic organic compounds produced in cannabis trichomes alongside cannabinoids. Common examples include myrcene, limonene, and caryophyllene, and they are believed to offer therapeutic benefits.</p>
-              <p><strong>Flavonoids</strong> are polyphenol plant compounds that may work synergistically with cannabinoids and terpenes to enhance medicinal properties&mdash;the &ldquo;Entourage Effect.&rdquo;</p>
+              <p><strong>Flavonoids</strong> are polyphenol plant compounds that may work synergistically with cannabinoids and terpenes to enhance medicinal properties—the “Entourage Effect.”</p>
               <p><strong>Precursor Acids</strong> are biosynthetic forms of cannabinoids that convert to their active counterparts upon decarboxylation (heat exposure).</p>
               <p><strong>Rare &amp; Novel Cannabinoids</strong> (V2 new) are low-abundance but pharmacologically significant compounds such as THCP, CBDP, and CBND.</p>
             </div>
@@ -472,28 +491,28 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
           <details class="faq-item">
             <summary><span class="faq-q" style="font-size:.95rem">How were the atomic masses calculated?</span><span class="faq-icon" style="width:22px;height:22px;font-size:1.1rem">+</span></summary>
             <div class="faq-content" style="font-size:.82rem">
-              <p>Atomic masses were determined from public references or by summing each element&rsquo;s molecular mass from the chemical formula. The table is then arranged so that molecules with increasing mass are ordered from left to right in each row.</p>
+              <p>Atomic masses were determined from public references or by summing each element’s molecular mass from the chemical formula. The table is then arranged so that molecules with increasing mass are ordered from left to right in each row.</p>
             </div>
           </details>
 
           <details class="faq-item">
-            <summary><span class="faq-q" style="font-size:.95rem">What does the evidence rating (A&ndash;D) mean?</span><span class="faq-icon" style="width:22px;height:22px;font-size:1.1rem">+</span></summary>
+            <summary><span class="faq-q" style="font-size:.95rem">What does the evidence rating (A–D) mean?</span><span class="faq-icon" style="width:22px;height:22px;font-size:1.1rem">+</span></summary>
             <div class="faq-content" style="font-size:.82rem">
-              <p><u>Grade A</u> &mdash; Strong, replicated human clinical evidence.</p>
-              <p><u>Grade B</u> &mdash; Promising human evidence, limited in scale; positive preclinical data.</p>
-              <p><u>Grade C</u> &mdash; Primarily preclinical (animal or in vitro) evidence.</p>
-              <p><u>Grade D</u> &mdash; Early-stage or theoretical evidence only.</p>
+              <p><u>Grade A</u> — Strong, replicated human clinical evidence.</p>
+              <p><u>Grade B</u> — Promising human evidence, limited in scale; positive preclinical data.</p>
+              <p><u>Grade C</u> — Primarily preclinical (animal or in vitro) evidence.</p>
+              <p><u>Grade D</u> — Early-stage or theoretical evidence only.</p>
             </div>
           </details>
 
           <details class="faq-item">
             <summary><span class="faq-q" style="font-size:.95rem">What receptor systems are shown on each molecule tile?</span><span class="faq-icon" style="width:22px;height:22px;font-size:1.1rem">+</span></summary>
             <div class="faq-content" style="font-size:.82rem">
-              <p><u>CB1</u> &mdash; Central nervous system receptor; governs psychoactivity, analgesia, antiemetic effects. (16 molecules)</p>
-              <p><u>CB2</u> &mdash; Immune/peripheral receptor; anti-inflammatory, immunomodulatory, neuroprotective. (23 molecules)</p>
-              <p><u>TRP</u> &mdash; Pain/temperature ion channels (TRPV1, TRPA1); analgesic and anti-inflammatory. (19 molecules)</p>
-              <p><u>PPAR</u> &mdash; Nuclear receptors governing metabolism and inflammation; associated with anti-tumor and metabolic effects. (19 molecules)</p>
-              <p><u>5HT</u> &mdash; Serotonin receptors; anxiolytic, antidepressant, antipsychotic effects. (13 molecules)</p>
+              <p><u>CB1</u> — Central nervous system receptor; governs psychoactivity, analgesia, antiemetic effects. (16 molecules)</p>
+              <p><u>CB2</u> — Immune/peripheral receptor; anti-inflammatory, immunomodulatory, neuroprotective. (23 molecules)</p>
+              <p><u>TRP</u> — Pain/temperature ion channels (TRPV1, TRPA1); analgesic and anti-inflammatory. (19 molecules)</p>
+              <p><u>PPAR</u> — Nuclear receptors governing metabolism and inflammation; associated with anti-tumor and metabolic effects. (19 molecules)</p>
+              <p><u>5HT</u> — Serotonin receptors; anxiolytic, antidepressant, antipsychotic effects. (13 molecules)</p>
             </div>
           </details>
 
@@ -513,14 +532,14 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
             <summary><span class="faq-q" style="font-size:.95rem">How is cancer sub-type research organized?</span><span class="faq-icon" style="width:22px;height:22px;font-size:1.1rem">+</span></summary>
             <div class="faq-content" style="font-size:.82rem">
               <p>V2 adds molecule-level citations for 11 specific cancer subtypes. Selecting any cancer sub-type from the conditions filter bar highlights all molecules with relevant published evidence. The References tab in each molecule tile provides specific citations; the Article PDF button gives direct access to primary research.</p>
-              <p>The Adverse Findings filter also surfaces known safety signals, ensuring balanced presentation. All citations are from peer-reviewed literature and are strictly educational &mdash; not treatment recommendations.</p>
+              <p>The Adverse Findings filter also surfaces known safety signals, ensuring balanced presentation. All citations are from peer-reviewed literature and are strictly educational — not treatment recommendations.</p>
             </div>
           </details>
 
           <details class="faq-item">
-            <summary><span class="faq-q" style="font-size:.95rem">What is the &lsquo;Rare &amp; Novel&rsquo; category?</span><span class="faq-icon" style="width:22px;height:22px;font-size:1.1rem">+</span></summary>
+            <summary><span class="faq-q" style="font-size:.95rem">What is the ‘Rare &amp; Novel’ category?</span><span class="faq-icon" style="width:22px;height:22px;font-size:1.1rem">+</span></summary>
             <div class="faq-content" style="font-size:.82rem">
-              <p>Introduced in V2, this category recognizes low-abundance cannabis cannabinoids with unique pharmacological properties&mdash;compounds present in trace amounts but with significant receptor activity. Examples: THCP (exceptionally high CB1 affinity), CBDP, CBND, CBL, CBE, and CBLA. This category is expected to grow as cannabis science matures.</p>
+              <p>Introduced in V2, this category recognizes low-abundance cannabis cannabinoids with unique pharmacological properties—compounds present in trace amounts but with significant receptor activity. Examples: THCP (exceptionally high CB1 affinity), CBDP, CBND, CBL, CBE, and CBLA. This category is expected to grow as cannabis science matures.</p>
             </div>
           </details>
 
@@ -538,7 +557,7 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
           <details class="faq-item">
             <summary><span class="faq-q" style="font-size:.95rem">What is the Entourage Effect?</span><span class="faq-icon" style="width:22px;height:22px;font-size:1.1rem">+</span></summary>
             <div class="faq-content" style="font-size:.82rem">
-              <p>A concept in cannabis pharmacology describing how the plant&rsquo;s many molecules&mdash;cannabinoids, terpenes, and flavonoids&mdash;may work synergistically, producing effects greater than any isolated compound alone. Popularized by Dr. Raphael Mechoulam, it influences how clinicians and product developers think about whole-plant versus isolate therapies. V2&rsquo;s Entourage Effect mapping tool visualizes these known molecular interactions.</p>
+              <p>A concept in cannabis pharmacology describing how the plant’s many molecules—cannabinoids, terpenes, and flavonoids—may work synergistically, producing effects greater than any isolated compound alone. Popularized by Dr. Raphael Mechoulam, it influences how clinicians and product developers think about whole-plant versus isolate therapies. V2’s Entourage Effect mapping tool visualizes these known molecular interactions.</p>
             </div>
           </details>
 
@@ -546,30 +565,30 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
             <summary><span class="faq-q" style="font-size:.95rem">How should this chart be used by consumers?</span><span class="faq-icon" style="width:22px;height:22px;font-size:1.1rem">+</span></summary>
             <div class="faq-content" style="font-size:.82rem">
               <p>The chart serves as a common scientific language for consumers, caregivers, and industry participants. Uses include:</p>
-              <p><u>Product Selection</u> &mdash; Compare molecule claims on product labels against published evidence.</p>
-              <p><u>Molecule Identification</u> &mdash; Click any molecule tile for name, mass, evidence rating, receptors, and citations.</p>
-              <p><u>Research</u> &mdash; Scientists may use the table as a reference with direct links to primary literature PDFs.</p>
-              <p><u>Education</u> &mdash; Introduce students and practitioners to the fundamental compounds of the cannabis plant.</p>
+              <p><u>Product Selection</u> — Compare molecule claims on product labels against published evidence.</p>
+              <p><u>Molecule Identification</u> — Click any molecule tile for name, mass, evidence rating, receptors, and citations.</p>
+              <p><u>Research</u> — Scientists may use the table as a reference with direct links to primary literature PDFs.</p>
+              <p><u>Education</u> — Introduce students and practitioners to the fundamental compounds of the cannabis plant.</p>
             </div>
           </details>
 
           <details class="faq-item">
             <summary><span class="faq-q" style="font-size:.95rem">Is this chart proprietary to Acannability?</span><span class="faq-icon" style="width:22px;height:22px;font-size:1.1rem">+</span></summary>
             <div class="faq-content" style="font-size:.82rem">
-              <p>Yes. The Cannabis Periodic Table of Molecules&trade; was developed by Acannability through the work of Advisor Joseph Friedman, RPh, MBA. It is free to use by Acannability members and available to others by copyright license acknowledgement. A printable version is available at Acannability.com.</p>
+              <p>Yes. The Cannabis Periodic Table of Molecules™ was developed by Acannability through the work of Advisor Joseph Friedman, RPh, MBA. It is free to use by Acannability members and available to others by copyright license acknowledgement. A printable version is available at Acannability.com.</p>
             </div>
           </details>
 
           <details class="faq-item">
             <summary><span class="faq-q" style="font-size:.95rem">Disclaimer</span><span class="faq-icon" style="width:22px;height:22px;font-size:1.1rem">+</span></summary>
             <div class="faq-content" style="font-size:.82rem">
-              <p>The Cannabis Periodic Table of Molecules&trade; is an educational reference tool and should never be used as a source of medical advice. Medical decisions and treatments must be based solely on the guidance of qualified healthcare professionals. Always consult a licensed medical practitioner before making any health-related decisions.</p>
+              <p>The Cannabis Periodic Table of Molecules™ is an educational reference tool and should never be used as a source of medical advice. Medical decisions and treatments must be based solely on the guidance of qualified healthcare professionals. Always consult a licensed medical practitioner before making any health-related decisions.</p>
             </div>
           </details>
 
         </div>
         </div>
-        <button class="wlc-btn" onclick="closeWelcome()">Start Exploring &#x2192;</button>
+        <button class="wlc-btn" onclick="closeWelcome()">Start Exploring →</button>
       </div>
     </div>
   </div>
@@ -578,10 +597,10 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 
 <div class="fp" id="fp">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-    <div class="fp-title">Filter by Health Condition &mdash; tiles glow by research evidence strength</div>
+    <div class="fp-title">Filter by Health Condition — tiles glow by research evidence strength</div>
     <button class="fp-clear" id="fpClear" onclick="clearCondition()">Clear</button>
   </div>
-  <div class="fp-groups" id="fpGroups"></div>
+  <div class="fp-groups" id="fpGroups"><div class="cg"><div class="cg-lbl" style="display:flex;align-items:center;flex-wrap:wrap;gap:0">Pain &amp; Inflammation<span class="rc-dot" data-tip="CB1 — CNS / Psychoactive" style="background:var(--rc-cb1)"></span><span class="rc-dot" data-tip="CB2 — Immune / Inflammatory" style="background:var(--rc-cb2)"></span><span class="rc-dot" data-tip="TRP — Pain / Sensory" style="background:var(--rc-trp)"></span><span class="rc-dot" data-tip="5-HT — Mood / Anxiety (Serotonin)" style="background:var(--rc-sht)"></span><span class="rc-dot" data-tip="PPAR — Metabolic / Anti-Inflam." style="background:var(--rc-ppar)"></span></div><div class="cg-chips"><button class="cc" data-cid="pain" onclick="selectCondition(&#39;pain&#39;,this)">Analgesic / Pain</button><button class="cc" data-cid="neuropathic" onclick="selectCondition(&#39;neuropathic&#39;,this)">Neuropathic Pain</button><button class="cc" data-cid="arthritis" onclick="selectCondition(&#39;arthritis&#39;,this)">Arthritis / Joint Pain</button><button class="cc" data-cid="spasm" onclick="selectCondition(&#39;spasm&#39;,this)">Muscle Spasm / Spasticity</button><button class="cc" data-cid="inflammation" onclick="selectCondition(&#39;inflammation&#39;,this)">Anti-Inflammatory</button><button class="cc" data-cid="skinhealth" onclick="selectCondition(&#39;skinhealth&#39;,this)">Skin Health / Acne</button></div></div><div class="cg"><div class="cg-lbl" style="display:flex;align-items:center;flex-wrap:wrap;gap:0">Neurological<span class="rc-dot" data-tip="CB1 — CNS / Psychoactive" style="background:var(--rc-cb1)"></span><span class="rc-dot" data-tip="CB2 — Immune / Inflammatory" style="background:var(--rc-cb2)"></span><span class="rc-dot" data-tip="TRP — Pain / Sensory" style="background:var(--rc-trp)"></span><span class="rc-dot" data-tip="5-HT — Mood / Anxiety (Serotonin)" style="background:var(--rc-sht)"></span></div><div class="cg-chips"><button class="cc" data-cid="seizures" onclick="selectCondition(&#39;seizures&#39;,this)">Epilepsy / Seizures</button><button class="cc" data-cid="sleep" onclick="selectCondition(&#39;sleep&#39;,this)">Sleep &amp; Insomnia</button><button class="cc" data-cid="ms" onclick="selectCondition(&#39;ms&#39;,this)">Multiple Sclerosis</button><button class="cc" data-cid="neuroprotection" onclick="selectCondition(&#39;neuroprotection&#39;,this)">Neuroprotection</button><button class="cc" data-cid="alzheimers" onclick="selectCondition(&#39;alzheimers&#39;,this)">Alzheimer's Disease</button><button class="cc" data-cid="parkinsons" onclick="selectCondition(&#39;parkinsons&#39;,this)">Parkinson's Disease</button><button class="cc" data-cid="neurodegen" onclick="selectCondition(&#39;neurodegen&#39;,this)">Neurodegenerative</button><button class="cc" data-cid="autism" onclick="selectCondition(&#39;autism&#39;,this)">Autism Spectrum (ASD)</button></div></div><div class="cg"><div class="cg-lbl" style="display:flex;align-items:center;flex-wrap:wrap;gap:0">Mental Health<span class="rc-dot" data-tip="CB1 — CNS / Psychoactive" style="background:var(--rc-cb1)"></span><span class="rc-dot" data-tip="5-HT — Mood / Anxiety (Serotonin)" style="background:var(--rc-sht)"></span></div><div class="cg-chips"><button class="cc" data-cid="anxiety" onclick="selectCondition(&#39;anxiety&#39;,this)">Anxiety</button><button class="cc" data-cid="depression" onclick="selectCondition(&#39;depression&#39;,this)">Anti-depressant</button><button class="cc" data-cid="ptsd" onclick="selectCondition(&#39;ptsd&#39;,this)">PTSD / Trauma</button><button class="cc" data-cid="stress" onclick="selectCondition(&#39;stress&#39;,this)">Stress / Cortisol</button><button class="cc" data-cid="psychosis" onclick="selectCondition(&#39;psychosis&#39;,this)">Psychosis / Schizophrenia</button></div></div><div class="cg"><div class="cg-lbl" style="display:flex;align-items:center;flex-wrap:wrap;gap:0">Cancer &amp; Immune<span class="rc-dot" data-tip="CB2 — Immune / Inflammatory" style="background:var(--rc-cb2)"></span><span class="rc-dot" data-tip="PPAR — Metabolic / Anti-Inflam." style="background:var(--rc-ppar)"></span></div><div class="cg-chips"><button class="cc" data-cid="cancer" onclick="selectCondition(&#39;cancer&#39;,this)">Cancer / Anti-Tumor</button><button class="cc" data-cid="antiviral" onclick="selectCondition(&#39;antiviral&#39;,this)">Antiviral / Immune</button><button class="cc" data-cid="antibacterial" onclick="selectCondition(&#39;antibacterial&#39;,this)">Antibacterial</button><button class="cc" data-cid="antifungal" onclick="selectCondition(&#39;antifungal&#39;,this)">Antifungal</button><button class="cc" data-cid="antioxidant" onclick="selectCondition(&#39;antioxidant&#39;,this)">Antioxidant</button></div></div><div class="cg cg-sub"><div class="cg-lbl" style="display:flex;align-items:center;flex-wrap:wrap;gap:0">↳ Cancer Sub-Types</div><div class="cg-chips"><button class="cc" data-cid="glioblastoma" onclick="selectCondition(&#39;glioblastoma&#39;,this)">Glioblastoma</button><button class="cc" data-cid="breast-cancer" onclick="selectCondition(&#39;breast-cancer&#39;,this)">Breast Cancer</button><button class="cc" data-cid="lung-cancer" onclick="selectCondition(&#39;lung-cancer&#39;,this)">Lung Cancer</button><button class="cc" data-cid="colorectal" onclick="selectCondition(&#39;colorectal&#39;,this)">Colorectal Cancer</button><button class="cc" data-cid="leukemia" onclick="selectCondition(&#39;leukemia&#39;,this)">Leukemia</button><button class="cc" data-cid="prostate-cancer" onclick="selectCondition(&#39;prostate-cancer&#39;,this)">Prostate Cancer</button><button class="cc" data-cid="melanoma" onclick="selectCondition(&#39;melanoma&#39;,this)">Melanoma</button><button class="cc" data-cid="pancreatic-cancer" onclick="selectCondition(&#39;pancreatic-cancer&#39;,this)">Pancreatic Cancer</button><button class="cc" data-cid="liver-cancer" onclick="selectCondition(&#39;liver-cancer&#39;,this)">Liver Cancer (HCC)</button><button class="cc" data-cid="ovarian-cancer" onclick="selectCondition(&#39;ovarian-cancer&#39;,this)">Ovarian Cancer</button><button class="cc" data-cid="cervical-cancer" onclick="selectCondition(&#39;cervical-cancer&#39;,this)">Cervical Cancer</button><button class="cc risk-btn" data-cid="cancer-adverse" onclick="selectCondition(&#39;cancer-adverse&#39;,this)">⚠ Adverse Findings</button></div></div><div class="cg"><div class="cg-lbl" style="display:flex;align-items:center;flex-wrap:wrap;gap:0">Metabolic &amp; Digestive<span class="rc-dot" data-tip="CB2 — Immune / Inflammatory" style="background:var(--rc-cb2)"></span><span class="rc-dot" data-tip="PPAR — Metabolic / Anti-Inflam." style="background:var(--rc-ppar)"></span><span class="rc-dot" data-tip="5-HT — Mood / Anxiety (Serotonin)" style="background:var(--rc-sht)"></span></div><div class="cg-chips"><button class="cc" data-cid="nausea" onclick="selectCondition(&#39;nausea&#39;,this)">Antiemetic / Nausea</button><button class="cc" data-cid="appetite" onclick="selectCondition(&#39;appetite&#39;,this)">Appetite Regulation</button><button class="cc" data-cid="diabetes" onclick="selectCondition(&#39;diabetes&#39;,this)">Diabetes / Blood Sugar</button><button class="cc" data-cid="ibd" onclick="selectCondition(&#39;ibd&#39;,this)">IBD / Crohn's / Colitis</button><button class="cc" data-cid="liver" onclick="selectCondition(&#39;liver&#39;,this)">Liver / Hepatoprotective</button><button class="cc" data-cid="cardiovascular" onclick="selectCondition(&#39;cardiovascular&#39;,this)">Cardiovascular Health</button><button class="cc" data-cid="hyperlipidemia" onclick="selectCondition(&#39;hyperlipidemia&#39;,this)">Hyperlipidemia</button><button class="cc" data-cid="bone" onclick="selectCondition(&#39;bone&#39;,this)">Bone Health / Osteoporosis</button></div></div></div>
   <div id="csWarn"></div>
   <div class="tier-legend">
     <span class="tier-lbl"><span class="tier-pip tier-pip-1"></span>Strong evidence (8–10)</span>
@@ -593,71 +612,71 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 <!-- COMPACT RECEPTOR BAR — to revert: delete this block and remove style="display:none" from #rcLegend below -->
 <div id="rcBar">
   <span class="rc-bar-lbl">Receptor Systems:</span>
-  <button class="rc-bar-btn rc-active" data-rc="all" onclick="filterReceptor('all')">All</button>
+  <button class="rc-bar-btn rc-active" data-rc="all" onclick="filterReceptor(&#39;all&#39;)">All</button>
 
   <div class="rc-bar-wrap">
-    <button class="rc-bar-btn" data-rc="CB1" onclick="filterReceptor('CB1')"><span class="rc-bar-dot" style="background:var(--rc-cb1)"></span>CB1</button>
+    <button class="rc-bar-btn" data-rc="CB1" onclick="filterReceptor(&#39;CB1&#39;)"><span class="rc-bar-dot" style="background:var(--rc-cb1)"></span>CB1</button>
     <div class="rc-bar-popup" style="border-top:3px solid var(--rc-cb1)">
       <div class="rc-popup-role" style="color:var(--rc-cb1)">CNS &amp; Psychoactive</div>
       <div class="rc-popup-desc">Central nervous system modulation. Regulates appetite, mood, memory, pain perception, and psychoactive response.</div>
-      <div class="rc-popup-conds"><button class="rc-popup-cond" onclick="selectCondition('pain',null)">Pain</button><button class="rc-popup-cond" onclick="selectCondition('anxiety',null)">Anxiety</button><button class="rc-popup-cond" onclick="selectCondition('ptsd',null)">PTSD</button><button class="rc-popup-cond" onclick="selectCondition('sleep',null)">Insomnia</button><button class="rc-popup-cond" onclick="selectCondition('nausea',null)">Nausea</button><button class="rc-popup-cond" onclick="selectCondition('appetite',null)">Appetite</button></div>
+      <div class="rc-popup-conds"><button class="rc-popup-cond" onclick="selectCondition(&#39;pain&#39;,null)">Pain</button><button class="rc-popup-cond" onclick="selectCondition(&#39;anxiety&#39;,null)">Anxiety</button><button class="rc-popup-cond" onclick="selectCondition(&#39;ptsd&#39;,null)">PTSD</button><button class="rc-popup-cond" onclick="selectCondition(&#39;sleep&#39;,null)">Insomnia</button><button class="rc-popup-cond" onclick="selectCondition(&#39;nausea&#39;,null)">Nausea</button><button class="rc-popup-cond" onclick="selectCondition(&#39;appetite&#39;,null)">Appetite</button></div>
     </div>
   </div>
 
   <div class="rc-bar-wrap">
-    <button class="rc-bar-btn" data-rc="CB2" onclick="filterReceptor('CB2')"><span class="rc-bar-dot" style="background:var(--rc-cb2)"></span>CB2</button>
+    <button class="rc-bar-btn" data-rc="CB2" onclick="filterReceptor(&#39;CB2&#39;)"><span class="rc-bar-dot" style="background:var(--rc-cb2)"></span>CB2</button>
     <div class="rc-bar-popup" style="border-top:3px solid var(--rc-cb2)">
       <div class="rc-popup-role" style="color:var(--rc-cb2)">Immune &amp; Inflammatory</div>
       <div class="rc-popup-desc">Peripheral immune modulation. Involved in anti-inflammatory signaling, neuroprotection, and pain without psychoactivity.</div>
-      <div class="rc-popup-conds"><button class="rc-popup-cond" onclick="selectCondition('inflammation',null)">Anti-Inflammatory</button><button class="rc-popup-cond" onclick="selectCondition('neuroprotection',null)">Neuroprotection</button><button class="rc-popup-cond" onclick="selectCondition('cancer',null)">Cancer</button><button class="rc-popup-cond" onclick="selectCondition('antiviral',null)">Immune Support</button></div>
+      <div class="rc-popup-conds"><button class="rc-popup-cond" onclick="selectCondition(&#39;inflammation&#39;,null)">Anti-Inflammatory</button><button class="rc-popup-cond" onclick="selectCondition(&#39;neuroprotection&#39;,null)">Neuroprotection</button><button class="rc-popup-cond" onclick="selectCondition(&#39;cancer&#39;,null)">Cancer</button><button class="rc-popup-cond" onclick="selectCondition(&#39;antiviral&#39;,null)">Immune Support</button></div>
     </div>
   </div>
 
   <div class="rc-bar-wrap">
-    <button class="rc-bar-btn" data-rc="TRP" onclick="filterReceptor('TRP')"><span class="rc-bar-dot" style="background:var(--rc-trp)"></span>TRP</button>
+    <button class="rc-bar-btn" data-rc="TRP" onclick="filterReceptor(&#39;TRP&#39;)"><span class="rc-bar-dot" style="background:var(--rc-trp)"></span>TRP</button>
     <div class="rc-bar-popup" style="border-top:3px solid var(--rc-trp)">
       <div class="rc-popup-role" style="color:var(--rc-trp)">Pain &amp; Sensory</div>
       <div class="rc-popup-desc">Transient receptor potential channels (TRPV1, TRPA1, TRPM8). Gate pain, heat, inflammation, and topical sensation.</div>
-      <div class="rc-popup-conds"><button class="rc-popup-cond" onclick="selectCondition('pain',null)">Pain</button><button class="rc-popup-cond" onclick="selectCondition('inflammation',null)">Anti-Inflammatory</button><button class="rc-popup-cond" onclick="selectCondition('skinhealth',null)">Skin Health</button><button class="rc-popup-cond" onclick="selectCondition('neuropathic',null)">Neuropathic Pain</button></div>
+      <div class="rc-popup-conds"><button class="rc-popup-cond" onclick="selectCondition(&#39;pain&#39;,null)">Pain</button><button class="rc-popup-cond" onclick="selectCondition(&#39;inflammation&#39;,null)">Anti-Inflammatory</button><button class="rc-popup-cond" onclick="selectCondition(&#39;skinhealth&#39;,null)">Skin Health</button><button class="rc-popup-cond" onclick="selectCondition(&#39;neuropathic&#39;,null)">Neuropathic Pain</button></div>
     </div>
   </div>
 
   <div class="rc-bar-wrap">
-    <button class="rc-bar-btn" data-rc="5HT" onclick="filterReceptor('5HT')"><span class="rc-bar-dot" style="background:var(--rc-sht)"></span>5-HT</button>
+    <button class="rc-bar-btn" data-rc="5HT" onclick="filterReceptor(&#39;5HT&#39;)"><span class="rc-bar-dot" style="background:var(--rc-sht)"></span>5-HT</button>
     <div class="rc-bar-popup" style="border-top:3px solid var(--rc-sht)">
       <div class="rc-popup-role" style="color:var(--rc-sht)">Mood &amp; Anxiety</div>
       <div class="rc-popup-desc">Serotonin receptor modulation (5-HT1A, 5-HT3). Governs anxiety, depression, nausea, and emotional regulation.</div>
-      <div class="rc-popup-conds"><button class="rc-popup-cond" onclick="selectCondition('depression',null)">Anti-depressant</button><button class="rc-popup-cond" onclick="selectCondition('anxiety',null)">Anxiety</button><button class="rc-popup-cond" onclick="selectCondition('nausea',null)">Nausea</button><button class="rc-popup-cond" onclick="selectCondition('ptsd',null)">PTSD</button></div>
+      <div class="rc-popup-conds"><button class="rc-popup-cond" onclick="selectCondition(&#39;depression&#39;,null)">Anti-depressant</button><button class="rc-popup-cond" onclick="selectCondition(&#39;anxiety&#39;,null)">Anxiety</button><button class="rc-popup-cond" onclick="selectCondition(&#39;nausea&#39;,null)">Nausea</button><button class="rc-popup-cond" onclick="selectCondition(&#39;ptsd&#39;,null)">PTSD</button></div>
     </div>
   </div>
 
   <div class="rc-bar-wrap">
-    <button class="rc-bar-btn" data-rc="PPAR" onclick="filterReceptor('PPAR')"><span class="rc-bar-dot" style="background:var(--rc-ppar)"></span>PPAR</button>
+    <button class="rc-bar-btn" data-rc="PPAR" onclick="filterReceptor(&#39;PPAR&#39;)"><span class="rc-bar-dot" style="background:var(--rc-ppar)"></span>PPAR</button>
     <div class="rc-bar-popup" style="border-top:3px solid var(--rc-ppar);left:auto;right:0">
       <div class="rc-popup-role" style="color:var(--rc-ppar)">Metabolic &amp; Anti-Inflam.</div>
       <div class="rc-popup-desc">Peroxisome proliferator-activated receptors (PPAR-α/γ). Control metabolism, lipid regulation, glucose homeostasis, and inflammation.</div>
-      <div class="rc-popup-conds"><button class="rc-popup-cond" onclick="selectCondition('diabetes',null)">Diabetes</button><button class="rc-popup-cond" onclick="selectCondition('inflammation',null)">Inflammation</button><button class="rc-popup-cond" onclick="selectCondition('hyperlipidemia',null)">Metabolism</button><button class="rc-popup-cond" onclick="selectCondition('cancer',null)">Cancer</button></div>
+      <div class="rc-popup-conds"><button class="rc-popup-cond" onclick="selectCondition(&#39;diabetes&#39;,null)">Diabetes</button><button class="rc-popup-cond" onclick="selectCondition(&#39;inflammation&#39;,null)">Inflammation</button><button class="rc-popup-cond" onclick="selectCondition(&#39;hyperlipidemia&#39;,null)">Metabolism</button><button class="rc-popup-cond" onclick="selectCondition(&#39;cancer&#39;,null)">Cancer</button></div>
     </div>
   </div>
 
-  <span class="rc-bar-hint">— hover for details &middot; click to filter</span>
+  <span class="rc-bar-hint">— hover for details · click to filter</span>
   <span class="ev-bar-sep"></span>
   <span class="rc-bar-lbl">Evidence:</span>
-  <button class="ev-bar-btn ev-active" data-ev="all" onclick="filterEvidence('all')">All</button>
-  <button class="ev-bar-btn" data-ev="A" onclick="filterEvidence('A')"><span class="ev-bar-dot" style="background:var(--ev-a)"></span>A &mdash; Clinical</button>
-  <button class="ev-bar-btn" data-ev="B" onclick="filterEvidence('B')"><span class="ev-bar-dot" style="background:var(--ev-b)"></span>B &mdash; Observational</button>
-  <button class="ev-bar-btn" data-ev="C" onclick="filterEvidence('C')"><span class="ev-bar-dot" style="background:var(--ev-c)"></span>C &mdash; Preclinical</button>
-  <button class="ev-bar-btn" data-ev="D" onclick="filterEvidence('D')"><span class="ev-bar-dot" style="background:var(--ev-d)"></span>D &mdash; Emerging</button>
-  <button id="rcResetBtn" onclick="resetAllFilters()" style="display:none;margin-left:10px;padding:4px 12px;border:1px solid var(--accent);border-radius:20px;background:none;color:var(--accent);font-size:.62rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;transition:all .12s" onmouseover="this.style.background='var(--accent)';this.style.color='#fff'" onmouseout="this.style.background='none';this.style.color='var(--accent)'">&#x2715; Reset</button>
+  <button class="ev-bar-btn ev-active" data-ev="all" onclick="filterEvidence(&#39;all&#39;)">All</button>
+  <button class="ev-bar-btn" data-ev="A" onclick="filterEvidence(&#39;A&#39;)"><span class="ev-bar-dot" style="background:var(--ev-a)"></span>A — Clinical</button>
+  <button class="ev-bar-btn" data-ev="B" onclick="filterEvidence(&#39;B&#39;)"><span class="ev-bar-dot" style="background:var(--ev-b)"></span>B — Observational</button>
+  <button class="ev-bar-btn" data-ev="C" onclick="filterEvidence(&#39;C&#39;)"><span class="ev-bar-dot" style="background:var(--ev-c)"></span>C — Preclinical</button>
+  <button class="ev-bar-btn" data-ev="D" onclick="filterEvidence(&#39;D&#39;)"><span class="ev-bar-dot" style="background:var(--ev-d)"></span>D — Emerging</button>
+  <button id="rcResetBtn" onclick="resetAllFilters()" style="display:none;margin-left:10px;padding:4px 12px;border:1px solid var(--accent);border-radius:20px;background:none;color:var(--accent);font-size:.62rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;transition:all .12s" onmouseover="this.style.background=&#39;var(--accent)&#39;;this.style.color=&#39;#fff&#39;" onmouseout="this.style.background=&#39;none&#39;;this.style.color=&#39;var(--accent)&#39;">✕ Reset</button>
 </div>
 <!-- END COMPACT RECEPTOR BAR -->
 
 <!-- DISCLAIMER RIBBON -->
 <div id="disclaimerRibbon">
-  <span class="disc-icon">&#9888;</span>
-  <div class="disc-text"><strong>Educational Use Only</strong> &mdash; This table is an evidence-based reference tool and does not constitute medical advice, diagnosis, or treatment. Always consult a licensed healthcare professional before making any medical decisions.</div>
-  <a class="disc-full" onclick="document.getElementById('faq-section').scrollIntoView({behavior:'smooth'})">FAQ &#x2193;</a>
-  <a class="disc-full" onclick="document.querySelector('footer').scrollIntoView({behavior:'smooth'})">Full Disclaimer &#x2193;</a>
+  <span class="disc-icon">⚠</span>
+  <div class="disc-text"><strong>Educational Use Only</strong> — This table is an evidence-based reference tool and does not constitute medical advice, diagnosis, or treatment. Always consult a licensed healthcare professional before making any medical decisions.</div>
+  <a class="disc-full" onclick="document.getElementById(&#39;faq-section&#39;).scrollIntoView({behavior:&#39;smooth&#39;})">FAQ ↓</a>
+  <a class="disc-full" onclick="document.querySelector(&#39;footer&#39;).scrollIntoView({behavior:&#39;smooth&#39;})">Full Disclaimer ↓</a>
 </div>
 <!-- END DISCLAIMER RIBBON -->
 
@@ -668,8 +687,8 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
     <div class="side-title">How to Read a Molecule Tile</div>
     <!-- Labels ABOVE tile -->
     <div style="display:flex;justify-content:space-between;align-items:flex-end;margin:6px 0 3px;padding:0 1px">
-      <span class="ex-ann" style="text-align:left">Molecular Mass<br>&#8595;</span>
-      <span class="ex-ann" style="text-align:right">&#8595; Evidence<br>Grade</span>
+      <span class="ex-ann" style="text-align:left">Molecular Mass<br>↓</span>
+      <span class="ex-ann" style="text-align:right">↓ Evidence<br>Grade</span>
     </div>
     <!-- Example tile — full sidebar width, no flanking columns -->
     <div style="background:var(--c-canna);border-radius:6px;padding:11px 12px 11px;display:flex;flex-direction:column;color:#fff">
@@ -678,7 +697,7 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
         <span style="font-size:.72rem;font-weight:800;padding:2px 6px;border-radius:3px;background:rgba(255,255,255,.2);color:#90FFB4">A</span>
       </div>
       <div style="font-size:2.1rem;font-weight:700;text-align:center;line-height:1;margin-bottom:4px">
-        THC<span style="font-size:.42em;vertical-align:super;font-weight:600">&Delta;9</span>
+        THC<span style="font-size:.42em;vertical-align:super;font-weight:600">Δ9</span>
       </div>
       <div style="font-size:.6rem;font-weight:600;color:rgba(255,255,255,.9);text-align:center;margin-bottom:8px">
         Tetrahydrocannabinol Delta-9
@@ -687,17 +706,17 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
       <div style="font-size:.49rem;color:rgba(255,255,255,.7);line-height:1.65;text-align:center">
         Primary psychoactive cannabinoid in <em>Cannabis sativa</em><br>
         Partial agonist at CB1 &amp; CB2 receptors<br>
-        FDA-approved for nausea &amp; wasting (Marinol&reg;)
+        FDA-approved for nausea &amp; wasting (Marinol®)
       </div>
     </div>
     <!-- Labels BELOW tile -->
     <div style="margin-top:3px;padding:0 1px">
       <div style="display:flex;justify-content:space-between;margin-bottom:1px">
-        <span class="ex-ann">&#8593; Symbol</span>
-        <span class="ex-ann" style="text-align:right">Full Name &#8593;</span>
+        <span class="ex-ann">↑ Symbol</span>
+        <span class="ex-ann" style="text-align:right">Full Name ↑</span>
       </div>
       <div style="text-align:center">
-        <span class="ex-ann">&#8593; Description (below divider)</span>
+        <span class="ex-ann">↑ Description (below divider)</span>
       </div>
     </div>
     <div style="font-size:.5rem;color:var(--mute);text-align:center;margin-top:8px;line-height:1.5">Click any molecule tile to open<br>its full molecular profile</div>
@@ -705,47 +724,53 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 
   <!-- GRID -->
   <div class="grid-scroll">
-    <div class="pt-grid" id="ptGrid"></div>
+    <div class="pt-grid" id="ptGrid"><div class="logo-area" style="grid-area: 1 / 4 / 5 / 9;">
+    <svg width="60" height="70" viewBox="0 0 60 70" xmlns="http://www.w3.org/2000/svg">
+      <path d="M30 3 L55 15 L55 42 Q55 62 30 68 Q5 62 5 42 L5 15 Z" fill="#8B6914" opacity=".9"></path>
+      <text x="30" y="52" text-anchor="middle" font-family="Georgia,serif" font-size="34" font-weight="400" fill="#FFF8E8">A</text>
+    </svg>
+    <div class="logo-name">Periodic Table of <em>Cannabis</em><br>Plant Molecules</div>
+    <div class="logo-tag" style="color:var(--accent2);letter-spacing:.09em;margin:4px 0 2px">Mechanism-Based · Clinically Structured · Evidence-Informed</div>
+    <div class="logo-tag">Interactive Molecular Reference · Acannability™</div></div><div class="mol-tile cat-phytocannabinoid" data-id="THCV" data-name="&amp;delta;9-tetrahydrocannabivarin thcv" data-recs="CB1,PPAR" data-ev="B" data-indications="diabetes anti-seizure appetite suppressant hyperlipidemia colorectal cancer" style="grid-area: 1 / 1;"><div class="tile-top"><span class="tile-mass">286.4</span><span class="ev-badge ev-B">B</span></div><div class="tile-sym">THCV</div><div class="tile-name">Δ9-Tetrahydr…</div></div><div class="mol-tile cat-phytocannabinoid" data-id="CBDV" data-name="cannabidivarin cbdv" data-recs="CB2,TRP" data-ev="B" data-indications="anti-seizure anti-inflammatory crohn&#39;s disease ibd autism breast cancer leukemia" style="grid-area: 1 / 2;"><div class="tile-top"><span class="tile-mass">286.4</span><span class="ev-badge ev-B">B</span></div><div class="tile-sym">CBDV</div><div class="tile-name">Cannabidivarin</div></div><div class="mol-tile cat-phytocannabinoid" data-id="CBCV" data-name="cannabichromevarin cbcv" data-recs="TRP,PPAR" data-ev="C" data-indications="neuroprotection analgesic" style="grid-area: 1 / 3;"><div class="tile-top"><span class="tile-mass">286.4</span><span class="ev-badge ev-C">C</span></div><div class="tile-sym">CBCV</div><div class="tile-name">Cannabichromevarin</div></div><div class="mol-tile cat-phytocannabinoid" data-id="CBGV" data-name="cannabigerovarin cbgv" data-recs="CB2,PPAR" data-ev="C" data-indications="analgesic dry skin anti-inflammatory" style="grid-area: 2 / 1;"><div class="tile-top"><span class="tile-mass">288.4</span><span class="ev-badge ev-C">C</span></div><div class="tile-sym">CBGV</div><div class="tile-name">Cannabigerovarin</div></div><div class="mol-tile cat-rare" data-id="CBDB" data-name="cannabidibutol cbdb" data-recs="PPAR" data-ev="D" data-indications="unknown potential / may hold unique promise" style="grid-area: 2 / 2;"><div class="tile-top"><span class="tile-mass">300.4</span><span class="ev-badge ev-D">D</span></div><div class="tile-sym">CBDB</div><div class="tile-name">Cannabidibutol</div></div><div class="mol-tile cat-phytocannabinoid" data-id="CBN" data-name="cannabinol cbn" data-recs="CB1,CB2,5HT" data-ev="B" data-indications="sleep aid/sedation analgesic antibacterial breast cancer colorectal cancer leukemia prostate cancer melanoma pancreatic cancer ovarian cancer" style="grid-area: 2 / 3;"><div class="tile-top"><span class="tile-mass">310.4</span><span class="ev-badge ev-B">B</span></div><div class="tile-sym">CBN</div><div class="tile-name">Cannabinol</div></div><div class="mol-tile cat-phytocannabinoid" data-id="THC8" data-name="delta-8-tetrahydrocannabinol &amp;delta;8-thc" data-recs="CB1" data-ev="B" data-indications="analgesic antiemetic anti-anxiety" style="grid-area: 3 / 1;"><div class="tile-top"><span class="tile-mass">314.5</span><span class="ev-badge ev-B">B</span></div><div class="tile-sym">Δ8-THC</div><div class="tile-name">Delta-8-Tetrahydro…</div></div><div class="mol-tile cat-phytocannabinoid" data-id="THC9" data-name="delta-9-tetrahydrocannabinol &amp;delta;9-thc" data-recs="CB1,CB2,5HT" data-ev="A" data-indications="analgesic anti-inflammatory antiemetic appetite stimulant insomnia organ transplant anti-rejection anti-tumor glioblastoma lung cancer colorectal cancer leukemia prostate cancer melanoma pancreatic cancer liver cancer ovarian cancer" style="grid-area: 3 / 2;"><div class="tile-top"><span class="tile-mass">314.5</span><span class="ev-badge ev-A">A</span></div><div class="tile-sym">Δ9-THC</div><div class="tile-name">Delta-9-Tetrahydro…</div></div><div class="mol-tile cat-rare" data-id="THCB" data-name="&amp;delta;9-tetrahydrocannabutol thcb" data-recs="CB1" data-ev="D" data-indications="analgesic" style="grid-area: 3 / 3;"><div class="tile-top"><span class="tile-mass">314.5</span><span class="ev-badge ev-D">D</span></div><div class="tile-sym">THCB</div><div class="tile-name">Δ9-Tetrahydr…</div></div><div class="mol-tile cat-phytocannabinoid" data-id="CBC" data-name="cannabichromene cbc" data-recs="CB2,TRP" data-ev="B" data-indications="anti-inflammatory analgesic cancer/anti-tumor growth neuroprotection glioblastoma breast cancer lung cancer colorectal cancer melanoma pancreatic cancer ovarian cancer" style="grid-area: 4 / 1;"><div class="tile-top"><span class="tile-mass">314.5</span><span class="ev-badge ev-B">B</span></div><div class="tile-sym">CBC</div><div class="tile-name">Cannabichromene</div></div><div class="mol-tile cat-phytocannabinoid" data-id="THC10" data-name="delta-10-tetrahydrocannabinol &amp;delta;10-thc" data-recs="CB1" data-ev="D" data-indications="" style="grid-area: 4 / 2;"><div class="tile-top"><span class="tile-mass">314.5</span><span class="ev-badge ev-D">D</span></div><div class="tile-sym">Δ10-THC</div><div class="tile-name">Delta-10-Tetrahydr…</div></div><div class="mol-tile cat-rare" data-id="CBL" data-name="cannabicyclol cbl" data-recs="CB2" data-ev="D" data-indications="anti-inflammatory antiviral" style="grid-area: 4 / 3;"><div class="tile-top"><span class="tile-mass">314.5</span><span class="ev-badge ev-D">D</span></div><div class="tile-sym">CBL</div><div class="tile-name">Cannabicyclol</div></div><div class="mol-tile cat-phytocannabinoid" data-id="CB" data-name="cannbicitran cbt" data-recs="CB1" data-ev="D" data-indications="" style="grid-area: 5 / 1;"><div class="tile-top"><span class="tile-mass">314.5</span><span class="ev-badge ev-D">D</span></div><div class="tile-sym">CBT</div><div class="tile-name">Cannbicitran</div></div><div class="mol-tile cat-phytocannabinoid" data-id="CBD" data-name="cannabidiol cbd" data-recs="TRP,5HT,PPAR" data-ev="A" data-indications="epilepsy/seizures anti-inflammatory anxiety neuroprotection insomnia autism cancer/anti-tumor analgesic antidepressant glioblastoma breast cancer lung cancer colorectal cancer leukemia prostate cancer melanoma pancreatic cancer liver cancer ovarian cancer" style="grid-area: 5 / 2;"><div class="tile-top"><span class="tile-mass">314.5</span><span class="ev-badge ev-A">A</span></div><div class="tile-sym">CBD</div><div class="tile-name">Cannabidiol</div></div><div class="mol-tile cat-phytocannabinoid" data-id="CBG" data-name="cannabigerol cbg" data-recs="CB2,5HT" data-ev="B" data-indications="anti-inflammatory neuroprotection analgesic ibd dry skin antibacterial anti-hypertensive glioblastoma breast cancer lung cancer colorectal cancer leukemia melanoma pancreatic cancer ovarian cancer" style="grid-area: 5 / 3;"><div class="tile-top"><span class="tile-mass">316.5</span><span class="ev-badge ev-B">B</span></div><div class="tile-sym">CBG</div><div class="tile-name">Cannabigerol</div></div><div class="mol-tile cat-phytocannabinoid" data-id="THCH" data-name="tetrahydrocannabihexol thch" data-recs="CB1" data-ev="D" data-indications="antinociceptive" style="grid-area: 6 / 1;"><div class="tile-top"><span class="tile-mass">328.5</span><span class="ev-badge ev-D">D</span></div><div class="tile-sym">THCH</div><div class="tile-name">Tetrahydrocannabih…</div></div><div class="mol-tile cat-phytocannabinoid" data-id="CBDM" data-name="cannabidiol monomethyl ether cbdm" data-recs="CB1,CB2" data-ev="D" data-indications="unknown potential" style="grid-area: 6 / 2;"><div class="tile-top"><span class="tile-mass">328.5</span><span class="ev-badge ev-D">D</span></div><div class="tile-sym">CBDM</div><div class="tile-name">Cannabidiol Monome…</div></div><div class="mol-tile cat-phytocannabinoid" data-id="CBGL" data-name="cannabigerol monomethyl ether cbgl" data-recs="CB2" data-ev="D" data-indications="unknown potential" style="grid-area: 6 / 3;"><div class="tile-top"><span class="tile-mass">328.5</span><span class="ev-badge ev-D">D</span></div><div class="tile-sym">CBGL</div><div class="tile-name">Cannabigerol Monom…</div></div><div class="mol-tile cat-rare" data-id="CBT" data-name="cannabicitrán cbt" data-recs="CB2" data-ev="D" data-indications="" style="grid-area: 7 / 1;"><div class="tile-top"><span class="tile-mass">312.5</span><span class="ev-badge ev-D">D</span></div><div class="tile-sym">CBT</div><div class="tile-name">Cannabicitrán</div></div><div class="mol-tile cat-rare" data-id="CBND" data-name="cannabinodiol cbnd" data-recs="5HT" data-ev="D" data-indications="unknown potential" style="grid-area: 7 / 2;"><div class="tile-top"><span class="tile-mass">312.5</span><span class="ev-badge ev-D">D</span></div><div class="tile-sym">CBND</div><div class="tile-name">Cannabinodiol</div></div><div class="mol-tile cat-rare" data-id="CBE_R" data-name="cannabielsoin cbe" data-recs="PPAR" data-ev="D" data-indications="unknown potential / thc-enhanced" style="grid-area: 7 / 3;"><div class="tile-top"><span class="tile-mass">330.5</span><span class="ev-badge ev-D">D</span></div><div class="tile-sym">CBE</div><div class="tile-name">Cannabielsoin</div></div><div class="mol-tile cat-rare" data-id="CBGM_R" data-name="cannabigerol monomethyl ether cbgm" data-recs="CB2" data-ev="D" data-indications="analgesic" style="grid-area: 8 / 1;"><div class="tile-top"><span class="tile-mass">330.5</span><span class="ev-badge ev-D">D</span></div><div class="tile-sym">CBGM</div><div class="tile-name">Cannabigerol Monom…</div></div><div class="mol-tile cat-rare" data-id="CBGVDM" data-name="cannabigerovarin dimethyl ether cbgv-dm" data-recs="CB2" data-ev="D" data-indications="analgesic" style="grid-area: 8 / 2;"><div class="tile-top"><span class="tile-mass">330.5</span><span class="ev-badge ev-D">D</span></div><div class="tile-sym">CBGV-DM</div><div class="tile-name">Cannabigerovarin D…</div></div><div class="mol-tile cat-rare" data-id="THCP" data-name="tetrahydrocannabiphorol thcp" data-recs="CB1" data-ev="C" data-indications="analgesic" style="grid-area: 8 / 3;"><div class="tile-top"><span class="tile-mass">342.5</span><span class="ev-badge ev-C">C</span></div><div class="tile-sym">THCP</div><div class="tile-name">Tetrahydrocannabip…</div></div><div class="mol-tile cat-rare" data-id="CBDP" data-name="cannabidiphorol cbdp" data-recs="TRP,PPAR" data-ev="D" data-indications="unknown potential / cbd-enhanced" style="grid-area: 9 / 1;"><div class="tile-top"><span class="tile-mass">342.5</span><span class="ev-badge ev-D">D</span></div><div class="tile-sym">CBDP</div><div class="tile-name">Cannabidiphorol</div></div><div class="mol-tile cat-rare" data-id="CBLA" data-name="cannabicyclolic acid cbla" data-recs="TRP" data-ev="D" data-indications="anti-covid-19" style="grid-area: 9 / 2;"><div class="tile-top"><span class="tile-mass">358.5</span><span class="ev-badge ev-D">D</span></div><div class="tile-sym">CBLA</div><div class="tile-name">Cannabicyclolic Acid</div></div><div class="mol-tile cat-terpene" data-id="MY" data-name="&amp;beta;-myrcene myrcene" data-recs="CB1" data-ev="B" data-indications="analgesic anti-inflammatory muscle relaxant bronchodilator cervical cancer" style="grid-area: 5 / 4;"><div class="tile-top"><span class="tile-mass">136.2</span><span class="ev-badge ev-B">B</span></div><div class="tile-sym">Myrcene</div><div class="tile-name">β-Myrcene</div></div><div class="mol-tile cat-terpene" data-id="TE" data-name="terpinolene terpinolene" data-recs="PPAR" data-ev="C" data-indications="sedative antifungal antioxidant glioblastoma breast cancer" style="grid-area: 5 / 5;"><div class="tile-top"><span class="tile-mass">136.2</span><span class="ev-badge ev-C">C</span></div><div class="tile-sym">Terpinolene</div><div class="tile-name">Terpinolene</div></div><div class="mol-tile cat-terpene" data-id="SA" data-name="sabinene sabinene" data-recs="TRP" data-ev="C" data-indications="anti-inflammatory antibacterial antioxidant" style="grid-area: 5 / 6;"><div class="tile-top"><span class="tile-mass">136.2</span><span class="ev-badge ev-C">C</span></div><div class="tile-sym">Sabinene</div><div class="tile-name">Sabinene</div></div><div class="mol-tile cat-terpene" data-id="LI" data-name="limonene limonene" data-recs="CB1,5HT" data-ev="B" data-indications="anxiolytic anti-inflammatory breast cancer" style="grid-area: 5 / 7;"><div class="tile-top"><span class="tile-mass">136.2</span><span class="ev-badge ev-B">B</span></div><div class="tile-sym">Limonene</div><div class="tile-name">Limonene</div></div><div class="mol-tile cat-terpene" data-id="aPI" data-name="alpha-pinene &amp;alpha;-pinene" data-recs="CB1" data-ev="B" data-indications="anti-inflammatory antibacterial bronchodilator memory aid" style="grid-area: 5 / 8;"><div class="tile-top"><span class="tile-mass">136.2</span><span class="ev-badge ev-B">B</span></div><div class="tile-sym">α-Pinene</div><div class="tile-name">Alpha-Pinene</div></div><div class="mol-tile cat-terpene" data-id="CM" data-name="camphene camphene" data-recs="TRP" data-ev="B" data-indications="hyperlipidemia analgesic antioxidant anti-inflammatory" style="grid-area: 6 / 4;"><div class="tile-top"><span class="tile-mass">136.2</span><span class="ev-badge ev-B">B</span></div><div class="tile-sym">Camphene</div><div class="tile-name">Camphene</div></div><div class="mol-tile cat-terpene" data-id="bPI" data-name="beta-pinene &amp;beta;-pinene" data-recs="CB1" data-ev="C" data-indications="anti-inflammatory antibacterial antifungal" style="grid-area: 6 / 5;"><div class="tile-top"><span class="tile-mass">136.2</span><span class="ev-badge ev-C">C</span></div><div class="tile-sym">β-Pinene</div><div class="tile-name">Beta-Pinene</div></div><div class="mol-tile cat-terpene" data-id="OC" data-name="&amp;beta;-ocimene ocimene" data-recs="PPAR" data-ev="D" data-indications="antifungal anti-inflammatory antiviral" style="grid-area: 6 / 6;"><div class="tile-top"><span class="tile-mass">136.2</span><span class="ev-badge ev-D">D</span></div><div class="tile-sym">Ocimene</div><div class="tile-name">β-Ocimene</div></div><div class="mol-tile cat-terpene" data-id="LN" data-name="linalool linalool" data-recs="TRP" data-ev="B" data-indications="sedative anxiolytic neuroprotective analgesic" style="grid-area: 6 / 7;"><div class="tile-top"><span class="tile-mass">154.3</span><span class="ev-badge ev-B">B</span></div><div class="tile-sym">Linalool</div><div class="tile-name">Linalool</div></div><div class="mol-tile cat-terpene" data-id="aTP" data-name="alpha-terpineol &amp;alpha;-terpineol" data-recs="TRP" data-ev="C" data-indications="gastro-protective anticonvulsant" style="grid-area: 6 / 8;"><div class="tile-top"><span class="tile-mass">154.3</span><span class="ev-badge ev-C">C</span></div><div class="tile-sym">α-Terpineol</div><div class="tile-name">Alpha-Terpineol</div></div><div class="mol-tile cat-terpene" data-id="BO" data-name="borneol borneol" data-recs="TRP" data-ev="C" data-indications="analgesic anti-inflammatory cns protection blood-brain barrier modulator" style="grid-area: 7 / 4;"><div class="tile-top"><span class="tile-mass">154.3</span><span class="ev-badge ev-C">C</span></div><div class="tile-sym">Borneol</div><div class="tile-name">Borneol</div></div><div class="mol-tile cat-terpene" data-id="GE" data-name="geraniol geraniol" data-recs="CB1,CB2,5HT" data-ev="C" data-indications="immunomodulatory anti-inflammatory analgesic antidepressant prostate cancer" style="grid-area: 7 / 5;"><div class="tile-top"><span class="tile-mass">154.3</span><span class="ev-badge ev-C">C</span></div><div class="tile-sym">Geraniol</div><div class="tile-name">Geraniol</div></div><div class="mol-tile cat-terpene" data-id="EU" data-name="1,8-cineole (eucalyptol) eucalyptol" data-recs="TRP" data-ev="B" data-indications="respiratory health anti-inflammatory analgesic antibacterial" style="grid-area: 7 / 6;"><div class="tile-top"><span class="tile-mass">154.3</span><span class="ev-badge ev-B">B</span></div><div class="tile-sym">Eucalyptol</div><div class="tile-name">1,8-Cineole (Eucal…</div></div><div class="mol-tile cat-terpene" data-id="bCA" data-name="beta-caryophyllene &amp;beta;-caryophyllene" data-recs="CB2" data-ev="B" data-indications="anti-inflammatory anti-cancer antidepressant analgesic neuroprotection melanoma" style="grid-area: 7 / 7;"><div class="tile-top"><span class="tile-mass">204.4</span><span class="ev-badge ev-B">B</span></div><div class="tile-sym">β-Caryophyllene</div><div class="tile-name">Beta-Caryophyllene</div></div><div class="mol-tile cat-terpene" data-id="FA" data-name="&amp;beta;-farnesene farnesene" data-recs="PPAR" data-ev="C" data-indications="neuroprotective glioblastoma" style="grid-area: 7 / 8;"><div class="tile-top"><span class="tile-mass">204.4</span><span class="ev-badge ev-C">C</span></div><div class="tile-sym">Farnesene</div><div class="tile-name">β-Farnesene</div></div><div class="mol-tile cat-terpene" data-id="aHU" data-name="alpha-humulene &amp;alpha;-humulene" data-recs="5HT" data-ev="B" data-indications="anti-inflammatory antibacterial colorectal cancer" style="grid-area: 8 / 4;"><div class="tile-top"><span class="tile-mass">204.4</span><span class="ev-badge ev-B">B</span></div><div class="tile-sym">α-Humulene</div><div class="tile-name">Alpha-Humulene</div></div><div class="mol-tile cat-terpene" data-id="aBI" data-name="alpha-bisabolol &amp;alpha;-bisabolol" data-recs="PPAR" data-ev="C" data-indications="antibacterial anxiolytic neuroprotective skin smoothing pancreatic cancer" style="grid-area: 8 / 5;"><div class="tile-top"><span class="tile-mass">222.4</span><span class="ev-badge ev-C">C</span></div><div class="tile-sym">α-Bisabolol</div><div class="tile-name">Alpha-Bisabolol</div></div><div class="mol-tile cat-terpene" data-id="NE" data-name="nerolidol nerolidol" data-recs="PPAR" data-ev="C" data-indications="anti-parasitic anti-biofilm skin penetration enhancer" style="grid-area: 8 / 6;"><div class="tile-top"><span class="tile-mass">222.4</span><span class="ev-badge ev-C">C</span></div><div class="tile-sym">Nerolidol</div><div class="tile-name">Nerolidol</div></div><div class="mol-tile cat-terpene" data-id="PH" data-name="phytol phytol" data-recs="PPAR" data-ev="C" data-indications="anti-seizure analgesic neuroprotective anti-inflammatory" style="grid-area: 8 / 7;"><div class="tile-top"><span class="tile-mass">296.5</span><span class="ev-badge ev-C">C</span></div><div class="tile-sym">Phytol</div><div class="tile-name">Phytol</div></div><div class="mol-tile cat-flavonoid" data-id="APG" data-name="apigenin apigenin" data-recs="TRP" data-ev="B" data-indications="anti-inflammatory cancer/tumor growth anti-anxiety antidepressant neuroprotection glioblastoma breast cancer lung cancer leukemia prostate cancer melanoma pancreatic cancer liver cancer ovarian cancer cervical cancer" style="grid-area: 1 / 9;"><div class="tile-top"><span class="tile-mass">270.1</span><span class="ev-badge ev-B">B</span></div><div class="tile-sym">Apigenin</div><div class="tile-name">Apigenin</div></div><div class="mol-tile cat-flavonoid" data-id="KAF" data-name="kaempferol kaempferol" data-recs="5HT,PPAR" data-ev="B" data-indications="antioxidant anti-tumor anti-inflammatory neuroprotection cardiovascular glioblastoma breast cancer lung cancer colorectal cancer leukemia prostate cancer melanoma pancreatic cancer liver cancer ovarian cancer cervical cancer" style="grid-area: 1 / 10;"><div class="tile-top"><span class="tile-mass">286.2</span><span class="ev-badge ev-B">B</span></div><div class="tile-sym">Kaempferol</div><div class="tile-name">Kaempferol</div></div><div class="mol-tile cat-flavonoid" data-id="LTL" data-name="luteolin luteolin" data-recs="PPAR" data-ev="B" data-indications="anti-inflammatory neuroprotection glioblastoma breast cancer lung cancer colorectal cancer leukemia prostate cancer melanoma pancreatic cancer liver cancer ovarian cancer cervical cancer" style="grid-area: 2 / 9;"><div class="tile-top"><span class="tile-mass">286.2</span><span class="ev-badge ev-B">B</span></div><div class="tile-sym">Luteolin</div><div class="tile-name">Luteolin</div></div><div class="mol-tile cat-flavonoid" data-id="QUC" data-name="quercetin quercetin" data-recs="5HT,PPAR" data-ev="B" data-indications="anti-inflammatory antioxidant antiviral anti-tumor anti-allergy glioblastoma breast cancer lung cancer colorectal cancer leukemia prostate cancer melanoma pancreatic cancer liver cancer ovarian cancer cervical cancer" style="grid-area: 2 / 10;"><div class="tile-top"><span class="tile-mass">302.2</span><span class="ev-badge ev-B">B</span></div><div class="tile-sym">Quercetin</div><div class="tile-name">Quercetin</div></div><div class="mol-tile cat-flavonoid" data-id="MYC" data-name="myricetin myricetin" data-recs="5HT,PPAR" data-ev="B" data-indications="antioxidant anti-tumor anti-inflammatory antibacterial cardioprotective glioblastoma breast cancer lung cancer colorectal cancer leukemia prostate cancer pancreatic cancer liver cancer ovarian cancer cervical cancer" style="grid-area: 3 / 9;"><div class="tile-top"><span class="tile-mass">318.2</span><span class="ev-badge ev-B">B</span></div><div class="tile-sym">Myricetin</div><div class="tile-name">Myricetin</div></div><div class="mol-tile cat-flavonoid" data-id="CFB" data-name="cannflavin b cannfl-b" data-recs="CB2" data-ev="C" data-indications="antioxidant pancreatic cancer" style="grid-area: 3 / 10;"><div class="tile-top"><span class="tile-mass">368.4</span><span class="ev-badge ev-C">C</span></div><div class="tile-sym">CannFl-B</div><div class="tile-name">Cannflavin B</div></div><div class="mol-tile cat-flavonoid" data-id="CFC" data-name="cannflavin c cannfl-c" data-recs="CB2" data-ev="D" data-indications="" style="grid-area: 4 / 9;"><div class="tile-top"><span class="tile-mass">422.5</span><span class="ev-badge ev-D">D</span></div><div class="tile-sym">CannFl-C</div><div class="tile-name">Cannflavin C</div></div><div class="mol-tile cat-flavonoid" data-id="VIX" data-name="vitexin vitexin" data-recs="TRP" data-ev="C" data-indications="neuroprotection analgesic anti-anxiety antioxidant glioblastoma breast cancer lung cancer leukemia colorectal cancer liver cancer" style="grid-area: 4 / 10;"><div class="tile-top"><span class="tile-mass">432.4</span><span class="ev-badge ev-C">C</span></div><div class="tile-sym">Vitexin</div><div class="tile-name">Vitexin</div></div><div class="mol-tile cat-flavonoid" data-id="ISX" data-name="isovitexin isovitexin" data-recs="TRP" data-ev="C" data-indications="antioxidant anti-anxiety anti-inflammatory anti-tumor diabetes breast cancer lung cancer colorectal cancer liver cancer" style="grid-area: 5 / 9;"><div class="tile-top"><span class="tile-mass">432.4</span><span class="ev-badge ev-C">C</span></div><div class="tile-sym">Isovitexin</div><div class="tile-name">Isovitexin</div></div><div class="mol-tile cat-flavonoid" data-id="CFA" data-name="cannflavin a cannfl-a" data-recs="CB2" data-ev="C" data-indications="anti-inflammatory liver cancer colorectal cancer" style="grid-area: 5 / 10;"><div class="tile-top"><span class="tile-mass">436.5</span><span class="ev-badge ev-C">C</span></div><div class="tile-sym">CannFl-A</div><div class="tile-name">Cannflavin A</div></div><div class="mol-tile cat-flavonoid" data-id="ORT" data-name="orientin orientin" data-recs="TRP" data-ev="C" data-indications="anti-inflammatory antioxidant diabetes analgesic neuroprotection lung cancer breast cancer colorectal cancer liver cancer" style="grid-area: 6 / 9;"><div class="tile-top"><span class="tile-mass">448.4</span><span class="ev-badge ev-C">C</span></div><div class="tile-sym">Orientin</div><div class="tile-name">Orientin</div></div><div class="mol-tile cat-acid" data-id="THCVA" data-name="tetrahydrocannabivarinic acid thcva" data-recs="CB1,PPAR" data-ev="D" data-indications="" style="grid-area: 10 / 1;"><div class="tile-top"><span class="tile-mass">286.4</span><span class="ev-badge ev-D">D</span></div><div class="tile-sym">THCVA</div><div class="tile-name">Tetrahydrocannabiv…</div></div><div class="mol-tile cat-acid" data-id="CBCVA" data-name="cannabichromevarinic acid cbcva" data-recs="CB2" data-ev="D" data-indications="" style="grid-area: 10 / 2;"><div class="tile-top"><span class="tile-mass">344.5</span><span class="ev-badge ev-D">D</span></div><div class="tile-sym">CBCVA</div><div class="tile-name">Cannabichromevarin…</div></div><div class="mol-tile cat-acid" data-id="CBGVA" data-name="cannabigerovarinic acid cbgva" data-recs="CB2" data-ev="D" data-indications="anti-seizure" style="grid-area: 10 / 3;"><div class="tile-top"><span class="tile-mass">346.5</span><span class="ev-badge ev-D">D</span></div><div class="tile-sym">CBGVA</div><div class="tile-name">Cannabigerovarinic…</div></div><div class="mol-tile cat-acid" data-id="CBDVA" data-name="cannabidivarinic acid cbdva" data-recs="TRP,5HT" data-ev="C" data-indications="anti-seizure" style="grid-area: 10 / 4;"><div class="tile-top"><span class="tile-mass">346.5</span><span class="ev-badge ev-C">C</span></div><div class="tile-sym">CBDVA</div><div class="tile-name">Cannabidivarinic A…</div></div><div class="mol-tile cat-acid" data-id="THCA" data-name="tetrahydrocannabinolic acid thca" data-recs="CB1,CB2" data-ev="B" data-indications="anti-inflammatory antiemetic neuroprotection pancreatic cancer breast cancer" style="grid-area: 10 / 5;"><div class="tile-top"><span class="tile-mass">358.5</span><span class="ev-badge ev-B">B</span></div><div class="tile-sym">THCA</div><div class="tile-name">Tetrahydrocannabin…</div></div><div class="mol-tile cat-acid" data-id="CBCA" data-name="cannabichromenic acid cbca" data-recs="CB2,TRP" data-ev="C" data-indications="antibacterial anti-seizure" style="grid-area: 10 / 6;"><div class="tile-top"><span class="tile-mass">358.5</span><span class="ev-badge ev-C">C</span></div><div class="tile-sym">CBCA</div><div class="tile-name">Cannabichromenic A…</div></div><div class="mol-tile cat-acid" data-id="CBDA" data-name="cannabidiolic acid cbda" data-recs="TRP,5HT" data-ev="C" data-indications="anti-hyperalgesia antiemetic antioxidant anti-covid-19 anti-inflammatory glioblastoma breast cancer colorectal cancer" style="grid-area: 10 / 7;"><div class="tile-top"><span class="tile-mass">358.5</span><span class="ev-badge ev-C">C</span></div><div class="tile-sym">CBDA</div><div class="tile-name">Cannabidiolic Acid</div></div><div class="mol-tile cat-acid" data-id="CBNA" data-name="cannabinolic acid cbna" data-recs="CB2" data-ev="C" data-indications="antibacterial" style="grid-area: 10 / 8;"><div class="tile-top"><span class="tile-mass">358.5</span><span class="ev-badge ev-C">C</span></div><div class="tile-sym">CBNA</div><div class="tile-name">Cannabinolic Acid</div></div><div class="mol-tile cat-acid" data-id="CBGA" data-name="cannabigerolic acid cbga" data-recs="CB2,PPAR" data-ev="B" data-indications="anti-inflammatory" style="grid-area: 10 / 9;"><div class="tile-top"><span class="tile-mass">360.5</span><span class="ev-badge ev-B">B</span></div><div class="tile-sym">CBGA</div><div class="tile-name">Cannabigerolic Acid</div></div></div>
   </div>
 
   <!-- RIGHT PANEL: Categories + Evidence legend -->
   <div class="side-panel side-right" id="sideRight">
     <div class="side-title">Categories</div>
-    <button class="cat-all-btn cat-active" data-cat="all" onclick="filterCategory('all')">All Molecules</button>
-    <button class="cat-btn" data-cat="phytocannabinoid" onclick="filterCategory('phytocannabinoid')">
+    <button class="cat-all-btn cat-active" data-cat="all" onclick="filterCategory(&#39;all&#39;)">All Molecules</button>
+    <button class="cat-btn" data-cat="phytocannabinoid" onclick="filterCategory(&#39;phytocannabinoid&#39;)">
       <div class="leg-sw2" style="background:#2E7B3E"></div><div class="leg-lbl2">Phytocannabinoids</div>
     </button>
-    <button class="cat-btn" data-cat="rare" onclick="filterCategory('rare')">
+    <button class="cat-btn" data-cat="rare" onclick="filterCategory(&#39;rare&#39;)">
       <div class="leg-sw2" style="background:#6B3DB5"></div><div class="leg-lbl2">Rare / Emerging</div>
     </button>
-    <button class="cat-btn" data-cat="terpene" onclick="filterCategory('terpene')">
+    <button class="cat-btn" data-cat="terpene" onclick="filterCategory(&#39;terpene&#39;)">
       <div class="leg-sw2" style="background:#C47800"></div><div class="leg-lbl2">Terpenes</div>
     </button>
-    <button class="cat-btn" data-cat="flavonoid" onclick="filterCategory('flavonoid')">
+    <button class="cat-btn" data-cat="flavonoid" onclick="filterCategory(&#39;flavonoid&#39;)">
       <div class="leg-sw2" style="background:#0E8FAA"></div><div class="leg-lbl2">Flavonoids</div>
     </button>
-    <button class="cat-btn" data-cat="acid" onclick="filterCategory('acid')">
+    <button class="cat-btn" data-cat="acid" onclick="filterCategory(&#39;acid&#39;)">
       <div class="leg-sw2" style="background:#B5304A"></div><div class="leg-lbl2">Acidic Cannabinoids</div>
     </button>
     <div class="side-title" style="margin-top:14px">Evidence Grade</div>
-    <button class="ev-all-btn ev-active" data-ev="all" onclick="filterEvidence('all')">All Evidence</button>
-    <button class="ev-btn" data-ev="A" onclick="filterEvidence('A')">
+    <button class="ev-all-btn ev-active" data-ev="all" onclick="filterEvidence(&#39;all&#39;)">All Evidence</button>
+    <button class="ev-btn" data-ev="A" onclick="filterEvidence(&#39;A&#39;)">
       <div class="leg-ev-dot2" style="background:#0E7A36">A</div><div class="leg-ev-lbl2">Clinical Evidence<br>Human Trials</div>
     </button>
-    <button class="ev-btn" data-ev="B" onclick="filterEvidence('B')">
+    <button class="ev-btn" data-ev="B" onclick="filterEvidence(&#39;B&#39;)">
       <div class="leg-ev-dot2" style="background:#1050A0">B</div><div class="leg-ev-lbl2">Observational<br>Case Studies / Survey</div>
     </button>
-    <button class="ev-btn" data-ev="C" onclick="filterEvidence('C')">
+    <button class="ev-btn" data-ev="C" onclick="filterEvidence(&#39;C&#39;)">
       <div class="leg-ev-dot2" style="background:#906800">C</div><div class="leg-ev-lbl2">Preclinical<br>Animal / In Vitro</div>
     </button>
-    <button class="ev-btn" data-ev="D" onclick="filterEvidence('D')">
+    <button class="ev-btn" data-ev="D" onclick="filterEvidence(&#39;D&#39;)">
       <div class="leg-ev-dot2" style="background:#A03000">D</div><div class="leg-ev-lbl2">Emerging<br>Theoretical</div>
     </button>
   
   <div class="side-title" style="margin-top:18px;border-top:1px solid var(--border);padding-top:14px">Resources</div>
-  <button class="cat-all-btn" style="background:var(--accent);color:#fff;border:none;margin-top:4px;letter-spacing:.04em;font-size:.62rem"
-    onclick="document.getElementById('faq-section').scrollIntoView({behavior:'smooth'})">
-    &#x2753; Table FAQ&#8217;s &#x2193;
+  <button class="cat-all-btn" style="background:var(--accent);color:#fff;border:none;margin-top:4px;letter-spacing:.04em;font-size:.62rem" onclick="document.getElementById(&#39;faq-section&#39;).scrollIntoView({behavior:&#39;smooth&#39;})">
+    ❓ Table FAQ’s ↓
   </button>
 </div>
 
@@ -754,67 +779,67 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 <section class="rc-legend" id="rcLegend" style="display:none">
   <div class="rc-legend-hdr">
     <div class="rc-legend-title">Receptor Systems</div>
-    <button class="rc-all-btn rc-active" data-rc="all" onclick="filterReceptor('all')">All Receptors</button>
+    <button class="rc-all-btn rc-active" data-rc="all" onclick="filterReceptor(&#39;all&#39;)">All Receptors</button>
   </div>
   <div class="rc-cards">
 
-    <button class="rc-card" data-rc="CB1" onclick="filterReceptor('CB1')">
+    <button class="rc-card" data-rc="CB1" onclick="filterReceptor(&#39;CB1&#39;)">
       <div class="rc-card-top" style="background:var(--rc-cb1)">
         <span class="rc-card-key">CB1</span>
-        <span class="rc-card-arrow">&#x2192; panel chip</span>
+        <span class="rc-card-arrow">→ panel chip</span>
       </div>
       <div class="rc-card-body">
         <div class="rc-card-role">CNS &amp; Psychoactive</div>
         <div class="rc-card-desc">Central nervous system modulation. Regulates appetite, mood, memory, pain perception, and psychoactive response.</div>
-        <div class="rc-card-foot"><span style="font-size:.9rem">&#8595;</span> Click to highlight CB1-active molecules</div>
+        <div class="rc-card-foot"><span style="font-size:.9rem">↓</span> Click to highlight CB1-active molecules</div>
       </div>
     </button>
 
-    <button class="rc-card" data-rc="CB2" onclick="filterReceptor('CB2')">
+    <button class="rc-card" data-rc="CB2" onclick="filterReceptor(&#39;CB2&#39;)">
       <div class="rc-card-top" style="background:var(--rc-cb2)">
         <span class="rc-card-key">CB2</span>
-        <span class="rc-card-arrow">&#x2192; panel chip</span>
+        <span class="rc-card-arrow">→ panel chip</span>
       </div>
       <div class="rc-card-body">
         <div class="rc-card-role">Immune &amp; Inflammatory</div>
         <div class="rc-card-desc">Peripheral immune modulation. Involved in anti-inflammatory signaling, neuroprotection, and pain without psychoactivity.</div>
-        <div class="rc-card-foot"><span style="font-size:.9rem">&#8595;</span> Click to highlight CB2-active molecules</div>
+        <div class="rc-card-foot"><span style="font-size:.9rem">↓</span> Click to highlight CB2-active molecules</div>
       </div>
     </button>
 
-    <button class="rc-card" data-rc="TRP" onclick="filterReceptor('TRP')">
+    <button class="rc-card" data-rc="TRP" onclick="filterReceptor(&#39;TRP&#39;)">
       <div class="rc-card-top" style="background:var(--rc-trp)">
         <span class="rc-card-key">TRP</span>
-        <span class="rc-card-arrow">&#x2192; panel chip</span>
+        <span class="rc-card-arrow">→ panel chip</span>
       </div>
       <div class="rc-card-body">
         <div class="rc-card-role">Pain &amp; Sensory</div>
         <div class="rc-card-desc">Transient receptor potential channels (TRPV1, TRPA1, TRPM8). Gate pain, heat, inflammation, and topical sensation.</div>
-        <div class="rc-card-foot"><span style="font-size:.9rem">&#8595;</span> Click to highlight TRP-active molecules</div>
+        <div class="rc-card-foot"><span style="font-size:.9rem">↓</span> Click to highlight TRP-active molecules</div>
       </div>
     </button>
 
-    <button class="rc-card" data-rc="5HT" onclick="filterReceptor('5HT')">
+    <button class="rc-card" data-rc="5HT" onclick="filterReceptor(&#39;5HT&#39;)">
       <div class="rc-card-top" style="background:var(--rc-sht)">
         <span class="rc-card-key">5-HT<span style="font-size:.52rem;font-weight:400;opacity:.85;display:block;letter-spacing:.06em;text-transform:uppercase;margin-top:1px">Serotonin</span></span>
-        <span class="rc-card-arrow">&#x2192; panel chip</span>
+        <span class="rc-card-arrow">→ panel chip</span>
       </div>
       <div class="rc-card-body">
         <div class="rc-card-role">Mood &amp; Anxiety</div>
         <div class="rc-card-desc">Serotonin receptor modulation (5-HT1A, 5-HT3). Governs anxiety, depression, nausea, and emotional regulation.</div>
-        <div class="rc-card-foot"><span style="font-size:.9rem">&#8595;</span> Click to highlight 5-HT (Serotonin)-active molecules</div>
+        <div class="rc-card-foot"><span style="font-size:.9rem">↓</span> Click to highlight 5-HT (Serotonin)-active molecules</div>
       </div>
     </button>
 
-    <button class="rc-card" data-rc="PPAR" onclick="filterReceptor('PPAR')">
+    <button class="rc-card" data-rc="PPAR" onclick="filterReceptor(&#39;PPAR&#39;)">
       <div class="rc-card-top" style="background:var(--rc-ppar)">
         <span class="rc-card-key">PPAR</span>
-        <span class="rc-card-arrow">&#x2192; panel chip</span>
+        <span class="rc-card-arrow">→ panel chip</span>
       </div>
       <div class="rc-card-body">
         <div class="rc-card-role">Metabolic &amp; Anti-Inflam.</div>
         <div class="rc-card-desc">Peroxisome proliferator-activated receptors (PPAR-α/γ). Control metabolism, lipid regulation, glucose homeostasis, and inflammation.</div>
-        <div class="rc-card-foot"><span style="font-size:.9rem">&#8595;</span> Click to highlight PPAR-active molecules</div>
+        <div class="rc-card-foot"><span style="font-size:.9rem">↓</span> Click to highlight PPAR-active molecules</div>
       </div>
     </button>
 
@@ -891,25 +916,302 @@ details.faq-item[open] .faq-icon{transform:rotate(45deg)}
 .rc-cite-pmcid{font-size:.62rem;color:var(--accent);font-weight:600}
 .rc-src-btn{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;background:var(--accent);color:#fff;border:none;border-radius:6px;font-size:.68rem;font-weight:700;cursor:pointer;text-decoration:none;transition:background .15s;align-self:flex-start}
 .rc-src-btn:hover{background:var(--accent2)}
+.srch-container{display:flex;gap:10px;flex-wrap:wrap;align-items:center;flex:1;min-width:300px}
+.srch{padding:8px 14px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-size:.75rem;outline:none;transition:border-color .2s,box-shadow .2s}
+.srch:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(139,105,20,.15)}
+.search-result-count{font-size:.62rem;color:var(--dim);white-space:nowrap;margin-left:6px}
+
+
+/* MOBILE OPTIMIZATION */
+/* Tablets & Small Screens (768px and below) */
+@media (max-width: 768px) {
+  body { font-size: 15px; }
+  
+  /* Header adjustments */
+  .hdr { 
+    flex-direction: column; 
+    gap: 12px;
+    padding: 12px;
+  }
+  
+  .hdr-brand { font-size: 1.4rem; }
+  
+  /* Search bars stack vertically */
+  .hdr input[type="text"] {
+    width: 100%;
+    font-size: 16px;
+    padding: 10px;
+  }
+  
+  /* Header buttons wrap */
+  .hdr button { 
+    padding: 8px 12px;
+    font-size: 0.75rem;
+  }
+  
+  /* Molecule grid: 3-4 columns on tablet */
+  .mol-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    padding: 10px;
+  }
+  
+  .mol-tile {
+    padding: 5px;
+    font-size: 0.7rem;
+  }
+  
+  /* Sidebar narrower */
+  .sidebar {
+    width: 200px;
+    padding: 8px;
+  }
+  
+  /* Welcome modal adjustments */
+  .wlc-modal {
+    width: 95vw;
+    max-width: 500px;
+    max-height: 85vh;
+    padding: 20px;
+    border-radius: 12px;
+  }
+  
+  .wlc-card {
+    padding: 12px;
+    font-size: 0.9rem;
+  }
+  
+  /* FAQ adjustments */
+  .faq-item {
+    font-size: 0.85rem;
+    padding: 10px;
+  }
+}
+
+/* Mobile Phones (480px and below) */
+@media (max-width: 480px) {
+  html { font-size: 14px; }
+  body { 
+    font-size: 14px;
+    padding: 0;
+  }
+  
+  /* Header: vertical stack, smaller */
+  .hdr {
+    flex-direction: column;
+    gap: 8px;
+    padding: 8px;
+  }
+  
+  .hdr-brand {
+    font-size: 1.1rem;
+    text-align: center;
+  }
+  
+  .hdr-brand em { font-size: 0.9rem; }
+  
+  /* Larger search inputs for mobile */
+  #molSearch, #condSearch {
+    width: 100%;
+    font-size: 16px !important;
+    padding: 12px !important;
+    border-radius: 6px;
+    margin-bottom: 6px;
+  }
+  
+  /* Header buttons: single column, full width */
+  .hdr button {
+    width: 100%;
+    padding: 10px;
+    font-size: 0.75rem;
+    margin: 2px 0;
+  }
+  
+  /* Molecule grid: 2 columns on small phones */
+  .mol-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+    padding: 8px;
+  }
+  
+  .mol-tile {
+    padding: 4px;
+    font-size: 0.65rem;
+    border-radius: 4px;
+    min-height: 60px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .tile-top {
+    font-size: 0.6rem;
+    gap: 2px;
+  }
+  
+  /* Sidebar: collapse or hide non-essential on very small screens */
+  .sidebar {
+    display: none;
+  }
+  
+  /* Main content full width */
+  .main { width: 100%; }
+  
+  /* Welcome modal: full screen on mobile */
+  .wlc-modal {
+    width: 98vw;
+    max-width: 100%;
+    max-height: 90vh;
+    padding: 16px;
+    border-radius: 8px;
+    overflow-y: auto;
+  }
+  
+  .wlc-title {
+    font-size: 1.3rem;
+    margin: 12px 0;
+  }
+  
+  .wlc-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .wlc-card {
+    padding: 12px;
+    font-size: 0.85rem;
+    border-radius: 6px;
+  }
+  
+  .wlc-ci {
+    font-size: 1.8rem;
+    margin-bottom: 6px;
+  }
+  
+  .wlc-ct {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin: 6px 0;
+  }
+  
+  .wlc-cd {
+    font-size: 0.75rem;
+    line-height: 1.3;
+  }
+  
+  /* Reference card (ref-card): stack content */
+  .ref-card {
+    width: 95vw;
+    max-width: 100%;
+    max-height: 85vh;
+    padding: 16px;
+    overflow-y: auto;
+  }
+  
+  .ref-title {
+    font-size: 1.2rem;
+    margin-bottom: 12px;
+  }
+  
+  /* FAQ on mobile */
+  .faq-item {
+    font-size: 0.8rem;
+    padding: 8px;
+    margin: 6px 0;
+  }
+  
+  .faq-q {
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+  
+  .faq-content {
+    font-size: 0.75rem;
+    padding: 8px;
+    line-height: 1.4;
+  }
+  
+  /* Health conditions panel */
+  .cond-list {
+    max-height: 60vh;
+    overflow-y: auto;
+  }
+  
+  .cond-btn {
+    font-size: 0.7rem;
+    padding: 6px 8px;
+    margin: 3px;
+  }
+  
+  /* Filter panel */
+  .fp {
+    width: 95vw;
+    max-width: 100%;
+  }
+  
+  /* Touch-friendly tap targets: min 44x44px */
+  button {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  input[type="text"] {
+    min-height: 44px;
+  }
+}
+
+/* Very small phones (360px and below) */
+@media (max-width: 360px) {
+  .mol-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 4px;
+    padding: 4px;
+  }
+  
+  .mol-tile {
+    font-size: 0.6rem;
+    min-height: 50px;
+    padding: 2px;
+  }
+  
+  .hdr-brand {
+    font-size: 0.95rem;
+  }
+  
+  #molSearch, #condSearch {
+    font-size: 14px !important;
+    padding: 10px !important;
+  }
+}
+
+/* Landscape orientation adjustments */
+@media (max-height: 500px) and (orientation: landscape) {
+  .hdr { padding: 8px 12px; }
+  .mol-grid { padding: 8px; gap: 6px; }
+  .sidebar { max-height: 70vh; overflow-y: auto; }
+}
+
 </style>
 
 <section id="faq-section">
 <div class="faq-inner">
-  <div class="faq-hd-title">Acannability Table FAQ&#8217;s</div>
-  <div class="faq-hd-sub">Interactive Periodic Table of Cannabis Plant Molecules &mdash; Version 2</div>
+  <div class="faq-hd-title">Acannability Table FAQ’s</div>
+  <div class="faq-hd-sub">Interactive Periodic Table of Cannabis Plant Molecules — Version 2</div>
 
   <details class="faq-item">
     <summary><span class="faq-q">What is new in Version 2 of the Acannability Table?</span><span class="faq-icon">+</span></summary>
     <div class="faq-content">
-      <p>Version 2 is a comprehensive upgrade of the Cannabis Periodic Table of Molecules&trade; across every dimension of the tool. Key improvements include:</p>
-      <p><u>Expanded molecule count.</u> The table grew from 51 entries in Version 1 to 65, adding 14 newly characterized cannabis compounds&mdash;particularly rare and novel cannabinoids such as THCP, CBDP, CBND, and CBLA.</p>
+      <p>Version 2 is a comprehensive upgrade of the Cannabis Periodic Table of Molecules™ across every dimension of the tool. Key improvements include:</p>
+      <p><u>Expanded molecule count.</u> The table grew from 51 entries in Version 1 to 65, adding 14 newly characterized cannabis compounds—particularly rare and novel cannabinoids such as THCP, CBDP, CBND, and CBLA.</p>
       <p><u>New Rare &amp; Novel category.</u> A dedicated fifth section was created to recognize emerging cannabinoids with unique pharmacological properties not yet fully characterized in clinical literature.</p>
-      <p><u>Receptor system mapping.</u> Each molecule tile now identifies which of the five primary receptor systems it engages: CB1, CB2, TRP (TRPV/TRPA channels), PPAR (&gamma;-receptors), and 5HT (serotonin receptors).</p>
-      <p><u>Evidence-based ratings.</u> A letter-grade system (A through D) now appears on every molecule tile, reflecting the strength of published clinical and preclinical evidence for each molecule&rsquo;s therapeutic applications.</p>
-      <p><u>Expanded health conditions.</u> The conditions filter now covers 40 health conditions across six groups&mdash;Pain, Neurological, Mental Health, Cancer, Metabolic, and Microbial/Immune&mdash;up from 30 conditions in earlier versions.</p>
+      <p><u>Receptor system mapping.</u> Each molecule tile now identifies which of the five primary receptor systems it engages: CB1, CB2, TRP (TRPV/TRPA channels), PPAR (γ-receptors), and 5HT (serotonin receptors).</p>
+      <p><u>Evidence-based ratings.</u> A letter-grade system (A through D) now appears on every molecule tile, reflecting the strength of published clinical and preclinical evidence for each molecule’s therapeutic applications.</p>
+      <p><u>Expanded health conditions.</u> The conditions filter now covers 40 health conditions across six groups—Pain, Neurological, Mental Health, Cancer, Metabolic, and Microbial/Immune—up from 30 conditions in earlier versions.</p>
       <p><u>Cancer sub-type research.</u> Version 2 adds molecule-level citations for 11 specific cancer subtypes (Breast, Colorectal, Glioblastoma, Leukemia, Lung, Melanoma, Ovarian, Pancreatic, Prostate, Liver HCC, and Cervical), allowing users to explore which molecules have published oncology research for each cancer type.</p>
       <p><u>Entourage Effect mapping.</u> An interactive tool visualizes known synergistic molecule combinations across the table.</p>
-      <p><u>Adverse findings.</u> A dedicated Adverse Findings tab in each molecule&rsquo;s detail panel surfaces published safety signals alongside clinical benefits, ensuring balanced, evidence-based information.</p>
+      <p><u>Adverse findings.</u> A dedicated Adverse Findings tab in each molecule’s detail panel surfaces published safety signals alongside clinical benefits, ensuring balanced, evidence-based information.</p>
       <p><u>Linked research articles.</u> Where available, each molecule tile links directly to a published scientific article PDF, giving users immediate access to primary literature.</p>
     </div>
   </details>
@@ -917,9 +1219,9 @@ details.faq-item[open] .faq-icon{transform:rotate(45deg)}
   <details class="faq-item">
     <summary><span class="faq-q">What do the boxes shown represent?</span><span class="faq-icon">+</span></summary>
     <div class="faq-content">
-      <p>Each of the 65 boxes on the Cannabis Periodic Table of Molecules&trade; chart represents either a molecule of the cannabis plant or a precursor acid. There are 56 molecules (cannabinoids, terpenes, flavonoids, and rare &amp; novel cannabinoids) and 9 precursor acids shown. A molecule and a precursor acid are two different chemical entities with distinct characteristics and functions.</p>
+      <p>Each of the 65 boxes on the Cannabis Periodic Table of Molecules™ chart represents either a molecule of the cannabis plant or a precursor acid. There are 56 molecules (cannabinoids, terpenes, flavonoids, and rare &amp; novel cannabinoids) and 9 precursor acids shown. A molecule and a precursor acid are two different chemical entities with distinct characteristics and functions.</p>
       <p>A molecule is a group of atoms bonded together. It is the smallest unit of a chemical compound that retains the chemical properties of that compound. Molecules can be simple, containing only a few atoms, or complex, consisting of hundreds or thousands of atoms.</p>
-      <p>A precursor acid refers to a chemical compound that participates in a chemical reaction producing other compounds. Under certain conditions it can convert the molecule into its non-acidic form. Precursor acids typically contain one or more acidic functional groups, such as a carboxyl group (&ndash;COOH).</p>
+      <p>A precursor acid refers to a chemical compound that participates in a chemical reaction producing other compounds. Under certain conditions it can convert the molecule into its non-acidic form. Precursor acids typically contain one or more acidic functional groups, such as a carboxyl group (–COOH).</p>
       <p>For example, THCa is the acidic form of THC. Although THCa does have medicinal properties, it does not have psychoactive properties. The process of decarboxylation requires exposure to heat. When vaporizing or smoking, high temperatures quickly decarboxylate THCa to THC, enabling the body to absorb it through the lungs. Oxygen exposure can also contribute to the decarboxylation process.</p>
     </div>
   </details>
@@ -927,31 +1229,31 @@ details.faq-item[open] .faq-icon{transform:rotate(45deg)}
   <details class="faq-item">
     <summary><span class="faq-q">How were the boxes selected?</span><span class="faq-icon">+</span></summary>
     <div class="faq-content">
-      <p>The boxes shown were selected as molecules having known or suspected medicinal value based on Acannability&rsquo;s review of published research. The selection process was led by Acannability Advisor Mr. Joseph Friedman, RPh, MBA, a Medical Cannabis Pharmacist and Pharmacology Expert. Mr. Friedman was the founding member at Professional Dispensaries of Illinois Medical LLC, a medical cannabis dispensary owned and operated by pharmacists, nurses, and cannabis experts. He is an expert in the scientific, legal, social, political, and financial challenges facing U.S. entrants to the burgeoning medical cannabis industry. Mr. Friedman has contributed to several published articles in local and national publications and continually advocates for pharmacists&rsquo; involvement in the medical cannabis industry.</p>
-      <p>Version 2 expanded the table from 51 to 65 entries, adding 14 newly characterized or emerging molecules&mdash;particularly from the Rare &amp; Novel cannabinoid category&mdash;as scientific literature has matured to support their inclusion.</p>
+      <p>The boxes shown were selected as molecules having known or suspected medicinal value based on Acannability’s review of published research. The selection process was led by Acannability Advisor Mr. Joseph Friedman, RPh, MBA, a Medical Cannabis Pharmacist and Pharmacology Expert. Mr. Friedman was the founding member at Professional Dispensaries of Illinois Medical LLC, a medical cannabis dispensary owned and operated by pharmacists, nurses, and cannabis experts. He is an expert in the scientific, legal, social, political, and financial challenges facing U.S. entrants to the burgeoning medical cannabis industry. Mr. Friedman has contributed to several published articles in local and national publications and continually advocates for pharmacists’ involvement in the medical cannabis industry.</p>
+      <p>Version 2 expanded the table from 51 to 65 entries, adding 14 newly characterized or emerging molecules—particularly from the Rare &amp; Novel cannabinoid category—as scientific literature has matured to support their inclusion.</p>
     </div>
   </details>
 
   <details class="faq-item">
     <summary><span class="faq-q">How were the symbols determined and what do they mean?</span><span class="faq-icon">+</span></summary>
     <div class="faq-content">
-      <p>The symbols on the Cannabis Periodic Table of Molecules&trade; chart are shorthand notations used to represent each molecule. These symbols are two to five letters, and they play a crucial role in identifying and organizing the entries in a systematic manner. The symbols are based on the English names, Latin names, or their discoverer&rsquo;s names, and are publicly used in the scientific literature. They help chemists and scientists communicate efficiently and unambiguously about molecules and precursor acids.</p>
+      <p>The symbols on the Cannabis Periodic Table of Molecules™ chart are shorthand notations used to represent each molecule. These symbols are two to five letters, and they play a crucial role in identifying and organizing the entries in a systematic manner. The symbols are based on the English names, Latin names, or their discoverer’s names, and are publicly used in the scientific literature. They help chemists and scientists communicate efficiently and unambiguously about molecules and precursor acids.</p>
     </div>
   </details>
 
   <details class="faq-item">
     <summary><span class="faq-q">Why is the chart organized into five sections?</span><span class="faq-icon">+</span></summary>
     <div class="faq-content">
-      <p>The organization of the Cannabis Periodic Table of Molecules&trade; chart was based on the common scientific assessment of the cannabis plant as a whole. Cannabinoids (phytocannabinoids and rare &amp; novel variants), terpenes, flavonoids, and precursor acids are commonly recognized categories. Version 2 introduces a dedicated <em>Rare &amp; Novel</em> section to reflect the growing scientific literature on less-characterized but clinically significant cannabis compounds. The periodic table&rsquo;s arrangement is such that molecules with increasing molecular weight are ordered from left to right in rows (periods).</p>
+      <p>The organization of the Cannabis Periodic Table of Molecules™ chart was based on the common scientific assessment of the cannabis plant as a whole. Cannabinoids (phytocannabinoids and rare &amp; novel variants), terpenes, flavonoids, and precursor acids are commonly recognized categories. Version 2 introduces a dedicated <em>Rare &amp; Novel</em> section to reflect the growing scientific literature on less-characterized but clinically significant cannabis compounds. The periodic table’s arrangement is such that molecules with increasing molecular weight are ordered from left to right in rows (periods).</p>
     </div>
   </details>
 
   <details class="faq-item">
     <summary><span class="faq-q">What does each section represent?</span><span class="faq-icon">+</span></summary>
     <div class="faq-content">
-      <p>A <strong>cannabinoid</strong> is a type of chemical compound found in the cannabis plant, as well as in some other plants and in the human body. Cannabinoids interact with the body&rsquo;s endocannabinoid system, which is involved in regulating a wide range of physiological processes such as pain, mood, appetite, and immune function. There are over 100 cannabinoids identified in the cannabis plant, including THC and CBD, which are the most well-known.</p>
+      <p>A <strong>cannabinoid</strong> is a type of chemical compound found in the cannabis plant, as well as in some other plants and in the human body. Cannabinoids interact with the body’s endocannabinoid system, which is involved in regulating a wide range of physiological processes such as pain, mood, appetite, and immune function. There are over 100 cannabinoids identified in the cannabis plant, including THC and CBD, which are the most well-known.</p>
       <p><strong>Terpenes</strong> are a large and diverse class of organic compounds found in many plants, including cannabis. Produced in the same glandular trichomes as cannabinoids, they contribute to aroma and flavor and are believed to have a range of potential therapeutic benefits. Common examples include myrcene, limonene, pinene, and caryophyllene.</p>
-      <p><strong>Flavonoids</strong> are plant compounds belonging to the larger class of polyphenols, widely distributed in fruits, vegetables, and medicinal plants including cannabis. Several flavonoids retain medicinal value that may work in concert with cannabinoids and terpenes to enhance the medical properties of the cannabis plant&mdash;commonly known as the &ldquo;Entourage Effect.&rdquo;</p>
+      <p><strong>Flavonoids</strong> are plant compounds belonging to the larger class of polyphenols, widely distributed in fruits, vegetables, and medicinal plants including cannabis. Several flavonoids retain medicinal value that may work in concert with cannabinoids and terpenes to enhance the medical properties of the cannabis plant—commonly known as the “Entourage Effect.”</p>
       <p><strong>Precursor Acids</strong> are the biosynthetic forms of cannabinoids, produced by the plant before decarboxylation converts them into their active counterparts (e.g., THCA becomes THC when heated).</p>
       <p><strong>Rare &amp; Novel Cannabinoids</strong> (new in Version 2) represent a growing category of less-abundant but scientifically significant cannabis compounds such as THCP, CBDP, CBND, and others, where emerging research suggests unique pharmacological activity beyond classic cannabinoids.</p>
     </div>
@@ -960,18 +1262,18 @@ details.faq-item[open] .faq-icon{transform:rotate(45deg)}
   <details class="faq-item">
     <summary><span class="faq-q">How were the atomic masses calculated?</span><span class="faq-icon">+</span></summary>
     <div class="faq-content">
-      <p>The atomic masses shown in the Cannabis Periodic Table of Molecules&trade; chart were determined by public references or the chemical formula. In the case of the latter, each element&rsquo;s molecular mass was identified and totaled. For example, for water (H&sub2;O), two hydrogen atoms with mass &asymp;1 each and one oxygen atom with mass &asymp;16 total 18 for the molecule. After identifying or calculating the atomic masses of all the molecules, the table was constructed to reflect an objective structure, similar to the traditional periodic table of elements.</p>
+      <p>The atomic masses shown in the Cannabis Periodic Table of Molecules™ chart were determined by public references or the chemical formula. In the case of the latter, each element’s molecular mass was identified and totaled. For example, for water (H&amp;sub2;O), two hydrogen atoms with mass ≈1 each and one oxygen atom with mass ≈16 total 18 for the molecule. After identifying or calculating the atomic masses of all the molecules, the table was constructed to reflect an objective structure, similar to the traditional periodic table of elements.</p>
     </div>
   </details>
 
   <details class="faq-item">
     <summary><span class="faq-q">What does the evidence rating shown on each molecule tile mean?</span><span class="faq-icon">+</span></summary>
     <div class="faq-content">
-      <p>Each molecule tile in Version 2 displays a letter-grade evidence rating (A, B, C, or D) in the upper-right corner, reflecting the strength of published clinical and preclinical research supporting the molecule&rsquo;s therapeutic applications:</p>
-      <p><u>Grade A</u> &mdash; Strong, replicated human clinical evidence with broad scientific consensus.</p>
-      <p><u>Grade B</u> &mdash; Promising human evidence, though limited in scale or scope; positive preclinical data supports further investigation.</p>
-      <p><u>Grade C</u> &mdash; Primarily preclinical (animal or in vitro) evidence with limited human studies to date.</p>
-      <p><u>Grade D</u> &mdash; Early-stage or theoretical evidence only; molecule is of emerging scientific interest.</p>
+      <p>Each molecule tile in Version 2 displays a letter-grade evidence rating (A, B, C, or D) in the upper-right corner, reflecting the strength of published clinical and preclinical research supporting the molecule’s therapeutic applications:</p>
+      <p><u>Grade A</u> — Strong, replicated human clinical evidence with broad scientific consensus.</p>
+      <p><u>Grade B</u> — Promising human evidence, though limited in scale or scope; positive preclinical data supports further investigation.</p>
+      <p><u>Grade C</u> — Primarily preclinical (animal or in vitro) evidence with limited human studies to date.</p>
+      <p><u>Grade D</u> — Early-stage or theoretical evidence only; molecule is of emerging scientific interest.</p>
       <p>Evidence ratings are assigned by Acannability based on review of the published literature and are updated as new research becomes available.</p>
     </div>
   </details>
@@ -980,11 +1282,11 @@ details.faq-item[open] .faq-icon{transform:rotate(45deg)}
     <summary><span class="faq-q">What receptor systems are shown on each molecule tile?</span><span class="faq-icon">+</span></summary>
     <div class="faq-content">
       <p>Version 2 identifies which of five major receptor systems each molecule is known to engage. These receptor interactions are central to understanding how each compound produces its physiological effects:</p>
-      <p><u>CB1 (Cannabinoid Receptor 1)</u> &mdash; Present primarily in the central nervous system. CB1 activation is responsible for the psychoactive effects of THC, as well as analgesia, appetite stimulation, and antiemetic properties. 16 molecules in the table engage CB1.</p>
-      <p><u>CB2 (Cannabinoid Receptor 2)</u> &mdash; Found predominantly in immune tissues and peripheral organs. CB2 activation is associated with anti-inflammatory, immunomodulatory, and neuroprotective effects, typically without psychoactivity. 23 molecules engage CB2.</p>
-      <p><u>TRP (Transient Receptor Potential Channels)</u> &mdash; Including TRPV1 and TRPA1, these ion channels are involved in pain signaling, temperature sensation, and inflammation. Several terpenes and cannabinoids modulate TRP channels to produce analgesic and anti-inflammatory effects. 19 molecules engage TRP channels.</p>
-      <p><u>PPAR (Peroxisome Proliferator-Activated Receptors)</u> &mdash; Nuclear receptors involved in metabolism, inflammation regulation, and cell growth. PPAR activation by certain cannabinoids and flavonoids has been associated with anti-tumor, anti-diabetic, and cardiovascular effects. 19 molecules engage PPAR receptors.</p>
-      <p><u>5HT (Serotonin Receptors)</u> &mdash; Particularly 5HT1A, serotonin receptor modulation is associated with anxiolytic, antidepressant, and antipsychotic effects. CBD is among the most studied molecules for 5HT activity. 13 molecules engage serotonin receptors.</p>
+      <p><u>CB1 (Cannabinoid Receptor 1)</u> — Present primarily in the central nervous system. CB1 activation is responsible for the psychoactive effects of THC, as well as analgesia, appetite stimulation, and antiemetic properties. 16 molecules in the table engage CB1.</p>
+      <p><u>CB2 (Cannabinoid Receptor 2)</u> — Found predominantly in immune tissues and peripheral organs. CB2 activation is associated with anti-inflammatory, immunomodulatory, and neuroprotective effects, typically without psychoactivity. 23 molecules engage CB2.</p>
+      <p><u>TRP (Transient Receptor Potential Channels)</u> — Including TRPV1 and TRPA1, these ion channels are involved in pain signaling, temperature sensation, and inflammation. Several terpenes and cannabinoids modulate TRP channels to produce analgesic and anti-inflammatory effects. 19 molecules engage TRP channels.</p>
+      <p><u>PPAR (Peroxisome Proliferator-Activated Receptors)</u> — Nuclear receptors involved in metabolism, inflammation regulation, and cell growth. PPAR activation by certain cannabinoids and flavonoids has been associated with anti-tumor, anti-diabetic, and cardiovascular effects. 19 molecules engage PPAR receptors.</p>
+      <p><u>5HT (Serotonin Receptors)</u> — Particularly 5HT1A, serotonin receptor modulation is associated with anxiolytic, antidepressant, and antipsychotic effects. CBD is among the most studied molecules for 5HT activity. 13 molecules engage serotonin receptors.</p>
       <p>Receptor data is based on published pharmacological literature. A single molecule may engage multiple receptor systems simultaneously.</p>
     </div>
   </details>
@@ -1009,16 +1311,16 @@ details.faq-item[open] .faq-icon{transform:rotate(45deg)}
       <p>Version 2 introduces molecule-level citations for 11 specific cancer subtypes, representing one of the most significant expansions from earlier versions. For each cancer type, the table identifies which of the 65 molecules have published preclinical or clinical evidence of anti-tumor activity, along with a relevance score reflecting the depth and quality of that research.</p>
       <p>The 11 cancer subtypes covered are: <strong>Glioblastoma, Breast Cancer, Lung Cancer, Colorectal Cancer, Leukemia, Prostate Cancer, Melanoma, Pancreatic Cancer, Liver Cancer (HCC), Ovarian Cancer,</strong> and <strong>Cervical Cancer</strong>.</p>
       <p>To explore cancer-specific research, select any cancer sub-type from the conditions filter bar. The table will highlight all molecules with relevant published evidence. Clicking any highlighted molecule tile opens the full molecular profile, where the References tab provides specific citations and the linked Article PDF gives direct access to primary research.</p>
-      <p>Importantly, the <strong>Adverse Findings</strong> filter surfaces published safety signals and known risks&mdash;ensuring that cancer-related research is presented in full clinical context, not just benefit data.</p>
+      <p>Importantly, the <strong>Adverse Findings</strong> filter surfaces published safety signals and known risks—ensuring that cancer-related research is presented in full clinical context, not just benefit data.</p>
       <p>All cancer research citations in Version 2 are drawn from peer-reviewed scientific literature. This information is strictly educational and does not constitute medical advice or treatment recommendations.</p>
     </div>
   </details>
 
   <details class="faq-item">
-    <summary><span class="faq-q">What is the &lsquo;Rare &amp; Novel&rsquo; cannabinoid category?</span><span class="faq-icon">+</span></summary>
+    <summary><span class="faq-q">What is the ‘Rare &amp; Novel’ cannabinoid category?</span><span class="faq-icon">+</span></summary>
     <div class="faq-content">
       <p>The Rare &amp; Novel category was introduced in Version 2 to recognize a growing body of scientific literature on cannabis-derived cannabinoids that are present in very small concentrations in the plant but exhibit unique and potentially significant pharmacological properties.</p>
-      <p>Examples include &Delta;9-Tetrahydrocannabiphorol (THCP), which has demonstrated a binding affinity for CB1 receptors significantly higher than THC, and Cannabidiphorol (CBDP), the propyl-chain analog of CBD. Others include Cannabinodiol (CBND), Cannabicyclol (CBL), Cannabielsoin (CBE), and Cannabicyclolic Acid (CBLA).</p>
+      <p>Examples include Δ9-Tetrahydrocannabiphorol (THCP), which has demonstrated a binding affinity for CB1 receptors significantly higher than THC, and Cannabidiphorol (CBDP), the propyl-chain analog of CBD. Others include Cannabinodiol (CBND), Cannabicyclol (CBL), Cannabielsoin (CBE), and Cannabicyclolic Acid (CBLA).</p>
       <p>As cannabis science matures, Acannability expects this category to grow as additional rare compounds are characterized and their clinical relevance is established.</p>
     </div>
   </details>
@@ -1026,7 +1328,7 @@ details.faq-item[open] .faq-icon{transform:rotate(45deg)}
   <details class="faq-item">
     <summary><span class="faq-q">How do I use the interactive features of this table?</span><span class="faq-icon">+</span></summary>
     <div class="faq-content">
-      <p><u>Click any molecule tile</u> to open that molecule&rsquo;s full detail panel. The panel displays the molecule&rsquo;s symbol, full name, molecular mass, evidence rating, and receptor targets.</p>
+      <p><u>Click any molecule tile</u> to open that molecule’s full detail panel. The panel displays the molecule’s symbol, full name, molecular mass, evidence rating, and receptor targets.</p>
       <p><u>Detail panel tabs</u> organize the information into Clinical Research findings, Adverse/Safety findings, and peer-reviewed References. Where an Article PDF has been linked, a button opens the published research paper directly.</p>
       <p><u>Category filter</u> buttons on the right panel allow you to narrow the table to a single molecular category (e.g., Terpenes only, or Flavonoids only).</p>
       <p><u>Entourage Effect mapping</u> is accessible from the header toolbar. Select a molecule and explore known synergistic combinations with other molecules on the table.</p>
@@ -1038,7 +1340,7 @@ details.faq-item[open] .faq-icon{transform:rotate(45deg)}
   <details class="faq-item">
     <summary><span class="faq-q">What is the Entourage Effect and how is it displayed in this table?</span><span class="faq-icon">+</span></summary>
     <div class="faq-content">
-      <p>The Entourage Effect is a widely discussed concept in cannabis pharmacology describing how the many molecules of the cannabis plant&mdash;cannabinoids, terpenes, and flavonoids&mdash;may work together synergistically to produce effects that are greater or different than any single isolated compound. The idea was popularized by Dr. Raphael Mechoulam and has influenced how patients, clinicians, and product developers think about whole-plant versus isolate therapies.</p>
+      <p>The Entourage Effect is a widely discussed concept in cannabis pharmacology describing how the many molecules of the cannabis plant—cannabinoids, terpenes, and flavonoids—may work together synergistically to produce effects that are greater or different than any single isolated compound. The idea was popularized by Dr. Raphael Mechoulam and has influenced how patients, clinicians, and product developers think about whole-plant versus isolate therapies.</p>
       <p>In Version 2, the Entourage Effect Mapping tool (accessible from the header toolbar) allows users to select one or more molecules and visualize known molecular interactions and synergies highlighted across the table. This feature is intended for educational exploration and is based on published scientific literature reviewed by Acannability.</p>
     </div>
   </details>
@@ -1046,11 +1348,11 @@ details.faq-item[open] .faq-icon{transform:rotate(45deg)}
   <details class="faq-item">
     <summary><span class="faq-q">How should this chart be used by consumers?</span><span class="faq-icon">+</span></summary>
     <div class="faq-content">
-      <p>The Cannabis Periodic Table of Molecules&trade; chart is used as a common language for cannabis consumers and industry participants to promote a more informed and science-based conversation about the benefits of the cannabis plant. Some of the most common uses are as follows:</p>
+      <p>The Cannabis Periodic Table of Molecules™ chart is used as a common language for cannabis consumers and industry participants to promote a more informed and science-based conversation about the benefits of the cannabis plant. Some of the most common uses are as follows:</p>
       <p><u>Product Selection.</u> The chart can benefit conversation between consumers and their healthcare provider on which molecules are known or believed to address their desired use. The individual molecules shown can be used to compare product claims as shown on product labels.</p>
-      <p><u>Molecule Identification.</u> The chart allows for easy identification of molecules and their properties. Clicking any molecule tile quickly accesses the molecule&rsquo;s name, atomic mass, evidence rating, receptors, therapeutic indications, and published research.</p>
+      <p><u>Molecule Identification.</u> The chart allows for easy identification of molecules and their properties. Clicking any molecule tile quickly accesses the molecule’s name, atomic mass, evidence rating, receptors, therapeutic indications, and published research.</p>
       <p><u>Chemical Nomenclature.</u> When naming chemical compounds, the chart may be consulted to determine the symbols and molecular masses of cannabis-derived compounds.</p>
-      <p><u>Understanding Trends.</u> As the cannabis industry continues to mature, the Cannabis Periodic Table of Molecules&trade; chart will be updated to reflect the molecules of current interest by consumers and the industry.</p>
+      <p><u>Understanding Trends.</u> As the cannabis industry continues to mature, the Cannabis Periodic Table of Molecules™ chart will be updated to reflect the molecules of current interest by consumers and the industry.</p>
       <p><u>Research and Experimentation.</u> Scientists and researchers may use the chart as a reference when investigating cannabis compounds or reviewing published literature via the linked article PDFs.</p>
       <p><u>Education.</u> In educational settings, the chart may be used to introduce students and practitioners to the fundamental compounds of the cannabis plant and their known pharmacological activities.</p>
     </div>
@@ -1059,14 +1361,14 @@ details.faq-item[open] .faq-icon{transform:rotate(45deg)}
   <details class="faq-item">
     <summary><span class="faq-q">Is this chart proprietary to Acannability?</span><span class="faq-icon">+</span></summary>
     <div class="faq-content">
-      <p>Yes. The Cannabis Periodic Table of Molecules&trade; chart was developed by Acannability through the work of its Advisor Joseph Friedman, RPh, MBA. It is free to use by Acannability members and available at no charge to others by a simple copyright license acknowledgement. A printable version of the chart is available at Acannability.com.</p>
+      <p>Yes. The Cannabis Periodic Table of Molecules™ chart was developed by Acannability through the work of its Advisor Joseph Friedman, RPh, MBA. It is free to use by Acannability members and available at no charge to others by a simple copyright license acknowledgement. A printable version of the chart is available at Acannability.com.</p>
     </div>
   </details>
 
   <details class="faq-item">
     <summary><span class="faq-q">Disclaimer</span><span class="faq-icon">+</span></summary>
     <div class="faq-content">
-      <p>The Cannabis Periodic Table of Molecules&trade; chart is an essential educational tool in the field of cannabinoid chemistry and serves as a fundamental reference for understanding the molecular properties of the cannabis plant. However, it should never be used as a source of medical advice. Medical decisions and treatments should be based solely on the guidance of qualified healthcare professionals who consider individual patient factors, medical history, and specific conditions. Always consult a licensed medical practitioner for any health-related concerns or queries and refrain from using the Cannabis Periodic Table of Molecules&trade; chart to make medical decisions.</p>
+      <p>The Cannabis Periodic Table of Molecules™ chart is an essential educational tool in the field of cannabinoid chemistry and serves as a fundamental reference for understanding the molecular properties of the cannabis plant. However, it should never be used as a source of medical advice. Medical decisions and treatments should be based solely on the guidance of qualified healthcare professionals who consider individual patient factors, medical history, and specific conditions. Always consult a licensed medical practitioner for any health-related concerns or queries and refrain from using the Cannabis Periodic Table of Molecules™ chart to make medical decisions.</p>
     </div>
   </details>
 
@@ -1076,12 +1378,12 @@ details.faq-item[open] .faq-icon{transform:rotate(45deg)}
 <footer style="background:var(--surface);border-top:1px solid var(--border);padding:18px 24px;margin-top:0">
   <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:24px;flex-wrap:wrap">
     <div>
-      <div style="font-family:Georgia,serif;font-size:.95rem;color:var(--accent);letter-spacing:.06em">Acannability<sup style="font-size:.5rem;font-family:system-ui,sans-serif">&trade;</sup> &copy; 2026</div>
-      <div style="font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);margin-top:2px">Interactive Periodic Table of Cannabis Plant Molecules &mdash; v2.0</div>
+      <div style="font-family:Georgia,serif;font-size:.95rem;color:var(--accent);letter-spacing:.06em">Acannability<sup style="font-size:.5rem;font-family:system-ui,sans-serif">™</sup> © 2026</div>
+      <div style="font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);margin-top:2px">Interactive Periodic Table of Cannabis Plant Molecules — v2.0</div>
     </div>
     <div style="flex:1;min-width:280px;max-width:700px;font-size:.62rem;color:var(--mute);line-height:1.6">
       <strong style="color:var(--dim);font-size:.62rem;letter-spacing:.06em;text-transform:uppercase">Disclaimer</strong><br>
-      THE INFORMATION PROVIDED IS FOR EDUCATIONAL PURPOSES ONLY and does not constitute medical advice, diagnosis, or treatment. Acannability&trade; does not warrant the accuracy, adequacy, or completeness of this information and is not responsible for any errors or omissions or for results obtained from use of such information. No warranty of any kind, expressed or implied, is given. Always consult a licensed healthcare professional before making any medical decisions. References to scientific studies are provided solely for informational purposes. Acannability&trade; is not affiliated with, nor endorsed by, the authors or publishers of any cited research.
+      THE INFORMATION PROVIDED IS FOR EDUCATIONAL PURPOSES ONLY and does not constitute medical advice, diagnosis, or treatment. Acannability™ does not warrant the accuracy, adequacy, or completeness of this information and is not responsible for any errors or omissions or for results obtained from use of such information. No warranty of any kind, expressed or implied, is given. Always consult a licensed healthcare professional before making any medical decisions. References to scientific studies are provided solely for informational purposes. Acannability™ is not affiliated with, nor endorsed by, the authors or publishers of any cited research.
     </div>
   </div>
 </footer>
@@ -1091,21 +1393,21 @@ details.faq-item[open] .faq-icon{transform:rotate(45deg)}
   <div id="ent-box">
     <div class="ent-hdr">
       <div class="ent-hdr-left">
-        <div class="ent-title">&#x2B22; Entourage Effect Mapping</div>
-        <div class="ent-subtitle">Synergistic Molecule Combinations &middot; Acannability&trade; Educational Framework</div>
+        <div class="ent-title">⬢ Entourage Effect Mapping</div>
+        <div class="ent-subtitle">Synergistic Molecule Combinations · Acannability™ Educational Framework</div>
       </div>
-      <button class="ent-close" onclick="hideEntourage()" title="Close (Esc)">&#x2715;</button>
+      <button class="ent-close" onclick="hideEntourage()" title="Close (Esc)">✕</button>
     </div>
     <div class="ent-cond-bar">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px">
         <div class="ent-cond-lbl" style="margin-bottom:0">Select a health condition to analyze potential entourage combinations</div>
-        <button id="entClearBtn" onclick="clearEntourage()" style="display:none;padding:3px 10px;border:1px solid var(--border);border-radius:4px;font-size:.58rem;letter-spacing:.07em;text-transform:uppercase;background:none;color:var(--mute);cursor:pointer" onmouseover="this.style.color='var(--accent)';this.style.borderColor='var(--accent)'" onmouseout="this.style.color='var(--mute)';this.style.borderColor='var(--border)'">Clear</button>
+        <button id="entClearBtn" onclick="clearEntourage()" style="display:none;padding:3px 10px;border:1px solid var(--border);border-radius:4px;font-size:.58rem;letter-spacing:.07em;text-transform:uppercase;background:none;color:var(--mute);cursor:pointer" onmouseover="this.style.color=&#39;var(--accent)&#39;;this.style.borderColor=&#39;var(--accent)&#39;" onmouseout="this.style.color=&#39;var(--mute)&#39;;this.style.borderColor=&#39;var(--border)&#39;">Clear</button>
       </div>
-      <div class="ent-chips" id="entChips"></div>
+      <div class="ent-chips" id="entChips"><span class="ent-grp-lbl">Pain &amp; Inflammation</span><button class="ent-chip" id="ent-chip-pain">Analgesic / Pain</button><button class="ent-chip" id="ent-chip-neuropathic">Neuropathic Pain</button><button class="ent-chip" id="ent-chip-arthritis">Arthritis / Joint Pain</button><button class="ent-chip" id="ent-chip-spasm">Muscle Spasm / Spasticity</button><button class="ent-chip" id="ent-chip-inflammation">Anti-Inflammatory</button><button class="ent-chip" id="ent-chip-skinhealth">Skin Health / Acne</button><span class="ent-grp-lbl">Neurological</span><button class="ent-chip" id="ent-chip-seizures">Epilepsy / Seizures</button><button class="ent-chip" id="ent-chip-sleep">Sleep &amp; Insomnia</button><button class="ent-chip" id="ent-chip-ms">Multiple Sclerosis</button><button class="ent-chip" id="ent-chip-neuroprotection">Neuroprotection</button><button class="ent-chip" id="ent-chip-alzheimers">Alzheimer's Disease</button><button class="ent-chip" id="ent-chip-parkinsons">Parkinson's Disease</button><button class="ent-chip" id="ent-chip-neurodegen">Neurodegenerative</button><button class="ent-chip" id="ent-chip-autism">Autism Spectrum (ASD)</button><span class="ent-grp-lbl">Mental Health</span><button class="ent-chip" id="ent-chip-anxiety">Anxiety</button><button class="ent-chip" id="ent-chip-depression">Anti-depressant</button><button class="ent-chip" id="ent-chip-ptsd">PTSD / Trauma</button><button class="ent-chip" id="ent-chip-stress">Stress / Cortisol</button><button class="ent-chip" id="ent-chip-psychosis">Psychosis / Schizophrenia</button><span class="ent-grp-lbl">Cancer &amp; Immune</span><button class="ent-chip" id="ent-chip-cancer">Cancer / Anti-Tumor</button><button class="ent-chip" id="ent-chip-antiviral">Antiviral / Immune</button><button class="ent-chip" id="ent-chip-antibacterial">Antibacterial</button><button class="ent-chip" id="ent-chip-antifungal">Antifungal</button><button class="ent-chip" id="ent-chip-antioxidant">Antioxidant</button><span class="ent-grp-lbl">↳ Cancer Sub-Types</span><button class="ent-chip" id="ent-chip-glioblastoma">Glioblastoma</button><button class="ent-chip" id="ent-chip-breast-cancer">Breast Cancer</button><button class="ent-chip" id="ent-chip-lung-cancer">Lung Cancer</button><button class="ent-chip" id="ent-chip-colorectal">Colorectal Cancer</button><button class="ent-chip" id="ent-chip-leukemia">Leukemia</button><button class="ent-chip" id="ent-chip-prostate-cancer">Prostate Cancer</button><button class="ent-chip" id="ent-chip-melanoma">Melanoma</button><button class="ent-chip" id="ent-chip-pancreatic-cancer">Pancreatic Cancer</button><button class="ent-chip" id="ent-chip-liver-cancer">Liver Cancer (HCC)</button><button class="ent-chip" id="ent-chip-ovarian-cancer">Ovarian Cancer</button><button class="ent-chip" id="ent-chip-cervical-cancer">Cervical Cancer</button><button class="ent-chip" id="ent-chip-cancer-adverse">⚠ Adverse Findings</button><span class="ent-grp-lbl">Metabolic &amp; Digestive</span><button class="ent-chip" id="ent-chip-nausea">Antiemetic / Nausea</button><button class="ent-chip" id="ent-chip-appetite">Appetite Regulation</button><button class="ent-chip" id="ent-chip-diabetes">Diabetes / Blood Sugar</button><button class="ent-chip" id="ent-chip-ibd">IBD / Crohn's / Colitis</button><button class="ent-chip" id="ent-chip-liver">Liver / Hepatoprotective</button><button class="ent-chip" id="ent-chip-cardiovascular">Cardiovascular Health</button><button class="ent-chip" id="ent-chip-hyperlipidemia">Hyperlipidemia</button><button class="ent-chip" id="ent-chip-bone">Bone Health / Osteoporosis</button></div>
     </div>
     <div class="ent-body" id="entBody">
       <div class="ent-placeholder">
-        <svg width="48" height="48" viewBox="0 0 48 48"><polygon points="24,4 44,14 44,34 24,44 4,34 4,14" fill="none" stroke="currentColor" stroke-width="2.5"/><circle cx="24" cy="24" r="6" fill="currentColor" opacity=".4"/></svg>
+        <svg width="48" height="48" viewBox="0 0 48 48"><polygon points="24,4 44,14 44,34 24,44 4,34 4,14" fill="none" stroke="currentColor" stroke-width="2.5"></polygon><circle cx="24" cy="24" r="6" fill="currentColor" opacity=".4"></circle></svg>
         Choose a health condition above to generate a synergistic molecule analysis
       </div>
     </div>
@@ -1117,11 +1419,11 @@ details.faq-item[open] .faq-icon{transform:rotate(45deg)}
   <div class="panel-body" id="panelBody"></div>
   <div id="panelPdf"></div>
   <div class="panel-foot">
-    <div class="panel-foot-brand">Acannability<sup class="panel-foot-tm">&trade;</sup> &copy; 2026</div>
+    <div class="panel-foot-brand">Acannability<sup class="panel-foot-tm">™</sup> © 2026</div>
     <div style="font-size:.54rem;color:var(--mute);line-height:1.5;margin-top:5px;text-align:center">
       For educational purposes only. Not medical advice.<br>
       Consult a licensed healthcare professional before making any medical decisions.<br>
-      All trademarks are property of Acannability&trade;. All rights reserved.
+      All trademarks are property of Acannability™. All rights reserved.
     </div>
   </div>
 </div>
@@ -1703,6 +2005,7 @@ function buildGrid() {
     tile.dataset.name = (mol.fullName + ' ' + mol.symbol).toLowerCase();
     tile.dataset.recs = (mol.receptors || []).join(',');
     tile.dataset.ev = mol.evidence;
+    tile.dataset.indications = (mol.indications || []).join(' ').toLowerCase();
     tile.style.cssText = 'grid-column:' + pos[0] + ';grid-row:' + pos[1];
     const nameShort = mol.fullName.length > 20 ? mol.fullName.substring(0,18) + '…' : mol.fullName;
     tile.innerHTML = '<div class="tile-top"><span class="tile-mass">' + mol.mass + '</span><span class="ev-badge ev-' + mol.evidence + '">' + mol.evidence + '</span></div>'
@@ -1814,12 +2117,54 @@ function clearCondition() {
   var warn = document.getElementById('csWarn');
   if (warn) warn.style.display = 'none';
 }
-function filterSearch(q) {
-  const lq = q.toLowerCase().trim();
-  document.querySelectorAll('.mol-tile').forEach(function(tile) {
-    if (!lq) { tile.classList.remove('dimmed'); return; }
-    tile.classList.toggle('dimmed', tile.dataset.name.indexOf(lq) === -1);
+function filterByMolecule(q) {
+  q = q.toLowerCase().trim();
+  const tiles = document.querySelectorAll('.mol-tile');
+  let count = 0;
+  tiles.forEach(tile => {
+    const name = tile.dataset.name?.toLowerCase() || '';
+    const matches = q === '' || name.includes(q);
+    tile.style.display = matches ? '' : 'none';
+    if (matches) count++;
   });
+  
+  const countDiv = document.getElementById('searchResultCount');
+  if (countDiv) {
+    countDiv.textContent = q === '' ? '' : (count > 0 ? `${count} molecule(s)` : 'No matches');
+  }
+}
+
+function filterByCondition(q) {
+  q = q.toLowerCase().trim();
+  const tiles = document.querySelectorAll('.mol-tile');
+  let count = 0;
+  tiles.forEach(tile => {
+    const molId = tile.dataset.id;
+    const mol = M[molId];
+    if (!mol) { tile.style.display = 'none'; return; }
+    
+    // Search in indications, description, and full name
+    const indications = (mol.indications || []).join(' ').toLowerCase();
+    const desc = (mol.description || '').toLowerCase();
+    const fullName = (mol.fullName || '').toLowerCase();
+    
+    const matches = q === '' || 
+                    indications.includes(q) || 
+                    desc.includes(q) || 
+                    fullName.includes(q);
+    
+    tile.style.display = matches ? '' : 'none';
+    if (matches) count++;
+  });
+  
+  const countDiv = document.getElementById('searchResultCount');
+  if (countDiv) {
+    countDiv.textContent = q === '' ? '' : (count > 0 ? `${count} molecule(s)` : 'No matches');
+  }
+}
+
+function filterSearch(q) {
+  filterByMolecule(q);
 }
 
 let activeCat = null;
@@ -2555,13 +2900,14 @@ document.addEventListener('keydown', function(e) {
   <div id="rcBox">
     <div class="rc-hdr">
       <div class="rc-hdr-left">
-        <div class="rc-brand">Acannability&trade;</div>
+        <div class="rc-brand">Acannability™</div>
         <div class="rc-hdr-title">Periodic Table of the Cannabis Plant Molecules<br>Scientific References</div>
       </div>
-      <button class="rc-close" onclick="closeRefCard()" title="Close (Esc)">&#x2715;</button>
+      <button class="rc-close" onclick="closeRefCard()" title="Close (Esc)">✕</button>
     </div>
     <div id="rcContent" class="rc-body"></div>
   </div>
 </div>
-</body>
-</html>
+
+
+</body></html>
