@@ -1,0 +1,7 @@
+# OS / editor
+.DS_Store
+.claude/
+
+# Local-only working files (not part of the deployed site)
+index_BACKUP_before_perf_fixes_*.html
+Periodic_Table_V3_HIPAA_UPDATE.html
