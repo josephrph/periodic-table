@@ -611,7 +611,8 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
       <option value="">Search conditions… (A–Z)</option>
     </select>
   </div>
-  <button class="btn-filter" id="filterBtn" onclick="toggleFilter()">Show Health Conditions</button>
+  <button class="btn-filter" id="guidedBtn" onclick="if(window.V4GX)V4GX.start()" title="Return to the Guided Experience — get a personalized recommendation">🧭 Guided Finder</button>
+   <button class="btn-filter" id="filterBtn" onclick="toggleFilter()">Show Health Conditions</button>
     <button class="btn-filter" id="entBtn" onclick="showEntourage()" title="Explore synergistic molecule combinations by health condition">⬢ Entourage Effect</button>
     <button class="btn-filter" id="diBtn" onclick="toggleDrugPanel()" title="Check cannabis interactions with your medications">💊 Drug Interactions</button>
     <button id="newSessionBtn" onclick="newSession()" title="Reset platform and return to disclaimer — use between patients at a dispensary kiosk">↩ New Session</button>
@@ -658,7 +659,7 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
   <!-- MY MEDICATION LIST MODE -->
   <div id="diListSection" style="display:none">
     <div style="font-size:.72rem;color:var(--dim);line-height:1.65;margin-bottom:12px;padding:10px 14px;background:#F5F0E6;border:1px solid var(--accent);border-radius:7px">
-      Add all your medications below — prescription and OTC. V3 will screen for <strong>drug-drug interactions within your list</strong>, then evaluate <strong>cannabis interactions</strong> for each medication against the molecules recommended for your selected health condition.
+      Add all your medications below — prescription and OTC. V2 will screen for <strong>drug-drug interactions within your list</strong>, then evaluate <strong>cannabis interactions</strong> for each medication against the molecules recommended for your selected health condition.
     </div>
     <!-- Add medication search -->
     <div style="position:relative;margin-bottom:4px">
@@ -695,7 +696,7 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
   </div>
 
   <div class="di-disclaimer">⚠ <strong>Important:</strong> This tool provides curated educational information and does not substitute for professional pharmacist or prescriber review. Always disclose your complete medication list to all your healthcare providers. <strong>Privacy:</strong> Your medication list is never saved or transmitted — it exists only in your browser for this session and is cleared when you close the panel, end your session, or refresh the page.</div>
-  <div class="di-disclaimer" style="background:#EEF4FB;border-color:#1A4A8B"><strong>Coverage &amp; scope:</strong> This checker draws on a curated, open-source educational dataset covering the most commonly dispensed medications, mapped to hundreds of generic and brand names. <strong>Comprehensive, clinically-validated interaction data for every possible drug is not included</strong> — that level of coverage requires licensed commercial drug-data services (e.g., First Databank, Wolters Kluwer / Medi-Span), whose subscription and licensing costs are beyond the scope of this free V4 service. For any medication not found here, consult your pharmacist or prescriber.</div>
+  <div class="di-disclaimer" style="background:#EEF4FB;border-color:#1A4A8B"><strong>Coverage &amp; scope:</strong> This checker draws on a curated, open-source educational dataset covering the most commonly dispensed medications, mapped to hundreds of generic and brand names. <strong>Comprehensive, clinically-validated interaction data for every possible drug is not included</strong> — that level of coverage requires licensed commercial drug-data services (e.g., First Databank, Wolters Kluwer / Medi-Span), whose subscription and licensing costs are beyond the scope of this free V2 service. For any medication not found here, consult your pharmacist or prescriber.</div>
 </div>
 <!-- END DRUG INTERACTION PANEL -->
 
@@ -2003,7 +2004,10 @@ body.is-mobile-view .panel-body{touch-action:pan-y}
      SAME existing functions the desktop header buttons use (toggleFilter,
      toggleDrugPanel, showEntourage) — no new panel logic, just a
      thumb-reachable shortcut to what already exists. -->
-<nav id="mobileTabBar" class="mobile-tabbar" aria-label="V3 mobile navigation">
+<nav id="mobileTabBar" class="mobile-tabbar" aria-label="Periodic Table navigation">
+  <button type="button" class="mtb-btn" id="mtbGuided" onclick="if(window.V4GX)V4GX.start()">
+    <span class="mtb-ic" aria-hidden="true">&#129517;</span><span class="mtb-lbl">Guided</span>
+  </button>
   <button type="button" class="mtb-btn" id="mtbMolecules" onclick="window.__v3MobileNav.goMolecules()">
     <span class="mtb-ic" aria-hidden="true">&#11040;</span><span class="mtb-lbl">Molecules</span>
   </button>
