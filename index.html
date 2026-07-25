@@ -2038,6 +2038,74 @@ body.is-mobile-view .panel-body{touch-action:pan-y}
   </div>
 </div>
 
+<style>
+/* ===== V4 Guided Finder overlay (additive; uses the app's own theme variables) ===== */
+#gxOverlay{position:fixed;inset:0;z-index:9000;background:var(--bg,#f5f5f2);color:var(--text,#1a1a1a);
+  display:none;flex-direction:column;align-items:center;overflow-y:auto;font-family:inherit}
+#gxOverlay .gx-wrap{width:100%;max-width:460px;padding:0 18px 34px;display:flex;flex-direction:column;flex:1}
+#gxOverlay .gx-top{display:flex;align-items:center;gap:10px;padding:18px 2px 8px}
+#gxOverlay .gx-back,#gxOverlay .gx-close{border:1px solid var(--border,#ccc);background:var(--surface,#fff);
+  color:var(--text,#1a1a1a);border-radius:9px;padding:8px 12px;font-size:.8rem;cursor:pointer;font-family:inherit}
+#gxOverlay .gx-back[disabled]{opacity:.3;cursor:default}
+#gxOverlay .gx-close{margin-left:auto;font-size:.72rem;color:var(--dim,#777)}
+#gxOverlay .gx-brand{font-weight:800;font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--accent2,#8B6914)}
+#gxOverlay .gx-dots{display:flex;gap:6px;justify-content:center;padding:2px 0 14px}
+#gxOverlay .gx-dots i{width:7px;height:7px;border-radius:50%;background:var(--border,#ccc)}
+#gxOverlay .gx-dots i.on{background:var(--accent,#2E7D57)}
+#gxOverlay .gx-stage{display:flex;flex-direction:column;gap:12px;animation:gxfade .25s ease}
+@keyframes gxfade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){#gxOverlay .gx-stage{animation:none}}
+#gxOverlay h2.gx-q{font-size:clamp(1.4rem,5vw,1.8rem);line-height:1.2;margin:2px 0}
+#gxOverlay .gx-hint{color:var(--dim,#777);font-size:.9rem;margin:-6px 0 2px}
+#gxOverlay .gx-opt{display:flex;align-items:center;gap:13px;padding:16px 15px;border:1.5px solid var(--border,#ccc);
+  border-radius:14px;background:var(--surface,#fff);color:var(--text,#1a1a1a);font-size:1rem;text-align:left;
+  cursor:pointer;width:100%;font-family:inherit;transition:border-color .15s,background .15s}
+#gxOverlay .gx-opt:hover{border-color:var(--accent,#2E7D57)}
+#gxOverlay .gx-opt.sel{border-color:var(--accent,#2E7D57);background:var(--surface2,#eef3ee)}
+#gxOverlay .gx-opt .ic{font-size:1.5rem;width:30px;text-align:center;flex:0 0 auto}
+#gxOverlay .gx-opt .lab{display:flex;flex-direction:column}
+#gxOverlay .gx-opt .lab small{color:var(--dim,#777);font-size:.78rem}
+#gxOverlay .gx-opt .chk{margin-left:auto;width:20px;height:20px;border-radius:50%;border:2px solid var(--border,#ccc);flex:0 0 auto}
+#gxOverlay .gx-opt.sel .chk{border-color:var(--accent,#2E7D57);background:var(--accent,#2E7D57);box-shadow:inset 0 0 0 3px var(--surface,#fff)}
+#gxOverlay .gx-cta{margin-top:8px;background:var(--accent,#2E7D57);color:#fff;border:none;border-radius:14px;
+  padding:16px;font-size:1rem;font-weight:800;cursor:pointer;font-family:inherit}
+#gxOverlay .gx-cta.ghost{background:var(--surface,#fff);color:var(--dim,#777);border:1px solid var(--border,#ccc);font-weight:600;font-size:.9rem;padding:12px}
+#gxOverlay .gx-rec{border:1.5px solid var(--accent,#2E7D57);border-radius:16px;padding:18px;background:var(--surface2,#eef3ee)}
+#gxOverlay .gx-rec .kind{font-size:1.3rem;font-weight:800}
+#gxOverlay .gx-rec .because{font-size:.86rem;color:var(--dim,#777);margin:6px 0 12px}
+#gxOverlay .gx-chips{display:flex;flex-wrap:wrap;gap:7px}
+#gxOverlay .gx-chip{font-size:.76rem;padding:5px 11px;border-radius:999px;background:var(--surface,#fff);border:1px solid var(--border,#ccc);font-weight:600}
+#gxOverlay .gx-chip.terp{color:var(--accent2,#8B6914)}
+#gxOverlay .gx-ent{margin-top:8px;font-size:.78rem;color:var(--accent,#2E7D57);font-weight:700}
+#gxOverlay .gx-prod{display:flex;align-items:center;gap:13px;padding:14px;border:1px solid var(--border,#ccc);border-radius:14px;background:var(--surface,#fff);margin-bottom:10px}
+#gxOverlay .gx-prod .sw{width:44px;height:44px;border-radius:11px;flex:0 0 auto;display:flex;align-items:center;justify-content:center;font-size:1.3rem;background:var(--surface2,#eef3ee);border:1px solid var(--border,#ccc)}
+#gxOverlay .gx-prod .info{flex:1;min-width:0}
+#gxOverlay .gx-prod .info b{font-size:.95rem}
+#gxOverlay .gx-prod .meta{font-size:.74rem;color:var(--dim,#777);margin-top:2px}
+#gxOverlay .gx-prod .mols{margin-top:5px;display:flex;gap:5px;flex-wrap:wrap}
+#gxOverlay .gx-prod .mols span{font-size:.64rem;background:var(--surface2,#eef3ee);border:1px solid var(--border,#ccc);padding:1px 7px;border-radius:999px;color:var(--dim,#777)}
+#gxOverlay .gx-fit{text-align:center;flex:0 0 auto}
+#gxOverlay .gx-fit .pct{font-size:1.4rem;font-weight:800;color:var(--accent,#2E7D57);line-height:1}
+#gxOverlay .gx-fit .lbl{font-size:.6rem;text-transform:uppercase;letter-spacing:.08em;color:var(--dim,#777);margin-top:3px}
+#gxOverlay .gx-badge{display:inline-block;font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;padding:2px 7px;border-radius:999px;margin-top:4px}
+#gxOverlay .gx-badge.strong{background:var(--accent,#2E7D57);color:#fff}
+#gxOverlay .gx-badge.good{background:var(--surface2,#eef3ee);color:var(--accent,#2E7D57);border:1px solid var(--accent,#2E7D57)}
+#gxOverlay .gx-badge.basic{background:var(--surface2,#eef3ee);color:var(--dim,#777);border:1px solid var(--border,#ccc)}
+#gxOverlay .gx-filtered{font-size:.8rem;color:var(--dim,#777);text-align:center;padding:10px;background:var(--surface2,#eef3ee);border-radius:11px}
+#gxOverlay .gx-empty{text-align:center;padding:26px 16px;color:var(--dim,#777)}
+#gxOverlay .gx-placard{border:1px dashed var(--border,#ccc);border-radius:14px;padding:18px;background:var(--surface,#fff);color:var(--dim,#777);font-size:.9rem}
+#gxOverlay .gx-summary{font-size:.82rem;color:var(--dim,#777);text-align:center}
+</style>
+<div id="gxOverlay"><div class="gx-wrap">
+  <div class="gx-top">
+    <button class="gx-back" id="gxBack" onclick="V4GX.back()" disabled>‹ Back</button>
+    <span class="gx-brand">Guided Finder</span>
+    <button class="gx-close" onclick="V4GX.close()">Full table ✕</button>
+  </div>
+  <div class="gx-dots" id="gxDots"></div>
+  <div class="gx-stage" id="gxStage"></div>
+</div></div>
+
 <script>
 // ── SESSION TIMER CONSTANTS — defined first, before any data that could throw ──
 // Phase 6 fix: total idle-to-reset must be 3:00, not 3:30. The warning now
@@ -5179,8 +5247,10 @@ function acceptEntryGate() {
   var warn = document.getElementById('inactivityWarn');
   if (warn) warn.style.display = 'none';
   resetInactivityTimer(); // begin idle tracking now that user has entered
-  // After accepting, show welcome overlay if first visit, else go straight to table
-  if (!localStorage.getItem('acannability_onboarded')) {
+  // After accepting, launch the Guided Finder (persona chooser). The Professional path
+  // and the "Full table" button dismiss it to the existing table. (Additive — guided-experience branch.)
+  if (window.V4GX) { V4GX.start(); }
+  else if (!localStorage.getItem('acannability_onboarded')) {
     document.getElementById('wlcOv').style.display = 'flex';
   }
 }
@@ -6473,7 +6543,12 @@ document.addEventListener('keydown', function(e) {
    {sku:'TOP-1120',name:'Warming Muscle Roll-On',type:'topical',thc:25,cbd:100,cann:'',terp:'beta-caryophyllene:1;camphene:0.5',price:30,count:22,icon:'🧴'},
    {sku:'FL-4425',name:'CBD-Rich Wellness Flower',type:'flower',thc:6,cbd:12,cann:'',terp:'myrcene:0.8;pinene:0.5',price:11,count:16,icon:'🌿'},
    {sku:'GUM-5525',name:'Sleep CBN Gummies',type:'edible',thc:5,cbd:10,cann:'CBN:10',terp:'linalool:1',price:30,count:28,icon:'🍬'},
-   {sku:'TIN-2030',name:'THCV Daytime Drops',type:'tincture',thc:3,cbd:5,cann:'THCV:15',terp:'limonene:1',price:55,count:6,icon:'💧'}
+   {sku:'TIN-2030',name:'THCV Daytime Drops',type:'tincture',thc:3,cbd:5,cann:'THCV:15',terp:'limonene:1',price:55,count:6,icon:'💧'},
+   {sku:'CT-2050',name:'Deep Sleep CBN Tincture',type:'tincture',thc:0,cbd:10,cann:'CBN:20',terp:'myrcene:1;terpinolene:0.5;linalool:0.5',price:48,count:10,icon:'🌙'},
+   {sku:'CT-2060',name:'Full-Spectrum Relief Oil',type:'tincture',thc:10,cbd:30,cann:'CBC:5;CBN:3;CBG:2',terp:'beta-caryophyllene:1.5;myrcene:0.5',price:55,count:12,icon:'🌿'},
+   {sku:'GUM-5540',name:'Unwind CBD Gummies',type:'edible',thc:0,cbd:25,cann:'CBG:3',terp:'limonene:2;linalool:1;beta-caryophyllene:0.5',price:30,count:30,icon:'🍬'},
+   {sku:'TIN-2040',name:'Focus THCV:CBG Drops',type:'tincture',thc:2,cbd:2,cann:'THCV:12;CBG:10',terp:'limonene:1.5;pinene:1',price:58,count:8,icon:'☀️'},
+   {sku:'TOP-1130',name:'Soothe Muscle & Joint Salve',type:'topical',thc:5,cbd:200,cann:'CBC:20;CBG:10',terp:'beta-caryophyllene:2;camphene:0.5',price:42,count:18,icon:'🧴'}
   ];
   function parsePairs(str){var o={};(str||'').split(';').forEach(function(p){p=p.trim();if(!p)return;var i=p.indexOf(':');if(i<0)return;var mid=ALIAS[p.slice(0,i).trim().toLowerCase()];var v=parseFloat(p.slice(i+1));if(mid&&!isNaN(v))o[mid]=(o[mid]||0)+v;});return o;}
   function profile(p){var pr={};if(p.thc>0)pr.THC9=p.thc;if(p.cbd>0)pr.CBD=p.cbd;var c=parsePairs(p.cann),t=parsePairs(p.terp);for(var k in c)pr[k]=(pr[k]||0)+c[k];for(var k2 in t)pr[k2]=(pr[k2]||0)+t[k2];return pr;}
@@ -6515,6 +6590,122 @@ document.addEventListener('keydown', function(e) {
   }
   window.V4Guided={CONFIG:CFG,inventory:INV,names:GNAMES,terps:TERPS,buildProfile:profile,
     match:match,recForConditions:recForConditions,intentMap:INTENT};
+})();
+
+
+/* ===== V4 Guided Finder — UI controller (additive). Uses window.V4Guided + selectCondition ===== */
+(function(){
+  var REASONS={
+    sleep:{ic:'😴',label:'Trouble sleeping',rq:"What's harder for you?",opts:[
+      {k:'fall',ic:'🛏️',label:'Falling asleep'},{k:'stay',ic:'⏰',label:'Staying asleep'},{k:'both',ic:'🌗',label:'Both'}]},
+    pain:{ic:'🌿',label:"I'm looking for pain relief",rq:'What kind of pain?',opts:[
+      {k:'joint',ic:'🦴',label:'Aching joints / arthritis'},{k:'nerve',ic:'⚡',label:'Nerve / burning'},
+      {k:'muscle',ic:'💪',label:'Muscle tension / spasm'},{k:'inflam',ic:'🔥',label:'Inflammation / swelling'},
+      {k:'gen',ic:'🤷',label:'General / not sure'}]},
+    anxiety:{ic:'💭',label:'Anxious or stressed',rq:'When is it worst?',opts:[
+      {k:'day',ic:'🌤️',label:'During the day (I need to function)'},{k:'night',ic:'🌙',label:'Racing thoughts at night'},
+      {k:'social',ic:'🫂',label:'Social situations'}]},
+    relax:{ic:'🛋️',label:'I just want to relax',rq:'How do you want to feel?',opts:[
+      {k:'body',ic:'🧘',label:'Mellow, body-calm'},{k:'light',ic:'🎈',label:'Light & easy'},{k:'social',ic:'🎉',label:'Social & chatty'}]},
+    other:{ic:'✨',label:'Something else',rq:'Roughly, what are you after?',opts:[
+      {k:'well',ic:'🌱',label:'General wellness'},{k:'energy',ic:'⚡',label:'A little energy / focus'},{k:'mood',ic:'☀️',label:'A mood lift'}]},
+    learn:{ic:'📚',label:'Curious — teach me',learn:true}
+  };
+  var ORDER=['sleep','pain','anxiety','relax','learn','other'];
+  var SECOND=[{k:'sleep',ic:'😴',label:'Trouble sleeping too',cond:['sleep']},
+    {k:'stress',ic:'💭',label:'Stress / anxiety',cond:['stress']},{k:'pain',ic:'🌿',label:'Some pain too',cond:['pain']}];
+  var FUNNEL=['intent','refine','thc','second','rec','products'];
+  var st={}, hist=[];
+  function G(){return window.V4Guided;}
+  function el(id){return document.getElementById(id);}
+  function stage(html){el('gxStage').innerHTML=html;window.scrollTo(0,0);}
+  function chrome(screen){
+    el('gxBack').disabled=hist.length<=1;
+    var idx=FUNNEL.indexOf(screen),d=el('gxDots');
+    if(st.persona==='cust'&&idx>=0){d.style.display='flex';d.innerHTML='';for(var i=0;i<FUNNEL.length;i++)d.innerHTML+='<i class="'+(i<=idx?'on':'')+'"></i>';}
+    else d.style.display='none';
+  }
+  function go(screen,render){hist.push(screen);render();chrome(screen);}
+  function optBtn(onclick,ic,label,sub,sel,chk){
+    return '<button class="gx-opt'+(sel?' sel':'')+'" onclick="'+onclick+'"><span class="ic">'+ic+'</span>'+
+      '<span class="lab">'+label+(sub?'<small>'+sub+'</small>':'')+'</span>'+(chk?'<span class="chk"></span>':'')+'</button>';
+  }
+  // ---- screens ----
+  function scPersona(){stage('<h2 class="gx-q">Who’s using the table today?</h2><p class="gx-hint">Tap the one that fits you.</p>'+
+    optBtn("V4GX.persona('cust')",'🌱','I’m a Customer / Patient','Help me find what fits — guide me')+
+    optBtn("V4GX.persona('emp')",'🏪','I work here','Budtender tools & quick lookup')+
+    optBtn("V4GX.persona('pro')",'⚕️','Healthcare Professional','Straight to the full table'));}
+  function scIntent(){stage('<h2 class="gx-q">Why are you here today?</h2><p class="gx-hint">There’s no wrong answer.</p>'+
+    ORDER.map(function(k){var r=REASONS[k];return optBtn("V4GX.intent('"+k+"')",r.ic,r.label,'');}).join(''));}
+  function scRefine(){var r=REASONS[st.intent];stage('<h2 class="gx-q">'+r.rq+'</h2><p class="gx-hint">Pick the closest.</p>'+
+    r.opts.map(function(o){return optBtn("V4GX.refine('"+o.k+"')",o.ic,o.label,'');}).join(''));}
+  function scThc(){stage('<h2 class="gx-q">How do you feel about feeling “high”?</h2><p class="gx-hint">This helps us keep you comfortable.</p>'+
+    optBtn("V4GX.thc('none')",'🚫','I’d rather avoid it','Non-intoxicating options',st.ceiling==='none',true)+
+    optBtn("V4GX.thc('low')",'🌤️','A little is okay','Gentle, balanced options',st.ceiling==='low',true)+
+    optBtn("V4GX.thc('any')",'🙂','I don’t mind it','All options on the table',st.ceiling==='any',true));}
+  function scSecond(){var opts=SECOND.filter(function(x){return x.k!==st.intent;});
+    stage('<h2 class="gx-q">Anything else going on?</h2><p class="gx-hint">Choose any — or skip.</p>'+
+    opts.map(function(o){return optBtn("V4GX.second('"+o.k+"',this)",o.ic,o.label,'',(st.seconds||[]).indexOf(o.k)>=0,true);}).join('')+
+    '<button class="gx-cta" onclick="V4GX.toRec()">See what may help →</button>'+
+    '<button class="gx-cta ghost" onclick="V4GX.toRec()">Skip</button>');}
+  function currentCondIds(){
+    if(st.intent==='learn')return ['sleep'];
+    var im=G().intentMap[st.intent]; if(!im)return ['sleep'];
+    var base=(st.refineKey&&im.refine&&im.refine[st.refineKey])?im.refine[st.refineKey]:im.cond;
+    return base;
+  }
+  function secondCondIds(){var out=[];(st.seconds||[]).forEach(function(k){var s=SECOND.filter(function(x){return x.k===k;})[0];if(s)out=out.concat(s.cond);});return out;}
+  function currentRec(){return G().recForConditions(currentCondIds(),st.ceiling,secondCondIds());}
+  function kindPhrase(rec){var cann=rec.molecules.filter(function(m){return !G().terps[m.molId];});
+    var top=cann[0]?cann[0].molId:'CBD';var nm=G().names[top]||top;var hasTHC=cann.some(function(m){return m.molId==='THC9';});
+    if(rec.thcCeiling==='none')return (top==='CBD'?'CBD-forward, non-intoxicating':nm+'-forward, non-intoxicating');
+    if(rec.thcCeiling==='any'&&hasTHC)return 'Balanced THC : CBD';
+    return (top==='CBD'?'CBD-forward, low THC':nm+'-forward, low THC');}
+  function scRec(){var rec=currentRec();var chips=rec.molecules.slice(0,5).map(function(m){
+      return '<span class="gx-chip'+(G().terps[m.molId]?' terp':'')+'">'+(G().names[m.molId]||m.molId)+'</span>';}).join('');
+    var ent=(secondCondIds().length? '<div class="gx-ent">✦ An entourage combination — these work better together for what you described.</div>':'');
+    stage('<h2 class="gx-q">What may help you</h2>'+
+      '<div class="gx-rec"><div class="kind">'+kindPhrase(rec)+'</div>'+
+      '<div class="because">Chosen for your needs'+(rec.thcCeiling==='none'?' — nothing that will make you feel high.':'.')+'</div>'+
+      '<div class="gx-chips">'+chips+'</div>'+ent+'</div>'+
+      optBtn("V4GX.seeScience()",'🔬','Why these? See the science','Opens the full molecule table')+
+      '<button class="gx-cta" onclick="V4GX.toProducts()">See products in stock →</button>');}
+  function scProducts(){var rec=currentRec();var res=G().match(rec);var top=res.shown.slice(0,6);var html='';
+    if(!top.length){html='<div class="gx-empty"><div style="font-size:2rem">🤝</div><b>Nothing on the shelf is a strong match right now.</b><br>A budtender can help you find an alternative.</div>';}
+    else{html='<p class="gx-summary">Best matches, ranked by fit</p>'+top.map(function(p){
+      var mols=Object.keys(p.profile).sort(function(a,b){return p.profile[b]-p.profile[a];}).slice(0,4).map(function(m){return '<span>'+(G().names[m]||m)+'</span>';}).join('');
+      return '<div class="gx-prod"><div class="sw">'+p.icon+'</div><div class="info"><b>'+p.name+'</b>'+
+        '<div class="meta">'+cap(p.type)+' · $'+p.price+' · '+p.count+' in stock</div><div class="mols">'+mols+'</div>'+
+        '<span class="gx-badge '+p.label+'">'+p.label+' match</span></div>'+
+        '<div class="gx-fit"><div class="pct">'+p.fit+'%</div><div class="lbl">fit</div></div></div>';}).join('')+
+      '<div class="gx-filtered">'+res.excluded.length+' others filtered out (out of stock, or stronger in THC than you wanted).</div>';}
+    stage('<h2 class="gx-q">Best matches in stock</h2>'+html+
+      optBtn("V4GX.seeScience()",'🔬','Explore the science &amp; full table','')+
+      '<button class="gx-cta ghost" onclick="V4GX.restart()">Start over</button>');}
+  function scEmp(){stage('<h2 class="gx-q">Budtender console</h2>'+
+    '<div class="gx-placard"><b>Demo scope.</b> In the full build this is a hub: Help a customer, Look up, Drug interactions, and Match inventory — with live stock counts.</div>'+
+    '<button class="gx-cta" onclick="V4GX.runGuide()">▶ Run the customer guide</button>'+
+    '<button class="gx-cta ghost" onclick="V4GX.close()">Skip to full table</button>');}
+  function cap(x){return x.charAt(0).toUpperCase()+x.slice(1);}
+  // ---- public API ----
+  window.V4GX={
+    start:function(){st={persona:null,seconds:[]};hist=['persona'];el('gxOverlay').style.display='flex';scPersona();chrome('persona');},
+    close:function(){el('gxOverlay').style.display='none';},
+    back:function(){if(hist.length>1){hist.pop();var scr=hist[hist.length-1];({persona:scPersona,intent:scIntent,refine:scRefine,thc:scThc,second:scSecond,rec:scRec,products:scProducts,emp:scEmp}[scr])();chrome(scr);}},
+    restart:function(){this.start();},
+    persona:function(p){st.persona=p;st.intent=null;st.refineKey=null;st.seconds=[];
+      if(p==='cust'){go('intent',scIntent);}else if(p==='emp'){go('emp',scEmp);}else{this.close();}},
+    runGuide:function(){st.persona='cust';go('intent',scIntent);},
+    intent:function(k){st.intent=k;st.refineKey=null;st.seconds=[];
+      if(REASONS[k].learn){this.close();try{if(typeof showWelcome==='function')showWelcome();}catch(e){}return;}
+      go('refine',scRefine);},
+    refine:function(k){st.refineKey=k;go('thc',scThc);},
+    thc:function(v){st.ceiling=v;go('second',scSecond);},
+    second:function(k,btn){st.seconds=st.seconds||[];var i=st.seconds.indexOf(k);if(i>=0){st.seconds.splice(i,1);btn.classList.remove('sel');}else{st.seconds.push(k);btn.classList.add('sel');}},
+    toRec:function(){go('rec',scRec);},
+    toProducts:function(){go('products',scProducts);},
+    seeScience:function(){var c=currentCondIds()[0];this.close();try{if(typeof selectCondition==='function')selectCondition(c);}catch(e){}}
+  };
 })();
 
 </script>
