@@ -2100,6 +2100,23 @@ body.is-mobile-view .panel-body{touch-action:pan-y}
 #gxOverlay .gx-empty{text-align:center;padding:26px 16px;color:var(--dim,#777)}
 #gxOverlay .gx-placard{border:1px dashed var(--border,#ccc);border-radius:14px;padding:18px;background:var(--surface,#fff);color:var(--dim,#777);font-size:.9rem}
 #gxOverlay .gx-summary{font-size:.82rem;color:var(--dim,#777);text-align:center}
+/* Guided Refine (INV-03 refine brought into the funnel) */
+#gxOverlay .gx-tog{cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:5px;transition:opacity .15s,border-color .15s}
+#gxOverlay .gx-tog .x{font-weight:800;color:var(--dim,#777);font-size:.95em;line-height:1}
+#gxOverlay .gx-tog:hover{border-color:var(--accent,#2E7D57)}
+#gxOverlay .gx-tog.off{opacity:.5;text-decoration:line-through;border-style:dashed}
+#gxOverlay .gx-tog.off .x{text-decoration:none;color:var(--accent,#2E7D57)}
+#gxOverlay .gx-refine{margin-top:10px;padding:12px 14px;border:1px dashed var(--border,#ccc);border-radius:12px;background:var(--surface,#fff)}
+#gxOverlay .gx-refine-h{font-size:.8rem;font-weight:700;color:var(--dim,#777)}
+#gxOverlay .gx-catrow{margin-top:8px;font-size:.78rem;color:var(--dim,#777);display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+#gxOverlay .gx-catbtn{font-family:inherit;font-size:.72rem;font-weight:600;padding:4px 10px;border-radius:999px;border:1px solid var(--border,#ccc);background:var(--surface2,#eef3ee);color:var(--text,#1a1a1a);cursor:pointer}
+#gxOverlay .gx-catbtn:hover{border-color:var(--accent,#2E7D57)}
+#gxOverlay .gx-matchcount{margin-top:10px;font-size:.82rem;font-weight:700;color:var(--accent,#2E7D57)}
+/* Demo-mode ribbon — only shown when the app is opened with ?demo=1 (production kiosk unaffected) */
+.demo-ribbon{position:fixed;left:12px;bottom:12px;z-index:9999;background:#8B6914;color:#fff;
+  font:600 11px/1.2 system-ui,-apple-system,sans-serif;letter-spacing:.09em;text-transform:uppercase;
+  padding:7px 13px;border-radius:999px;box-shadow:0 4px 14px rgba(0,0,0,.28);pointer-events:none;opacity:.94}
+.demo-ribbon .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#fff;margin-right:6px;vertical-align:middle;opacity:.85}
 </style>
 <div id="gxOverlay"><div class="gx-wrap">
   <div class="gx-top">
@@ -6531,29 +6548,34 @@ document.addEventListener('keydown', function(e) {
   var GNAMES={THC9:'THC',THCV:'THCV',CBD:'CBD',CBDV:'CBDV',CBN:'CBN',CBG:'CBG',CBC:'CBC',THCA:'THCA',CBDA:'CBDA',CBGA:'CBGA',
     MY:'Myrcene',LI:'Limonene',bCA:'β-Caryophyllene',LN:'Linalool',aPI:'Pinene',bPI:'β-Pinene',TE:'Terpinolene',
     aHU:'Humulene',OC:'Ocimene',NE:'Nerolidol',aBI:'Bisabolol',EU:'Eucalyptol',aTP:'Terpineol',CM:'Camphene'};
-  // Sample inventory (mirrors V4_sample_inventory.csv) — swap for the dispensary's real feed
+  // Demo inventory (mirrors V4_demo_inventory.csv — 25 SKUs, all 7 routes, incl. 2 out-of-stock).
+  // Swap this array for the dispensary's real POS feed (INV-05); the matcher is feed-agnostic.
   var INV=[
-   {sku:'CT-2001',name:'Calm 20:1 CBD Tincture',type:'tincture',thc:2,cbd:40,cann:'CBN:5',terp:'linalool:1;myrcene:1',price:45,count:12,icon:'💧'},
-   {sku:'CAP-3007',name:'Midnight Rest Softgels',type:'capsule',thc:5,cbd:15,cann:'CBN:5',terp:'myrcene:1;linalool:1',price:32,count:8,icon:'🌙'},
-   {sku:'TOP-1105',name:'Relief Balm 500mg',type:'topical',thc:0,cbd:500,cann:'CBG:50',terp:'beta-caryophyllene:1;linalool:1',price:38,count:20,icon:'🧴'},
-   {sku:'FL-4402',name:'Evening Indica Flower',type:'flower',thc:21,cbd:0.3,cann:'CBN:0.4',terp:'myrcene:1.1;linalool:0.5;humulene:0.3',price:12,count:30,icon:'🌿'},
-   {sku:'FL-4410',name:'Daybreak Sativa Flower',type:'flower',thc:23,cbd:0.2,cann:'',terp:'terpinolene:0.9;limonene:0.6;ocimene:0.4',price:12,count:25,icon:'🌿'},
-   {sku:'FL-4418',name:'Balance Hybrid Flower',type:'flower',thc:14,cbd:8,cann:'CBG:1',terp:'limonene:0.7;beta-caryophyllene:0.6;pinene:0.4',price:13,count:18,icon:'🌿'},
-   {sku:'GUM-5501',name:'Balanced 1:1 Gummies',type:'edible',thc:5,cbd:5,cann:'',terp:'',price:25,count:40,icon:'🍬'},
-   {sku:'GUM-5510',name:'Calm CBD Gummies',type:'edible',thc:2,cbd:25,cann:'CBG:5',terp:'limonene:1;linalool:1',price:28,count:35,icon:'🍬'},
-   {sku:'VP-6603',name:'Focus Vape Cartridge',type:'vape',thc:80,cbd:1,cann:'',terp:'pinene:2;limonene:2',price:40,count:15,icon:'💨'},
-   {sku:'VP-6620',name:'Nightfall Vape Cartridge',type:'vape',thc:78,cbd:2,cann:'CBN:3',terp:'myrcene:3;linalool:2',price:40,count:10,icon:'💨'},
-   {sku:'CT-2015',name:'1:1 Balance Tincture',type:'tincture',thc:20,cbd:20,cann:'',terp:'beta-caryophyllene:1',price:50,count:9,icon:'💧'},
-   {sku:'CAP-3020',name:'Daytime CBG Capsules',type:'capsule',thc:0,cbd:10,cann:'CBG:20',terp:'',price:42,count:14,icon:'☀️'},
-   {sku:'TOP-1120',name:'Warming Muscle Roll-On',type:'topical',thc:25,cbd:100,cann:'',terp:'beta-caryophyllene:1;camphene:0.5',price:30,count:22,icon:'🧴'},
-   {sku:'FL-4425',name:'CBD-Rich Wellness Flower',type:'flower',thc:6,cbd:12,cann:'',terp:'myrcene:0.8;pinene:0.5',price:11,count:16,icon:'🌿'},
-   {sku:'GUM-5525',name:'Sleep CBN Gummies',type:'edible',thc:5,cbd:10,cann:'CBN:10',terp:'linalool:1',price:30,count:28,icon:'🍬'},
-   {sku:'TIN-2030',name:'THCV Daytime Drops',type:'tincture',thc:3,cbd:5,cann:'THCV:15',terp:'limonene:1',price:55,count:6,icon:'💧'},
-   {sku:'CT-2050',name:'Deep Sleep CBN Tincture',type:'tincture',thc:0,cbd:10,cann:'CBN:20',terp:'myrcene:1;terpinolene:0.5;linalool:0.5',price:48,count:10,icon:'🌙'},
-   {sku:'CT-2060',name:'Full-Spectrum Relief Oil',type:'tincture',thc:10,cbd:30,cann:'CBC:5;CBN:3;CBG:2',terp:'beta-caryophyllene:1.5;myrcene:0.5',price:55,count:12,icon:'🌿'},
-   {sku:'GUM-5540',name:'Unwind CBD Gummies',type:'edible',thc:0,cbd:25,cann:'CBG:3',terp:'limonene:2;linalool:1;beta-caryophyllene:0.5',price:30,count:30,icon:'🍬'},
-   {sku:'TIN-2040',name:'Focus THCV:CBG Drops',type:'tincture',thc:2,cbd:2,cann:'THCV:12;CBG:10',terp:'limonene:1.5;pinene:1',price:58,count:8,icon:'☀️'},
-   {sku:'TOP-1130',name:'Soothe Muscle & Joint Salve',type:'topical',thc:5,cbd:200,cann:'CBC:20;CBG:10',terp:'beta-caryophyllene:2;camphene:0.5',price:42,count:18,icon:'🧴'}
+   {sku:'FLW-1001',name:'Midnight Meridian 3.5g',type:'flower',thc:22.4,cbd:0.2,cann:'CBN:0.5;CBG:0.4',terp:'myrcene:1.3;linalool:0.6;humulene:0.3',price:42,count:36,icon:'🌙'},
+   {sku:'FLW-1002',name:'Solstice Haze 3.5g',type:'flower',thc:24.1,cbd:0.1,cann:'THCV:0.3',terp:'terpinolene:1.1;limonene:0.7;ocimene:0.5',price:44,count:28,icon:'☀️'},
+   {sku:'FLW-1003',name:'Even Keel Hybrid 3.5g',type:'flower',thc:15.2,cbd:7.8,cann:'CBG:0.8',terp:'limonene:0.7;beta-caryophyllene:0.6;pinene:0.4',price:40,count:22,icon:'🌿'},
+   {sku:'FLW-1004',name:'Rootwork CBD 3.5g',type:'flower',thc:5.6,cbd:12.4,cann:'CBG:1.0',terp:'myrcene:0.8;pinene:0.6;beta-caryophyllene:0.4',price:38,count:18,icon:'🌿'},
+   {sku:'FLW-1005',name:'Ember Kush 3.5g',type:'flower',thc:26.8,cbd:0.1,cann:'CBN:0.6',terp:'myrcene:1.5;beta-caryophyllene:0.7;linalool:0.4',price:48,count:0,icon:'🌿'},
+   {sku:'VAP-2001',name:'Clear Focus Cartridge 0.5g',type:'vape',thc:81,cbd:0.6,cann:'',terp:'pinene:2.2;limonene:1.8',price:40,count:25,icon:'☀️'},
+   {sku:'VAP-2002',name:'Nightfall Cartridge 0.5g',type:'vape',thc:78.5,cbd:1.4,cann:'CBN:3.0',terp:'myrcene:3.2;linalool:2.1',price:40,count:14,icon:'🌙'},
+   {sku:'VAP-2003',name:'Balance 1:1 Cartridge 0.5g',type:'vape',thc:38,cbd:38,cann:'CBG:2.0',terp:'beta-caryophyllene:1.6;limonene:1.2',price:45,count:12,icon:'💨'},
+   {sku:'TIN-3001',name:'Calm 20:1 CBD Tincture',type:'tincture',thc:50,cbd:1000,cann:'CBN:120',terp:'linalool:1;myrcene:1',price:55,count:20,icon:'💧'},
+   {sku:'TIN-3002',name:'Deep Sleep CBN Tincture',type:'tincture',thc:0,cbd:300,cann:'CBN:600',terp:'myrcene:1;terpinolene:0.5;linalool:0.5',price:52,count:16,icon:'🌙'},
+   {sku:'TIN-3003',name:'1:1 Balance Tincture',type:'tincture',thc:500,cbd:500,cann:'',terp:'beta-caryophyllene:1',price:58,count:9,icon:'💧'},
+   {sku:'TIN-3004',name:'Full-Spectrum Relief Oil',type:'tincture',thc:250,cbd:750,cann:'CBC:120;CBN:80;CBG:60',terp:'beta-caryophyllene:1.5;myrcene:0.5',price:62,count:12,icon:'💧'},
+   {sku:'TIN-3005',name:'Daytime THCV:CBG Drops',type:'tincture',thc:60,cbd:60,cann:'THCV:360;CBG:300',terp:'limonene:1.5;pinene:1',price:64,count:7,icon:'☀️'},
+   {sku:'CAP-4001',name:'Midnight Rest Softgels',type:'capsule',thc:5,cbd:15,cann:'CBN:5',terp:'myrcene:1;linalool:1',price:34,count:18,icon:'🌙'},
+   {sku:'CAP-4002',name:'Daytime CBG Capsules',type:'capsule',thc:0,cbd:10,cann:'CBG:20',terp:'',price:44,count:14,icon:'☀️'},
+   {sku:'EDB-5001',name:'Sleep CBN Gummies',type:'edible',thc:5,cbd:10,cann:'CBN:10',terp:'linalool:1',price:28,count:32,icon:'🌙'},
+   {sku:'EDB-5002',name:'Calm CBD Gummies',type:'edible',thc:2,cbd:25,cann:'CBG:5',terp:'limonene:1;linalool:1',price:30,count:35,icon:'🍬'},
+   {sku:'EDB-5003',name:'Balanced 1:1 Gummies',type:'edible',thc:5,cbd:5,cann:'',terp:'',price:26,count:40,icon:'🍬'},
+   {sku:'EDB-5004',name:'Appetite+ THC Gummies',type:'edible',thc:10,cbd:2,cann:'CBG:5',terp:'myrcene:1',price:27,count:26,icon:'🍬'},
+   {sku:'BEV-6001',name:'Uplift Sparkling Lemon 5mg',type:'beverage',thc:5,cbd:0,cann:'',terp:'limonene:1',price:7,count:48,icon:'☀️'},
+   {sku:'BEV-6002',name:'Unwind CBD Tonic 25mg',type:'beverage',thc:0,cbd:25,cann:'CBG:3',terp:'linalool:1;limonene:1',price:8,count:44,icon:'🥤'},
+   {sku:'TOP-7001',name:'Relief Balm 500mg',type:'topical',thc:0,cbd:500,cann:'CBG:50',terp:'beta-caryophyllene:1;linalool:1',price:38,count:20,icon:'🧴'},
+   {sku:'TOP-7002',name:'Warming Muscle Roll-On',type:'topical',thc:25,cbd:100,cann:'',terp:'beta-caryophyllene:1;camphene:0.5',price:30,count:22,icon:'🧴'},
+   {sku:'TOP-7003',name:'Soothe Muscle & Joint Salve',type:'topical',thc:5,cbd:200,cann:'CBC:20;CBG:10',terp:'beta-caryophyllene:2;camphene:0.5',price:42,count:18,icon:'🧴'},
+   {sku:'EDB-5005',name:'Chemo-Comfort Mint 1:1 Tablets',type:'edible',thc:5,cbd:5,cann:'CBDA:10',terp:'limonene:1;ginger-not-mapped:1',price:34,count:0,icon:'🍬'}
   ];
   function parsePairs(str){var o={};(str||'').split(';').forEach(function(p){p=p.trim();if(!p)return;var i=p.indexOf(':');if(i<0)return;var mid=ALIAS[p.slice(0,i).trim().toLowerCase()];var v=parseFloat(p.slice(i+1));if(mid&&!isNaN(v))o[mid]=(o[mid]||0)+v;});return o;}
   function profile(p){var pr={};if(p.thc>0)pr.THC9=p.thc;if(p.cbd>0)pr.CBD=p.cbd;var c=parsePairs(p.cann),t=parsePairs(p.terp);for(var k in c)pr[k]=(pr[k]||0)+c[k];for(var k2 in t)pr[k2]=(pr[k2]||0)+t[k2];return pr;}
@@ -6687,21 +6709,36 @@ document.addEventListener('keydown', function(e) {
   }
   function secondCondIds(){var out=[];(st.seconds||[]).forEach(function(k){var s=SECOND.filter(function(x){return x.k===k;})[0];if(s)out=out.concat(s.cond);});return out;}
   function currentRec(){return G().recForConditions(currentCondIds(),st.ceiling,secondCondIds());}
+  // activeRec = the recommendation minus any molecules the user removed in the guided Refine step.
+  // Falls back to the full rec if everything is excluded, so the products screen is never starved.
+  function activeRec(){var rec=currentRec();var mols=rec.molecules.filter(function(m){return !(st.excluded&&st.excluded[m.molId]);});
+    return {molecules:mols.length?mols:rec.molecules,thcCeiling:rec.thcCeiling,conditions:rec.conditions,format:rec.format};}
   function kindPhrase(rec){var cann=rec.molecules.filter(function(m){return !G().terps[m.molId];});
     var top=cann[0]?cann[0].molId:'CBD';var nm=G().names[top]||top;var hasTHC=cann.some(function(m){return m.molId==='THC9';});
     if(rec.thcCeiling==='none')return (top==='CBD'?'CBD-forward, non-intoxicating':nm+'-forward, non-intoxicating');
     if(rec.thcCeiling==='any'&&hasTHC)return 'Balanced THC : CBD';
     return (top==='CBD'?'CBD-forward, low THC':nm+'-forward, low THC');}
-  function scRec(){var rec=currentRec();var chips=rec.molecules.slice(0,5).map(function(m){
-      return '<span class="gx-chip'+(G().terps[m.molId]?' terp':'')+'">'+(G().names[m.molId]||m.molId)+'</span>';}).join('');
+  function scRec(){var rec=currentRec();var active=activeRec();
+    // recommendation molecules rendered as removable toggle chips (tap to remove / restore)
+    var toggles=rec.molecules.slice(0,6).map(function(m){var off=!!(st.excluded&&st.excluded[m.molId]);
+      return '<button class="gx-chip gx-tog'+(G().terps[m.molId]?' terp':'')+(off?' off':'')+'" onclick="V4GX.toggleMol(\''+m.molId+'\')">'+
+        (G().names[m.molId]||m.molId)+'<span class="x">'+(off?'＋':'×')+'</span></button>';}).join('');
+    var hasCann=rec.molecules.some(function(m){return !G().terps[m.molId];});
+    var hasTerp=rec.molecules.some(function(m){return G().terps[m.molId];});
+    var catBtns=(hasCann?'<button class="gx-catbtn" onclick="V4GX.toggleCat(\'cann\')">Cannabinoids</button>':'')+
+                (hasTerp?'<button class="gx-catbtn" onclick="V4GX.toggleCat(\'terp\')">Terpenes</button>':'');
+    var n=G().match(active).shown.length;
     var ent=(secondCondIds().length? '<div class="gx-ent">✦ An entourage combination — these work better together for what you described.</div>':'');
     stage('<h2 class="gx-q">What may help you</h2>'+
-      '<div class="gx-rec"><div class="kind">'+kindPhrase(rec)+'</div>'+
-      '<div class="because">Chosen for your needs'+(rec.thcCeiling==='none'?' — nothing that will make you feel high.':'.')+'</div>'+
-      '<div class="gx-chips">'+chips+'</div>'+ent+'</div>'+
+      '<div class="gx-rec"><div class="kind">'+kindPhrase(active)+'</div>'+
+      '<div class="because">Chosen for your needs'+(active.thcCeiling==='none'?' — nothing that will make you feel high.':'.')+'</div>'+
+      '<div class="gx-chips">'+toggles+'</div>'+ent+'</div>'+
+      '<div class="gx-refine"><span class="gx-refine-h">Fine-tune — tap a molecule to remove it, and matches update.</span>'+
+        (catBtns?'<div class="gx-catrow">Remove a whole category: '+catBtns+'</div>':'')+
+        '<div class="gx-matchcount">'+n+' product'+(n===1?'':'s')+' in stock match this profile</div></div>'+
       optBtn("V4GX.seeScience()",'🔬','Why these? See the science','Opens the full molecule table')+
       '<button class="gx-cta" onclick="V4GX.toProducts()">See products in stock →</button>');}
-  function scProducts(){var rec=currentRec();var res=G().match(rec);var top=res.shown.slice(0,6);var html='';
+  function scProducts(){var rec=activeRec();var res=G().match(rec);var top=res.shown.slice(0,6);var html='';
     if(!top.length){html='<div class="gx-empty"><div style="font-size:2rem">🤝</div><b>Nothing on the shelf is a strong match right now.</b><br>A budtender can help you find an alternative.</div>';}
     else{html='<p class="gx-summary">Best matches, ranked by fit</p>'+top.map(function(p){
       var mols=Object.keys(p.profile).sort(function(a,b){return p.profile[b]-p.profile[a];}).slice(0,4).map(function(m){return '<span>'+(G().names[m]||m)+'</span>';}).join('');
@@ -6720,7 +6757,7 @@ document.addEventListener('keydown', function(e) {
   function cap(x){return x.charAt(0).toUpperCase()+x.slice(1);}
   // ---- public API ----
   window.V4GX={
-    start:function(){st={persona:null,seconds:[]};hist=['persona'];el('gxOverlay').style.display='flex';scPersona();chrome('persona');},
+    start:function(){st={persona:null,seconds:[],excluded:{}};hist=['persona'];el('gxOverlay').style.display='flex';scPersona();chrome('persona');},
     close:function(){el('gxOverlay').style.display='none';},
     back:function(){if(hist.length>1){hist.pop();var scr=hist[hist.length-1];({persona:scPersona,intent:scIntent,refine:scRefine,thc:scThc,second:scSecond,rec:scRec,products:scProducts,emp:scEmp}[scr])();chrome(scr);}},
     restart:function(){this.start();},
@@ -6733,11 +6770,23 @@ document.addEventListener('keydown', function(e) {
     refine:function(k){st.refineKey=k;go('thc',scThc);},
     thc:function(v){st.ceiling=v;go('second',scSecond);},
     second:function(k,btn){st.seconds=st.seconds||[];var i=st.seconds.indexOf(k);if(i>=0){st.seconds.splice(i,1);btn.classList.remove('sel');}else{st.seconds.push(k);btn.classList.add('sel');}},
-    toRec:function(){go('rec',scRec);},
+    toRec:function(){st.excluded={};go('rec',scRec);},
     toProducts:function(){go('products',scProducts);},
+    toggleMol:function(id){st.excluded=st.excluded||{};if(st.excluded[id])delete st.excluded[id];else st.excluded[id]=1;scRec();},
+    toggleCat:function(cat){st.excluded=st.excluded||{};var isTerp=(cat==='terp');
+      var inCat=currentRec().molecules.filter(function(m){return (!!G().terps[m.molId])===isTerp;});
+      var allOff=inCat.length&&inCat.every(function(m){return st.excluded[m.molId];});
+      inCat.forEach(function(m){if(allOff)delete st.excluded[m.molId];else st.excluded[m.molId]=1;});scRec();},
     seeScience:function(){var c=currentCondIds()[0];var SCI_ALIAS={'appetite-stim':'appetite','nausea-relief':'nausea'};c=SCI_ALIAS[c]||c;this.close();try{if(typeof selectCondition==='function')selectCondition(c);}catch(e){}}
   };
 })();
+
+// Demo-mode ribbon: only when opened with ?demo=1 — keeps the production kiosk clean.
+(function(){try{if(/[?&]demo=1(&|$)/.test(location.search||'')){
+  var add=function(){if(document.querySelector('.demo-ribbon'))return;var d=document.createElement('div');
+    d.className='demo-ribbon';d.innerHTML='<span class="dot"></span>Demonstration · sample inventory';
+    (document.body||document.documentElement).appendChild(d);if(document.body)document.body.classList.add('demo-mode');};
+  if(document.body)add();else document.addEventListener('DOMContentLoaded',add);}}catch(e){}})();
 
 </script>
 <div id="rcOv" class="rc-ov" role="dialog" aria-modal="true" aria-label="Acannability Reference Card" onclick="if(event.target===this)closeRefCard()">
