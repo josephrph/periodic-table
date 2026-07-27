@@ -2147,6 +2147,30 @@ body.is-mobile-view .panel-body{touch-action:pan-y}
   #gxOverlay .gx-pos-badge .dot.pulse{animation:gxPulse 1s ease-in-out infinite}
   @keyframes gxPulse{0%,100%{opacity:.35}50%{opacity:1}}
 }
+/* Phase 3 — clinician detail-level + demo insights dashboard */
+#gxOverlay .gx-detail{display:inline-flex;gap:2px;background:var(--surface2,#eef3ee);border:1px solid var(--border,#ccc);border-radius:999px;padding:2px;margin:12px 0 0}
+#gxOverlay .gx-detail button{font-family:inherit;font-size:.72rem;font-weight:700;border:none;background:transparent;color:var(--dim,#777);padding:5px 13px;border-radius:999px;cursor:pointer}
+#gxOverlay .gx-detail button.on{background:var(--accent,#2E7D57);color:#fff}
+#gxOverlay .gx-clin{margin-top:10px;border:1px solid var(--border,#ccc);border-radius:12px;overflow:hidden}
+#gxOverlay .gx-clin-row{display:flex;gap:10px;align-items:center;padding:9px 12px;border-top:1px solid var(--border,#eee);font-size:.8rem}
+#gxOverlay .gx-clin-row:first-child{border-top:none}
+#gxOverlay .gx-clin-row .mn{font-weight:700;min-width:76px;color:var(--text,#1a1a1a)}
+#gxOverlay .gx-clin-row .dt{color:var(--dim,#777);flex:1;text-align:right}
+#gxOverlay .gx-recep{display:inline-block;font-size:.64rem;font-weight:700;background:var(--surface2,#eef3ee);border:1px solid var(--border,#ccc);border-radius:999px;padding:1px 7px;margin:0 0 0 3px;color:var(--text,#1a1a1a)}
+#gxOverlay .gx-ev{font-family:var(--mono,monospace);font-size:.64rem;font-weight:700;padding:1px 6px;border-radius:5px;background:var(--accent,#2E7D57);color:#fff;margin-left:5px}
+#gxOverlay .gx-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+#gxOverlay .gx-stat{background:var(--surface,#fff);border:1px solid var(--border,#ccc);border-radius:12px;padding:13px}
+#gxOverlay .gx-stat .v{font-size:1.5rem;font-weight:800;color:var(--accent,#2E7D57);line-height:1}
+#gxOverlay .gx-stat .k{font-size:.72rem;color:var(--dim,#777);margin-top:4px}
+#gxOverlay .gx-gap{margin-top:16px}
+#gxOverlay .gx-gap-row{display:flex;align-items:center;gap:8px;margin:6px 0;font-size:.76rem}
+#gxOverlay .gx-gap-row .lbl{min-width:100px;font-weight:600}
+#gxOverlay .gx-gap-row .bar{flex:1;height:9px;border-radius:999px;background:var(--surface2,#eef3ee);overflow:hidden}
+#gxOverlay .gx-gap-row .bar i{display:block;height:100%;background:var(--accent,#2E7D57);border-radius:999px}
+#gxOverlay .gx-gap-row.low .bar i{background:#B23A3A}
+#gxOverlay .gx-gap-row .n{min-width:70px;text-align:right;color:var(--dim,#777);font-variant-numeric:tabular-nums}
+#gxOverlay .gx-gap-row.low .n{color:#B23A3A;font-weight:700}
+#gxOverlay .gx-cap{font-size:.74rem;color:var(--dim,#777);margin-top:10px;line-height:1.45}
 </style>
 <div id="gxOverlay"><div class="gx-wrap">
   <div class="gx-top">
@@ -6759,10 +6783,22 @@ document.addEventListener('keydown', function(e) {
                 (hasTerp?'<button class="gx-catbtn" onclick="V4GX.toggleCat(\'terp\')">Terpenes</button>':'');
     var n=G().match(active).shown.length;
     var ent=(secondCondIds().length? '<div class="gx-ent">✦ An entourage combination — these work better together for what you described.</div>':'');
+    var detail=st.detail||'plain';
+    var detailToggle='<div class="gx-detail"><button class="'+(detail==='plain'?'on':'')+'" onclick="V4GX.setDetail(\'plain\')">Plain language</button>'+
+      '<button class="'+(detail==='clinical'?'on':'')+'" onclick="V4GX.setDetail(\'clinical\')">Clinical detail</button></div>';
+    var clin='';
+    if(detail==='clinical'){clin='<div class="gx-clin">'+active.molecules.slice(0,5).map(function(m){
+      var mm=(typeof M!=='undefined'&&M[m.molId])?M[m.molId]:null;
+      var recs=(mm&&mm.receptors)?mm.receptors.map(function(r){return '<span class="gx-recep">'+(r==='5HT'?'5-HT':r)+'</span>';}).join(''):'';
+      var ev=(mm&&mm.evidence)?'<span class="gx-ev">Ev '+mm.evidence+'</span>':'';
+      var nm=mm?(mm.symbol||mm.fullName):(G().names[m.molId]||m.molId);
+      return '<div class="gx-clin-row"><div class="mn">'+nm+'</div><div class="dt">'+recs+ev+'</div></div>';}).join('')+
+      '<div class="gx-cap" style="padding:8px 12px 10px">Receptor targets &amp; evidence grade (A clinical → D emerging) per recommended molecule.</div></div>';}
     stage('<h2 class="gx-q">What may help you</h2>'+
       '<div class="gx-rec"><div class="kind">'+kindPhrase(active)+'</div>'+
       '<div class="because">Chosen for your needs'+(active.thcCeiling==='none'?' — nothing that will make you feel high.':'.')+'</div>'+
       '<div class="gx-chips">'+toggles+'</div>'+ent+'</div>'+
+      detailToggle+clin+
       '<div class="gx-refine"><span class="gx-refine-h">Fine-tune — tap a molecule to remove it, and matches update.</span>'+
         (catBtns?'<div class="gx-catrow">Remove a whole category: '+catBtns+'</div>':'')+
         '<div class="gx-matchcount">'+n+' product'+(n===1?'':'s')+' in stock match this profile</div></div>'+
@@ -6785,6 +6821,7 @@ document.addEventListener('keydown', function(e) {
       (top.length?'<button class="gx-cta" onclick="V4GX.handoff()">🛒 Send to budtender</button>':'')+
       '<button class="gx-cta ghost" onclick="V4GX.drugCheck()">💊 Check against your medications</button>'+
       optBtn("V4GX.seeScience()",'🔬','Explore the science &amp; full table','')+
+      (demoMode()?'<button class="gx-cta ghost" onclick="V4GX.insights()">📊 Demo insights (for the booth)</button>':'')+
       '<button class="gx-cta ghost" onclick="V4GX.restart()">Start over</button>');}
   // POS query "moment" (demo-gated): a short staged sequence before the results are revealed.
   function scPosQuery(){var active=activeRec();var n=G().match(active).shown.length;
@@ -6809,18 +6846,36 @@ document.addEventListener('keydown', function(e) {
       '<button class="gx-cta ghost" onclick="V4GX.drugCheck()">💊 Check against your medications first</button>'+
       '<button class="gx-cta ghost" onclick="V4GX.back()">← Back to matches</button>'+
       '<button class="gx-cta ghost" onclick="V4GX.restart()">Start new session</button>');}
+  // Demo insights dashboard (demo-gated): ROI tiles (illustrative) + live inventory-gap analysis.
+  function scInsights(){var inv=G().inventory;
+    var KEY=[['THC9','THC'],['CBD','CBD'],['CBN','CBN'],['CBG','CBG'],['CBC','CBC'],['THCV','THCV'],['MY','Myrcene'],['LI','Limonene'],['LN','Linalool'],['bCA','β-Caryophyllene']];
+    var maxc=0;var rows=KEY.map(function(k){var c=0;inv.forEach(function(p){if(p.count>0){var pr=G().buildProfile(p);if(pr[k[0]]!=null)c++;}});if(c>maxc)maxc=c;return {name:k[1],c:c};});
+    var gap=rows.map(function(r){var w=maxc?Math.round(r.c/maxc*100):0;var low=r.c<=2;
+      return '<div class="gx-gap-row'+(low?' low':'')+'"><span class="lbl">'+r.name+'</span><span class="bar"><i style="width:'+w+'%"></i></span><span class="n">'+r.c+' SKU'+(r.c===1?'':'s')+(low?' · gap':'')+'</span></div>';}).join('');
+    var instock=inv.filter(function(p){return p.count>0;}).length;
+    stage('<h2 class="gx-q">Demo insights — the business case</h2><p class="gx-hint">Illustrative booth figures; inventory depth is computed live from stock.</p>'+
+      '<div class="gx-stats">'+
+        '<div class="gx-stat"><div class="v">84%</div><div class="k">Avg match fit (top result)</div></div>'+
+        '<div class="gx-stat"><div class="v">38s</div><div class="k">Median time to recommendation</div></div>'+
+        '<div class="gx-stat"><div class="v">+23%</div><div class="k">Guided-basket attach rate</div></div>'+
+        '<div class="gx-stat"><div class="v">+$18</div><div class="k">Avg basket uplift</div></div>'+
+      '</div>'+
+      '<div class="gx-gap"><span class="gx-refine-h">Inventory optimization — supply depth by molecule</span>'+gap+
+      '<div class="gx-cap">'+instock+' SKUs in stock. Molecules in <b style="color:#B23A3A">red</b> are thin — demand the guided flow surfaces but the shelf can\'t meet. That\'s the buying signal V4 hands dispensary owners.</div></div>'+
+      '<button class="gx-cta ghost" onclick="V4GX.back()">← Back</button>');}
   function scEmp(){stage('<h2 class="gx-q">Budtender console</h2>'+
     '<div class="gx-placard"><b>Demo scope.</b> In the full build this is a hub: Help a customer, Look up, Drug interactions, and Match inventory — with live stock counts.</div>'+
     '<button class="gx-cta" onclick="V4GX.runGuide()">▶ Run the customer guide</button>'+
+    (demoMode()?'<button class="gx-cta ghost" onclick="V4GX.insights()">📊 Demo insights (for the booth)</button>':'')+
     '<button class="gx-cta ghost" onclick="V4GX.close()">Skip to full table</button>');}
   function cap(x){return x.charAt(0).toUpperCase()+x.slice(1);}
   function demoMode(){return /[?&]demo=1(&|$)/.test(location.search||'');}
   function reducedMotion(){try{return matchMedia('(prefers-reduced-motion:reduce)').matches;}catch(e){return false;}}
   // ---- public API ----
   window.V4GX={
-    start:function(){st={persona:null,seconds:[],excluded:{}};hist=['persona'];el('gxOverlay').style.display='flex';scPersona();chrome('persona');},
+    start:function(){st={persona:null,seconds:[],excluded:{},detail:'plain'};hist=['persona'];el('gxOverlay').style.display='flex';scPersona();chrome('persona');},
     close:function(){el('gxOverlay').style.display='none';},
-    back:function(){if(hist.length>1){hist.pop();var scr=hist[hist.length-1];({persona:scPersona,intent:scIntent,refine:scRefine,thc:scThc,second:scSecond,rec:scRec,products:scProducts,handoff:scHandoff,emp:scEmp}[scr])();chrome(scr);}},
+    back:function(){if(hist.length>1){hist.pop();var scr=hist[hist.length-1];({persona:scPersona,intent:scIntent,refine:scRefine,thc:scThc,second:scSecond,rec:scRec,products:scProducts,handoff:scHandoff,insights:scInsights,emp:scEmp}[scr])();chrome(scr);}},
     restart:function(){this.start();},
     persona:function(p){st.persona=p;st.intent=null;st.refineKey=null;st.seconds=[];
       if(p==='cust'){go('intent',scIntent);}else if(p==='emp'){go('emp',scEmp);}else{this.close();}},
@@ -6834,6 +6889,8 @@ document.addEventListener('keydown', function(e) {
     toRec:function(){st.excluded={};go('rec',scRec);},
     toProducts:function(){go('products',demoMode()?scPosQuery:scProducts);},
     handoff:function(){go('handoff',scHandoff);},
+    insights:function(){go('insights',scInsights);},
+    setDetail:function(v){st.detail=v;scRec();},
     drugCheck:function(){this.close();try{if(window.__v3MobileNav&&window.__v3MobileNav.goDrugInteractions){window.__v3MobileNav.goDrugInteractions();}else if(typeof toggleDrugPanel==='function'){toggleDrugPanel();}}catch(e){}},
     toggleMol:function(id){st.excluded=st.excluded||{};if(st.excluded[id])delete st.excluded[id];else st.excluded[id]=1;scRec();},
     toggleCat:function(cat){st.excluded=st.excluded||{};var isTerp=(cat==='terp');
