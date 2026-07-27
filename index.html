@@ -2081,6 +2081,7 @@ body.is-mobile-view .panel-body{touch-action:pan-y}
 #gxOverlay .gx-chip{font-size:.76rem;padding:5px 11px;border-radius:999px;background:var(--surface,#fff);border:1px solid var(--border,#ccc);font-weight:600}
 #gxOverlay .gx-chip.terp{color:var(--accent2,#8B6914)}
 #gxOverlay .gx-ent{margin-top:8px;font-size:.78rem;color:var(--accent,#2E7D57);font-weight:700}
+#gxOverlay .gx-note{margin:2px 0 12px;font-size:.8rem;line-height:1.4;color:var(--dim,#777);border-left:3px solid var(--accent2,#8B6914);background:var(--surface2,#eef3ee);padding:9px 12px;border-radius:0 10px 10px 0}
 #gxOverlay .gx-prod{display:flex;align-items:center;gap:13px;padding:14px;border:1px solid var(--border,#ccc);border-radius:14px;background:var(--surface,#fff);margin-bottom:10px}
 #gxOverlay .gx-prod .sw{width:44px;height:44px;border-radius:11px;flex:0 0 auto;display:flex;align-items:center;justify-content:center;font-size:1.3rem;background:var(--surface2,#eef3ee);border:1px solid var(--border,#ccc)}
 #gxOverlay .gx-prod .info{flex:1;min-width:0}
@@ -6572,16 +6573,28 @@ document.addEventListener('keydown', function(e) {
     return {shown:shown,excluded:excluded};}
   // maps the friendly funnel to REAL engine condition ids
   var INTENT={sleep:{cond:['sleep'],refine:{fall:['sleep'],stay:['sleep'],both:['sleep']}},
-    pain:{cond:['pain'],refine:{joint:['arthritis'],nerve:['neuropathic'],muscle:['spasm'],inflam:['inflammation'],gen:['pain']}},
-    anxiety:{cond:['anxiety'],refine:{day:['anxiety'],night:['anxiety','sleep'],social:['anxiety']}},
+    pain:{cond:['pain'],refine:{joint:['arthritis'],nerve:['neuropathic'],muscle:['spasm'],inflam:['inflammation'],migraine:['pain'],menstrual:['dysmenorrhea'],gen:['pain']}},
+    anxiety:{cond:['anxiety'],refine:{day:['anxiety'],night:['anxiety','sleep'],social:['anxiety'],ptsd:['ptsd'],mood:['depression']}},
+    appetite:{cond:['appetite-stim'],refine:{lowapp:['appetite-stim'],nausea:['nausea-relief'],chemo:['nausea-relief'],gut:['ibd']}},
+    cancer:{cond:['cancer'],refine:{nausea:['nausea-relief'],appetite:['appetite-stim'],pain:['pain'],sleep:['sleep'],anx:['anxiety']}},
     relax:{cond:['stress'],refine:{body:['stress','sleep'],light:['stress'],social:['stress','anxiety']}},
-    other:{cond:['appetite'],refine:{well:['antioxidant'],energy:['appetite'],mood:['depression']}}};
+    other:{cond:['antioxidant'],refine:{well:['antioxidant'],energy:['appetite'],mood:['depression'],womens:['dysmenorrhea','menopause']}}};
+  // Guided-only molecule profiles for funnel intents that have no clean single science condition,
+  // or where the science entry is intentionally bidirectional. Used ONLY for product matching in the
+  // guided flow — CONDITIONS, M, and the science filter bar are untouched. 'appetite-stim' = stimulate
+  // appetite; deliberately excludes THCV & humulene, which SUPPRESS appetite (see 'appetite' condition).
+  // 'nausea-relief' = antiemetic set restricted to molecules dispensaries actually disclose on
+  // labels/COAs (the 'nausea' condition leans on THCA/CBDA, which real stock never lists, so recs
+  // there can't reach any product); THC/CBD/limonene are all evidence-supported antiemetics AND
+  // matchable, so the products screen can resolve to real stock.
+  var GUIDED_MOL={ 'appetite-stim':{THC9:9,CBG:6,MY:5,CBN:4}, 'nausea-relief':{THC9:9,CBD:6,LI:5} };
   // adapter: build a recommendation from the REAL per-condition molecule scores in CONDITIONS/M
   function recForConditions(condIds,ceiling,secondCondIds){
     var all=(condIds||[]).concat(secondCondIds||[]);var w={};
-    all.forEach(function(cid){var cond=(typeof CONDITIONS!=='undefined')&&CONDITIONS.find(function(c){return c.id===cid;});
-      if(!cond||!cond.molecules)return;Object.keys(cond.molecules).forEach(function(mid){
-        if(typeof M!=='undefined'&&!M[mid])return;var sc=cond.molecules[mid];if(sc>=4)w[mid]=Math.max(w[mid]||0,sc);});});
+    all.forEach(function(cid){
+      var mols=GUIDED_MOL[cid]||((typeof CONDITIONS!=='undefined'&&CONDITIONS.find(function(c){return c.id===cid;}))||{}).molecules;
+      if(!mols)return;Object.keys(mols).forEach(function(mid){
+        if(typeof M!=='undefined'&&!M[mid])return;var sc=mols[mid];if(sc>=4)w[mid]=Math.max(w[mid]||0,sc);});});
     // Only match on molecules dispensary products actually disclose on labels/COAs
     // (major cannabinoids + terpenes). Rare cannabinoids/flavonoids still appear in the
     // science 'why' view, but can't be matched against real stock.
@@ -6605,19 +6618,31 @@ document.addEventListener('keydown', function(e) {
     pain:{ic:'🌿',label:"I'm looking for pain relief",rq:'What kind of pain?',opts:[
       {k:'joint',ic:'🦴',label:'Aching joints / arthritis'},{k:'nerve',ic:'⚡',label:'Nerve / burning'},
       {k:'muscle',ic:'💪',label:'Muscle tension / spasm'},{k:'inflam',ic:'🔥',label:'Inflammation / swelling'},
+      {k:'migraine',ic:'🤕',label:'Migraine / headache'},{k:'menstrual',ic:'🩸',label:'Menstrual / period pain'},
       {k:'gen',ic:'🤷',label:'General / not sure'}]},
     anxiety:{ic:'💭',label:'Anxious or stressed',rq:'When is it worst?',opts:[
       {k:'day',ic:'🌤️',label:'During the day (I need to function)'},{k:'night',ic:'🌙',label:'Racing thoughts at night'},
-      {k:'social',ic:'🫂',label:'Social situations'}]},
+      {k:'social',ic:'🫂',label:'Social situations'},{k:'ptsd',ic:'🛡️',label:'Trauma / PTSD'},
+      {k:'mood',ic:'☁️',label:'Low mood / feeling down'}]},
+    appetite:{ic:'🍽️',label:'Appetite & nausea',rq:'What are you dealing with?',opts:[
+      {k:'lowapp',ic:'🍽️',label:"Low appetite / can't eat"},{k:'nausea',ic:'🤢',label:'Nausea or upset stomach'},
+      {k:'chemo',ic:'💉',label:'Nausea from chemo or treatment'},{k:'gut',ic:'🌀',label:'Gut issues (IBS / Crohn’s)'}]},
+    cancer:{ic:'🎗️',label:'Cancer & treatment support',rq:'What would help most right now?',
+      note:'These help with comfort and symptoms — they are not a cancer treatment. Please talk with your care team.',opts:[
+      {k:'nausea',ic:'🤢',label:'Nausea / vomiting'},{k:'appetite',ic:'🍽️',label:'Poor appetite'},
+      {k:'pain',ic:'🌿',label:'Pain'},{k:'sleep',ic:'😴',label:'Trouble sleeping'},
+      {k:'anx',ic:'💭',label:'Anxiety / stress'}]},
     relax:{ic:'🛋️',label:'I just want to relax',rq:'How do you want to feel?',opts:[
       {k:'body',ic:'🧘',label:'Mellow, body-calm'},{k:'light',ic:'🎈',label:'Light & easy'},{k:'social',ic:'🎉',label:'Social & chatty'}]},
     other:{ic:'✨',label:'Something else',rq:'Roughly, what are you after?',opts:[
-      {k:'well',ic:'🌱',label:'General wellness'},{k:'energy',ic:'⚡',label:'A little energy / focus'},{k:'mood',ic:'☀️',label:'A mood lift'}]},
+      {k:'well',ic:'🌱',label:'General wellness'},{k:'energy',ic:'⚡',label:'A little energy / focus'},
+      {k:'mood',ic:'☀️',label:'A mood lift'},{k:'womens',ic:'🌸',label:'Women’s health (cramps, menopause)'}]},
     learn:{ic:'📚',label:'Curious — teach me',learn:true}
   };
-  var ORDER=['sleep','pain','anxiety','relax','learn','other'];
+  var ORDER=['sleep','pain','anxiety','appetite','cancer','relax','learn','other'];
   var SECOND=[{k:'sleep',ic:'😴',label:'Trouble sleeping too',cond:['sleep']},
-    {k:'stress',ic:'💭',label:'Stress / anxiety',cond:['stress']},{k:'pain',ic:'🌿',label:'Some pain too',cond:['pain']}];
+    {k:'stress',ic:'💭',label:'Stress / anxiety',cond:['stress']},{k:'pain',ic:'🌿',label:'Some pain too',cond:['pain']},
+    {k:'nausea',ic:'🤢',label:'Nausea too',cond:['nausea-relief']},{k:'appetite',ic:'🍽️',label:'Low appetite too',cond:['appetite-stim']}];
   var FUNNEL=['intent','refine','thc','second','rec','products'];
   var st={}, hist=[];
   function G(){return window.V4Guided;}
@@ -6641,9 +6666,11 @@ document.addEventListener('keydown', function(e) {
     optBtn("V4GX.persona('pro')",'⚕️','Healthcare Professional','Straight to the full table'));}
   function scIntent(){stage('<h2 class="gx-q">Why are you here today?</h2><p class="gx-hint">There’s no wrong answer.</p>'+
     ORDER.map(function(k){var r=REASONS[k];return optBtn("V4GX.intent('"+k+"')",r.ic,r.label,'');}).join(''));}
-  function scRefine(){var r=REASONS[st.intent];stage('<h2 class="gx-q">'+r.rq+'</h2><p class="gx-hint">Pick the closest.</p>'+
+  function scRefine(){var r=REASONS[st.intent];var note=r.note?'<p class="gx-note">'+r.note+'</p>':'';
+    stage('<h2 class="gx-q">'+r.rq+'</h2><p class="gx-hint">Pick the closest.</p>'+note+
     r.opts.map(function(o){return optBtn("V4GX.refine('"+o.k+"')",o.ic,o.label,'');}).join(''));}
-  function scThc(){stage('<h2 class="gx-q">How do you feel about feeling “high”?</h2><p class="gx-hint">This helps us keep you comfortable.</p>'+
+  function scThc(){var hint=(st.intent==='appetite'||st.intent==='cancer')?'For appetite and nausea, a little THC is often what helps most — pick what feels right.':'This helps us keep you comfortable.';
+    stage('<h2 class="gx-q">How do you feel about feeling “high”?</h2><p class="gx-hint">'+hint+'</p>'+
     optBtn("V4GX.thc('none')",'🚫','I’d rather avoid it','Non-intoxicating options',st.ceiling==='none',true)+
     optBtn("V4GX.thc('low')",'🌤️','A little is okay','Gentle, balanced options',st.ceiling==='low',true)+
     optBtn("V4GX.thc('any')",'🙂','I don’t mind it','All options on the table',st.ceiling==='any',true));}
@@ -6708,7 +6735,7 @@ document.addEventListener('keydown', function(e) {
     second:function(k,btn){st.seconds=st.seconds||[];var i=st.seconds.indexOf(k);if(i>=0){st.seconds.splice(i,1);btn.classList.remove('sel');}else{st.seconds.push(k);btn.classList.add('sel');}},
     toRec:function(){go('rec',scRec);},
     toProducts:function(){go('products',scProducts);},
-    seeScience:function(){var c=currentCondIds()[0];this.close();try{if(typeof selectCondition==='function')selectCondition(c);}catch(e){}}
+    seeScience:function(){var c=currentCondIds()[0];var SCI_ALIAS={'appetite-stim':'appetite','nausea-relief':'nausea'};c=SCI_ALIAS[c]||c;this.close();try{if(typeof selectCondition==='function')selectCondition(c);}catch(e){}}
   };
 })();
 
