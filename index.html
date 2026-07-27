@@ -2117,6 +2117,36 @@ body.is-mobile-view .panel-body{touch-action:pan-y}
   font:600 11px/1.2 system-ui,-apple-system,sans-serif;letter-spacing:.09em;text-transform:uppercase;
   padding:7px 13px;border-radius:999px;box-shadow:0 4px 14px rgba(0,0,0,.28);pointer-events:none;opacity:.94}
 .demo-ribbon .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#fff;margin-right:6px;vertical-align:middle;opacity:.85}
+/* Phase 2 — POS "moment", explainable why, and budtender hand-off */
+#gxOverlay .gx-posline{display:flex;align-items:center;gap:7px;font-size:.74rem;font-weight:700;color:var(--accent,#2E7D57);margin:-4px 0 8px;text-transform:uppercase;letter-spacing:.04em}
+#gxOverlay .gx-posline .dot{width:8px;height:8px;border-radius:50%;background:var(--accent,#2E7D57)}
+#gxOverlay .gx-why{margin-top:5px;font-size:.72rem;color:var(--accent,#2E7D57);font-weight:600;line-height:1.35}
+#gxOverlay .gx-pos{border:1px solid var(--border,#ccc);border-radius:14px;padding:18px;background:var(--surface,#fff)}
+#gxOverlay .gx-pos-badge{display:flex;align-items:center;gap:8px;font-weight:800;font-size:.95rem;margin-bottom:10px}
+#gxOverlay .gx-pos-badge .dot{width:9px;height:9px;border-radius:50%;background:var(--accent,#2E7D57)}
+#gxOverlay .gx-pos-step{font-size:.86rem;color:var(--dim,#777);padding:8px 0;border-top:1px solid var(--border,#eee)}
+#gxOverlay .gx-pos-step b{color:var(--accent,#2E7D57)}
+#gxOverlay .gx-handoff{border:1.5px solid var(--accent,#2E7D57);border-radius:16px;padding:16px;background:var(--surface2,#eef3ee)}
+#gxOverlay .gx-hpick{display:flex;align-items:center;gap:12px}
+#gxOverlay .gx-hpick .sw{width:42px;height:42px;border-radius:11px;background:var(--surface,#fff);display:grid;place-items:center;font-size:1.25rem;border:1px solid var(--border,#ccc);flex:0 0 auto}
+#gxOverlay .gx-hpick b{font-size:1rem}
+#gxOverlay .gx-hpick .meta{font-size:.78rem;color:var(--dim,#777);margin-top:2px}
+#gxOverlay .gx-checks{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+#gxOverlay .gx-checks span{font-size:.72rem;font-weight:600;color:var(--accent,#2E7D57);background:var(--surface,#fff);border:1px solid var(--border,#ccc);border-radius:999px;padding:3px 10px}
+#gxOverlay .gx-sent{margin-top:12px;display:flex;align-items:center;gap:8px;font-weight:700;font-size:.85rem;color:#fff;background:var(--accent,#2E7D57);border-radius:10px;padding:9px 12px}
+#gxOverlay .gx-sent .dot{width:8px;height:8px;border-radius:50%;background:#fff}
+#gxOverlay .gx-sent em{font-style:normal;opacity:.8;font-weight:600}
+#gxOverlay .gx-hnote{margin-top:12px;font-size:.82rem;color:var(--dim,#777)}
+@media(prefers-reduced-motion:no-preference){
+  #gxOverlay .gx-pos-step{opacity:0;animation:gxPosIn .45s ease forwards}
+  #gxOverlay .gx-pos-step.s1{animation-delay:.15s}
+  #gxOverlay .gx-pos-step.s2{animation-delay:.55s}
+  #gxOverlay .gx-pos-step.s3{animation-delay:.95s}
+  #gxOverlay .gx-pos-step.s4{animation-delay:1.4s}
+  @keyframes gxPosIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+  #gxOverlay .gx-pos-badge .dot.pulse{animation:gxPulse 1s ease-in-out infinite}
+  @keyframes gxPulse{0%,100%{opacity:.35}50%{opacity:1}}
+}
 </style>
 <div id="gxOverlay"><div class="gx-wrap">
   <div class="gx-top">
@@ -6738,28 +6768,59 @@ document.addEventListener('keydown', function(e) {
         '<div class="gx-matchcount">'+n+' product'+(n===1?'':'s')+' in stock match this profile</div></div>'+
       optBtn("V4GX.seeScience()",'🔬','Why these? See the science','Opens the full molecule table')+
       '<button class="gx-cta" onclick="V4GX.toProducts()">See products in stock →</button>');}
-  function scProducts(){var rec=activeRec();var res=G().match(rec);var top=res.shown.slice(0,6);var html='';
+  function scProducts(){var rec=activeRec();var res=G().match(rec);var top=res.shown.slice(0,6);
+    var recIds=rec.molecules.map(function(m){return m.molId;});var html='';
+    var badge=demoMode()?'<div class="gx-posline"><span class="dot"></span>Connected · Demo-POS · live stock</div>':'';
     if(!top.length){html='<div class="gx-empty"><div style="font-size:2rem">🤝</div><b>Nothing on the shelf is a strong match right now.</b><br>A budtender can help you find an alternative.</div>';}
     else{html='<p class="gx-summary">Best matches, ranked by fit</p>'+top.map(function(p){
       var mols=Object.keys(p.profile).sort(function(a,b){return p.profile[b]-p.profile[a];}).slice(0,4).map(function(m){return '<span>'+(G().names[m]||m)+'</span>';}).join('');
+      var matched=recIds.filter(function(id){return p.profile[id]!=null;});
+      var why=matched.length?'<div class="gx-why">✓ Matches '+matched.length+' of '+recIds.length+' recommended — '+matched.map(function(id){return G().names[id]||id;}).join(', ')+'</div>':'';
       return '<div class="gx-prod"><div class="sw">'+p.icon+'</div><div class="info"><b>'+p.name+'</b>'+
-        '<div class="meta">'+cap(p.type)+' · $'+p.price+' · '+p.count+' in stock</div><div class="mols">'+mols+'</div>'+
+        '<div class="meta">'+cap(p.type)+' · $'+p.price+' · '+p.count+' in stock</div><div class="mols">'+mols+'</div>'+why+
         '<span class="gx-badge '+p.label+'">'+p.label+' match</span></div>'+
         '<div class="gx-fit"><div class="pct">'+p.fit+'%</div><div class="lbl">fit</div></div></div>';}).join('')+
       '<div class="gx-filtered">'+res.excluded.length+' others filtered out (out of stock, or stronger in THC than you wanted).</div>';}
-    stage('<h2 class="gx-q">Best matches in stock</h2>'+html+
+    stage('<h2 class="gx-q">Best matches in stock</h2>'+badge+html+
+      (top.length?'<button class="gx-cta" onclick="V4GX.handoff()">🛒 Send to budtender</button>':'')+
+      '<button class="gx-cta ghost" onclick="V4GX.drugCheck()">💊 Check against your medications</button>'+
       optBtn("V4GX.seeScience()",'🔬','Explore the science &amp; full table','')+
       '<button class="gx-cta ghost" onclick="V4GX.restart()">Start over</button>');}
+  // POS query "moment" (demo-gated): a short staged sequence before the results are revealed.
+  function scPosQuery(){var active=activeRec();var n=G().match(active).shown.length;
+    var total=G().inventory.length;var instock=G().inventory.filter(function(p){return p.count>0;}).length;
+    stage('<h2 class="gx-q">Checking the shelf…</h2>'+
+      '<div class="gx-pos"><div class="gx-pos-badge"><span class="dot pulse"></span>Connecting to Demo-POS</div>'+
+        '<div class="gx-pos-step s1">Querying inventory — '+total+' SKUs</div>'+
+        '<div class="gx-pos-step s2">Filtering to in-stock — '+instock+' available</div>'+
+        '<div class="gx-pos-step s3">Scoring each product against your profile…</div>'+
+        '<div class="gx-pos-step s4"><b>'+n+' match'+(n===1?'':'es')+' ready</b></div></div>');
+    var tok=st._posTok=(st._posTok||0)+1;
+    setTimeout(function(){if(hist[hist.length-1]==='products'&&st._posTok===tok)scProducts();},reducedMotion()?0:1950);}
+  // Hand-off: the recommendation becomes a cart the budtender can fulfil (the POS conversion moment).
+  function scHandoff(){var p=G().match(activeRec()).shown[0];if(!p){scProducts();return;}
+    var demo=demoMode();
+    stage('<h2 class="gx-q">Ready for the budtender</h2>'+
+      '<div class="gx-handoff"><div class="gx-hpick"><div class="sw">'+p.icon+'</div><div><b>'+p.name+'</b>'+
+        '<div class="meta">'+cap(p.type)+' · $'+p.price+' · '+p.fit+'% fit</div></div></div>'+
+        '<div class="gx-checks"><span>✓ Your goal</span><span>✓ The science</span><span>✓ In stock ('+p.count+')</span></div>'+
+        (demo?'<div class="gx-sent"><span class="dot"></span>Sent to POS terminal · added to cart <em>(demonstration)</em></div>'
+             :'<div class="gx-hnote">Show this to your budtender to add it to your order.</div>')+'</div>'+
+      '<button class="gx-cta ghost" onclick="V4GX.drugCheck()">💊 Check against your medications first</button>'+
+      '<button class="gx-cta ghost" onclick="V4GX.back()">← Back to matches</button>'+
+      '<button class="gx-cta ghost" onclick="V4GX.restart()">Start new session</button>');}
   function scEmp(){stage('<h2 class="gx-q">Budtender console</h2>'+
     '<div class="gx-placard"><b>Demo scope.</b> In the full build this is a hub: Help a customer, Look up, Drug interactions, and Match inventory — with live stock counts.</div>'+
     '<button class="gx-cta" onclick="V4GX.runGuide()">▶ Run the customer guide</button>'+
     '<button class="gx-cta ghost" onclick="V4GX.close()">Skip to full table</button>');}
   function cap(x){return x.charAt(0).toUpperCase()+x.slice(1);}
+  function demoMode(){return /[?&]demo=1(&|$)/.test(location.search||'');}
+  function reducedMotion(){try{return matchMedia('(prefers-reduced-motion:reduce)').matches;}catch(e){return false;}}
   // ---- public API ----
   window.V4GX={
     start:function(){st={persona:null,seconds:[],excluded:{}};hist=['persona'];el('gxOverlay').style.display='flex';scPersona();chrome('persona');},
     close:function(){el('gxOverlay').style.display='none';},
-    back:function(){if(hist.length>1){hist.pop();var scr=hist[hist.length-1];({persona:scPersona,intent:scIntent,refine:scRefine,thc:scThc,second:scSecond,rec:scRec,products:scProducts,emp:scEmp}[scr])();chrome(scr);}},
+    back:function(){if(hist.length>1){hist.pop();var scr=hist[hist.length-1];({persona:scPersona,intent:scIntent,refine:scRefine,thc:scThc,second:scSecond,rec:scRec,products:scProducts,handoff:scHandoff,emp:scEmp}[scr])();chrome(scr);}},
     restart:function(){this.start();},
     persona:function(p){st.persona=p;st.intent=null;st.refineKey=null;st.seconds=[];
       if(p==='cust'){go('intent',scIntent);}else if(p==='emp'){go('emp',scEmp);}else{this.close();}},
@@ -6771,7 +6832,9 @@ document.addEventListener('keydown', function(e) {
     thc:function(v){st.ceiling=v;go('second',scSecond);},
     second:function(k,btn){st.seconds=st.seconds||[];var i=st.seconds.indexOf(k);if(i>=0){st.seconds.splice(i,1);btn.classList.remove('sel');}else{st.seconds.push(k);btn.classList.add('sel');}},
     toRec:function(){st.excluded={};go('rec',scRec);},
-    toProducts:function(){go('products',scProducts);},
+    toProducts:function(){go('products',demoMode()?scPosQuery:scProducts);},
+    handoff:function(){go('handoff',scHandoff);},
+    drugCheck:function(){this.close();try{if(window.__v3MobileNav&&window.__v3MobileNav.goDrugInteractions){window.__v3MobileNav.goDrugInteractions();}else if(typeof toggleDrugPanel==='function'){toggleDrugPanel();}}catch(e){}},
     toggleMol:function(id){st.excluded=st.excluded||{};if(st.excluded[id])delete st.excluded[id];else st.excluded[id]=1;scRec();},
     toggleCat:function(cat){st.excluded=st.excluded||{};var isTerp=(cat==='terp');
       var inCat=currentRec().molecules.filter(function(m){return (!!G().terps[m.molId])===isTerp;});
