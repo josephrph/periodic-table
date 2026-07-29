@@ -6746,8 +6746,10 @@ document.addEventListener('keydown', function(e) {
    {sku:'TIN-3003',name:'1:1 Balance Tincture',type:'tincture',thc:500,cbd:500,cann:'',terp:'beta-caryophyllene:1',price:58,count:9,icon:'💧'},
    {sku:'TIN-3004',name:'Full-Spectrum Relief Oil',type:'tincture',thc:250,cbd:750,cann:'CBC:120;CBN:80;CBG:60',terp:'beta-caryophyllene:1.5;myrcene:0.5',price:62,count:12,icon:'💧'},
    {sku:'TIN-3005',name:'Daytime THCV:CBG Drops',type:'tincture',thc:60,cbd:60,cann:'THCV:360;CBG:300',terp:'limonene:1.5;pinene:1',price:64,count:7,icon:'☀️'},
+   {sku:'TIN-3006',name:'Seizure Support 25:1 CBD Oil',type:'tincture',thc:40,cbd:1000,cann:'CBDV:200;THCV:120',terp:'linalool:1;pinene:0.5',price:66,count:15,icon:'🧠'},
    {sku:'CAP-4001',name:'Midnight Rest Softgels',type:'capsule',thc:5,cbd:15,cann:'CBN:5',terp:'myrcene:1;linalool:1',price:34,count:18,icon:'🌙'},
    {sku:'CAP-4002',name:'Daytime CBG Capsules',type:'capsule',thc:0,cbd:10,cann:'CBG:20',terp:'',price:44,count:14,icon:'☀️'},
+   {sku:'CAP-4003',name:'CBD-CBDV Seizure Support Softgels',type:'capsule',thc:0,cbd:25,cann:'CBDV:10',terp:'',price:48,count:22,icon:'🧠'},
    {sku:'EDB-5001',name:'Sleep CBN Gummies',type:'edible',thc:5,cbd:10,cann:'CBN:10',terp:'linalool:1',price:28,count:32,icon:'🌙'},
    {sku:'EDB-5002',name:'Calm CBD Gummies',type:'edible',thc:2,cbd:25,cann:'CBG:5',terp:'limonene:1;linalool:1',price:30,count:35,icon:'🍬'},
    {sku:'EDB-5003',name:'Balanced 1:1 Gummies',type:'edible',thc:5,cbd:5,cann:'',terp:'',price:26,count:40,icon:'🍬'},
@@ -6782,7 +6784,8 @@ document.addEventListener('keydown', function(e) {
     appetite:{cond:['appetite-stim'],refine:{lowapp:['appetite-stim'],nausea:['nausea-relief'],chemo:['nausea-relief'],gut:['ibd']}},
     cancer:{cond:['cancer'],refine:{nausea:['nausea-relief'],appetite:['appetite-stim'],pain:['pain'],sleep:['sleep'],anx:['anxiety']}},
     relax:{cond:['stress'],refine:{body:['stress','sleep'],light:['stress'],social:['stress','anxiety']}},
-    other:{cond:['antioxidant'],refine:{well:['antioxidant'],energy:['appetite'],mood:['depression'],womens:['dysmenorrhea','menopause']}}};
+    other:{cond:['antioxidant'],refine:{well:['antioxidant'],energy:['appetite'],mood:['depression'],womens:['dysmenorrhea','menopause']}},
+    seizure:{cond:['seizures'],refine:{freq:['seizures'],breakthrough:['seizures'],adjunct:['seizures'],unsure:['seizures']}}};
   // Guided-only molecule profiles for funnel intents that have no clean single science condition,
   // or where the science entry is intentionally bidirectional. Used ONLY for product matching in the
   // guided flow — CONDITIONS, M, and the science filter bar are untouched. 'appetite-stim' = stimulate
@@ -6901,9 +6904,13 @@ document.addEventListener('keydown', function(e) {
     other:{ic:'✨',label:'Something else',rq:'Roughly, what are you after?',opts:[
       {k:'well',ic:'🌱',label:'General wellness'},{k:'energy',ic:'⚡',label:'A little energy / focus'},
       {k:'mood',ic:'☀️',label:'A mood lift'},{k:'womens',ic:'🌸',label:'Women’s health (cramps, menopause)'}]},
+    seizure:{ic:'🧠',label:'Seizures / epilepsy',rq:'What best describes your situation?',
+      note:'Educational matching only — epilepsy needs a physician’s care. CBD is the most evidence-backed cannabinoid here; never start, stop, or change seizure medication without your doctor.',opts:[
+      {k:'freq',ic:'📆',label:'Frequent / ongoing seizures'},{k:'breakthrough',ic:'⚡',label:'Breakthrough episodes'},
+      {k:'adjunct',ic:'💊',label:'Alongside my current medication'},{k:'unsure',ic:'🤷',label:'Not sure / exploring'}]},
     learn:{ic:'📚',label:'Curious — teach me',learn:true}
   };
-  var ORDER=['sleep','pain','anxiety','appetite','cancer','relax','learn','other'];
+  var ORDER=['sleep','pain','anxiety','appetite','cancer','seizure','relax','learn','other'];
   var SECOND=[{k:'sleep',ic:'😴',label:'Trouble sleeping too',cond:['sleep']},
     {k:'stress',ic:'💭',label:'Stress / anxiety',cond:['stress']},{k:'pain',ic:'🌿',label:'Some pain too',cond:['pain']},
     {k:'nausea',ic:'🤢',label:'Nausea too',cond:['nausea-relief']},{k:'appetite',ic:'🍽️',label:'Low appetite too',cond:['appetite-stim']}];
@@ -6926,10 +6933,15 @@ document.addEventListener('keydown', function(e) {
   }
   // ---- screens ----
   function scPersona(){
-    // Discreet "Demo Mode" entry for Acannability staff — only on Acannability builds (ALLOW_DEMO) and
-    // only when not already in the demo. Opens the credential prompt; patients simply ignore it.
-    var demoLink=(window.V4DEMO&&window.V4DEMO.allow&&!window.V4DEMO.active)?
-      '<button class="gx-demo-link" onclick="showDemoLogin()" aria-label="Demo Mode — Acannability staff sign-in">🔒 Demo Mode</button>':'';
+    // Demo Mode entry (Acannability staff): before login, a discreet "🔒 Demo Mode" link that opens the
+    // credential prompt (patients ignore it). Once IN the demo, it becomes a quick "📦 View demo inventory"
+    // shortcut so you can jump straight to the faux dispensary catalogue during a presentation.
+    var demoLink='';
+    if(window.V4DEMO&&window.V4DEMO.active){
+      demoLink='<button class="gx-demo-link" onclick="V4GX.browse()" aria-label="View the demo dispensary inventory">📦 View demo inventory</button>';
+    }else if(window.V4DEMO&&window.V4DEMO.allow){
+      demoLink='<button class="gx-demo-link" onclick="showDemoLogin()" aria-label="Demo Mode — Acannability staff sign-in">🔒 Demo Mode</button>';
+    }
     stage('<h2 class="gx-q">Who’s using the table today?</h2><p class="gx-hint">Tap the one that fits you.</p>'+
     optBtn("V4GX.persona('cust')",'🌱','I’m a Customer / Patient','Help me find what fits — guide me')+
     optBtn("V4GX.persona('emp')",'🏪','I work here','Product Specialist tools & quick lookup')+
