@@ -2067,6 +2067,26 @@ body.is-mobile-view .panel-body{touch-action:pan-y}
 /* Persistent 'not medical advice' footer — shows on every guided screen (UX-11 consistency) */
 #gxOverlay .gx-disc{margin-top:auto;padding-top:16px;border-top:1px solid var(--border,#e2e2dc);font-size:.62rem;line-height:1.55;color:var(--dim,#777);text-align:center}
 #gxOverlay .gx-disc a{color:var(--accent,#2E7D57);font-weight:700;text-decoration:underline;white-space:nowrap}
+/* INV-02: CSV import + browse (operator-facing, budtender console) */
+#gxOverlay .gx-invnote{font-size:.72rem;color:var(--dim,#777);text-align:center;margin:2px 0}
+#gxOverlay .gx-import{border:1px dashed var(--border,#ccc);border-radius:12px;padding:20px;text-align:center;background:var(--surface,#fff)}
+#gxOverlay .gx-file{display:inline-block;cursor:pointer}
+#gxOverlay .gx-file input{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden}
+#gxOverlay .gx-file span{display:inline-block;background:var(--accent,#2E7D57);color:#fff;font-weight:700;padding:11px 18px;border-radius:10px}
+#gxOverlay .gx-file:focus-within span{outline:2px solid var(--accent,#2E7D57);outline-offset:2px}
+#gxOverlay .gx-import-help{font-size:.7rem;color:var(--dim,#777);line-height:1.55;margin-top:13px}
+#gxOverlay .gx-imp-err{background:#FDEDEA;border:1px solid #E0A090;color:#8B1000;border-radius:8px;padding:10px 12px;font-size:.8rem;margin:10px 0}
+#gxOverlay .gx-imp-warn{background:#FFF8E0;border:1px solid #C8A800;color:#5A4000;border-radius:8px;padding:9px 12px;font-size:.72rem;line-height:1.5;margin:8px 0}
+#gxOverlay .gx-imp-warn ul{margin:4px 0 0;padding-left:18px}
+#gxOverlay .gx-import-ok{background:#EAF6EE;border:1px solid #9CCBAE;border-radius:10px;padding:14px;font-size:.95rem;text-align:center}
+#gxOverlay .gx-search{width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid var(--border,#ccc);border-radius:9px;font-size:.85rem;font-family:inherit;margin-bottom:8px}
+#gxOverlay .gx-tablewrap{overflow-x:auto;max-height:52vh;overflow-y:auto;border:1px solid var(--border,#e2e2dc);border-radius:10px}
+#gxOverlay .gx-table{border-collapse:collapse;width:100%;font-size:.72rem}
+#gxOverlay .gx-table th,#gxOverlay .gx-table td{padding:7px 9px;text-align:left;white-space:nowrap;border-bottom:1px solid var(--border,#eee)}
+#gxOverlay .gx-table th{position:sticky;top:0;background:var(--surface,#f3f3ee);cursor:pointer;font-size:.63rem;letter-spacing:.03em;text-transform:uppercase;color:var(--dim,#777);user-select:none}
+#gxOverlay .gx-table th.sorted{color:var(--accent,#2E7D57)}
+#gxOverlay .gx-table tr.oos{opacity:.5}
+#gxOverlay .gx-table td.mut{color:var(--dim,#777);white-space:normal;max-width:190px}
 #gxOverlay h2.gx-q{font-size:clamp(1.4rem,5vw,1.8rem);line-height:1.2;margin:2px 0}
 #gxOverlay .gx-hint{color:var(--dim,#777);font-size:.9rem;margin:-6px 0 2px}
 #gxOverlay .gx-opt{display:flex;align-items:center;gap:13px;padding:16px 15px;border:1.5px solid var(--border,#ccc);
@@ -6705,8 +6725,68 @@ document.addEventListener('keydown', function(e) {
     var mols=Object.keys(w).map(function(m){return {molId:m,weight:w[m]};}).sort(function(a,b){return b.weight-a.weight;}).slice(0,4);
     return {molecules:mols,thcCeiling:ceiling,conditions:all};
   }
+  // ── INV-02: manual CSV inventory import (operator-facing, budtender console) ──
+  // The matcher reads the closure INV (match() uses `inv||INV`), so we swap stock by mutating
+  // INV in place — V4Guided.inventory keeps pointing at the same array, no rewiring needed.
+  var DEMO_INV=INV.slice();          // snapshot of the built-in sample stock (for "restore sample")
+  var INV_KEY='acann_inv_v1';        // localStorage key for a persisted imported catalogue
+  var invImported=false;             // true once a real CSV has replaced the sample stock
+  function _setINV(arr){INV.length=0;arr.forEach(function(p){INV.push(p);});}
+  function setInventory(arr,opts){opts=opts||{};_setINV(arr);invImported=true;
+    if(!opts.noPersist){try{localStorage.setItem(INV_KEY,JSON.stringify(arr));}catch(e){}}}
+  function restoreDemo(){_setINV(DEMO_INV);invImported=false;try{localStorage.removeItem(INV_KEY);}catch(e){}}
+  function loadPersisted(){try{var s=localStorage.getItem(INV_KEY);if(s){var a=JSON.parse(s);
+    if(Array.isArray(a)&&a.length){_setINV(a);invImported=true;return true;}}}catch(e){}return false;}
+  var ROUTES={flower:'🌿',vape:'💨',tincture:'💧',capsule:'💊',edible:'🍬',beverage:'🥤',topical:'🧴'};
+  function _iconFor(type,effects){var e=(effects||'').toLowerCase();
+    if(/sleep|sedat|night|\brest\b/.test(e))return '🌙';
+    if(/energy|focus|uplift|mood-?lift|daytime/.test(e))return '☀️';
+    return ROUTES[type]||'🌿';}
+  // Minimal RFC-4180-ish splitter: handles quoted fields, escaped "" and embedded commas/newlines.
+  function _csvRows(text){var rows=[],row=[],cur='',q=false,i,c;text=(text||'').replace(/^﻿/,'');
+    for(i=0;i<text.length;i++){c=text[i];
+      if(q){if(c==='"'){if(text[i+1]==='"'){cur+='"';i++;}else q=false;}else cur+=c;}
+      else if(c==='"')q=true;
+      else if(c===',')  {row.push(cur);cur='';}
+      else if(c==='\n'||c==='\r'){if(c==='\r'&&text[i+1]==='\n')i++;row.push(cur);cur='';rows.push(row);row=[];}
+      else cur+=c;}
+    if(cur!==''||row.length){row.push(cur);rows.push(row);}
+    return rows.filter(function(r){return r.length>1||(r.length===1&&r[0].trim()!=='');});}
+  function _unknownNames(str,set){(str||'').split(';').forEach(function(p){p=p.trim();if(!p)return;
+    var i=p.indexOf(':');if(i<0)return;var nm=p.slice(0,i).trim();if(nm&&!ALIAS[nm.toLowerCase()])set[nm]=true;});}
+  // Parse a dispensary CSV (full V4 template OR the compact internal shape) into product objects.
+  function parseInventoryCSV(text){
+    var rows=_csvRows(text);
+    if(!rows.length)return {products:[],report:{imported:0,skipped:[],unknown:[],error:'The file is empty.'}};
+    var hdr=rows[0].map(function(h){return (h||'').trim().toLowerCase();});
+    function col(){for(var a=0;a<arguments.length;a++){var idx=hdr.indexOf(arguments[a]);if(idx>=0)return idx;}return -1;}
+    var ci={sku:col('sku'),name:col('name','product','product name'),type:col('type','route'),
+      thc:col('thc','thc%','thc_pct'),cbd:col('cbd','cbd%','cbd_pct'),
+      cann:col('cannabinoids','cann','minor cannabinoids'),terp:col('terpenes','terp'),
+      price:col('price','retail','retail price'),count:col('quantity','count','qty','units','stock'),
+      instock:col('in_stock','instock'),effects:col('effects','effect')};
+    if(ci.name<0||ci.type<0)return {products:[],report:{imported:0,skipped:[],unknown:[],
+      error:'CSV must include at least "name" and "type" columns. Found: '+hdr.join(', ')}};
+    var products=[],skipped=[],unknownSet={};
+    for(var r=1;r<rows.length;r++){(function(r){var row=rows[r];
+      function g(k){return ci[k]>=0?(row[ci[k]]||'').trim():'';}
+      var name=g('name'),type=g('type').toLowerCase();
+      if(!name){skipped.push({name:'Row '+(r+1),reason:'missing name'});return;}
+      if(!ROUTES[type]){skipped.push({name:name,reason:'unknown product type "'+g('type')+'"'});return;}
+      var cann=g('cann'),terp=g('terp');_unknownNames(cann,unknownSet);_unknownNames(terp,unknownSet);
+      var count=ci.count>=0?(parseInt(g('count'),10)||0):0;
+      if(/^n/i.test(g('instock')))count=0;
+      products.push({sku:g('sku')||('SKU-'+r),name:name,type:type,
+        thc:parseFloat(g('thc'))||0,cbd:parseFloat(g('cbd'))||0,cann:cann,terp:terp,
+        price:parseFloat(g('price'))||0,count:count,icon:_iconFor(type,g('effects'))});
+    })(r);}
+    return {products:products,report:{imported:products.length,skipped:skipped,unknown:Object.keys(unknownSet)}};
+  }
+  loadPersisted();  // restore an operator's previously-imported catalogue, if any
   window.V4Guided={CONFIG:CFG,inventory:INV,names:GNAMES,terps:TERPS,buildProfile:profile,
-    match:match,recForConditions:recForConditions,intentMap:INTENT};
+    match:match,recForConditions:recForConditions,intentMap:INTENT,
+    setInventory:setInventory,restoreDemo:restoreDemo,parseInventoryCSV:parseInventoryCSV,
+    isImported:function(){return invImported;},sampleCount:function(){return DEMO_INV.length;}};
 })();
 
 
@@ -6745,6 +6825,7 @@ document.addEventListener('keydown', function(e) {
     {k:'nausea',ic:'🤢',label:'Nausea too',cond:['nausea-relief']},{k:'appetite',ic:'🍽️',label:'Low appetite too',cond:['appetite-stim']}];
   var FUNNEL=['intent','refine','thc','second','rec','products'];
   var st={}, hist=[];
+  var lastImport=null, browseSort={key:'name',dir:1}, browseQ='';  // INV-02 import/browse state
   function G(){return window.V4Guided;}
   function el(id){return document.getElementById(id);}
   function stage(html){el('gxStage').innerHTML=html;window.scrollTo(0,0);}
@@ -6887,11 +6968,54 @@ document.addEventListener('keydown', function(e) {
       '<div class="gx-gap"><span class="gx-refine-h">Inventory optimization — supply depth by molecule</span>'+gap+
       '<div class="gx-cap">'+instock+' SKUs in stock. Molecules in <b style="color:#B23A3A">red</b> are thin — demand the guided flow surfaces but the shelf can\'t meet. That\'s the buying signal V2 hands dispensary owners.</div></div>'+
       '<button class="gx-cta ghost" onclick="V4GX.back()">← Back</button>');}
-  function scEmp(){stage('<h2 class="gx-q">Budtender console</h2>'+
+  function scEmp(){var imp=G().isImported&&G().isImported();
+    stage('<h2 class="gx-q">Budtender console</h2>'+
     '<div class="gx-placard"><b>Demo scope.</b> In the full build this is a hub: Help a customer, Look up, Drug interactions, and Match inventory — with live stock counts.</div>'+
     '<button class="gx-cta" onclick="V4GX.runGuide()">▶ Run the customer guide</button>'+
+    '<button class="gx-cta ghost" onclick="V4GX.importScreen()">📥 Import inventory (CSV)</button>'+
+    '<button class="gx-cta ghost" onclick="V4GX.browse()">📦 Browse inventory ('+G().inventory.length+')</button>'+
+    '<div class="gx-invnote">'+(imp?'Using your imported catalogue.':'Using the built-in sample catalogue.')+'</div>'+
     (demoMode()?'<button class="gx-cta ghost" onclick="V4GX.insights()">📊 Demo insights (for the booth)</button>':'')+
     '<button class="gx-cta ghost" onclick="V4GX.close()">Skip to full table</button>');}
+  // ── INV-02 screens: import + browse (operator-facing) ──
+  function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  function scImport(){var imp=G().isImported&&G().isImported();
+    stage('<h2 class="gx-q">Import inventory</h2>'+
+      '<p class="gx-hint">Upload a product CSV from your POS or the fill-in template. It stays on this device — nothing is uploaded.</p>'+
+      '<div class="gx-import">'+
+        '<label class="gx-file"><input type="file" accept=".csv,text/csv" onchange="V4GX.onFile(this)"><span>📄 Choose CSV file…</span></label>'+
+        '<div class="gx-import-help">Required columns: <b>name</b>, <b>type</b> (flower, vape, tincture, capsule, edible, beverage, topical). Optional: thc, cbd, cannabinoids, terpenes, price, quantity, in_stock, effects.</div>'+
+      '</div>'+
+      '<div id="gxImportMsg"></div>'+
+      (imp?'<button class="gx-cta ghost" onclick="V4GX.restoreDemoInv()">↩ Restore sample catalogue</button>':'')+
+      '<button class="gx-cta ghost" onclick="V4GX.back()">← Back</button>');}
+  function scImportResult(){var rep=(lastImport&&lastImport.report)||{imported:G().inventory.length,skipped:[],unknown:[]};
+    var warn='';
+    if(rep.skipped&&rep.skipped.length)warn+='<div class="gx-imp-warn"><b>'+rep.skipped.length+' row(s) skipped:</b><ul>'+rep.skipped.slice(0,8).map(function(s){return '<li>'+esc(s.name)+' — '+esc(s.reason)+'</li>';}).join('')+(rep.skipped.length>8?'<li>…and '+(rep.skipped.length-8)+' more</li>':'')+'</ul></div>';
+    if(rep.unknown&&rep.unknown.length)warn+='<div class="gx-imp-warn">Unrecognised compound names (kept on the label, ignored in matching): '+rep.unknown.slice(0,12).map(esc).join(', ')+(rep.unknown.length>12?'…':'')+'</div>';
+    stage('<h2 class="gx-q">✓ Imported</h2>'+
+      '<div class="gx-import-ok"><b>'+rep.imported+'</b> product'+(rep.imported===1?'':'s')+' loaded and ready to match.</div>'+
+      warn+
+      '<button class="gx-cta" onclick="V4GX.browse()">📦 Browse inventory</button>'+
+      '<button class="gx-cta ghost" onclick="V4GX.runGuide()">▶ Run the customer guide</button>'+
+      '<button class="gx-cta ghost" onclick="V4GX.importScreen()">Import a different file</button>');}
+  function shortPairs(cann,terp){var s=[cann,terp].filter(Boolean).join('; ');return s.length>44?s.slice(0,42)+'…':(s||'—');}
+  function renderBrowseTable(){var wrap=el('gxBrowseTable');if(!wrap)return;
+    var inv=G().inventory.slice();var q=(browseQ||'').toLowerCase();
+    if(q)inv=inv.filter(function(p){return (p.name+' '+p.type).toLowerCase().indexOf(q)>=0;});
+    var k=browseSort.key,d=browseSort.dir;
+    inv.sort(function(a,b){var x=a[k],y=b[k];if(typeof x==='string'||typeof y==='string'){x=String(x==null?'':x).toLowerCase();y=String(y==null?'':y).toLowerCase();}return (x<y?-1:x>y?1:0)*d;});
+    function hd(key,lbl){return '<th onclick="V4GX.sortBrowse(\''+key+'\')" class="'+(browseSort.key===key?'sorted':'')+'">'+lbl+(browseSort.key===key?(d>0?' ▲':' ▼'):'')+'</th>';}
+    var body=inv.map(function(p){return '<tr'+(p.count<=0?' class="oos"':'')+'><td>'+p.icon+' '+esc(p.name)+'</td><td>'+cap(p.type)+'</td><td>'+p.thc+'</td><td>'+p.cbd+'</td><td class="mut">'+esc(shortPairs(p.cann,p.terp))+'</td><td>$'+p.price+'</td><td>'+(p.count>0?p.count:'—')+'</td></tr>';}).join('');
+    wrap.innerHTML='<table class="gx-table"><thead><tr>'+hd('name','Product')+hd('type','Type')+hd('thc','THC')+hd('cbd','CBD')+'<th>Minors / terps</th>'+hd('price','Price')+hd('count','Stock')+'</tr></thead><tbody>'+(body||'<tr><td colspan="7" class="mut">No matches.</td></tr>')+'</tbody></table>';}
+  function scBrowse(){var imp=G().isImported&&G().isImported();
+    stage('<h2 class="gx-q">Inventory ('+G().inventory.length+')</h2>'+
+      '<p class="gx-hint">'+(imp?'Your imported catalogue.':'The built-in sample catalogue.')+' Tap a column to sort.</p>'+
+      '<input class="gx-search" type="search" placeholder="Search name or type…" value="'+esc(browseQ)+'" oninput="V4GX.browseSearch(this.value)">'+
+      '<div class="gx-tablewrap" id="gxBrowseTable"></div>'+
+      '<button class="gx-cta ghost" onclick="V4GX.importScreen()">📥 Import a different CSV</button>'+
+      '<button class="gx-cta ghost" onclick="V4GX.back()">← Back</button>');
+    renderBrowseTable();}
   function cap(x){return x.charAt(0).toUpperCase()+x.slice(1);}
   function demoMode(){return /[?&]demo=1(&|$)/.test(location.search||'');}
   function reducedMotion(){try{return matchMedia('(prefers-reduced-motion:reduce)').matches;}catch(e){return false;}}
@@ -6899,7 +7023,7 @@ document.addEventListener('keydown', function(e) {
   window.V4GX={
     start:function(){st={persona:null,seconds:[],excluded:{},detail:'plain'};hist=['persona'];el('gxOverlay').style.display='flex';scPersona();chrome('persona');},
     close:function(){el('gxOverlay').style.display='none';},
-    back:function(){if(hist.length>1){hist.pop();var scr=hist[hist.length-1];({persona:scPersona,intent:scIntent,refine:scRefine,thc:scThc,second:scSecond,rec:scRec,products:scProducts,handoff:scHandoff,insights:scInsights,emp:scEmp}[scr])();chrome(scr);}},
+    back:function(){if(hist.length>1){hist.pop();var scr=hist[hist.length-1];({persona:scPersona,intent:scIntent,refine:scRefine,thc:scThc,second:scSecond,rec:scRec,products:scProducts,handoff:scHandoff,insights:scInsights,emp:scEmp,import:scImport,importResult:scImportResult,browse:scBrowse}[scr])();chrome(scr);}},
     restart:function(){this.start();},
     persona:function(p){st.persona=p;st.intent=null;st.refineKey=null;st.seconds=[];
       if(p==='cust'){go('intent',scIntent);}else if(p==='emp'){go('emp',scEmp);}else{this.close();}},
@@ -6914,6 +7038,21 @@ document.addEventListener('keydown', function(e) {
     toProducts:function(){go('products',demoMode()?scPosQuery:scProducts);},
     handoff:function(){go('handoff',scHandoff);},
     insights:function(){go('insights',scInsights);},
+    importScreen:function(){lastImport=null;go('import',scImport);},
+    onFile:function(input){var f=input&&input.files&&input.files[0];if(!f){return;}
+      var rd=new FileReader();
+      rd.onload=function(){var msg=el('gxImportMsg');
+        try{var res=G().parseInventoryCSV(String(rd.result||''));lastImport=res;
+          if(res.report.error){if(msg)msg.innerHTML='<div class="gx-imp-err">⚠ '+esc(res.report.error)+'</div>';return;}
+          if(!res.products.length){if(msg)msg.innerHTML='<div class="gx-imp-err">⚠ No valid products found'+(res.report.skipped.length?' ('+res.report.skipped.length+' row(s) skipped)':'')+'.</div>';return;}
+          G().setInventory(res.products);go('importResult',scImportResult);
+        }catch(e){if(msg)msg.innerHTML='<div class="gx-imp-err">⚠ Could not read that file — is it a CSV?</div>';}};
+      rd.onerror=function(){var msg=el('gxImportMsg');if(msg)msg.innerHTML='<div class="gx-imp-err">⚠ Could not read that file.</div>';};
+      rd.readAsText(f);},
+    browse:function(){go('browse',scBrowse);},
+    browseSearch:function(v){browseQ=v;renderBrowseTable();},
+    sortBrowse:function(k){if(browseSort.key===k){browseSort.dir*=-1;}else{browseSort.key=k;browseSort.dir=1;}renderBrowseTable();},
+    restoreDemoInv:function(){if(G().restoreDemo)G().restoreDemo();lastImport=null;browseQ='';go('browse',scBrowse);},
     setDetail:function(v){st.detail=v;scRec();},
     drugCheck:function(){this.close();try{if(window.__v3MobileNav&&window.__v3MobileNav.goDrugInteractions){window.__v3MobileNav.goDrugInteractions();}else if(typeof toggleDrugPanel==='function'){toggleDrugPanel();}}catch(e){}},
     toggleMol:function(id){st.excluded=st.excluded||{};if(st.excluded[id])delete st.excluded[id];else st.excluded[id]=1;scRec();},
