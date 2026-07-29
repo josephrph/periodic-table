@@ -267,7 +267,7 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 .adv-disclaimer{font-size:.61rem;color:var(--dim);line-height:1.65;padding:9px 11px;background:#FFF8F6;border:1px solid rgba(204,34,0,.22);border-radius:5px;margin-top:10px}
 .adv-disclaimer strong{color:#8B1000}
 /* FULL DISCLAIMER MODAL */
-#fullDiscOv{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:2000;display:none;align-items:center;justify-content:center;padding:20px}
+#fullDiscOv{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:9500;display:none;align-items:center;justify-content:center;padding:20px}
 #fullDiscOv.open{display:flex}
 #fullDiscBox{background:#fff;border-radius:10px;max-width:720px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.5)}
 .disc-modal-hdr{background:#1C0A00;padding:20px 26px;border-radius:10px 10px 0 0;display:flex;align-items:center;justify-content:space-between;gap:12px;position:sticky;top:0}
@@ -377,6 +377,9 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 .ev-bar-btn[data-ev="B"].ev-active{background:var(--ev-b);border-color:var(--ev-b)}
 .ev-bar-btn[data-ev="C"].ev-active{background:var(--ev-c);border-color:var(--ev-c)}
 .ev-bar-btn[data-ev="D"].ev-active{background:var(--ev-d);border-color:var(--ev-d)}
+.ev-bar-key{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;font-size:.72rem;color:var(--dim);cursor:help;user-select:none;margin:0 2px}
+.ev-bar-key:hover,.ev-bar-key:focus{color:var(--accent)}
+.filter-count{font-size:.6rem;font-weight:700;color:var(--dim);white-space:nowrap;margin-left:6px;letter-spacing:.02em}
 /* END EVIDENCE GRADE BAR BUTTONS */
 #rcResetBtn{padding:5px 16px;border:none;border-radius:20px;background:#CC2200;color:#fff;font-size:.64rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;transition:background .15s,transform .1s;flex-shrink:0;box-shadow:0 1px 4px rgba(204,34,0,.35)}
 #rcResetBtn:hover{background:#A01800;transform:scale(1.04)}
@@ -1176,11 +1179,13 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
   <button id="rcResetBtn" onclick="resetAllFilters()" style="display:none">✕ Clear All Filters</button>
   <span class="ev-bar-sep"></span>
   <span class="rc-bar-lbl">Evidence:</span>
-  <button class="ev-bar-btn ev-active" data-ev="all" onclick="filterEvidence(&#39;all&#39;)">All</button>
-  <button class="ev-bar-btn" data-ev="A" onclick="filterEvidence(&#39;A&#39;)"><span class="ev-bar-dot" style="background:var(--ev-a)"></span>A — Clinical</button>
-  <button class="ev-bar-btn" data-ev="B" onclick="filterEvidence(&#39;B&#39;)"><span class="ev-bar-dot" style="background:var(--ev-b)"></span>B — Observational</button>
-  <button class="ev-bar-btn" data-ev="C" onclick="filterEvidence(&#39;C&#39;)"><span class="ev-bar-dot" style="background:var(--ev-c)"></span>C — Preclinical</button>
-  <button class="ev-bar-btn" data-ev="D" onclick="filterEvidence(&#39;D&#39;)"><span class="ev-bar-dot" style="background:var(--ev-d)"></span>D — Emerging</button>
+  <span class="ev-bar-key" tabindex="0" role="img" aria-label="Evidence grade key. A: strong, replicated human clinical evidence. B: promising but limited human evidence. C: primarily preclinical (animal or in vitro) evidence. D: early-stage or emerging evidence only." title="Evidence grades reflect research strength, not clinical approval or proven safety:&#10;A — Clinical: strong, replicated human clinical evidence with broad consensus.&#10;B — Observational: promising human evidence, limited in scale; supportive preclinical data.&#10;C — Preclinical: primarily animal / in-vitro evidence, limited human studies.&#10;D — Emerging: early-stage or theoretical evidence only.">&#9432;</span>
+  <button class="ev-bar-btn ev-active" data-ev="all" onclick="filterEvidence(&#39;all&#39;)" title="Show molecules of every evidence grade (A–D).">All</button>
+  <button class="ev-bar-btn" data-ev="A" onclick="filterEvidence(&#39;A&#39;)" title="Grade A — Clinical: strong, replicated human clinical evidence with broad scientific consensus."><span class="ev-bar-dot" style="background:var(--ev-a)"></span>A — Clinical</button>
+  <button class="ev-bar-btn" data-ev="B" onclick="filterEvidence(&#39;B&#39;)" title="Grade B — Observational: promising human evidence, though limited in scale or scope; positive preclinical data supports further investigation."><span class="ev-bar-dot" style="background:var(--ev-b)"></span>B — Observational</button>
+  <button class="ev-bar-btn" data-ev="C" onclick="filterEvidence(&#39;C&#39;)" title="Grade C — Preclinical: primarily preclinical (animal or in vitro) evidence with limited human studies to date."><span class="ev-bar-dot" style="background:var(--ev-c)"></span>C — Preclinical</button>
+  <button class="ev-bar-btn" data-ev="D" onclick="filterEvidence(&#39;D&#39;)" title="Grade D — Emerging: early-stage or theoretical evidence only; molecule is of emerging scientific interest."><span class="ev-bar-dot" style="background:var(--ev-d)"></span>D — Emerging</button>
+  <span id="filterCount" class="filter-count" style="display:none"></span>
 </div>
 <!-- END COMPACT RECEPTOR BAR -->
 
@@ -2059,6 +2064,9 @@ body.is-mobile-view .panel-body{touch-action:pan-y}
 #gxOverlay .gx-stage{display:flex;flex-direction:column;gap:12px;animation:gxfade .25s ease}
 @keyframes gxfade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){#gxOverlay .gx-stage{animation:none}}
+/* Persistent 'not medical advice' footer — shows on every guided screen (UX-11 consistency) */
+#gxOverlay .gx-disc{margin-top:auto;padding-top:16px;border-top:1px solid var(--border,#e2e2dc);font-size:.62rem;line-height:1.55;color:var(--dim,#777);text-align:center}
+#gxOverlay .gx-disc a{color:var(--accent,#2E7D57);font-weight:700;text-decoration:underline;white-space:nowrap}
 #gxOverlay h2.gx-q{font-size:clamp(1.4rem,5vw,1.8rem);line-height:1.2;margin:2px 0}
 #gxOverlay .gx-hint{color:var(--dim,#777);font-size:.9rem;margin:-6px 0 2px}
 #gxOverlay .gx-opt{display:flex;align-items:center;gap:13px;padding:16px 15px;border:1.5px solid var(--border,#ccc);
@@ -2180,6 +2188,7 @@ body.is-mobile-view .panel-body{touch-action:pan-y}
   </div>
   <div class="gx-dots" id="gxDots"></div>
   <div class="gx-stage" id="gxStage"></div>
+  <div class="gx-disc">⚠ Educational only — not medical advice. Product matches are informational; a licensed healthcare professional should guide any health decision. <a href="javascript:void(0)" onclick="showFullDisclaimer()">Full disclaimer ↗</a></div>
 </div></div>
 
 <script>
@@ -3164,13 +3173,27 @@ function resetAllFilters() {
   // Clear evidence threshold in Refine Inventory Match
   _refineMinEvidence = 'all';
   updateRefineBadges();
-  // Hide reset button
-  var btn = document.getElementById('rcResetBtn');
-  if (btn) btn.style.display = 'none';
+  // Hide reset button + filter count (all filters now cleared)
+  updateResetBtn();
 }
 function updateResetBtn() {
   var btn = document.getElementById('rcResetBtn');
   if (btn) btn.style.display = (activeCond || activeRec || activeEv) ? 'inline-block' : 'none';
+  updateFilterCount();
+}
+// UX-08: live "Showing N of M molecules" readout — reflects every active filter (condition/receptor/evidence/category).
+function updateFilterCount() {
+  var el = document.getElementById('filterCount');
+  if (!el) return;
+  if (!(activeCond || activeRec || activeEv)) { el.style.display = 'none'; return; }
+  var tiles = document.querySelectorAll('.mol-tile');
+  var shown = 0;
+  tiles.forEach(function(t) {
+    if (!t.classList.contains('ev-dim') && !t.classList.contains('rec-dim')
+        && !t.classList.contains('cond-dim') && !t.classList.contains('cat-dim')) shown++;
+  });
+  el.textContent = 'Showing ' + shown + ' of ' + tiles.length + ' molecules';
+  el.style.display = 'inline';
 }
 function clearCondition() {
   activeCond = null;
@@ -3195,6 +3218,7 @@ function clearCondition() {
   const recoWrap = document.getElementById('fpRecoWrap');
   if (recoWrap) recoWrap.style.display = 'none';
   closeFpRefinePanel();
+  updateResetBtn();
 }
 function filterByMolecule(q) {
   q = q.toLowerCase().trim();
@@ -6861,7 +6885,7 @@ document.addEventListener('keydown', function(e) {
         '<div class="gx-stat"><div class="v">+$18</div><div class="k">Avg basket uplift</div></div>'+
       '</div>'+
       '<div class="gx-gap"><span class="gx-refine-h">Inventory optimization — supply depth by molecule</span>'+gap+
-      '<div class="gx-cap">'+instock+' SKUs in stock. Molecules in <b style="color:#B23A3A">red</b> are thin — demand the guided flow surfaces but the shelf can\'t meet. That\'s the buying signal V4 hands dispensary owners.</div></div>'+
+      '<div class="gx-cap">'+instock+' SKUs in stock. Molecules in <b style="color:#B23A3A">red</b> are thin — demand the guided flow surfaces but the shelf can\'t meet. That\'s the buying signal V2 hands dispensary owners.</div></div>'+
       '<button class="gx-cta ghost" onclick="V4GX.back()">← Back</button>');}
   function scEmp(){stage('<h2 class="gx-q">Budtender console</h2>'+
     '<div class="gx-placard"><b>Demo scope.</b> In the full build this is a hub: Help a customer, Look up, Drug interactions, and Match inventory — with live stock counts.</div>'+
