@@ -2140,11 +2140,49 @@ body.is-mobile-view .panel-body{touch-action:pan-y}
 #gxOverlay .gx-catbtn{font-family:inherit;font-size:.72rem;font-weight:600;padding:4px 10px;border-radius:999px;border:1px solid var(--border,#ccc);background:var(--surface2,#eef3ee);color:var(--text,#1a1a1a);cursor:pointer}
 #gxOverlay .gx-catbtn:hover{border-color:var(--accent,#2E7D57)}
 #gxOverlay .gx-matchcount{margin-top:10px;font-size:.82rem;font-weight:700;color:var(--accent,#2E7D57)}
-/* Demo-mode ribbon — only shown when the app is opened with ?demo=1 (production kiosk unaffected) */
-.demo-ribbon{position:fixed;left:12px;bottom:12px;z-index:9999;background:#8B6914;color:#fff;
-  font:600 11px/1.2 system-ui,-apple-system,sans-serif;letter-spacing:.09em;text-transform:uppercase;
-  padding:7px 13px;border-radius:999px;box-shadow:0 4px 14px rgba(0,0,0,.28);pointer-events:none;opacity:.94}
-.demo-ribbon .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#fff;margin-right:6px;vertical-align:middle;opacity:.85}
+/* Private Demonstration Mode — branded banner (only when V4DEMO.active; production kiosk unaffected) */
+.demo-ribbon{position:fixed;left:12px;bottom:12px;z-index:9999;display:flex;align-items:center;gap:9px;
+  background:linear-gradient(135deg,#2E7D57,#8B6914);color:#fff;max-width:290px;
+  font:600 11px/1.25 system-ui,-apple-system,sans-serif;
+  padding:8px 13px 8px 9px;border-radius:12px;box-shadow:0 6px 20px rgba(0,0,0,.32);
+  border:1px solid rgba(255,255,255,.28);pointer-events:none}
+.demo-ribbon img{width:26px;height:26px;border-radius:6px;background:#fff;padding:2px;flex:0 0 auto;object-fit:contain}
+.demo-ribbon .dr-name{font-weight:800;font-size:11.5px;letter-spacing:.01em}
+.demo-ribbon .dr-sub{font-weight:600;font-size:9.5px;opacity:.92;text-transform:uppercase;letter-spacing:.05em;margin-top:1px}
+.demo-ribbon .dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#7CFFB0;margin-right:5px;vertical-align:middle;box-shadow:0 0 0 3px rgba(124,255,176,.28)}
+/* On mobile, sit the banner ABOVE the fixed tab bar (~56px) so it never covers nav tap targets */
+body.is-mobile-view .demo-ribbon{bottom:calc(64px + env(safe-area-inset-bottom));left:8px;right:8px;max-width:none}
+/* Demo banner Exit button (only interactive part of the otherwise pass-through banner) */
+.demo-ribbon .dr-txt{min-width:0}
+.demo-ribbon .dr-exit{pointer-events:auto;flex:0 0 auto;margin-left:auto;background:rgba(255,255,255,.16);color:#fff;
+  border:1px solid rgba(255,255,255,.55);border-radius:8px;font:700 10px/1 system-ui,-apple-system,sans-serif;
+  text-transform:uppercase;letter-spacing:.06em;padding:6px 9px;cursor:pointer}
+.demo-ribbon .dr-exit:hover{background:rgba(255,255,255,.30)}
+/* "Demo Mode" entry link on the Guided persona screen (Acannability staff) */
+#gxOverlay .gx-demo-link{display:inline-flex;align-items:center;gap:6px;margin:16px auto 2px;padding:7px 15px;
+  background:transparent;border:1px dashed var(--border,#bbb);color:var(--dim,#777);border-radius:999px;
+  font-family:inherit;font-size:.74rem;font-weight:700;letter-spacing:.03em;cursor:pointer}
+#gxOverlay .gx-demo-link:hover{border-color:var(--accent,#2E7D57);color:var(--accent,#2E7D57)}
+/* Demo Mode sign-in modal (above the guided overlay z-index 9000 and disclaimer 9500) */
+.demo-login-ov{display:none;position:fixed;inset:0;z-index:9600;background:rgba(20,24,20,.62);
+  align-items:center;justify-content:center;padding:20px}
+.demo-login-box{width:100%;max-width:360px;background:var(--surface,#fff);color:var(--text,#1a1a1a);
+  border-radius:16px;padding:22px 22px 20px;box-shadow:0 18px 50px rgba(0,0,0,.4);border:1px solid var(--border,#ddd)}
+.demo-login-box .dl-head{display:flex;align-items:center;gap:11px;margin-bottom:6px}
+.demo-login-box .dl-lock{font-size:1.5rem}
+.demo-login-box .dl-title{font-weight:800;font-size:1.15rem}
+.demo-login-box .dl-sub{font-size:.76rem;color:var(--dim,#777);font-weight:600}
+.demo-login-box .dl-note{font-size:.8rem;color:var(--dim,#666);line-height:1.4;margin:6px 0 14px}
+.demo-login-box .dl-label{display:block;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--dim,#777);margin:0 0 4px}
+.demo-login-box .dl-input{width:100%;box-sizing:border-box;padding:10px 12px;margin-bottom:12px;border:1px solid var(--border,#ccc);
+  border-radius:10px;font-family:inherit;font-size:.95rem;background:var(--surface2,#f7faf7);color:var(--text,#1a1a1a)}
+.demo-login-box .dl-input:focus{outline:none;border-color:var(--accent,#2E7D57);box-shadow:0 0 0 3px rgba(46,125,87,.18)}
+.demo-login-box .dl-err{background:#FBE9E7;color:#B23A3A;border:1px solid #F3C0B8;border-radius:9px;padding:8px 10px;font-size:.78rem;font-weight:600;margin-bottom:12px}
+.demo-login-box .dl-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:2px}
+.demo-login-box .dl-btn{font-family:inherit;font-size:.86rem;font-weight:700;padding:9px 16px;border-radius:10px;cursor:pointer;border:1px solid transparent}
+.demo-login-box .dl-btn.ghost{background:transparent;border-color:var(--border,#ccc);color:var(--text,#333)}
+.demo-login-box .dl-btn.primary{background:var(--accent,#2E7D57);color:#fff}
+.demo-login-box .dl-btn.primary:hover{filter:brightness(1.06)}
 /* Phase 2 — POS "moment", explainable why, and budtender hand-off */
 #gxOverlay .gx-posline{display:flex;align-items:center;gap:7px;font-size:.74rem;font-weight:700;color:var(--accent,#2E7D57);margin:-4px 0 8px;text-transform:uppercase;letter-spacing:.04em}
 #gxOverlay .gx-posline .dot{width:8px;height:8px;border-radius:50%;background:var(--accent,#2E7D57)}
@@ -2212,6 +2250,52 @@ body.is-mobile-view .panel-body{touch-action:pan-y}
 </div></div>
 
 <script>
+/* ── PRIVATE DEMONSTRATION MODE ─────────────────────────────────────────────
+   One switch that turns the whole app into an isolated demo of a *fictional*
+   dispensary ("Acannability Cannabis Dispensary Demo"). It is enabled ONLY when:
+     • the app is served from the dedicated demo host  demo.acannability.com, OR
+     • the URL carries ?demo=1  (works today on any host, incl. GitHub Pages), OR
+     • it was already unlocked earlier in this browser session.
+   A licensed dispensary build sets ALLOW_DEMO=false to compile the demo out
+   entirely — belt-and-suspenders on top of the host/param gate. All demo state
+   is namespaced (acann_demo_*) via key(), so the demo can NEVER read or write a
+   real dispensary's catalogue or onboarding state, even on a shared origin. */
+window.V4DEMO=(function(){
+  var ALLOW_DEMO=true; // licensed dispensary builds flip this to false — hides the whole demo (button, login, banner)
+  /* Demo login gate. HONEST NOTE: this app is 100% client-side served from a PUBLIC repo, so this is
+     obfuscation + a "keep general users out" gate — NOT cryptographic security. The password is not stored
+     in plaintext (only a hash of user:pass is), but a determined reader of the public source could bypass it.
+     For provable access control, put demo.acannability.com behind edge auth (Cloudflare Access / Basic Auth).
+     Temp credentials (pending owner approval):  user "acannability" / pass "AcannDemo2026!".
+     To change: recompute cyrb53(username.toLowerCase().trim()+':'+password) and replace AUTH_HASH below. */
+  var AUTH_HASH='5509931723576402';
+  function cyrb53(str){var h1=0xdeadbeef,h2=0x41c6ce57;for(var i=0,ch;i<str.length;i++){ch=str.charCodeAt(i);
+    h1=Math.imul(h1^ch,2654435761);h2=Math.imul(h2^ch,1597334677);}
+    h1=Math.imul(h1^(h1>>>16),2246822507);h1^=Math.imul(h2^(h2>>>13),3266489909);
+    h2=Math.imul(h2^(h2>>>16),2246822507);h2^=Math.imul(h1^(h1>>>13),3266489909);
+    return (4294967296*(2097151&h2)+(h1>>>0));}
+  function hostAuthorized(){return (location.hostname||'').toLowerCase()==='demo.acannability.com';} // dedicated demo host (future)
+  function unlocked(){try{return sessionStorage.getItem('acann_demo_on')==='1';}catch(e){return false;}}
+  var active=ALLOW_DEMO && (hostAuthorized() || unlocked()); // NO ?demo= auto-entry — login (or the demo host) only
+  return {
+    allow:ALLOW_DEMO,
+    active:active,
+    /* Verify entered credentials against the stored hash. */
+    check:function(u,p){return ALLOW_DEMO && (cyrb53(String(u||'').toLowerCase().trim()+':'+String(p||''))+'')===AUTH_HASH;},
+    /* Called after a successful login: persist the unlock for this browser session, then reload into the
+       demo on a CLEAN url (no ?demo= needed). */
+    enter:function(){try{sessionStorage.setItem('acann_demo_on','1');}catch(e){}try{location.reload();}catch(e){}},
+    /* Leave the demo: clear the unlock and reload back into the standard V4 platform. */
+    exit:function(){try{sessionStorage.removeItem('acann_demo_on');}catch(e){}try{location.reload();}catch(e){}},
+    /* Prefix every persisted key in demo mode so demo data never mixes with live stock. */
+    key:function(name){return active?('acann_demo_'+name):name;},
+    dispensary:{
+      name:'Acannability Cannabis Dispensary Demo',
+      note:'Fictional demonstration dispensary — not a licensed store',
+      sub:'Sample inventory · for presentations only'
+    }
+  };
+})();
 // ── SESSION TIMER CONSTANTS — defined first, before any data that could throw ──
 // Phase 6 fix: total idle-to-reset must be 3:00, not 3:30. The warning now
 // fires at 2:30 idle so the 30s countdown ends the session at the 3:00 mark.
@@ -5370,7 +5454,7 @@ function acceptEntryGate() {
   // After accepting, launch the Guided Finder (persona chooser). The Professional path
   // and the "Full table" button dismiss it to the existing table. (Additive — guided-experience branch.)
   if (window.V4GX) { V4GX.start(); }
-  else if (!localStorage.getItem('acannability_onboarded')) {
+  else if (!localStorage.getItem(window.V4DEMO.key('acannability_onboarded'))) {
     document.getElementById('wlcOv').style.display = 'flex';
   }
 }
@@ -5391,7 +5475,7 @@ function denyEntryGate() {
   } else {
     document.getElementById('entryGate').style.display = 'none';
     showImDoneBtn();
-    if (!localStorage.getItem('acannability_onboarded')) {
+    if (!localStorage.getItem(window.V4DEMO.key('acannability_onboarded'))) {
       document.getElementById('wlcOv').style.display = 'flex';
     }
   }
@@ -6009,7 +6093,7 @@ function closeWelcome() {
   var cb = document.getElementById('wlcConsentCb');
   if (cb && !cb.checked) { cb.focus(); return; }
   document.getElementById('wlcOv').style.display = 'none';
-  try { localStorage.setItem('acannability_onboarded','1'); } catch(e) {}
+  try { localStorage.setItem(window.V4DEMO.key('acannability_onboarded'),'1'); } catch(e) {}
 }
 function showFullDisclaimer() {
   document.getElementById('fullDiscOv').classList.add('open');
@@ -6050,7 +6134,7 @@ document.addEventListener('keydown', function(e) {
 try {
   // Welcome overlay auto-show is now controlled by the entry gate (acceptEntryGate)
   // Only show here if entry gate was already accepted in this session
-  if (sessionStorage.getItem('eg_accepted') && !localStorage.getItem('acannability_onboarded')) showWelcome();
+  if (sessionStorage.getItem('eg_accepted') && !localStorage.getItem(window.V4DEMO.key('acannability_onboarded'))) showWelcome();
 } catch(e) {}
 
 // ── REFERENCE CARD ───────────────────────────────────────────────────────────
@@ -6729,7 +6813,7 @@ document.addEventListener('keydown', function(e) {
   // The matcher reads the closure INV (match() uses `inv||INV`), so we swap stock by mutating
   // INV in place — V4Guided.inventory keeps pointing at the same array, no rewiring needed.
   var DEMO_INV=INV.slice();          // snapshot of the built-in sample stock (for "restore sample")
-  var INV_KEY='acann_inv_v1';        // localStorage key for a persisted imported catalogue
+  var INV_KEY=window.V4DEMO.key('acann_inv_v1'); // persisted catalogue key (namespaced in demo mode)
   var invImported=false;             // true once a real CSV has replaced the sample stock
   function _setINV(arr){INV.length=0;arr.forEach(function(p){INV.push(p);});}
   function setInventory(arr,opts){opts=opts||{};_setINV(arr);invImported=true;
@@ -6841,10 +6925,15 @@ document.addEventListener('keydown', function(e) {
       '<span class="lab">'+label+(sub?'<small>'+sub+'</small>':'')+'</span>'+(chk?'<span class="chk"></span>':'')+'</button>';
   }
   // ---- screens ----
-  function scPersona(){stage('<h2 class="gx-q">Who’s using the table today?</h2><p class="gx-hint">Tap the one that fits you.</p>'+
+  function scPersona(){
+    // Discreet "Demo Mode" entry for Acannability staff — only on Acannability builds (ALLOW_DEMO) and
+    // only when not already in the demo. Opens the credential prompt; patients simply ignore it.
+    var demoLink=(window.V4DEMO&&window.V4DEMO.allow&&!window.V4DEMO.active)?
+      '<button class="gx-demo-link" onclick="showDemoLogin()" aria-label="Demo Mode — Acannability staff sign-in">🔒 Demo Mode</button>':'';
+    stage('<h2 class="gx-q">Who’s using the table today?</h2><p class="gx-hint">Tap the one that fits you.</p>'+
     optBtn("V4GX.persona('cust')",'🌱','I’m a Customer / Patient','Help me find what fits — guide me')+
-    optBtn("V4GX.persona('emp')",'🏪','I work here','Budtender tools & quick lookup')+
-    optBtn("V4GX.persona('pro')",'⚕️','Healthcare Professional','Straight to the full table'));}
+    optBtn("V4GX.persona('emp')",'🏪','I work here','Product Specialist tools & quick lookup')+
+    optBtn("V4GX.persona('pro')",'⚕️','Healthcare Professional','Straight to the full table')+demoLink);}
   function scIntent(){stage('<h2 class="gx-q">Why are you here today?</h2><p class="gx-hint">There’s no wrong answer.</p>'+
     ORDER.map(function(k){var r=REASONS[k];return optBtn("V4GX.intent('"+k+"')",r.ic,r.label,'');}).join(''));}
   function scRefine(){var r=REASONS[st.intent];var note=r.note?'<p class="gx-note">'+r.note+'</p>':'';
@@ -6912,7 +7001,7 @@ document.addEventListener('keydown', function(e) {
   function scProducts(){var rec=activeRec();var res=G().match(rec);var top=res.shown.slice(0,6);
     var recIds=rec.molecules.map(function(m){return m.molId;});var html='';
     var badge=demoMode()?'<div class="gx-posline"><span class="dot"></span>Connected · Demo-POS · live stock</div>':'';
-    if(!top.length){html='<div class="gx-empty"><div style="font-size:2rem">🤝</div><b>Nothing on the shelf is a strong match right now.</b><br>A budtender can help you find an alternative.</div>';}
+    if(!top.length){html='<div class="gx-empty"><div style="font-size:2rem">🤝</div><b>Nothing on the shelf is a strong match right now.</b><br>A Product Specialist can help you find an alternative.</div>';}
     else{html='<p class="gx-summary">Best matches, ranked by fit</p>'+top.map(function(p){
       var mols=Object.keys(p.profile).sort(function(a,b){return p.profile[b]-p.profile[a];}).slice(0,4).map(function(m){return '<span>'+(G().names[m]||m)+'</span>';}).join('');
       var matched=recIds.filter(function(id){return p.profile[id]!=null;});
@@ -6923,7 +7012,7 @@ document.addEventListener('keydown', function(e) {
         '<div class="gx-fit"><div class="pct">'+p.fit+'%</div><div class="lbl">fit</div></div></div>';}).join('')+
       '<div class="gx-filtered">'+res.excluded.length+' others filtered out (out of stock, or stronger in THC than you wanted).</div>';}
     stage('<h2 class="gx-q">Best matches in stock</h2>'+badge+html+
-      (top.length?'<button class="gx-cta" onclick="V4GX.handoff()">🛒 Send to budtender</button>':'')+
+      (top.length?'<button class="gx-cta" onclick="V4GX.handoff()">🛒 Send to Product Specialist</button>':'')+
       '<button class="gx-cta ghost" onclick="V4GX.drugCheck()">💊 Check against your medications</button>'+
       optBtn("V4GX.seeScience()",'🔬','Explore the science &amp; full table','')+
       (demoMode()?'<button class="gx-cta ghost" onclick="V4GX.insights()">📊 Demo insights (for the booth)</button>':'')+
@@ -6942,12 +7031,12 @@ document.addEventListener('keydown', function(e) {
   // Hand-off: the recommendation becomes a cart the budtender can fulfil (the POS conversion moment).
   function scHandoff(){var p=G().match(activeRec()).shown[0];if(!p){scProducts();return;}
     var demo=demoMode();
-    stage('<h2 class="gx-q">Ready for the budtender</h2>'+
+    stage('<h2 class="gx-q">Ready for the Product Specialist</h2>'+
       '<div class="gx-handoff"><div class="gx-hpick"><div class="sw">'+p.icon+'</div><div><b>'+p.name+'</b>'+
         '<div class="meta">'+cap(p.type)+' · $'+p.price+' · '+p.fit+'% fit</div></div></div>'+
         '<div class="gx-checks"><span>✓ Your goal</span><span>✓ The science</span><span>✓ In stock ('+p.count+')</span></div>'+
         (demo?'<div class="gx-sent"><span class="dot"></span>Sent to POS terminal · added to cart <em>(demonstration)</em></div>'
-             :'<div class="gx-hnote">Show this to your budtender to add it to your order.</div>')+'</div>'+
+             :'<div class="gx-hnote">Show this to your Product Specialist to add it to your order.</div>')+'</div>'+
       '<button class="gx-cta ghost" onclick="V4GX.drugCheck()">💊 Check against your medications first</button>'+
       '<button class="gx-cta ghost" onclick="V4GX.back()">← Back to matches</button>'+
       '<button class="gx-cta ghost" onclick="V4GX.restart()">Start new session</button>');}
@@ -6969,7 +7058,7 @@ document.addEventListener('keydown', function(e) {
       '<div class="gx-cap">'+instock+' SKUs in stock. Molecules in <b style="color:#B23A3A">red</b> are thin — demand the guided flow surfaces but the shelf can\'t meet. That\'s the buying signal V2 hands dispensary owners.</div></div>'+
       '<button class="gx-cta ghost" onclick="V4GX.back()">← Back</button>');}
   function scEmp(){var imp=G().isImported&&G().isImported();
-    stage('<h2 class="gx-q">Budtender console</h2>'+
+    stage('<h2 class="gx-q">Product Specialist console</h2>'+
     '<div class="gx-placard"><b>Demo scope.</b> In the full build this is a hub: Help a customer, Look up, Drug interactions, and Match inventory — with live stock counts.</div>'+
     '<button class="gx-cta" onclick="V4GX.runGuide()">▶ Run the customer guide</button>'+
     '<button class="gx-cta ghost" onclick="V4GX.importScreen()">📥 Import inventory (CSV)</button>'+
@@ -7017,7 +7106,7 @@ document.addEventListener('keydown', function(e) {
       '<button class="gx-cta ghost" onclick="V4GX.back()">← Back</button>');
     renderBrowseTable();}
   function cap(x){return x.charAt(0).toUpperCase()+x.slice(1);}
-  function demoMode(){return /[?&]demo=1(&|$)/.test(location.search||'');}
+  function demoMode(){return !!(window.V4DEMO&&window.V4DEMO.active);}
   function reducedMotion(){try{return matchMedia('(prefers-reduced-motion:reduce)').matches;}catch(e){return false;}}
   // ---- public API ----
   window.V4GX={
@@ -7064,14 +7153,60 @@ document.addEventListener('keydown', function(e) {
   };
 })();
 
-// Demo-mode ribbon: only when opened with ?demo=1 — keeps the production kiosk clean.
-(function(){try{if(/[?&]demo=1(&|$)/.test(location.search||'')){
-  var add=function(){if(document.querySelector('.demo-ribbon'))return;var d=document.createElement('div');
-    d.className='demo-ribbon';d.innerHTML='<span class="dot"></span>Demonstration · sample inventory';
+// ── Demo Mode sign-in modal controls ──────────────────────────────────────
+function showDemoLogin(){try{if(!(window.V4DEMO&&window.V4DEMO.allow))return;
+  var ov=document.getElementById('demoLoginOv');if(!ov)return;
+  var e=document.getElementById('dlErr');if(e)e.hidden=true;
+  var u=document.getElementById('dlUser'),p=document.getElementById('dlPass');
+  if(u)u.value='';if(p)p.value='';
+  ov.style.display='flex';setTimeout(function(){try{if(u)u.focus();}catch(_){}},30);}catch(err){}}
+function hideDemoLogin(){var ov=document.getElementById('demoLoginOv');if(ov)ov.style.display='none';}
+function submitDemoLogin(ev){if(ev&&ev.preventDefault)ev.preventDefault();try{
+  var u=(document.getElementById('dlUser')||{}).value,p=(document.getElementById('dlPass')||{}).value;
+  if(window.V4DEMO&&window.V4DEMO.check(u,p)){window.V4DEMO.enter();return false;}
+  var e=document.getElementById('dlErr');if(e)e.hidden=false;
+  var pp=document.getElementById('dlPass');if(pp){pp.value='';pp.focus();}}catch(err){}return false;}
+window.showDemoLogin=showDemoLogin;window.hideDemoLogin=hideDemoLogin;window.submitDemoLogin=submitDemoLogin;
+
+// Private Demonstration Mode banner: shows the fictional dispensary identity + Acannability logo.
+// Only when V4DEMO.active — a licensed dispensary kiosk (or a build with ALLOW_DEMO=false) never sees it.
+(function(){try{if(window.V4DEMO&&window.V4DEMO.active){
+  var d0=window.V4DEMO.dispensary;
+  var esc=function(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});};
+  var add=function(){if(document.querySelector('.demo-ribbon'))return;
+    var hdr=document.querySelector('.hdr-logo-img');var logo=(hdr&&hdr.src)?hdr.src:'';
+    var d=document.createElement('div');d.className='demo-ribbon';d.setAttribute('role','note');
+    d.setAttribute('aria-label',d0.name+' — '+d0.note);
+    d.innerHTML=(logo?'<img src="'+esc(logo)+'" alt="">':'')+
+      '<div class="dr-txt"><div class="dr-name"><span class="dot"></span>'+esc(d0.name)+'</div>'+
+      '<div class="dr-sub">'+esc(d0.note)+'</div></div>'+
+      '<button class="dr-exit" onclick="window.V4DEMO.exit()" aria-label="Exit Demo Mode and return to the standard platform">Exit</button>';
     (document.body||document.documentElement).appendChild(d);if(document.body)document.body.classList.add('demo-mode');};
   if(document.body)add();else document.addEventListener('DOMContentLoaded',add);}}catch(e){}})();
 
+// ?demo=1 is an INTERNAL deep-link that only OPENS the demo login — it never bypasses the credentials.
+(function(){try{if(window.V4DEMO&&window.V4DEMO.allow&&!window.V4DEMO.active&&/[?&]demo=1(&|$)/.test(location.search||'')){
+  var go=function(){try{if(typeof showDemoLogin==='function')showDemoLogin();}catch(e){}};
+  if(document.readyState!=='loading')setTimeout(go,140);else document.addEventListener('DOMContentLoaded',function(){setTimeout(go,140);});}}catch(e){}})();
+
 </script>
+<!-- ── DEMO MODE SIGN-IN MODAL (Acannability staff) ──────────────────────── -->
+<div id="demoLoginOv" class="demo-login-ov" role="dialog" aria-modal="true" aria-label="Demo Mode sign in" onclick="if(event.target===this)hideDemoLogin()">
+  <form id="demoLoginBox" class="demo-login-box" onsubmit="return submitDemoLogin(event)" autocomplete="off">
+    <div class="dl-head"><span class="dl-lock" aria-hidden="true">🔒</span>
+      <div><div class="dl-title">Demo Mode</div><div class="dl-sub">Acannability staff sign-in</div></div></div>
+    <p class="dl-note">Opens the isolated <b>Acannability Cannabis Dispensary Demo</b> — a fictional demonstration dispensary. Authorized personnel only.</p>
+    <label class="dl-label" for="dlUser">Username</label>
+    <input id="dlUser" class="dl-input" type="text" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false">
+    <label class="dl-label" for="dlPass">Password</label>
+    <input id="dlPass" class="dl-input" type="password" autocomplete="off">
+    <div id="dlErr" class="dl-err" role="alert" hidden>Incorrect username or password.</div>
+    <div class="dl-actions">
+      <button type="button" class="dl-btn ghost" onclick="hideDemoLogin()">Cancel</button>
+      <button type="submit" class="dl-btn primary">Enter demo →</button>
+    </div>
+  </form>
+</div>
 <div id="rcOv" class="rc-ov" role="dialog" aria-modal="true" aria-label="Acannability Reference Card" onclick="if(event.target===this)closeRefCard()">
   <div id="rcBox">
     <div class="rc-hdr">
