@@ -2183,6 +2183,59 @@ body.is-mobile-view .demo-ribbon{bottom:calc(64px + env(safe-area-inset-bottom))
 .demo-login-box .dl-btn.ghost{background:transparent;border-color:var(--border,#ccc);color:var(--text,#333)}
 .demo-login-box .dl-btn.primary{background:var(--accent,#2E7D57);color:#fff}
 .demo-login-box .dl-btn.primary:hover{filter:brightness(1.06)}
+/* ── Self-contained Demo Journey (Demo Mode) ─────────────────────────────── */
+#gxOverlay .dj-steps{display:flex;gap:6px;justify-content:center;margin:0 0 14px}
+#gxOverlay .dj-step{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:.74rem;font-weight:800;
+  background:var(--surface2,#eef3ee);color:var(--dim,#888);border:1.5px solid var(--border,#ccc)}
+#gxOverlay .dj-step.on{background:var(--accent,#2E7D57);color:#fff;border-color:var(--accent,#2E7D57);box-shadow:0 2px 8px rgba(46,125,87,.35)}
+#gxOverlay .dj-step.done{background:var(--accent,#2E7D57);color:#fff;border-color:var(--accent,#2E7D57);opacity:.55}
+#gxOverlay .dj-intro{text-align:center}
+#gxOverlay .dj-intro-badge{display:inline-block;background:linear-gradient(135deg,#2E7D57,#8B6914);color:#fff;font-size:.66rem;font-weight:800;
+  text-transform:uppercase;letter-spacing:.1em;padding:5px 12px;border-radius:999px;margin-bottom:12px}
+#gxOverlay .dj-intro-steps{display:flex;flex-direction:column;gap:8px;margin:16px 0 20px;text-align:left}
+#gxOverlay .dj-intro-step{display:flex;align-items:center;gap:11px;font-size:.9rem;font-weight:600;color:var(--text,#222)}
+#gxOverlay .dj-intro-step span{flex:0 0 auto;width:24px;height:24px;border-radius:50%;background:var(--surface2,#eef3ee);
+  border:1.5px solid var(--accent,#2E7D57);color:var(--accent,#2E7D57);display:grid;place-items:center;font-size:.74rem;font-weight:800}
+#gxOverlay .dj-molgrp{margin:0 0 12px;border:1px solid var(--border,#ddd);border-radius:13px;overflow:hidden}
+#gxOverlay .dj-molgrp-h{background:var(--surface2,#eef3ee);padding:8px 13px;font-size:.8rem;font-weight:800;color:var(--text,#222)}
+#gxOverlay .dj-mols{display:flex;flex-wrap:wrap;gap:7px;padding:11px 13px}
+#gxOverlay .dj-mol{background:var(--surface,#fff);border:1px solid var(--border,#ccc);border-radius:999px;padding:5px 12px;font-size:.82rem;font-weight:700;color:var(--text,#222)}
+#gxOverlay .dj-note,#gxOverlay .dj-recap{font-size:.8rem;color:var(--dim,#777);background:var(--surface2,#eef3ee);border-radius:10px;padding:10px 13px;margin:6px 0 12px;line-height:1.45}
+#gxOverlay .dj-lbl{font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--dim,#888);margin:0 0 7px}
+#gxOverlay .dj-medquick{margin-bottom:12px}
+#gxOverlay .dj-chips{display:flex;flex-wrap:wrap;gap:8px}
+#gxOverlay .dj-medchip{display:inline-flex;align-items:center;gap:6px;font-family:inherit;font-size:.82rem;font-weight:700;
+  padding:7px 12px;border-radius:999px;border:1px solid var(--border,#ccc);background:var(--surface,#fff);color:var(--text,#222);cursor:pointer}
+#gxOverlay .dj-medchip:hover{border-color:var(--accent,#2E7D57)}
+#gxOverlay .dj-medchip.on{background:var(--surface2,#eef3ee);border-color:var(--accent,#2E7D57);color:var(--accent,#2E7D57)}
+#gxOverlay .dj-medchip .rx,#gxOverlay .dj-medchip .otc,#gxOverlay .dj-sug .rx,#gxOverlay .dj-sug .otc{font-size:.58rem;font-weight:800;padding:2px 5px;border-radius:5px;text-transform:uppercase;letter-spacing:.04em}
+#gxOverlay .dj-medchip .rx,#gxOverlay .dj-sug .rx{background:#E7F0FB;color:#1A4A8B}
+#gxOverlay .dj-medchip .otc,#gxOverlay .dj-sug .otc{background:#EAF6EC;color:#2E7D57}
+#gxOverlay .dj-medsearch{position:relative;margin:12px 0}
+#gxOverlay .dj-sugbox{position:absolute;left:0;right:0;top:calc(100% - 2px);z-index:5;background:var(--surface,#fff);
+  border:1px solid var(--border,#ccc);border-radius:0 0 11px 11px;box-shadow:0 10px 24px rgba(0,0,0,.16);max-height:220px;overflow:auto}
+#gxOverlay .dj-sug{display:flex;align-items:center;gap:8px;padding:9px 13px;font-size:.84rem;font-weight:600;cursor:pointer;border-top:1px solid var(--border,#eee)}
+#gxOverlay .dj-sug:hover{background:var(--surface2,#eef3ee)}
+#gxOverlay .dj-sug.none{color:var(--dim,#999);font-style:italic;cursor:default}
+#gxOverlay .dj-medlist{margin:6px 0 12px;display:flex;flex-wrap:wrap;gap:7px;align-items:center}
+#gxOverlay .dj-medpill{display:inline-flex;align-items:center;gap:6px;background:var(--accent,#2E7D57);color:#fff;border-radius:999px;padding:5px 6px 5px 12px;font-size:.8rem;font-weight:700}
+#gxOverlay .dj-medpill button{background:rgba(255,255,255,.25);color:#fff;border:none;border-radius:50%;width:18px;height:18px;line-height:1;cursor:pointer;font-size:.8rem}
+#gxOverlay .dj-medresults{margin:8px 0 4px}
+#gxOverlay .dj-med-empty{font-size:.82rem;color:var(--dim,#888);font-style:italic;padding:10px 0}
+#gxOverlay .dj-med-sum{background:var(--surface2,#eef3ee);border-radius:11px;padding:11px 13px;margin-bottom:10px;font-size:.82rem;line-height:1.7;color:var(--text,#222)}
+#gxOverlay .dj-med-h{font-size:.74rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--dim,#888);margin:12px 0 7px}
+#gxOverlay .dj-di{border:1px solid var(--border,#ddd);border-left-width:4px;border-radius:9px;padding:9px 12px;margin-bottom:7px;background:var(--surface,#fff)}
+#gxOverlay .dj-di.major{border-left-color:#B23A3A}#gxOverlay .dj-di.moderate{border-left-color:#C77800}#gxOverlay .dj-di.minor{border-left-color:#B8960C}
+#gxOverlay .dj-di.rec{box-shadow:0 0 0 2px rgba(46,125,87,.18)}
+#gxOverlay .dj-di .t{font-size:.85rem;font-weight:800;color:var(--text,#222);margin-bottom:3px}
+#gxOverlay .dj-di .t .ev{font-size:.62rem;font-weight:800;color:var(--dim,#888);border:1px solid var(--border,#ccc);border-radius:5px;padding:1px 5px;margin-left:5px}
+#gxOverlay .dj-di .t .recflag{font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;background:var(--accent,#2E7D57);color:#fff;border-radius:5px;padding:2px 6px;margin-left:5px}
+#gxOverlay .dj-di .m{font-size:.78rem;color:var(--dim,#666);line-height:1.45;margin-top:2px}
+#gxOverlay .dj-select{margin-top:8px;width:100%;background:var(--accent,#2E7D57);color:#fff;border:none;border-radius:9px;padding:9px;font-family:inherit;font-size:.84rem;font-weight:800;cursor:pointer}
+#gxOverlay .dj-select:hover{filter:brightness(1.06)}
+.dj-toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);z-index:10000;background:#242824;color:#fff;
+  font-size:.8rem;font-weight:600;padding:10px 16px;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.4);opacity:0;transition:opacity .2s;pointer-events:none}
+.dj-toast.show{opacity:.97}
 /* Phase 2 — POS "moment", explainable why, and budtender hand-off */
 #gxOverlay .gx-posline{display:flex;align-items:center;gap:7px;font-size:.74rem;font-weight:700;color:var(--accent,#2E7D57);margin:-4px 0 8px;text-transform:uppercase;letter-spacing:.04em}
 #gxOverlay .gx-posline .dot{width:8px;height:8px;border-radius:50%;background:var(--accent,#2E7D57)}
@@ -7120,11 +7173,185 @@ document.addEventListener('keydown', function(e) {
   function cap(x){return x.charAt(0).toUpperCase()+x.slice(1);}
   function demoMode(){return !!(window.V4DEMO&&window.V4DEMO.active);}
   function reducedMotion(){try{return matchMedia('(prefers-reduced-motion:reduce)').matches;}catch(e){return false;}}
+
+  // ══════════════ SELF-CONTAINED DEMO JOURNEY (Demo Mode only) ══════════════
+  // One linear patient journey used when V4DEMO.active. Reuses the same matching
+  // engine + drug-interaction dataset; never leaves the overlay (no science/table
+  // exits, no external links). Steps: 1 Conditions → 2 Molecules → 3 Medications
+  // → 4 Refine → 5 Products → 6 Done.
+  var DJ_STEPS=['Conditions','Molecules','Medications','Refine','Products','Done'];
+  var DJ_CONDS=[
+    {id:'seizures',ic:'🧠',label:'Seizures / epilepsy'},
+    {id:'anxiety',ic:'💭',label:'Anxiety / stress'},
+    {id:'pain',ic:'🌿',label:'Chronic pain'},
+    {id:'neuropathic',ic:'⚡',label:'Nerve pain'},
+    {id:'sleep',ic:'😴',label:'Sleep / insomnia'},
+    {id:'inflammation',ic:'🔥',label:'Inflammation'},
+    {id:'nausea-relief',ic:'🤢',label:'Nausea'},
+    {id:'appetite-stim',ic:'🍽️',label:'Appetite'}
+  ];
+  // Quick-pick meds: real DI_DATA ids that all interact with CBD, plus real drug–drug pairs
+  // (omeprazole+clobazam, warfarin+ibuprofen) so the check always shows something compelling.
+  var DJ_MEDS=['clobazam','omeprazole','warfarin','ibuprofen','gabapentin','acetaminophen'];
+  var DJ_GUIDED_MOL={'appetite-stim':{THC9:9,CBG:6,MY:5,CBN:4},'nausea-relief':{THC9:9,CBD:6,LI:5}};
+
+  function djLabelFor(cid){var c=DJ_CONDS.filter(function(x){return x.id===cid;})[0];return c?c.label:cid;}
+  function djStepBar(active){var h='<div class="dj-steps">';for(var i=0;i<DJ_STEPS.length;i++){h+='<span class="dj-step'+(i===active?' on':(i<active?' done':''))+'">'+(i+1)+'</span>';}return h+'</div>';}
+  function djRec(){var conds=(st.djConds&&st.djConds.length)?st.djConds:['seizures'];return G().recForConditions(conds,st.ceiling||'any',[]);}
+  function djActiveRec(){var rec=djRec();var mols=rec.molecules.filter(function(m){return !(st.excluded&&st.excluded[m.molId]);});
+    return {molecules:mols.length?mols:rec.molecules,thcCeiling:rec.thcCeiling,conditions:rec.conditions};}
+  // Full clinical picture (incl. flavonoids/rare, which aren't matched against stock) for the display step.
+  function djClinicalGroups(){
+    var conds=(st.djConds&&st.djConds.length)?st.djConds:['seizures'];var w={};
+    conds.forEach(function(cid){
+      var mols=((typeof CONDITIONS!=='undefined'&&CONDITIONS.find(function(c){return c.id===cid;}))||{}).molecules||DJ_GUIDED_MOL[cid];
+      if(!mols)return;Object.keys(mols).forEach(function(mid){if(typeof M!=='undefined'&&!M[mid])return;w[mid]=Math.max(w[mid]||0,mols[mid]);});});
+    var groups={cannabinoid:[],terpene:[],flavonoid:[]};
+    Object.keys(w).sort(function(a,b){return w[b]-w[a];}).forEach(function(mid){
+      var cat=(typeof M!=='undefined'&&M[mid])?(M[mid].category||''):'';
+      var bucket=/terp/i.test(cat)?'terpene':(/flavon/i.test(cat)?'flavonoid':'cannabinoid');
+      if(groups[bucket].length<8)groups[bucket].push(mid);});
+    return groups;
+  }
+  function djMolName(mid){return (typeof M!=='undefined'&&M[mid])?(M[mid].symbol||M[mid].fullName):(G().names[mid]||mid);}
+
+  function scDJIntro(){
+    var d0=(window.V4DEMO&&window.V4DEMO.dispensary)?window.V4DEMO.dispensary:{name:'Acannability Cannabis Dispensary Demo'};
+    stage('<div class="dj-intro"><div class="dj-intro-badge">Live demonstration</div>'+
+      '<h2 class="gx-q">A complete patient journey</h2>'+
+      '<p class="gx-hint">See how V4 takes a patient from their health concern all the way to an in-stock product at '+esc(d0.name)+' — clinical guidance, medication safety, and live inventory, in one seamless flow.</p>'+
+      '<div class="dj-intro-steps">'+DJ_STEPS.map(function(s,i){return '<div class="dj-intro-step"><span>'+(i+1)+'</span>'+s+'</div>';}).join('')+'</div>'+
+      '<button class="gx-cta" onclick="V4GX.djBegin()">Begin the patient journey →</button>'+
+      '<button class="gx-cta ghost" onclick="V4GX.browse()">📦 Browse full demo inventory</button></div>');
+  }
+  function scDJConds(){var sel=st.djConds||[];
+    stage(djStepBar(0)+'<h2 class="gx-q">Why are you here today?</h2><p class="gx-hint">Select one or more — a patient can have more than one concern (try <b>Seizures + Anxiety</b>).</p>'+
+      DJ_CONDS.map(function(c){var on=sel.indexOf(c.id)>=0;return optBtn("V4GX.djToggleCond('"+c.id+"')",c.ic,c.label,'',on,true);}).join('')+
+      '<button class="gx-cta" onclick="V4GX.djToRec()"'+(sel.length?'':' disabled')+'>See what V4 recommends →</button>');
+  }
+  function scDJMol(){var g=djClinicalGroups();
+    function grp(title,ids){if(!ids.length)return '';return '<div class="dj-molgrp"><div class="dj-molgrp-h">'+title+' <span style="opacity:.6;font-weight:600">('+ids.length+')</span></div><div class="dj-mols">'+ids.map(function(mid){return '<span class="dj-mol">'+esc(djMolName(mid))+'</span>';}).join('')+'</div></div>';}
+    var condNames=(st.djConds||[]).map(djLabelFor).join(' + ');
+    stage(djStepBar(1)+'<h2 class="gx-q">What V4 recommends</h2>'+
+      '<p class="gx-hint">For <b>'+esc(condNames)+'</b> — the molecular profile from V4\'s condition-to-molecule evidence base.</p>'+
+      grp('🧪 Cannabinoids',g.cannabinoid)+grp('🌿 Terpenes',g.terpene)+grp('🌼 Flavonoids',g.flavonoid)+
+      '<div class="dj-note">Next, we\'ll check the patient\'s medications against these molecules — then narrow to what\'s in stock.</div>'+
+      '<button class="gx-cta" onclick="V4GX.djToMeds()">Check medications →</button>');
+  }
+  function djMedResults(){
+    var meds=st.meds||[];
+    if(!meds.length)return '<div class="dj-med-empty">No medications added yet — tap a common one above, or search any drug.</div>';
+    var medIds=meds.map(function(m){return m.id;});
+    var ddi=(typeof findDdiInteractions==='function')?findDdiInteractions(medIds):[];
+    var byMol=(typeof buildCannabisHitsByMol==='function')?buildCannabisHitsByMol(medIds):{};
+    var recIds=djActiveRec().molecules.map(function(m){return m.molId;});
+    var sevIc={major:'🔴',moderate:'🟠',minor:'🟡'};
+    var molHits=Object.keys(byMol);var recHits=molHits.filter(function(m){return recIds.indexOf(m)>=0;});
+    var ddiWorst=ddi.some(function(d){return d.sev==='major';})?'🔴':(ddi.some(function(d){return d.sev==='moderate';})?'🟠':'🟡');
+    var molWorst=(function(){var s='minor';molHits.forEach(function(m){byMol[m].forEach(function(e){if(e.sev==='major')s='major';else if(e.sev==='moderate'&&s!=='major')s='moderate';});});return s==='major'?'🔴':(s==='moderate'?'🟠':'🟡');})();
+    var html='<div class="dj-med-sum">'+
+      '<div>💊 <b>'+meds.length+'</b> medication'+(meds.length>1?'s':'')+' reviewed</div>'+
+      '<div>'+(ddi.length?(ddiWorst+' <b>'+ddi.length+'</b> drug–drug interaction'+(ddi.length>1?'s':'')+' within the list'):'✓ No drug–drug interactions within the list')+'</div>'+
+      '<div>'+(molHits.length?(molWorst+' Cannabis interactions with <b>'+molHits.length+'</b> molecule'+(molHits.length>1?'s':'')+(recHits.length?' — including <b>'+recHits.length+'</b> we just recommended':'')):'✓ No cannabis interactions with the recommended molecules')+'</div></div>';
+    if(ddi.length){html+='<div class="dj-med-h">Drug–drug interactions in the list</div>'+ddi.map(function(d){
+      return '<div class="dj-di '+d.sev+'"><div class="t">'+(sevIc[d.sev]||'')+' '+esc(d.label||d.drugs.join(' + '))+'<span class="ev">Ev '+esc(d.ev||'?')+'</span></div><div class="m">'+esc(d.effect||d.mech||'')+'</div></div>';}).join('');}
+    if(molHits.length){molHits.sort(function(a,b){return (recIds.indexOf(b)>=0?1:0)-(recIds.indexOf(a)>=0?1:0);});
+      html+='<div class="dj-med-h">Cannabis ↔ medication interactions</div>'+molHits.map(function(mid){var isRec=recIds.indexOf(mid)>=0;var entries=byMol[mid];
+        return '<div class="dj-di '+entries[0].sev+(isRec?' rec':'')+'"><div class="t">'+(sevIc[entries[0].sev]||'')+' '+esc(djMolName(mid))+(isRec?'<span class="recflag">recommended</span>':'')+'</div>'+
+          entries.map(function(e){return '<div class="m"><b>'+esc(e.drug)+':</b> '+esc(e.effect||e.mech||'')+'</div>';}).join('')+'</div>';}).join('');}
+    return html;
+  }
+  function djRenderMedSearch(q){var box=el('djMedSug');if(!box)return;q=(q||'').trim().toLowerCase();
+    if(q.length<2){box.style.display='none';box.innerHTML='';return;}
+    var already=(st.meds||[]).map(function(m){return m.id;});var matched={};
+    if(typeof DI_INDEX!=='undefined')Object.keys(DI_INDEX).forEach(function(key){if(key.indexOf(q)>=0)DI_INDEX[key].forEach(function(i){matched[i]=1;});});
+    var list=Object.keys(matched).map(function(i){return DI_DATA[i];}).filter(function(d){return d&&already.indexOf(d.id)<0;}).slice(0,6);
+    if(!list.length){box.style.display='block';box.innerHTML='<div class="dj-sug none">No match in the demo dataset</div>';return;}
+    box.innerHTML=list.map(function(d){return '<div class="dj-sug" onmousedown="V4GX.djAddMed(\''+d.id+'\')"><span class="'+(d.cat==='otc'?'otc':'rx')+'">'+(d.cat==='otc'?'OTC':'Rx')+'</span>'+esc(d.drug)+'</div>';}).join('');
+    box.style.display='block';}
+  function scDJMeds(){
+    var chips=DJ_MEDS.map(function(id){var d=(typeof DI_DATA!=='undefined')?DI_DATA.find(function(x){return x.id===id;}):null;if(!d)return '';
+      var on=(st.meds||[]).some(function(m){return m.id===id;});
+      return '<button class="dj-medchip'+(on?' on':'')+'" onclick="V4GX.djAddMed(\''+id+'\')"><span class="'+(d.cat==='otc'?'otc':'rx')+'">'+(d.cat==='otc'?'OTC':'Rx')+'</span>'+esc(d.drug.split(' /')[0])+(on?' ✓':'')+'</button>';}).join('');
+    var list=(st.meds||[]).map(function(m){return '<span class="dj-medpill">'+esc(m.drug.split(' /')[0])+'<button onclick="V4GX.djRemoveMed(\''+m.id+'\')" aria-label="Remove">×</button></span>';}).join('');
+    stage(djStepBar(2)+'<h2 class="gx-q">Medication safety check</h2>'+
+      '<p class="gx-hint">Add the patient\'s prescriptions and OTC medicines. V4 screens them against each other <b>and</b> against the recommended cannabis molecules.</p>'+
+      '<div class="dj-medquick"><div class="dj-lbl">Tap common medications</div><div class="dj-chips">'+chips+'</div></div>'+
+      '<div class="dj-medsearch"><input class="gx-search" type="search" autocomplete="off" placeholder="…or search any medication (e.g. Xanax, Tylenol, metformin)" oninput="V4GX.djSearchMed(this.value)"><div id="djMedSug" class="dj-sugbox" style="display:none"></div></div>'+
+      (list?'<div class="dj-medlist"><span class="dj-lbl" style="margin:0 4px 0 0">Patient\'s list:</span>'+list+'</div>':'')+
+      '<div id="djMedResults" class="dj-medresults">'+djMedResults()+'</div>'+
+      '<button class="gx-cta" onclick="V4GX.djToRefine()">Refine to what\'s in stock →</button>');
+  }
+  function scDJRefine(){var rec=djRec();var active=djActiveRec();
+    var toggles=rec.molecules.slice(0,6).map(function(m){var off=!!(st.excluded&&st.excluded[m.molId]);
+      return '<button class="gx-chip gx-tog'+(G().terps[m.molId]?' terp':'')+(off?' off':'')+'" onclick="V4GX.djToggleMol(\''+m.molId+'\')">'+(G().names[m.molId]||m.molId)+'<span class="x">'+(off?'＋':'×')+'</span></button>';}).join('');
+    var hasCann=rec.molecules.some(function(m){return !G().terps[m.molId];});var hasTerp=rec.molecules.some(function(m){return G().terps[m.molId];});
+    var catBtns=(hasCann?'<button class="gx-catbtn" onclick="V4GX.djToggleCat(\'cann\')">Cannabinoids</button>':'')+(hasTerp?'<button class="gx-catbtn" onclick="V4GX.djToggleCat(\'terp\')">Terpenes</button>':'');
+    var n=G().match(active).shown.length;
+    stage(djStepBar(3)+'<h2 class="gx-q">Refine to match the shelf</h2>'+
+      '<p class="gx-hint">Tap to remove any molecule, or a whole category, to match what the dispensary stocks. Matching uses the cannabinoids &amp; terpenes disclosed on product COAs.</p>'+
+      '<div class="gx-refine"><div class="gx-chips">'+toggles+'</div>'+
+      (catBtns?'<div class="gx-catrow">Remove a category: '+catBtns+'</div>':'')+
+      '<div class="gx-matchcount">'+n+' product'+(n===1?'':'s')+' in stock match this profile</div></div>'+
+      '<button class="gx-cta" onclick="V4GX.djToProducts()">Query the inventory →</button>');
+  }
+  function scDJPos(){var active=djActiveRec();var n=G().match(active).shown.length;
+    var total=G().inventory.length;var instock=G().inventory.filter(function(p){return p.count>0;}).length;
+    stage(djStepBar(4)+'<h2 class="gx-q">Checking the shelf…</h2>'+
+      '<div class="gx-pos"><div class="gx-pos-badge"><span class="dot pulse"></span>Connecting to Demo-POS</div>'+
+        '<div class="gx-pos-step s1">Querying inventory — '+total+' SKUs</div>'+
+        '<div class="gx-pos-step s2">Filtering to in-stock — '+instock+' available</div>'+
+        '<div class="gx-pos-step s3">Scoring each product against the refined profile…</div>'+
+        '<div class="gx-pos-step s4"><b>'+n+' match'+(n===1?'':'es')+' ready</b></div></div>');
+    var tok=st._posTok=(st._posTok||0)+1;
+    setTimeout(function(){if(hist[hist.length-1]==='djProducts'&&st._posTok===tok)scDJProducts();},reducedMotion()?0:1900);
+  }
+  function scDJProducts(){var rec=djActiveRec();var res=G().match(rec);var top=res.shown.slice(0,6);var recIds=rec.molecules.map(function(m){return m.molId;});var html;
+    if(!top.length){html='<div class="gx-empty"><div style="font-size:2rem">🤝</div><b>Nothing in stock is a strong match.</b><br>Adjust the refine step or restock.</div>';}
+    else{html='<p class="gx-summary">Best matches in stock, ranked by fit</p>'+top.map(function(p){
+      var mols=Object.keys(p.profile).sort(function(a,b){return p.profile[b]-p.profile[a];}).slice(0,4).map(function(m){return '<span>'+(G().names[m]||m)+'</span>';}).join('');
+      var matched=recIds.filter(function(id){return p.profile[id]!=null;});
+      var why=matched.length?'<div class="gx-why">✓ Matches '+matched.length+' of '+recIds.length+' recommended — '+matched.map(function(id){return G().names[id]||id;}).join(', ')+'</div>':'';
+      return '<div class="gx-prod"><div class="sw">'+p.icon+'</div><div class="info"><b>'+esc(p.name)+'</b>'+
+        '<div class="meta">'+cap(p.type)+' · $'+p.price+' · '+p.count+' in stock</div><div class="mols">'+mols+'</div>'+why+
+        '<span class="gx-badge '+p.label+'">'+p.label+' match</span>'+
+        '<button class="dj-select" onclick="V4GX.djSelect(\''+esc(p.sku)+'\')">Select this product →</button></div>'+
+        '<div class="gx-fit"><div class="pct">'+p.fit+'%</div><div class="lbl">fit</div></div></div>';}).join('')+
+      '<div class="gx-filtered">'+res.excluded.length+' others filtered out (out of stock, or off-profile).</div>';}
+    stage(djStepBar(4)+'<h2 class="gx-q">Best matches in stock</h2><div class="gx-posline"><span class="dot"></span>Connected · Demo-POS · live stock</div>'+html+
+      '<button class="gx-cta ghost" onclick="V4GX.djBack()">← Refine again</button>');
+  }
+  function scDJDone(){var p=st.djProduct||G().match(djActiveRec()).shown[0];if(!p){scDJProducts();return;}
+    stage(djStepBar(5)+'<h2 class="gx-q">Product selected</h2>'+
+      '<div class="gx-handoff"><div class="gx-hpick"><div class="sw">'+p.icon+'</div><div><b>'+esc(p.name)+'</b>'+
+        '<div class="meta">'+cap(p.type)+' · $'+p.price+' · '+p.fit+'% fit</div></div></div>'+
+        '<div class="gx-checks"><span>✓ Clinical fit</span><span>✓ Meds screened</span><span>✓ In stock ('+p.count+')</span></div>'+
+        '<div class="gx-sent"><span class="dot"></span>Sent to POS terminal · added to cart <em>(demonstration)</em></div></div>'+
+      '<div class="dj-recap">The full V4 journey: health concern → clinical recommendation → medication safety → refined match → in-stock product, all connected to the dispensary POS.</div>'+
+      '<button class="gx-cta" onclick="V4GX.djRestart()">↻ Run the demo again</button>'+
+      '<button class="gx-cta ghost" onclick="window.V4DEMO.exit()">Exit Demo Mode</button>');
+  }
+
   // ---- public API ----
   window.V4GX={
-    start:function(){st={persona:null,seconds:[],excluded:{},detail:'plain'};hist=['persona'];el('gxOverlay').style.display='flex';scPersona();chrome('persona');},
+    start:function(){if(demoMode())return this.djStart();st={persona:null,seconds:[],excluded:{},detail:'plain'};hist=['persona'];el('gxOverlay').style.display='flex';scPersona();chrome('persona');},
+    djStart:function(){st={dj:true,persona:null,djConds:[],excluded:{},meds:[],ceiling:'any'};hist=['djIntro'];el('gxOverlay').style.display='flex';scDJIntro();chrome('djIntro');},
+    djBegin:function(){go('djConds',scDJConds);},
+    djToggleCond:function(id){st.djConds=st.djConds||[];var i=st.djConds.indexOf(id);if(i>=0)st.djConds.splice(i,1);else st.djConds.push(id);scDJConds();},
+    djToRec:function(){if(!(st.djConds&&st.djConds.length))return;st.excluded={};go('djMol',scDJMol);},
+    djToMeds:function(){go('djMeds',scDJMeds);},
+    djAddMed:function(id){st.meds=st.meds||[];if(!st.meds.some(function(m){return m.id===id;})){var e=(typeof DI_DATA!=='undefined')?DI_DATA.find(function(d){return d.id===id;}):null;if(e)st.meds.push(e);}scDJMeds();},
+    djRemoveMed:function(id){st.meds=(st.meds||[]).filter(function(m){return m.id!==id;});scDJMeds();},
+    djSearchMed:function(v){djRenderMedSearch(v);},
+    djToRefine:function(){go('djRefine',scDJRefine);},
+    djToggleMol:function(id){st.excluded=st.excluded||{};if(st.excluded[id])delete st.excluded[id];else st.excluded[id]=1;scDJRefine();},
+    djToggleCat:function(cat){st.excluded=st.excluded||{};var isTerp=(cat==='terp');var inCat=djRec().molecules.filter(function(m){return (!!G().terps[m.molId])===isTerp;});var allOff=inCat.length&&inCat.every(function(m){return st.excluded[m.molId];});inCat.forEach(function(m){if(allOff)delete st.excluded[m.molId];else st.excluded[m.molId]=1;});scDJRefine();},
+    djToProducts:function(){go('djProducts',scDJPos);},
+    djSelect:function(sku){var p=G().match(djActiveRec()).shown.filter(function(x){return x.sku===sku;})[0];st.djProduct=p||null;go('djDone',scDJDone);},
+    djBack:function(){this.back();},
+    djRestart:function(){this.djStart();},
     close:function(){el('gxOverlay').style.display='none';},
-    back:function(){if(hist.length>1){hist.pop();var scr=hist[hist.length-1];({persona:scPersona,intent:scIntent,refine:scRefine,thc:scThc,second:scSecond,rec:scRec,products:scProducts,handoff:scHandoff,insights:scInsights,emp:scEmp,import:scImport,importResult:scImportResult,browse:scBrowse}[scr])();chrome(scr);}},
+    back:function(){if(hist.length>1){hist.pop();var scr=hist[hist.length-1];({persona:scPersona,intent:scIntent,refine:scRefine,thc:scThc,second:scSecond,rec:scRec,products:scProducts,handoff:scHandoff,insights:scInsights,emp:scEmp,import:scImport,importResult:scImportResult,browse:scBrowse,djIntro:scDJIntro,djConds:scDJConds,djMol:scDJMol,djMeds:scDJMeds,djRefine:scDJRefine,djProducts:scDJPos,djDone:scDJDone}[scr])();chrome(scr);}},
     restart:function(){this.start();},
     persona:function(p){st.persona=p;st.intent=null;st.refineKey=null;st.seconds=[];
       if(p==='cust'){go('intent',scIntent);}else if(p==='emp'){go('emp',scEmp);}else{this.close();}},
@@ -7200,6 +7427,19 @@ window.showDemoLogin=showDemoLogin;window.hideDemoLogin=hideDemoLogin;window.sub
 (function(){try{if(window.V4DEMO&&window.V4DEMO.allow&&!window.V4DEMO.active&&/[?&]demo=1(&|$)/.test(location.search||'')){
   var go=function(){try{if(typeof showDemoLogin==='function')showDemoLogin();}catch(e){}};
   if(document.readyState!=='loading')setTimeout(go,140);else document.addEventListener('DOMContentLoaded',function(){setTimeout(go,140);});}}catch(e){}})();
+
+// Demo Mode safety net: NEVER let a click open an external page or a file on the presenter's machine
+// during a demonstration. While V4DEMO.active, block navigation to external/file URLs and _blank targets
+// (the self-contained journey has no legitimate external links). Internal button handlers are unaffected.
+function djToast(msg){try{var t=document.getElementById('djToastEl');if(!t){t=document.createElement('div');t.id='djToastEl';t.className='dj-toast';(document.body||document.documentElement).appendChild(t);}
+  t.textContent=msg||'External links are turned off in Demo Mode.';t.classList.add('show');
+  clearTimeout(window.__djToastT);window.__djToastT=setTimeout(function(){t.classList.remove('show');},2200);}catch(e){}}
+(function(){try{document.addEventListener('click',function(e){
+  if(!(window.V4DEMO&&window.V4DEMO.active))return;
+  var a=(e.target&&e.target.closest)?e.target.closest('a[href]'):null;if(!a)return;
+  var href=a.getAttribute('href')||'';var tgt=(a.getAttribute('target')||'').toLowerCase();
+  if(/^\s*(https?:|file:)/i.test(href)||tgt==='_blank'){e.preventDefault();e.stopPropagation();djToast();}
+},true);}catch(e){}})();
 
 </script>
 <!-- ── DEMO MODE SIGN-IN MODAL (Acannability staff) ──────────────────────── -->
