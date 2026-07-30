@@ -2153,11 +2153,12 @@ body.is-mobile-view .panel-body{touch-action:pan-y}
 /* On mobile, sit the banner ABOVE the fixed tab bar (~56px) so it never covers nav tap targets */
 body.is-mobile-view .demo-ribbon{bottom:calc(64px + env(safe-area-inset-bottom));left:8px;right:8px;max-width:none}
 /* Demo banner Exit button (only interactive part of the otherwise pass-through banner) */
-.demo-ribbon .dr-txt{min-width:0}
-.demo-ribbon .dr-exit{pointer-events:auto;flex:0 0 auto;margin-left:auto;background:rgba(255,255,255,.16);color:#fff;
+.demo-ribbon .dr-txt{min-width:0;flex:1}
+.demo-ribbon .dr-menu,.demo-ribbon .dr-exit{pointer-events:auto;flex:0 0 auto;background:rgba(255,255,255,.16);color:#fff;
   border:1px solid rgba(255,255,255,.55);border-radius:8px;font:700 10px/1 system-ui,-apple-system,sans-serif;
   text-transform:uppercase;letter-spacing:.06em;padding:6px 9px;cursor:pointer}
-.demo-ribbon .dr-exit:hover{background:rgba(255,255,255,.30)}
+.demo-ribbon .dr-menu{background:rgba(255,255,255,.26)}
+.demo-ribbon .dr-menu:hover,.demo-ribbon .dr-exit:hover{background:rgba(255,255,255,.36)}
 /* "Demo Mode" entry link on the Guided persona screen (Acannability staff) */
 #gxOverlay .gx-demo-link{display:inline-flex;align-items:center;gap:6px;margin:16px auto 2px;padding:7px 15px;
   background:transparent;border:1px dashed var(--border,#bbb);color:var(--dim,#777);border-radius:999px;
@@ -2337,7 +2338,7 @@ window.V4DEMO=(function(){
     check:function(u,p){return ALLOW_DEMO && (cyrb53(String(u||'').toLowerCase().trim()+':'+String(p||''))+'')===AUTH_HASH;},
     /* Called after a successful login: persist the unlock for this browser session, then reload into the
        demo on a CLEAN url (no ?demo= needed). */
-    enter:function(){try{sessionStorage.setItem('acann_demo_on','1');}catch(e){}try{location.reload();}catch(e){}},
+    enter:function(){try{sessionStorage.setItem('acann_demo_on','1');sessionStorage.setItem('acann_demo_hub','1');}catch(e){}try{location.reload();}catch(e){}},
     /* Leave the demo: clear the unlock and reload back into the standard V4 platform. */
     exit:function(){try{sessionStorage.removeItem('acann_demo_on');}catch(e){}try{location.reload();}catch(e){}},
     /* Prefix every persisted key in demo mode so demo data never mixes with live stock. */
@@ -6989,12 +6990,10 @@ document.addEventListener('keydown', function(e) {
     // Demo Mode entry (Acannability staff): before login, a discreet "🔒 Demo Mode" link that opens the
     // credential prompt (patients ignore it). Once IN the demo, it becomes a quick "📦 View demo inventory"
     // shortcut so you can jump straight to the faux dispensary catalogue during a presentation.
-    var demoLink='';
-    if(window.V4DEMO&&window.V4DEMO.active){
-      demoLink='<button class="gx-demo-link" onclick="V4GX.browse()" aria-label="View the demo dispensary inventory">📦 View demo inventory</button>';
-    }else if(window.V4DEMO&&window.V4DEMO.allow){
-      demoLink='<button class="gx-demo-link" onclick="showDemoLogin()" aria-label="Demo Mode — Acannability staff sign-in">🔒 Demo Mode</button>';
-    }
+    // Discreet Demo Mode entry, shown ONLY on Acannability builds and ONLY outside the demo (never in the
+    // demo itself, so the Guided Experience stays clean). Real users on licensed builds never see it.
+    var demoLink=(window.V4DEMO&&window.V4DEMO.allow&&!window.V4DEMO.active)?
+      '<button class="gx-demo-link" onclick="showDemoLogin()" aria-label="Demo Mode — Acannability staff sign-in">🔒 Demo Mode</button>':'';
     stage('<h2 class="gx-q">Who’s using the table today?</h2><p class="gx-hint">Tap the one that fits you.</p>'+
     optBtn("V4GX.persona('cust')",'🌱','I’m a Customer / Patient','Help me find what fits — guide me')+
     optBtn("V4GX.persona('emp')",'🏪','I work here','Product Specialist tools & quick lookup')+
@@ -7215,25 +7214,30 @@ document.addEventListener('keydown', function(e) {
   }
   function djMolName(mid){return (typeof M!=='undefined'&&M[mid])?(M[mid].symbol||M[mid].fullName):(G().names[mid]||mid);}
 
-  function scDJIntro(){
+  // Demo Mode hub: the SEPARATE, secure launcher for the sales/marketing presentation. It is NOT the
+  // patient Guided Experience — it offers the full end-to-end demo journey, OR shows the standard Guided
+  // Experience real users get, OR browses the demo inventory. Reached only via the demo login / banner menu.
+  function scDemoHub(){
     var d0=(window.V4DEMO&&window.V4DEMO.dispensary)?window.V4DEMO.dispensary:{name:'Acannability Cannabis Dispensary Demo'};
-    stage('<div class="dj-intro"><div class="dj-intro-badge">Live demonstration</div>'+
-      '<h2 class="gx-q">A complete patient journey</h2>'+
-      '<p class="gx-hint">See how V4 takes a patient from their health concern all the way to an in-stock product at '+esc(d0.name)+' — clinical guidance, medication safety, and live inventory, in one seamless flow.</p>'+
+    stage('<div class="dj-intro"><div class="dj-intro-badge">Demonstration mode</div>'+
+      '<h2 class="gx-q">'+esc(d0.name)+'</h2>'+
+      '<p class="gx-hint">A controlled presentation of the complete V2 platform, running on this demo dispensary’s inventory. Choose what to show your audience.</p>'+
+      '<button class="gx-cta" onclick="V4GX.djRun()">▶ Run the complete patient journey</button>'+
       '<div class="dj-intro-steps">'+DJ_STEPS.map(function(s,i){return '<div class="dj-intro-step"><span>'+(i+1)+'</span>'+s+'</div>';}).join('')+'</div>'+
-      '<button class="gx-cta" onclick="V4GX.djBegin()">Begin the patient journey →</button>'+
-      '<button class="gx-cta ghost" onclick="V4GX.browse()">📦 Browse full demo inventory</button></div>');
+      '<button class="gx-cta ghost" onclick="V4GX.start()">🧭 Show the Guided Patient Experience</button>'+
+      '<button class="gx-cta ghost" onclick="V4GX.browse()">📦 Browse the demo inventory</button>'+
+      '<button class="gx-cta ghost" onclick="window.V4DEMO.exit()">Exit Demo Mode</button></div>');
   }
   function scDJConds(){var sel=st.djConds||[];
     stage(djStepBar(0)+'<h2 class="gx-q">Why are you here today?</h2><p class="gx-hint">Select one or more — a patient can have more than one concern (try <b>Seizures + Anxiety</b>).</p>'+
       DJ_CONDS.map(function(c){var on=sel.indexOf(c.id)>=0;return optBtn("V4GX.djToggleCond('"+c.id+"')",c.ic,c.label,'',on,true);}).join('')+
-      '<button class="gx-cta" onclick="V4GX.djToRec()"'+(sel.length?'':' disabled')+'>See what V4 recommends →</button>');
+      '<button class="gx-cta" onclick="V4GX.djToRec()"'+(sel.length?'':' disabled')+'>See what V2 recommends →</button>');
   }
   function scDJMol(){var g=djClinicalGroups();
     function grp(title,ids){if(!ids.length)return '';return '<div class="dj-molgrp"><div class="dj-molgrp-h">'+title+' <span style="opacity:.6;font-weight:600">('+ids.length+')</span></div><div class="dj-mols">'+ids.map(function(mid){return '<span class="dj-mol">'+esc(djMolName(mid))+'</span>';}).join('')+'</div></div>';}
     var condNames=(st.djConds||[]).map(djLabelFor).join(' + ');
-    stage(djStepBar(1)+'<h2 class="gx-q">What V4 recommends</h2>'+
-      '<p class="gx-hint">For <b>'+esc(condNames)+'</b> — the molecular profile from V4\'s condition-to-molecule evidence base.</p>'+
+    stage(djStepBar(1)+'<h2 class="gx-q">What V2 recommends</h2>'+
+      '<p class="gx-hint">For <b>'+esc(condNames)+'</b> — the molecular profile from V2\'s condition-to-molecule evidence base.</p>'+
       grp('🧪 Cannabinoids',g.cannabinoid)+grp('🌿 Terpenes',g.terpene)+grp('🌼 Flavonoids',g.flavonoid)+
       '<div class="dj-note">Next, we\'ll check the patient\'s medications against these molecules — then narrow to what\'s in stock.</div>'+
       '<button class="gx-cta" onclick="V4GX.djToMeds()">Check medications →</button>');
@@ -7275,7 +7279,7 @@ document.addEventListener('keydown', function(e) {
       return '<button class="dj-medchip'+(on?' on':'')+'" onclick="V4GX.djAddMed(\''+id+'\')"><span class="'+(d.cat==='otc'?'otc':'rx')+'">'+(d.cat==='otc'?'OTC':'Rx')+'</span>'+esc(d.drug.split(' /')[0])+(on?' ✓':'')+'</button>';}).join('');
     var list=(st.meds||[]).map(function(m){return '<span class="dj-medpill">'+esc(m.drug.split(' /')[0])+'<button onclick="V4GX.djRemoveMed(\''+m.id+'\')" aria-label="Remove">×</button></span>';}).join('');
     stage(djStepBar(2)+'<h2 class="gx-q">Medication safety check</h2>'+
-      '<p class="gx-hint">Add the patient\'s prescriptions and OTC medicines. V4 screens them against each other <b>and</b> against the recommended cannabis molecules.</p>'+
+      '<p class="gx-hint">Add the patient\'s prescriptions and OTC medicines. V2 screens them against each other <b>and</b> against the recommended cannabis molecules.</p>'+
       '<div class="dj-medquick"><div class="dj-lbl">Tap common medications</div><div class="dj-chips">'+chips+'</div></div>'+
       '<div class="dj-medsearch"><input class="gx-search" type="search" autocomplete="off" placeholder="…or search any medication (e.g. Xanax, Tylenol, metformin)" oninput="V4GX.djSearchMed(this.value)"><div id="djMedSug" class="dj-sugbox" style="display:none"></div></div>'+
       (list?'<div class="dj-medlist"><span class="dj-lbl" style="margin:0 4px 0 0">Patient\'s list:</span>'+list+'</div>':'')+
@@ -7327,16 +7331,17 @@ document.addEventListener('keydown', function(e) {
         '<div class="meta">'+cap(p.type)+' · $'+p.price+' · '+p.fit+'% fit</div></div></div>'+
         '<div class="gx-checks"><span>✓ Clinical fit</span><span>✓ Meds screened</span><span>✓ In stock ('+p.count+')</span></div>'+
         '<div class="gx-sent"><span class="dot"></span>Sent to POS terminal · added to cart <em>(demonstration)</em></div></div>'+
-      '<div class="dj-recap">The full V4 journey: health concern → clinical recommendation → medication safety → refined match → in-stock product, all connected to the dispensary POS.</div>'+
-      '<button class="gx-cta" onclick="V4GX.djRestart()">↻ Run the demo again</button>'+
+      '<div class="dj-recap">The full V2 journey: health concern → clinical recommendation → medication safety → refined match → in-stock product, all connected to the dispensary POS.</div>'+
+      '<button class="gx-cta" onclick="V4GX.djRun()">↻ Run another patient journey</button>'+
+      '<button class="gx-cta ghost" onclick="V4GX.demoHub()">≡ Back to demo menu</button>'+
       '<button class="gx-cta ghost" onclick="window.V4DEMO.exit()">Exit Demo Mode</button>');
   }
 
   // ---- public API ----
   window.V4GX={
-    start:function(){if(demoMode())return this.djStart();st={persona:null,seconds:[],excluded:{},detail:'plain'};hist=['persona'];el('gxOverlay').style.display='flex';scPersona();chrome('persona');},
-    djStart:function(){st={dj:true,persona:null,djConds:[],excluded:{},meds:[],ceiling:'any'};hist=['djIntro'];el('gxOverlay').style.display='flex';scDJIntro();chrome('djIntro');},
-    djBegin:function(){go('djConds',scDJConds);},
+    start:function(){st={persona:null,seconds:[],excluded:{},detail:'plain'};hist=['persona'];el('gxOverlay').style.display='flex';scPersona();chrome('persona');},
+    demoHub:function(){if(!demoMode())return;st={dj:true,persona:null,djConds:[],excluded:{},meds:[],ceiling:'any',djProduct:null};hist=['demoHub'];el('gxOverlay').style.display='flex';scDemoHub();chrome('demoHub');},
+    djRun:function(){st.dj=true;st.djConds=[];st.excluded={};st.meds=[];st.djProduct=null;st.ceiling='any';if(!hist.length)hist=['demoHub'];go('djConds',scDJConds);},
     djToggleCond:function(id){st.djConds=st.djConds||[];var i=st.djConds.indexOf(id);if(i>=0)st.djConds.splice(i,1);else st.djConds.push(id);scDJConds();},
     djToRec:function(){if(!(st.djConds&&st.djConds.length))return;st.excluded={};go('djMol',scDJMol);},
     djToMeds:function(){go('djMeds',scDJMeds);},
@@ -7349,9 +7354,8 @@ document.addEventListener('keydown', function(e) {
     djToProducts:function(){go('djProducts',scDJPos);},
     djSelect:function(sku){var p=G().match(djActiveRec()).shown.filter(function(x){return x.sku===sku;})[0];st.djProduct=p||null;go('djDone',scDJDone);},
     djBack:function(){this.back();},
-    djRestart:function(){this.djStart();},
     close:function(){el('gxOverlay').style.display='none';},
-    back:function(){if(hist.length>1){hist.pop();var scr=hist[hist.length-1];({persona:scPersona,intent:scIntent,refine:scRefine,thc:scThc,second:scSecond,rec:scRec,products:scProducts,handoff:scHandoff,insights:scInsights,emp:scEmp,import:scImport,importResult:scImportResult,browse:scBrowse,djIntro:scDJIntro,djConds:scDJConds,djMol:scDJMol,djMeds:scDJMeds,djRefine:scDJRefine,djProducts:scDJPos,djDone:scDJDone}[scr])();chrome(scr);}},
+    back:function(){if(hist.length>1){hist.pop();var scr=hist[hist.length-1];({persona:scPersona,intent:scIntent,refine:scRefine,thc:scThc,second:scSecond,rec:scRec,products:scProducts,handoff:scHandoff,insights:scInsights,emp:scEmp,import:scImport,importResult:scImportResult,browse:scBrowse,demoHub:scDemoHub,djConds:scDJConds,djMol:scDJMol,djMeds:scDJMeds,djRefine:scDJRefine,djProducts:scDJPos,djDone:scDJDone}[scr])();chrome(scr);}},
     restart:function(){this.start();},
     persona:function(p){st.persona=p;st.intent=null;st.refineKey=null;st.seconds=[];
       if(p==='cust'){go('intent',scIntent);}else if(p==='emp'){go('emp',scEmp);}else{this.close();}},
@@ -7419,9 +7423,15 @@ window.showDemoLogin=showDemoLogin;window.hideDemoLogin=hideDemoLogin;window.sub
     d.innerHTML=(logo?'<img src="'+esc(logo)+'" alt="">':'')+
       '<div class="dr-txt"><div class="dr-name"><span class="dot"></span>'+esc(d0.name)+'</div>'+
       '<div class="dr-sub">'+esc(d0.note)+'</div></div>'+
+      '<button class="dr-menu" onclick="if(window.V4GX)V4GX.demoHub()" aria-label="Open the demo presentation menu">▶ Menu</button>'+
       '<button class="dr-exit" onclick="window.V4DEMO.exit()" aria-label="Exit Demo Mode and return to the standard platform">Exit</button>';
     (document.body||document.documentElement).appendChild(d);if(document.body)document.body.classList.add('demo-mode');};
   if(document.body)add();else document.addEventListener('DOMContentLoaded',add);}}catch(e){}})();
+
+// After a successful Demo Mode login, land the presenter in the Demo Mode hub (the separate presentation
+// launcher) — once, not on every reload. The Guided Finder button stays the standard Guided Experience.
+(function(){try{if(window.V4DEMO&&window.V4DEMO.active){var open=function(){try{if(sessionStorage.getItem('acann_demo_hub')==='1'){sessionStorage.removeItem('acann_demo_hub');if(window.V4GX&&V4GX.demoHub)V4GX.demoHub();}}catch(e){}};
+  if(document.readyState==='complete'||document.readyState==='interactive')setTimeout(open,320);else document.addEventListener('DOMContentLoaded',function(){setTimeout(open,320);});}}catch(e){}})();
 
 // ?demo=1 is an INTERNAL deep-link that only OPENS the demo login — it never bypasses the credentials.
 (function(){try{if(window.V4DEMO&&window.V4DEMO.allow&&!window.V4DEMO.active&&/[?&]demo=1(&|$)/.test(location.search||'')){
