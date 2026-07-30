@@ -6968,7 +6968,7 @@ document.addEventListener('keydown', function(e) {
   var SECOND=[{k:'sleep',ic:'😴',label:'Trouble sleeping too',cond:['sleep']},
     {k:'stress',ic:'💭',label:'Stress / anxiety',cond:['stress']},{k:'pain',ic:'🌿',label:'Some pain too',cond:['pain']},
     {k:'nausea',ic:'🤢',label:'Nausea too',cond:['nausea-relief']},{k:'appetite',ic:'🍽️',label:'Low appetite too',cond:['appetite-stim']}];
-  var FUNNEL=['intent','refine','thc','second','rec','products'];
+  var FUNNEL=['intent','refine','thc','second','rec']; // standard flow ends at the recommendation, then hands off to the V2 table (no faux products)
   var st={}, hist=[];
   var lastImport=null, browseSort={key:'name',dir:1}, browseQ='';  // INV-02 import/browse state
   function G(){return window.V4Guided;}
@@ -7031,15 +7031,12 @@ document.addEventListener('keydown', function(e) {
     if(rec.thcCeiling==='any'&&hasTHC)return 'Balanced THC : CBD';
     return (top==='CBD'?'CBD-forward, low THC':nm+'-forward, low THC');}
   function scRec(){var rec=currentRec();var active=activeRec();
-    // recommendation molecules rendered as removable toggle chips (tap to remove / restore)
-    var toggles=rec.molecules.slice(0,6).map(function(m){var off=!!(st.excluded&&st.excluded[m.molId]);
-      return '<button class="gx-chip gx-tog'+(G().terps[m.molId]?' terp':'')+(off?' off':'')+'" onclick="V4GX.toggleMol(\''+m.molId+'\')">'+
-        (G().names[m.molId]||m.molId)+'<span class="x">'+(off?'＋':'×')+'</span></button>';}).join('');
-    var hasCann=rec.molecules.some(function(m){return !G().terps[m.molId];});
-    var hasTerp=rec.molecules.some(function(m){return G().terps[m.molId];});
-    var catBtns=(hasCann?'<button class="gx-catbtn" onclick="V4GX.toggleCat(\'cann\')">Cannabinoids</button>':'')+
-                (hasTerp?'<button class="gx-catbtn" onclick="V4GX.toggleCat(\'terp\')">Terpenes</button>':'');
-    var n=G().match(active).shown.length;
+    // STANDARD Guided Experience recommendation. It shows the recommended molecules, then hands off into the
+    // V2 Periodic Table for the full standard experience (evidence, receptors, Drug Interactions, Refine
+    // Search, etc.). It NEVER queries faux inventory or shows product recommendations — that entire workflow
+    // (POS query, in-stock matching, product selection) belongs ONLY to Demo Mode (the scDJ* journey).
+    var chips=rec.molecules.slice(0,6).map(function(m){
+      return '<span class="gx-chip'+(G().terps[m.molId]?' terp':'')+'">'+(G().names[m.molId]||m.molId)+'</span>';}).join('');
     var ent=(secondCondIds().length? '<div class="gx-ent">✦ An entourage combination — these work better together for what you described.</div>':'');
     var detail=st.detail||'plain';
     var detailToggle='<div class="gx-detail"><button class="'+(detail==='plain'?'on':'')+'" onclick="V4GX.setDetail(\'plain\')">Plain language</button>'+
@@ -7055,13 +7052,11 @@ document.addEventListener('keydown', function(e) {
     stage('<h2 class="gx-q">What may help you</h2>'+
       '<div class="gx-rec"><div class="kind">'+kindPhrase(active)+'</div>'+
       '<div class="because">Chosen for your needs'+(active.thcCeiling==='none'?' — nothing that will make you feel high.':'.')+'</div>'+
-      '<div class="gx-chips">'+toggles+'</div>'+ent+'</div>'+
+      '<div class="gx-chips">'+chips+'</div>'+ent+'</div>'+
       detailToggle+clin+
-      '<div class="gx-refine"><span class="gx-refine-h">Fine-tune — tap a molecule to remove it, and matches update.</span>'+
-        (catBtns?'<div class="gx-catrow">Remove a whole category: '+catBtns+'</div>':'')+
-        '<div class="gx-matchcount">'+n+' product'+(n===1?'':'s')+' in stock match this profile</div></div>'+
-      optBtn("V4GX.seeScience()",'🔬','Why these? See the science','Opens the full molecule table')+
-      '<button class="gx-cta" onclick="V4GX.toProducts()">See products in stock →</button>');}
+      '<p class="gx-hint" style="margin-top:12px">Open these in the V2 Periodic Table to explore the evidence levels, receptor systems, Drug Interaction Checker, and Refine Search.</p>'+
+      '<button class="gx-cta" onclick="V4GX.seeScience()">🔬 Explore these in the V2 Periodic Table →</button>'+
+      '<button class="gx-cta ghost" onclick="V4GX.restart()">Start over</button>');}
   function scProducts(){var rec=activeRec();var res=G().match(rec);var top=res.shown.slice(0,6);
     var recIds=rec.molecules.map(function(m){return m.molId;});var html='';
     var badge=demoMode()?'<div class="gx-posline"><span class="dot"></span>Connected · Demo-POS · live stock</div>':'';
