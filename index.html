@@ -956,7 +956,7 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
             <div class="faq-content" style="font-size:.82rem">
               <p>V2 covers 40 health conditions across six groups:</p>
               <p><u>Pain &amp; Inflammation (6):</u> Analgesic/Pain, Neuropathic Pain, Arthritis, Muscle Spasm, Anti-Inflammatory, Skin Health.</p>
-              <p><u>Neurological (8):</u> Epilepsy/Seizures, Sleep, MS, Neuroprotection, Neurodegeneration, ASD, Anxiety, Antidepressant.</p>
+              <p><u>Neurological (9):</u> Epilepsy/Seizures, Sleep, MS, Neuroprotection, Neurodegeneration, ASD, Anxiety, Antidepressant, Glaucoma.</p>
               <p><u>Mental Health (4):</u> PTSD, Stress/Cortisol, Psychosis/Schizophrenia, Anti-Tumor (general).</p>
               <p><u>Metabolic &amp; Systemic (8):</u> Diabetes, Liver, Cardiovascular, Hyperlipidemia, Bone Health, Antiviral, Antibacterial, Antifungal.</p>
               <p><u>Cancer Sub-types (11):</u> Glioblastoma, Breast, Lung, Colorectal, Leukemia, Prostate, Melanoma, Pancreatic, Liver (HCC), Ovarian, Cervical.</p>
@@ -1804,7 +1804,7 @@ body.is-mobile-view .panel-body{touch-action:pan-y}
     <div class="faq-content">
       <p>Version 2 expanded the therapeutic conditions filter from 30 to 40 health conditions, organized across six clinical groups:</p>
       <p><u>Pain &amp; Inflammation (6 conditions):</u> Analgesic/Pain, Neuropathic Pain, Arthritis/Joint Pain, Muscle Spasm/Spasticity, Anti-Inflammatory, and Skin Health/Acne.</p>
-      <p><u>Neurological (8 conditions):</u> Epilepsy/Seizures, Sleep &amp; Insomnia, Multiple Sclerosis, Neuroprotection, Neurodegenerative disease, Autism Spectrum Disorder (ASD), Anxiety, and Antidepressant.</p>
+      <p><u>Neurological (9 conditions):</u> Epilepsy/Seizures, Sleep &amp; Insomnia, Multiple Sclerosis, Neuroprotection, Neurodegenerative disease, Autism Spectrum Disorder (ASD), Anxiety, Antidepressant, and Glaucoma / Ocular Pressure.</p>
       <p><u>Mental Health (4 conditions):</u> PTSD/Trauma, Stress/Cortisol, Psychosis/Schizophrenia, and General Anti-Tumor/Cancer.</p>
       <p><u>Metabolic &amp; Systemic (8 conditions):</u> Diabetes/Blood Sugar, Liver/Hepatoprotective, Cardiovascular Health, Hyperlipidemia, Bone Health/Osteoporosis, Antiviral/Immune, Antibacterial, and Antifungal.</p>
       <p><u>General Cancer (5 conditions):</u> Anti-Tumor, Antioxidant, Antiemetic/Nausea, Appetite Regulation, and Antimicrobial support.</p>
@@ -2970,6 +2970,12 @@ const CONDITIONS = [
   {id:'parkinsons',label:"Parkinson's Disease",group:'neuro',molecules:{CBD:8,CBG:7,THC9:5,GE:6,LN:5,aBI:5,THCA:5}},
   {id:'neurodegen',label:'Neurodegenerative',group:'neuro',molecules:{CBD:8,CBG:8,CBN:7,THCP:7,LTL:7,THCA:6,GE:5,LN:5}},
   {id:'autism',label:'Autism Spectrum (ASD)',group:'neuro',molecules:{CBD:7,CBDV:7}},
+  // Glaucoma — optic neuropathy. Cannabis-relevant angles: CB1-mediated IOP lowering + retinal/optic-nerve
+  // neuroprotection. Scores reflect strength-of-evidence for an EFFECT, not endorsement (effect is short-lived
+  // and specialty bodies advise against use — hasRisk flags that). CBD is intentionally omitted: human (Tomida
+  // 2006) + preclinical (Miller 2018) data show no IOP benefit and a possible IOP increase. THC9 strongest
+  // (Hepler 1971; Merritt 1980; Tomida 2006; Miller 2018); THC8/CBN older/weaker; THCV/CBG preclinical only.
+  {id:'glaucoma',label:'Glaucoma / Ocular Pressure',group:'neuro',hasRisk:true,molecules:{THC9:6,THC8:5,CBN:4,THCV:3,CBG:3}},
   {id:'anxiety',label:'Anxiety',group:'mental',molecules:{CBD:7,APG:7,LI:7,LN:6,bCA:6,aBI:6,ISX:6,aPI:4,CB:2}},
   {id:'depression',label:'Anti-depressant',group:'mental',molecules:{CBD:7,APG:7,LI:7,VIX:6,bCA:6,GE:4,THCB:3,LN:5}},
   {id:'ptsd',label:'PTSD / Trauma',group:'mental',molecules:{THC9:8,CBD:7,CBN:6,MY:5,LN:5,LI:5,aTP:4}},
