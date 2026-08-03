@@ -6790,34 +6790,57 @@ document.addEventListener('keydown', function(e) {
     aHU:'Humulene',OC:'Ocimene',NE:'Nerolidol',aBI:'Bisabolol',EU:'Eucalyptol',aTP:'Terpineol',CM:'Camphene'};
   // Demo inventory (mirrors V4_demo_inventory.csv — 25 SKUs, all 7 routes, incl. 2 out-of-stock).
   // Swap this array for the dispensary's real POS feed (INV-05); the matcher is feed-agnostic.
+  // Demo inventory — fictional house brands carrying real, industry-common strain names with
+  // REPRESENTATIVE (not batch-specific) cannabinoid/terpene profiles consistent with each cultivar's
+  // published chemotype. thc/cbd are %  for inhalables (flower/vape/concentrate) and mg for
+  // tinctures/capsules/edibles/beverages/topicals; the matcher is unit-agnostic (within-product
+  // proportions), so mixing scales is fine. `stype` = indica/sativa/hybrid/CBD (blank where n/a).
   var INV=[
-   {sku:'FLW-1001',name:'Midnight Meridian 3.5g',type:'flower',thc:22.4,cbd:0.2,cann:'CBN:0.5;CBG:0.4',terp:'myrcene:1.3;linalool:0.6;humulene:0.3',price:42,count:36,icon:'🌙'},
-   {sku:'FLW-1002',name:'Solstice Haze 3.5g',type:'flower',thc:24.1,cbd:0.1,cann:'THCV:0.3',terp:'terpinolene:1.1;limonene:0.7;ocimene:0.5',price:44,count:28,icon:'☀️'},
-   {sku:'FLW-1003',name:'Even Keel Hybrid 3.5g',type:'flower',thc:15.2,cbd:7.8,cann:'CBG:0.8',terp:'limonene:0.7;beta-caryophyllene:0.6;pinene:0.4',price:40,count:22,icon:'🌿'},
-   {sku:'FLW-1004',name:'Rootwork CBD 3.5g',type:'flower',thc:5.6,cbd:12.4,cann:'CBG:1.0',terp:'myrcene:0.8;pinene:0.6;beta-caryophyllene:0.4',price:38,count:18,icon:'🌿'},
-   {sku:'FLW-1005',name:'Ember Kush 3.5g',type:'flower',thc:26.8,cbd:0.1,cann:'CBN:0.6',terp:'myrcene:1.5;beta-caryophyllene:0.7;linalool:0.4',price:48,count:0,icon:'🌿'},
-   {sku:'VAP-2001',name:'Clear Focus Cartridge 0.5g',type:'vape',thc:81,cbd:0.6,cann:'',terp:'pinene:2.2;limonene:1.8',price:40,count:25,icon:'☀️'},
-   {sku:'VAP-2002',name:'Nightfall Cartridge 0.5g',type:'vape',thc:78.5,cbd:1.4,cann:'CBN:3.0',terp:'myrcene:3.2;linalool:2.1',price:40,count:14,icon:'🌙'},
-   {sku:'VAP-2003',name:'Balance 1:1 Cartridge 0.5g',type:'vape',thc:38,cbd:38,cann:'CBG:2.0',terp:'beta-caryophyllene:1.6;limonene:1.2',price:45,count:12,icon:'💨'},
-   {sku:'TIN-3001',name:'Calm 20:1 CBD Tincture',type:'tincture',thc:50,cbd:1000,cann:'CBN:120',terp:'linalool:1;myrcene:1',price:55,count:20,icon:'💧'},
-   {sku:'TIN-3002',name:'Deep Sleep CBN Tincture',type:'tincture',thc:0,cbd:300,cann:'CBN:600',terp:'myrcene:1;terpinolene:0.5;linalool:0.5',price:52,count:16,icon:'🌙'},
-   {sku:'TIN-3003',name:'1:1 Balance Tincture',type:'tincture',thc:500,cbd:500,cann:'',terp:'beta-caryophyllene:1',price:58,count:9,icon:'💧'},
-   {sku:'TIN-3004',name:'Full-Spectrum Relief Oil',type:'tincture',thc:250,cbd:750,cann:'CBC:120;CBN:80;CBG:60',terp:'beta-caryophyllene:1.5;myrcene:0.5',price:62,count:12,icon:'💧'},
-   {sku:'TIN-3005',name:'Daytime THCV:CBG Drops',type:'tincture',thc:60,cbd:60,cann:'THCV:360;CBG:300',terp:'limonene:1.5;pinene:1',price:64,count:7,icon:'☀️'},
-   {sku:'TIN-3006',name:'Seizure Support 25:1 CBD Oil',type:'tincture',thc:40,cbd:1000,cann:'CBDV:200;THCV:120',terp:'linalool:1;pinene:0.5',price:66,count:15,icon:'🧠'},
-   {sku:'CAP-4001',name:'Midnight Rest Softgels',type:'capsule',thc:5,cbd:15,cann:'CBN:5',terp:'myrcene:1;linalool:1',price:34,count:18,icon:'🌙'},
-   {sku:'CAP-4002',name:'Daytime CBG Capsules',type:'capsule',thc:0,cbd:10,cann:'CBG:20',terp:'',price:44,count:14,icon:'☀️'},
-   {sku:'CAP-4003',name:'CBD-CBDV Seizure Support Softgels',type:'capsule',thc:0,cbd:25,cann:'CBDV:10',terp:'',price:48,count:22,icon:'🧠'},
-   {sku:'EDB-5001',name:'Sleep CBN Gummies',type:'edible',thc:5,cbd:10,cann:'CBN:10',terp:'linalool:1',price:28,count:32,icon:'🌙'},
-   {sku:'EDB-5002',name:'Calm CBD Gummies',type:'edible',thc:2,cbd:25,cann:'CBG:5',terp:'limonene:1;linalool:1',price:30,count:35,icon:'🍬'},
-   {sku:'EDB-5003',name:'Balanced 1:1 Gummies',type:'edible',thc:5,cbd:5,cann:'',terp:'',price:26,count:40,icon:'🍬'},
-   {sku:'EDB-5004',name:'Appetite+ THC Gummies',type:'edible',thc:10,cbd:2,cann:'CBG:5',terp:'myrcene:1',price:27,count:26,icon:'🍬'},
-   {sku:'BEV-6001',name:'Uplift Sparkling Lemon 5mg',type:'beverage',thc:5,cbd:0,cann:'',terp:'limonene:1',price:7,count:48,icon:'☀️'},
-   {sku:'BEV-6002',name:'Unwind CBD Tonic 25mg',type:'beverage',thc:0,cbd:25,cann:'CBG:3',terp:'linalool:1;limonene:1',price:8,count:44,icon:'🥤'},
-   {sku:'TOP-7001',name:'Relief Balm 500mg',type:'topical',thc:0,cbd:500,cann:'CBG:50',terp:'beta-caryophyllene:1;linalool:1',price:38,count:20,icon:'🧴'},
-   {sku:'TOP-7002',name:'Warming Muscle Roll-On',type:'topical',thc:25,cbd:100,cann:'',terp:'beta-caryophyllene:1;camphene:0.5',price:30,count:22,icon:'🧴'},
-   {sku:'TOP-7003',name:'Soothe Muscle & Joint Salve',type:'topical',thc:5,cbd:200,cann:'CBC:20;CBG:10',terp:'beta-caryophyllene:2;camphene:0.5',price:42,count:18,icon:'🧴'},
-   {sku:'EDB-5005',name:'Chemo-Comfort Mint 1:1 Tablets',type:'edible',thc:5,cbd:5,cann:'CBDA:10',terp:'limonene:1;ginger-not-mapped:1',price:34,count:0,icon:'🍬'}
+   // ── Flower (strain-forward eighths) ──
+   {sku:'FLW-1001',name:'Ghost Train Haze 3.5g',brand:'Skyline Cultivars',type:'flower',stype:'Sativa',thc:25,cbd:0.1,cann:'THCV:0.4;CBG:0.6',terp:'terpinolene:1.6;limonene:0.8;myrcene:0.5',price:52,count:24,icon:'☀️'},
+   {sku:'FLW-1002',name:'Maui Wowie 3.5g',brand:'Island Roots',type:'flower',stype:'Sativa',thc:22,cbd:0.1,cann:'',terp:'myrcene:1.2;limonene:0.9;pinene:0.6',price:48,count:30,icon:'☀️'},
+   {sku:'FLW-1003',name:'Durban Poison 3.5g',brand:'Cape Craft Co.',type:'flower',stype:'Sativa',thc:23,cbd:0.2,cann:'THCV:1.0;CBG:0.8',terp:'terpinolene:1.4;myrcene:0.7;ocimene:0.5',price:50,count:18,icon:'☀️'},
+   {sku:'FLW-1004',name:'Sour Diesel 3.5g',brand:'Fuel & Flora',type:'flower',stype:'Sativa',thc:22,cbd:0.1,cann:'',terp:'beta-caryophyllene:1.0;limonene:0.9;myrcene:0.6',price:46,count:26,icon:'☀️'},
+   {sku:'FLW-1005',name:'Bruce Banner 3.5g',brand:'Emerald Ridge',type:'flower',stype:'Hybrid',thc:27,cbd:0.1,cann:'CBG:0.5',terp:'beta-caryophyllene:1.3;myrcene:1.0;limonene:0.7',price:54,count:20,icon:'🌿'},
+   {sku:'FLW-1006',name:'Original Glue (GG4) 3.5g',brand:'Emerald Ridge',type:'flower',stype:'Hybrid',thc:26,cbd:0.1,cann:'',terp:'beta-caryophyllene:1.4;limonene:0.8;myrcene:0.7',price:52,count:15,icon:'🌿'},
+   {sku:'FLW-1007',name:'Blackberry Kush 3.5g',brand:'Nightshade Gardens',type:'flower',stype:'Indica',thc:20,cbd:0.2,cann:'CBN:0.4',terp:'myrcene:1.4;beta-caryophyllene:0.7;pinene:0.4',price:44,count:22,icon:'🌙'},
+   {sku:'FLW-1008',name:'Granddaddy Purple 3.5g',brand:'Nightshade Gardens',type:'flower',stype:'Indica',thc:19,cbd:0.1,cann:'CBN:0.5',terp:'myrcene:1.5;linalool:0.8;beta-caryophyllene:0.5',price:46,count:17,icon:'🌙'},
+   {sku:'FLW-1009',name:'Northern Lights 3.5g',brand:'Aurora Fields',type:'flower',stype:'Indica',thc:18,cbd:0.2,cann:'CBN:0.4',terp:'myrcene:1.3;beta-caryophyllene:0.6;pinene:0.5',price:44,count:0,icon:'🌙'},
+   {sku:'FLW-1010',name:'ACDC 3.5g',brand:'Still Waters',type:'flower',stype:'CBD',thc:5,cbd:20,cann:'CBG:0.7',terp:'pinene:0.9;beta-caryophyllene:0.7;myrcene:0.6',price:50,count:16,icon:'🌿'},
+   {sku:'FLW-1011',name:'Harlequin 3.5g',brand:'Still Waters',type:'flower',stype:'Hybrid',thc:7,cbd:12,cann:'CBG:0.6',terp:'myrcene:1.0;pinene:0.7;beta-caryophyllene:0.5',price:48,count:19,icon:'🌿'},
+   {sku:'FLW-1012',name:"Charlotte's Web 3.5g",brand:'Haven Botanicals',type:'flower',stype:'CBD',thc:0.3,cbd:17,cann:'CBDV:0.5;CBG:0.6',terp:'myrcene:0.9;beta-caryophyllene:0.6;bisabolol:0.4',price:52,count:14,icon:'🌿'},
+   // ── Vape carts (live resin / distillate) ──
+   {sku:'VAP-2001',name:'Blue Dream Live Resin Cart 0.5g',brand:'Vaporwave Extracts',type:'vape',stype:'Hybrid',thc:80,cbd:0.5,cann:'',terp:'myrcene:3.0;pinene:2.0;beta-caryophyllene:1.2',price:50,count:25,icon:'💨'},
+   {sku:'VAP-2002',name:'Wedding Cake Live Resin Cart 0.5g',brand:'Vaporwave Extracts',type:'vape',stype:'Indica',thc:84,cbd:0.4,cann:'',terp:'beta-caryophyllene:3.2;limonene:2.0;myrcene:1.4',price:52,count:14,icon:'💨'},
+   {sku:'VAP-2003',name:'Jack Herer Distillate Cart 0.5g',brand:'Clarity Vapors',type:'vape',stype:'Sativa',thc:85,cbd:0.3,cann:'',terp:'terpinolene:2.4;pinene:1.8;beta-caryophyllene:1.0',price:46,count:20,icon:'☀️'},
+   {sku:'VAP-2004',name:'Granddaddy Purple Live Resin Cart 0.5g',brand:'Vaporwave Extracts',type:'vape',stype:'Indica',thc:78,cbd:0.4,cann:'CBN:3.0',terp:'myrcene:3.4;linalool:2.0;beta-caryophyllene:1.0',price:52,count:12,icon:'🌙'},
+   {sku:'VAP-2005',name:'Balanced 1:1 Cart 0.5g',brand:'Still Waters',type:'vape',stype:'Hybrid',thc:40,cbd:40,cann:'CBG:2.0',terp:'beta-caryophyllene:1.6;limonene:1.2',price:48,count:10,icon:'💨'},
+   // ── Concentrates (live rosin / live resin) ──
+   {sku:'CON-8001',name:'GMO Cookies Live Rosin 1g',brand:'SolventFree Co.',type:'concentrate',stype:'Indica',thc:76,cbd:0.5,cann:'',terp:'beta-caryophyllene:3.0;limonene:1.8;myrcene:1.5',price:65,count:12,icon:'🍯'},
+   {sku:'CON-8002',name:'Super Lemon Haze Live Resin Badder 1g',brand:'SolventFree Co.',type:'concentrate',stype:'Sativa',thc:79,cbd:0.3,cann:'',terp:'terpinolene:2.6;limonene:2.2;beta-caryophyllene:1.2',price:62,count:9,icon:'🍯'},
+   // ── Tinctures ──
+   {sku:'TIN-3001',name:'Calm 20:1 CBD Tincture',brand:'Meridian Wellness',type:'tincture',stype:'',thc:50,cbd:1000,cann:'CBN:120',terp:'linalool:1;myrcene:1',price:55,count:20,icon:'💧'},
+   {sku:'TIN-3002',name:'Deep Sleep CBN Tincture',brand:'Meridian Wellness',type:'tincture',stype:'',thc:0,cbd:300,cann:'CBN:600',terp:'myrcene:1;terpinolene:0.5;linalool:0.5',price:52,count:16,icon:'🌙'},
+   {sku:'TIN-3003',name:'1:1 Balance Tincture',brand:'Meridian Wellness',type:'tincture',stype:'',thc:500,cbd:500,cann:'',terp:'beta-caryophyllene:1',price:58,count:9,icon:'💧'},
+   {sku:'TIN-3004',name:'Full-Spectrum Relief Oil',brand:'Meridian Wellness',type:'tincture',stype:'',thc:250,cbd:750,cann:'CBC:120;CBN:80;CBG:60',terp:'beta-caryophyllene:1.5;myrcene:0.5',price:62,count:12,icon:'💧'},
+   {sku:'TIN-3005',name:'Daytime THCV:CBG Drops',brand:'Meridian Wellness',type:'tincture',stype:'',thc:60,cbd:60,cann:'THCV:360;CBG:300',terp:'limonene:1.5;pinene:1',price:64,count:7,icon:'☀️'},
+   {sku:'TIN-3006',name:'Seizure Support 25:1 CBD Oil',brand:'Haven Botanicals',type:'tincture',stype:'',thc:40,cbd:1000,cann:'CBDV:200;THCV:120',terp:'linalool:1;pinene:0.5',price:66,count:15,icon:'🧠'},
+   // ── Capsules ──
+   {sku:'CAP-4001',name:'Midnight Rest Softgels',brand:'Meridian Wellness',type:'capsule',stype:'',thc:5,cbd:15,cann:'CBN:5',terp:'myrcene:1;linalool:1',price:34,count:18,icon:'🌙'},
+   {sku:'CAP-4002',name:'Daytime CBG Capsules',brand:'Meridian Wellness',type:'capsule',stype:'',thc:0,cbd:10,cann:'CBG:20',terp:'',price:44,count:14,icon:'☀️'},
+   {sku:'CAP-4003',name:'CBD-CBDV Seizure Support Softgels',brand:'Haven Botanicals',type:'capsule',stype:'',thc:0,cbd:25,cann:'CBDV:10',terp:'',price:48,count:22,icon:'🧠'},
+   // ── Edibles ──
+   {sku:'EDB-5001',name:'Sleep CBN Gummies',brand:'Sunrise Confections',type:'edible',stype:'',thc:5,cbd:10,cann:'CBN:10',terp:'linalool:1',price:28,count:32,icon:'🌙'},
+   {sku:'EDB-5002',name:'Calm CBD Gummies',brand:'Sunrise Confections',type:'edible',stype:'',thc:2,cbd:25,cann:'CBG:5',terp:'limonene:1;linalool:1',price:30,count:35,icon:'🍬'},
+   {sku:'EDB-5003',name:'Appetite+ THC Gummies',brand:'Sunrise Confections',type:'edible',stype:'',thc:10,cbd:2,cann:'CBG:5',terp:'myrcene:1',price:27,count:26,icon:'🍬'},
+   {sku:'EDB-5004',name:'Chemo-Comfort 1:1 Mints',brand:'Sunrise Confections',type:'edible',stype:'',thc:5,cbd:5,cann:'CBDA:10',terp:'limonene:1',price:34,count:0,icon:'🍬'},
+   // ── Beverages ──
+   {sku:'BEV-6001',name:'Uplift Sparkling Lemon 5mg',brand:'Effervesce',type:'beverage',stype:'',thc:5,cbd:0,cann:'',terp:'limonene:1',price:7,count:48,icon:'☀️'},
+   {sku:'BEV-6002',name:'Unwind CBD Tonic 25mg',brand:'Effervesce',type:'beverage',stype:'',thc:0,cbd:25,cann:'CBG:3',terp:'linalool:1;limonene:1',price:8,count:44,icon:'🥤'},
+   // ── Topicals ──
+   {sku:'TOP-7001',name:'Relief Balm 500mg CBD',brand:'Terra Salve',type:'topical',stype:'',thc:0,cbd:500,cann:'CBG:50',terp:'beta-caryophyllene:1;linalool:1',price:38,count:20,icon:'🧴'},
+   {sku:'TOP-7002',name:'Warming Muscle Roll-On',brand:'Terra Salve',type:'topical',stype:'',thc:25,cbd:100,cann:'',terp:'beta-caryophyllene:1;camphene:0.5',price:30,count:22,icon:'🧴'},
+   {sku:'TOP-7003',name:'Soothe Muscle & Joint Salve',brand:'Terra Salve',type:'topical',stype:'',thc:5,cbd:200,cann:'CBC:20;CBG:10',terp:'beta-caryophyllene:2;camphene:0.5',price:42,count:18,icon:'🧴'}
   ];
   function parsePairs(str){var o={};(str||'').split(';').forEach(function(p){p=p.trim();if(!p)return;var i=p.indexOf(':');if(i<0)return;var mid=ALIAS[p.slice(0,i).trim().toLowerCase()];var v=parseFloat(p.slice(i+1));if(mid&&!isNaN(v))o[mid]=(o[mid]||0)+v;});return o;}
   function profile(p){var pr={};if(p.thc>0)pr.THC9=p.thc;if(p.cbd>0)pr.CBD=p.cbd;var c=parsePairs(p.cann),t=parsePairs(p.terp);for(var k in c)pr[k]=(pr[k]||0)+c[k];for(var k2 in t)pr[k2]=(pr[k2]||0)+t[k2];return pr;}
@@ -6832,7 +6855,7 @@ document.addEventListener('keydown', function(e) {
       var label=fit>=80?'strong':(fit>=65?'good':'basic');
       var reason=p.count<=0?'out of stock':(g===0?'THC above comfort level':(fit<CFG.FLOOR?'weak match':null));
       if(reason)excluded.push({name:p.name,reason:reason});
-      else shown.push({sku:p.sku,name:p.name,type:p.type,price:p.price,count:p.count,icon:p.icon,fit:fit,label:label,profile:pr,fmt:(rec.format===p.type)?1:0});});
+      else shown.push({sku:p.sku,name:p.name,brand:p.brand,stype:p.stype,type:p.type,price:p.price,count:p.count,icon:p.icon,fit:fit,label:label,profile:pr,fmt:(rec.format===p.type)?1:0});});
     shown.sort(function(a,b){return (b.fit-a.fit)||(b.fmt-a.fmt)||(b.count-a.count)||(a.price-b.price);});
     return {shown:shown,excluded:excluded};}
   // maps the friendly funnel to REAL engine condition ids
@@ -6882,7 +6905,7 @@ document.addEventListener('keydown', function(e) {
   function restoreDemo(){_setINV(DEMO_INV);invImported=false;try{localStorage.removeItem(INV_KEY);}catch(e){}}
   function loadPersisted(){try{var s=localStorage.getItem(INV_KEY);if(s){var a=JSON.parse(s);
     if(Array.isArray(a)&&a.length){_setINV(a);invImported=true;return true;}}}catch(e){}return false;}
-  var ROUTES={flower:'🌿',vape:'💨',tincture:'💧',capsule:'💊',edible:'🍬',beverage:'🥤',topical:'🧴'};
+  var ROUTES={flower:'🌿',vape:'💨',concentrate:'🍯',tincture:'💧',capsule:'💊',edible:'🍬',beverage:'🥤',topical:'🧴'};
   function _iconFor(type,effects){var e=(effects||'').toLowerCase();
     if(/sleep|sedat|night|\brest\b/.test(e))return '🌙';
     if(/energy|focus|uplift|mood-?lift|daytime/.test(e))return '☀️';
@@ -6906,6 +6929,7 @@ document.addEventListener('keydown', function(e) {
     var hdr=rows[0].map(function(h){return (h||'').trim().toLowerCase();});
     function col(){for(var a=0;a<arguments.length;a++){var idx=hdr.indexOf(arguments[a]);if(idx>=0)return idx;}return -1;}
     var ci={sku:col('sku'),name:col('name','product','product name'),type:col('type','route'),
+      brand:col('brand','producer','vendor'),stype:col('strain_type','strain type','straintype','strain'),
       thc:col('thc','thc%','thc_pct'),cbd:col('cbd','cbd%','cbd_pct'),
       cann:col('cannabinoids','cann','minor cannabinoids'),terp:col('terpenes','terp'),
       price:col('price','retail','retail price'),count:col('quantity','count','qty','units','stock'),
@@ -6921,7 +6945,7 @@ document.addEventListener('keydown', function(e) {
       var cann=g('cann'),terp=g('terp');_unknownNames(cann,unknownSet);_unknownNames(terp,unknownSet);
       var count=ci.count>=0?(parseInt(g('count'),10)||0):0;
       if(/^n/i.test(g('instock')))count=0;
-      products.push({sku:g('sku')||('SKU-'+r),name:name,type:type,
+      products.push({sku:g('sku')||('SKU-'+r),name:name,brand:g('brand'),stype:g('stype'),type:type,
         thc:parseFloat(g('thc'))||0,cbd:parseFloat(g('cbd'))||0,cann:cann,terp:terp,
         price:parseFloat(g('price'))||0,count:count,icon:_iconFor(type,g('effects'))});
     })(r);}
@@ -7093,7 +7117,7 @@ document.addEventListener('keydown', function(e) {
       var matched=recIds.filter(function(id){return p.profile[id]!=null;});
       var why=matched.length?'<div class="gx-why">✓ Matches '+matched.length+' of '+recIds.length+' recommended — '+matched.map(function(id){return G().names[id]||id;}).join(', ')+'</div>':'';
       return '<div class="gx-prod"><div class="sw">'+p.icon+'</div><div class="info"><b>'+p.name+'</b>'+
-        '<div class="meta">'+cap(p.type)+' · $'+p.price+' · '+p.count+' in stock</div><div class="mols">'+mols+'</div>'+why+
+        '<div class="meta">'+(p.brand?esc(p.brand)+' · ':'')+cap(p.type)+(p.stype?' · '+esc(p.stype):'')+' · $'+p.price+' · '+p.count+' in stock</div><div class="mols">'+mols+'</div>'+why+
         '<span class="gx-badge '+p.label+'">'+p.label+' match</span></div>'+
         '<div class="gx-fit"><div class="pct">'+p.fit+'%</div><div class="lbl">fit</div></div></div>';}).join('')+
       '<div class="gx-filtered">'+res.excluded.length+' others filtered out (out of stock, or stronger in THC than you wanted).</div>';}
@@ -7185,16 +7209,16 @@ document.addEventListener('keydown', function(e) {
   function shortPairs(cann,terp){var s=[cann,terp].filter(Boolean).join('; ');return s.length>44?s.slice(0,42)+'…':(s||'—');}
   function renderBrowseTable(){var wrap=el('gxBrowseTable');if(!wrap)return;
     var inv=G().inventory.slice();var q=(browseQ||'').toLowerCase();
-    if(q)inv=inv.filter(function(p){return (p.name+' '+p.type).toLowerCase().indexOf(q)>=0;});
+    if(q)inv=inv.filter(function(p){return (p.name+' '+p.type+' '+(p.brand||'')+' '+(p.stype||'')).toLowerCase().indexOf(q)>=0;});
     var k=browseSort.key,d=browseSort.dir;
     inv.sort(function(a,b){var x=a[k],y=b[k];if(typeof x==='string'||typeof y==='string'){x=String(x==null?'':x).toLowerCase();y=String(y==null?'':y).toLowerCase();}return (x<y?-1:x>y?1:0)*d;});
     function hd(key,lbl){return '<th onclick="V4GX.sortBrowse(\''+key+'\')" class="'+(browseSort.key===key?'sorted':'')+'">'+lbl+(browseSort.key===key?(d>0?' ▲':' ▼'):'')+'</th>';}
-    var body=inv.map(function(p){return '<tr'+(p.count<=0?' class="oos"':'')+'><td>'+p.icon+' '+esc(p.name)+'</td><td>'+cap(p.type)+'</td><td>'+p.thc+'</td><td>'+p.cbd+'</td><td class="mut">'+esc(shortPairs(p.cann,p.terp))+'</td><td>$'+p.price+'</td><td>'+(p.count>0?p.count:'—')+'</td></tr>';}).join('');
-    wrap.innerHTML='<table class="gx-table"><thead><tr>'+hd('name','Product')+hd('type','Type')+hd('thc','THC')+hd('cbd','CBD')+'<th>Minors / terps</th>'+hd('price','Price')+hd('count','Stock')+'</tr></thead><tbody>'+(body||'<tr><td colspan="7" class="mut">No matches.</td></tr>')+'</tbody></table>';}
+    var body=inv.map(function(p){return '<tr'+(p.count<=0?' class="oos"':'')+'><td>'+p.icon+' '+esc(p.name)+'</td><td class="mut">'+esc(p.brand||'—')+'</td><td>'+cap(p.type)+'</td><td>'+(p.stype?esc(p.stype):'—')+'</td><td>'+p.thc+'</td><td>'+p.cbd+'</td><td class="mut">'+esc(shortPairs(p.cann,p.terp))+'</td><td>$'+p.price+'</td><td>'+(p.count>0?p.count:'—')+'</td></tr>';}).join('');
+    wrap.innerHTML='<table class="gx-table"><thead><tr>'+hd('name','Product')+hd('brand','Brand')+hd('type','Type')+hd('stype','Strain')+hd('thc','THC')+hd('cbd','CBD')+'<th>Minors / terps</th>'+hd('price','Price')+hd('count','Stock')+'</tr></thead><tbody>'+(body||'<tr><td colspan="9" class="mut">No matches.</td></tr>')+'</tbody></table>';}
   function scBrowse(){var imp=G().isImported&&G().isImported();
     stage('<h2 class="gx-q">Inventory ('+G().inventory.length+')</h2>'+
       '<p class="gx-hint">'+(imp?'Your imported catalogue.':'The built-in sample catalogue.')+' Tap a column to sort.</p>'+
-      '<input class="gx-search" type="search" placeholder="Search name or type…" value="'+esc(browseQ)+'" oninput="V4GX.browseSearch(this.value)">'+
+      '<input class="gx-search" type="search" placeholder="Search name, brand, strain, type…" value="'+esc(browseQ)+'" oninput="V4GX.browseSearch(this.value)">'+
       '<div class="gx-tablewrap" id="gxBrowseTable"></div>'+
       '<button class="gx-cta ghost" onclick="V4GX.importScreen()">📥 Import a different CSV</button>'+
       '<button class="gx-cta ghost" onclick="V4GX.back()">← Back</button>');
@@ -7359,7 +7383,7 @@ document.addEventListener('keydown', function(e) {
       var matched=recIds.filter(function(id){return p.profile[id]!=null;});
       var why=matched.length?'<div class="gx-why">✓ Matches '+matched.length+' of '+recIds.length+' recommended — '+matched.map(function(id){return G().names[id]||id;}).join(', ')+'</div>':'';
       return '<div class="gx-prod"><div class="sw">'+p.icon+'</div><div class="info"><b>'+esc(p.name)+'</b>'+
-        '<div class="meta">'+cap(p.type)+' · $'+p.price+' · '+p.count+' in stock</div><div class="mols">'+mols+'</div>'+why+
+        '<div class="meta">'+(p.brand?esc(p.brand)+' · ':'')+cap(p.type)+(p.stype?' · '+esc(p.stype):'')+' · $'+p.price+' · '+p.count+' in stock</div><div class="mols">'+mols+'</div>'+why+
         '<span class="gx-badge '+p.label+'">'+p.label+' match</span>'+
         '<button class="dj-select" onclick="V4GX.djSelect(\''+esc(p.sku)+'\')">Select this product →</button></div>'+
         '<div class="gx-fit"><div class="pct">'+p.fit+'%</div><div class="lbl">fit</div></div></div>';}).join('')+
