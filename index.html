@@ -2069,6 +2069,7 @@ body.is-mobile-view .panel-body{touch-action:pan-y}
 #gxOverlay .gx-disc a{color:var(--accent,#2E7D57);font-weight:700;text-decoration:underline;white-space:nowrap}
 /* INV-02: CSV import + browse (operator-facing, budtender console) */
 #gxOverlay .gx-invnote{font-size:.72rem;color:var(--dim,#777);text-align:center;margin:2px 0}
+#gxOverlay .gx-sample-badge{display:inline-block;margin-left:8px;font-size:.6rem;font-weight:800;letter-spacing:.07em;padding:2px 7px;border-radius:999px;background:var(--accent2,#8B6914);color:#fff;vertical-align:middle}
 #gxOverlay .gx-import{border:1px dashed var(--border,#ccc);border-radius:12px;padding:20px;text-align:center;background:var(--surface,#fff)}
 #gxOverlay .gx-file{display:inline-block;cursor:pointer}
 #gxOverlay .gx-file input{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden}
@@ -7146,8 +7147,16 @@ document.addEventListener('keydown', function(e) {
     '<div class="gx-placard"><b>Demo scope.</b> In the full build this is a hub: Help a customer, Look up, Drug interactions, and Match inventory — with live stock counts.</div>'+
     '<button class="gx-cta" onclick="V4GX.runGuide()">▶ Run the customer guide</button>'+
     '<button class="gx-cta ghost" onclick="V4GX.importScreen()">📥 Import inventory (CSV)</button>'+
-    '<button class="gx-cta ghost" onclick="V4GX.browse()">📦 Browse inventory ('+G().inventory.length+')</button>'+
-    '<div class="gx-invnote">'+(imp?'Using your imported catalogue.':'Using the built-in sample catalogue.')+'</div>'+
+    // Make it self-describing: the Browse button + note say WHOSE inventory this is. On the sample catalogue a
+    // SAMPLE badge + "not real products" caption make it obvious this is demonstration stock (mode-aware wording,
+    // since this console also renders in production). After a CSV import both switch to the imported catalogue.
+    (function(){var invN=G().inventory.length;var lbl,note,badge='';
+      if(imp){lbl='📦 Browse your imported inventory ('+invN+')';note='Using your imported catalogue.';}
+      else{badge='<span class="gx-sample-badge">SAMPLE</span>';
+        if(demoMode()){lbl='📦 Browse the demo sample inventory ('+invN+')';note='Fictional demonstration stock — not real products.';}
+        else{lbl='📦 Browse the sample inventory ('+invN+')';note='Built-in sample catalogue — import your CSV to replace it.';}}
+      return '<button class="gx-cta ghost" onclick="V4GX.browse()">'+lbl+badge+'</button>'+
+        '<div class="gx-invnote">'+note+'</div>';})()+
     (demoMode()?'<button class="gx-cta ghost" onclick="V4GX.insights()">📊 Demo insights (for the booth)</button>':'')+
     '<button class="gx-cta ghost" onclick="V4GX.close()">Skip to full table</button>');}
   // ── INV-02 screens: import + browse (operator-facing) ──
