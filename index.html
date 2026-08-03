@@ -2273,7 +2273,8 @@ body.is-mobile-view .demo-ribbon{bottom:calc(64px + env(safe-area-inset-bottom))
 /* Phase 3 — clinician detail-level + demo insights dashboard */
 #gxOverlay .gx-detail{display:inline-flex;gap:2px;background:var(--surface2,#eef3ee);border:1px solid var(--border,#ccc);border-radius:999px;padding:2px;margin:12px 0 0}
 #gxOverlay .gx-detail button{font-family:inherit;font-size:.72rem;font-weight:700;border:none;background:transparent;color:var(--dim,#777);padding:5px 13px;border-radius:999px;cursor:pointer}
-#gxOverlay .gx-detail button.on{background:var(--accent,#2E7D57);color:#fff}
+#gxOverlay .gx-detail button.on{background:var(--accent,#2E7D57);color:#fff;cursor:default}
+#gxOverlay .gx-detail button:not(.on):hover{background:rgba(46,125,87,.12);color:var(--accent,#2E7D57)}
 #gxOverlay .gx-clin{margin-top:10px;border:1px solid var(--border,#ccc);border-radius:12px;overflow:hidden}
 #gxOverlay .gx-clin-row{display:flex;gap:10px;align-items:center;padding:9px 12px;border-top:1px solid var(--border,#eee);font-size:.8rem}
 #gxOverlay .gx-clin-row:first-child{border-top:none}
