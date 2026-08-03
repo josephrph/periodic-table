@@ -6873,7 +6873,8 @@ document.addEventListener('keydown', function(e) {
     cancer:{cond:['cancer'],refine:{nausea:['nausea-relief'],appetite:['appetite-stim'],pain:['pain'],sleep:['sleep'],anx:['anxiety']}},
     relax:{cond:['stress'],refine:{body:['stress','sleep'],light:['stress'],social:['stress','anxiety']}},
     other:{cond:['antioxidant'],refine:{well:['antioxidant'],energy:['appetite'],mood:['depression'],womens:['dysmenorrhea','menopause']}},
-    seizure:{cond:['seizures'],refine:{freq:['seizures'],breakthrough:['seizures'],adjunct:['seizures'],unsure:['seizures']}}};
+    seizure:{cond:['seizures'],refine:{freq:['seizures'],breakthrough:['seizures'],adjunct:['seizures'],unsure:['seizures']}},
+    glaucoma:{cond:['glaucoma'],refine:{diagnosed:['glaucoma'],pressure:['glaucoma'],exploring:['glaucoma']}}};
   // Guided-only molecule profiles for funnel intents that have no clean single science condition,
   // or where the science entry is intentionally bidirectional. Used ONLY for product matching in the
   // guided flow — CONDITIONS, M, and the science filter bar are untouched. 'appetite-stim' = stimulate
@@ -6997,13 +6998,16 @@ document.addEventListener('keydown', function(e) {
       note:'Educational matching only — epilepsy needs a physician’s care. CBD is the most evidence-backed cannabinoid here; never start, stop, or change seizure medication without your doctor.',opts:[
       {k:'freq',ic:'📆',label:'Frequent / ongoing seizures'},{k:'breakthrough',ic:'⚡',label:'Breakthrough episodes'},
       {k:'adjunct',ic:'💊',label:'Alongside my current medication'},{k:'unsure',ic:'🤷',label:'Not sure / exploring'}]},
+    glaucoma:{ic:'👁️',label:'Eye pressure / glaucoma',rq:'What best describes your situation?',
+      note:'Educational only — cannabis is not a first-line glaucoma therapy. Any eye-pressure drop from THC is short-lived (about 3–4 hours), and CBD may raise pressure. Please work with your ophthalmologist and never stop prescribed eye drops.',opts:[
+      {k:'diagnosed',ic:'💧',label:'Diagnosed — using eye drops'},{k:'pressure',ic:'👁️',label:'Concerned about eye pressure'},{k:'exploring',ic:'🤷',label:'Just exploring / curious'}]},
     learn:{ic:'📚',label:'Curious — teach me',learn:true}
   };
-  var ORDER=['sleep','pain','anxiety','appetite','cancer','seizure','relax','learn','other'];
+  var ORDER=['sleep','pain','anxiety','appetite','cancer','seizure','glaucoma','relax','learn','other'];
   var SECOND=[{k:'sleep',ic:'😴',label:'Trouble sleeping too',cond:['sleep']},
     {k:'stress',ic:'💭',label:'Stress / anxiety',cond:['stress']},{k:'pain',ic:'🌿',label:'Some pain too',cond:['pain']},
     {k:'nausea',ic:'🤢',label:'Nausea too',cond:['nausea-relief']},{k:'appetite',ic:'🍽️',label:'Low appetite too',cond:['appetite-stim']}];
-  var FUNNEL=['intent','refine','thc','second','rec']; // standard flow ends at the recommendation, then hands off to the V2 table (no faux products)
+  var FUNNEL=['safety','intent','refine','experience','thc','timeofday','onset','second','rec']; // standard flow ends at the recommendation, then hands off to the V2 table (no faux products)
   var st={}, hist=[];
   var lastImport=null, browseSort={key:'name',dir:1}, browseQ='';  // INV-02 import/browse state
   function G(){return window.V4Guided;}
@@ -7048,6 +7052,32 @@ document.addEventListener('keydown', function(e) {
     opts.map(function(o){return optBtn("V4GX.second('"+o.k+"',this)",o.ic,o.label,'',(st.seconds||[]).indexOf(o.k)>=0,true);}).join('')+
     '<button class="gx-cta" onclick="V4GX.toRec()">See what may help →</button>'+
     '<button class="gx-cta ghost" onclick="V4GX.toRec()">Skip</button>');}
+  // ── ONB-12 new steps (standard customer flow only) ──────────────────────────
+  // A quick, private reproductive-safety touchpoint. Educational tool → no hard block; a flag surfaces a
+  // prominent "check with your provider" note on the recommendation screen.
+  function scSafety(){var f=st.safetyFlags||[];
+    stage('<h2 class="gx-q">A quick safety check</h2><p class="gx-hint">Do any of these apply right now? Tap any that do — or skip. This stays private on your device.</p>'+
+    optBtn("V4GX.safetyToggle('preg',this)",'🤰','Pregnant','',f.indexOf('preg')>=0,true)+
+    optBtn("V4GX.safetyToggle('bf',this)",'🍼','Breastfeeding','',f.indexOf('bf')>=0,true)+
+    optBtn("V4GX.safetyToggle('ttc',this)",'🌱','Trying to conceive','',f.indexOf('ttc')>=0,true)+
+    '<p class="gx-hint" style="margin-top:8px">You confirmed you meet the age requirement when you entered.</p>'+
+    '<button class="gx-cta" onclick="V4GX.safetyNext()">Continue →</button>'+
+    '<button class="gx-cta ghost" onclick="V4GX.safetyNext()">None of these — skip</button>');}
+  function scExperience(){var e=st.experience;
+    stage('<h2 class="gx-q">How much experience do you have with cannabis?</h2><p class="gx-hint">This helps us pace your options safely.</p>'+
+    optBtn("V4GX.experience('new')",'🌱','New to it',"We'll start gentle — low and slow",e==='new',true)+
+    optBtn("V4GX.experience('some')",'🌤️','Some experience','A little goes a long way',e==='some',true)+
+    optBtn("V4GX.experience('exp')",'🌟','Experienced','Comfortable with the full range',e==='exp',true));}
+  function scTimeOfDay(){var t=st.timeOfDay;
+    stage('<h2 class="gx-q">When do you expect to use it most?</h2><p class="gx-hint">So we can match the feel to your day.</p>'+
+    optBtn("V4GX.timeOfDay('day')",'☀️','Daytime','Stay clear-headed &amp; functional',t==='day',true)+
+    optBtn("V4GX.timeOfDay('evening')",'🌙','Evening / night','Wind down &amp; rest',t==='evening',true)+
+    optBtn("V4GX.timeOfDay('any')",'🕒','Anytime / not sure','Keep all options open',t==='any',true));}
+  function scOnset(){var o=st.onset;
+    stage('<h2 class="gx-q">How do you want it to work?</h2><p class="gx-hint">Onset is how fast you feel it; duration is how long it lasts.</p>'+
+    optBtn("V4GX.onset('fast')",'⚡','Fast &amp; shorter','Relief in minutes (inhaled / sublingual)',o==='fast',true)+
+    optBtn("V4GX.onset('balanced')",'⚖️','A balance','Moderate onset &amp; duration',o==='balanced',true)+
+    optBtn("V4GX.onset('lasting')",'⏳','Slow &amp; long-lasting','Hours of relief (edible / capsule / patch)',o==='lasting',true));}
   function currentCondIds(){
     if(st.intent==='learn')return ['sleep'];
     var im=G().intentMap[st.intent]; if(!im)return ['sleep'];
@@ -7106,12 +7136,25 @@ document.addEventListener('keydown', function(e) {
     var secBtns=(st.seconds||[]).map(function(k){var s=SECOND.filter(function(x){return x.k===k;})[0];if(!s||!s.cond||!s.cond.length)return null;
       var lbl=s.label.replace(/ too$/,'');return '<button class="gx-chip gx-alsochip" onclick="V4GX.seeAlso(\''+s.cond[0]+'\')">'+s.ic+' '+esc(lbl)+' →</button>';}).filter(Boolean).join('');
     var secNote=secBtns?'<div style="margin-top:10px"><p class="gx-hint" style="margin-bottom:6px">You also mentioned these — open one in the V2 table too:</p><div class="gx-chips">'+secBtns+'</div></div>':'';
-    stage('<h2 class="gx-q">What may help you</h2>'+
+    // ONB-12: personalized preference recap + plain-language guidance. Educational only — this does NOT alter the
+    // table-consistent molecule set above; it adds guidance and carries patient context toward the V2 table hand-off.
+    var prefBits=[];
+    if(st.experience==='new')prefBits.push('🌱 New to cannabis');else if(st.experience==='some')prefBits.push('🌤️ Some experience');else if(st.experience==='exp')prefBits.push('🌟 Experienced');
+    if(st.timeOfDay==='day')prefBits.push('☀️ Daytime');else if(st.timeOfDay==='evening')prefBits.push('🌙 Evening');else if(st.timeOfDay==='any')prefBits.push('🕒 Anytime');
+    if(st.onset==='fast')prefBits.push('⚡ Fast onset');else if(st.onset==='balanced')prefBits.push('⚖️ Balanced');else if(st.onset==='lasting')prefBits.push('⏳ Long-lasting');
+    var guide=[];
+    if(st.experience==='new')guide.push('Start low and go slow — a small amount, then wait before more. Your options are leaned gentler.');
+    if(st.timeOfDay==='day')guide.push('For daytime, favor clear-headed, lower-sedation options (limonene / pinene-forward, lower CBN).');else if(st.timeOfDay==='evening')guide.push('For evening, CBN- and myrcene-forward options support winding down.');
+    if(st.onset==='fast')guide.push('For fast, shorter relief, inhalation or sublingual (tincture) formats act quickest.');else if(st.onset==='balanced')guide.push('For a balance of onset and duration, tinctures or low-dose edibles work well.');else if(st.onset==='lasting')guide.push('For longer-lasting relief, edibles, capsules, or transdermal patches last longest (slower onset).');
+    var prefRecap=prefBits.length?'<div class="dj-lbl" style="margin-top:12px">Your preferences</div><div class="gx-chips">'+prefBits.map(function(b){return '<span class="gx-chip">'+b+'</span>';}).join('')+'</div>':'';
+    var prefGuide=guide.length?'<ul style="margin:8px 0 0;padding-left:18px;font-size:.72rem;color:var(--dim);line-height:1.6">'+guide.map(function(g){return '<li>'+g+'</li>';}).join('')+'</ul>':'';
+    var safetyNote=(st.safetyFlags&&st.safetyFlags.length)?'<div class="gx-note" style="margin-top:12px;border-left:3px solid var(--accent2)"><b>Please check with your provider first.</b> You noted pregnancy, breastfeeding, or planning to conceive. Current medical guidance advises avoiding cannabis during pregnancy and breastfeeding — please talk with your obstetric provider before using any product.</div>':'';
+    stage('<h2 class="gx-q">What may help you</h2>'+safetyNote+
       '<div class="gx-rec"><div class="kind">'+esc(condLabel)+'</div>'+
       '<div class="because">The molecules V2 associates with '+esc(condLabel)+', ranked by strength of evidence — the same set highlighted in the V2 table.</div>'+
       '<div class="dj-lbl" style="margin-top:10px">Primary</div><div class="gx-chips">'+(primaryChips||'<span class="gx-chip">—</span>')+'</div>'+
       (supporting.length?'<div class="dj-lbl" style="margin-top:12px">Supporting</div><div class="gx-chips">'+supportingChips+'</div>':'')+'</div>'+
-      detailToggle+clin+thcNote+secNote+
+      detailToggle+clin+thcNote+secNote+prefRecap+prefGuide+
       '<p class="gx-hint" style="margin-top:12px">In the V2 table, use <b>⚙ Refine Inventory Match</b> (in the Recommended Molecules panel) to remove any molecules — or whole categories — your dispensary doesn’t carry. The recommendation updates instantly.</p>'+
       '<button class="gx-cta" onclick="V4GX.seeScience()">🔬 Explore these in the V2 Periodic Table →</button>'+
       '<button class="gx-cta ghost" onclick="V4GX.restart()">Start over</button>');}
@@ -7412,7 +7455,7 @@ document.addEventListener('keydown', function(e) {
 
   // ---- public API ----
   window.V4GX={
-    start:function(){st={persona:null,seconds:[],excluded:{},detail:'plain'};hist=['persona'];el('gxOverlay').style.display='flex';scPersona();chrome('persona');},
+    start:function(){st={persona:null,seconds:[],excluded:{},detail:'plain',safetyFlags:[],experience:null,timeOfDay:null,onset:null};hist=['persona'];el('gxOverlay').style.display='flex';scPersona();chrome('persona');},
     demoHub:function(){if(!demoMode())return;st={dj:true,persona:null,djConds:[],excluded:{},meds:[],ceiling:'any',djProduct:null};hist=['demoHub'];el('gxOverlay').style.display='flex';scDemoHub();chrome('demoHub');},
     demoGuided:function(){if(!demoMode())return;if(!hist.length)hist=['demoHub'];go('demoGuidedIntro',scDemoGuidedIntro);},
     djRun:function(){st.dj=true;st.djConds=[];st.excluded={};st.meds=[];st.djProduct=null;st.ceiling='any';if(!hist.length)hist=['demoHub'];go('djConds',scDJConds);},
@@ -7429,16 +7472,21 @@ document.addEventListener('keydown', function(e) {
     djSelect:function(sku){var p=G().match(djActiveRec()).shown.filter(function(x){return x.sku===sku;})[0];st.djProduct=p||null;go('djDone',scDJDone);},
     djBack:function(){this.back();},
     close:function(){el('gxOverlay').style.display='none';},
-    back:function(){if(hist.length>1){hist.pop();var scr=hist[hist.length-1];({persona:scPersona,intent:scIntent,refine:scRefine,thc:scThc,second:scSecond,rec:scRec,products:scProducts,handoff:scHandoff,insights:scInsights,emp:scEmp,import:scImport,importResult:scImportResult,browse:scBrowse,demoHub:scDemoHub,demoGuidedIntro:scDemoGuidedIntro,djConds:scDJConds,djMol:scDJMol,djMeds:scDJMeds,djRefine:scDJRefine,djProducts:scDJPos,djDone:scDJDone}[scr])();chrome(scr);}},
+    back:function(){if(hist.length>1){hist.pop();var scr=hist[hist.length-1];({persona:scPersona,safety:scSafety,intent:scIntent,refine:scRefine,experience:scExperience,thc:scThc,timeofday:scTimeOfDay,onset:scOnset,second:scSecond,rec:scRec,products:scProducts,handoff:scHandoff,insights:scInsights,emp:scEmp,import:scImport,importResult:scImportResult,browse:scBrowse,demoHub:scDemoHub,demoGuidedIntro:scDemoGuidedIntro,djConds:scDJConds,djMol:scDJMol,djMeds:scDJMeds,djRefine:scDJRefine,djProducts:scDJPos,djDone:scDJDone}[scr])();chrome(scr);}},
     restart:function(){this.start();},
     persona:function(p){st.persona=p;st.intent=null;st.refineKey=null;st.seconds=[];
-      if(p==='cust'){go('intent',scIntent);}else if(p==='emp'){go('emp',scEmp);}else{this.close();}},
-    runGuide:function(){st.persona='cust';go('intent',scIntent);},
+      if(p==='cust'){st.safetyFlags=st.safetyFlags||[];go('safety',scSafety);}else if(p==='emp'){go('emp',scEmp);}else{this.close();}},
+    runGuide:function(){st.persona='cust';st.safetyFlags=st.safetyFlags||[];go('safety',scSafety);},
+    safetyToggle:function(k,btn){st.safetyFlags=st.safetyFlags||[];var i=st.safetyFlags.indexOf(k);if(i>=0){st.safetyFlags.splice(i,1);if(btn)btn.classList.remove('sel');}else{st.safetyFlags.push(k);if(btn)btn.classList.add('sel');}},
+    safetyNext:function(){go('intent',scIntent);},
+    experience:function(v){st.experience=v;if(v==='new'&&!st.ceiling)st.ceiling='low';go('thc',scThc);},
+    timeOfDay:function(v){st.timeOfDay=v;go('onset',scOnset);},
+    onset:function(v){st.onset=v;go('second',scSecond);},
     intent:function(k){st.intent=k;st.refineKey=null;st.seconds=[];
       if(REASONS[k].learn){this.close();try{if(typeof showWelcome==='function')showWelcome();}catch(e){}return;}
       go('refine',scRefine);},
-    refine:function(k){st.refineKey=k;go('thc',scThc);},
-    thc:function(v){st.ceiling=v;go('second',scSecond);},
+    refine:function(k){st.refineKey=k;go('experience',scExperience);},
+    thc:function(v){st.ceiling=v;go('timeofday',scTimeOfDay);},
     second:function(k,btn){st.seconds=st.seconds||[];var i=st.seconds.indexOf(k);if(i>=0){st.seconds.splice(i,1);btn.classList.remove('sel');}else{st.seconds.push(k);btn.classList.add('sel');}},
     toRec:function(){st.excluded={};go('rec',scRec);},
     toProducts:function(){go('products',demoMode()?scPosQuery:scProducts);},
