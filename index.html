@@ -2108,6 +2108,8 @@ body.is-mobile-view .panel-body{touch-action:pan-y}
 #gxOverlay .gx-chips{display:flex;flex-wrap:wrap;gap:7px}
 #gxOverlay .gx-chip{font-size:.76rem;padding:5px 11px;border-radius:999px;background:var(--surface,#fff);border:1px solid var(--border,#ccc);font-weight:600}
 #gxOverlay .gx-chip.terp{color:var(--accent2,#8B6914)}
+#gxOverlay .gx-alsochip{cursor:pointer;font-family:inherit;color:var(--accent,#2E7D57);border-color:var(--accent,#2E7D57);background:rgba(46,125,87,.07)}
+#gxOverlay .gx-alsochip:hover{background:rgba(46,125,87,.16)}
 #gxOverlay .gx-ent{margin-top:8px;font-size:.78rem;color:var(--accent,#2E7D57);font-weight:700}
 #gxOverlay .gx-note{margin:2px 0 12px;font-size:.8rem;line-height:1.4;color:var(--dim,#777);border-left:3px solid var(--accent2,#8B6914);background:var(--surface2,#eef3ee);padding:9px 12px;border-radius:0 10px 10px 0}
 #gxOverlay .gx-prod{display:flex;align-items:center;gap:13px;padding:14px;border:1px solid var(--border,#ccc);border-radius:14px;background:var(--surface,#fff);margin-bottom:10px}
@@ -7065,9 +7067,12 @@ document.addEventListener('keydown', function(e) {
         return '<div class="gx-clin-row"><div class="mn">'+(mm?(mm.symbol||mm.fullName):m.id)+'</div><div class="dt">'+recs+ev+'</div></div>';}).join('')+
         '<div class="gx-cap" style="padding:8px 12px 10px">Receptor targets &amp; evidence grade (A clinical → D emerging) per recommended molecule.</div></div>';}
     var thcNote=(st.ceiling==='none'&&cond&&cond.molecules['THC9'])?
-      '<p class="gx-hint">You preferred non-intoxicating options — THC is shown here for completeness; remove it in the table’s Refine Inventory Match if you’d rather avoid it.</p>':'';
-    var secLabels=(st.seconds||[]).map(function(k){var s=SECOND.filter(function(x){return x.k===k;})[0];return s?s.label.replace(/ too$/,''):null;}).filter(Boolean);
-    var secNote=secLabels.length?'<p class="gx-hint">You also mentioned '+esc(secLabels.join(', '))+' — you can select those conditions in the table too.</p>':'';
+      '<p class="gx-hint">You preferred non-intoxicating options. THC is shown here for completeness so this matches the V2 table — but when you open the table below, Δ9-THC, Δ8-THC and THCP are removed automatically via ⚙ Refine Inventory Match. You can re-include any of them there.</p>':'';
+    // GX-10: secondary conditions become one-tap "explore also" chips that hand off to that condition in the V2
+    // table (the table shows one condition at a time), instead of a passive "you can select those too" note.
+    var secBtns=(st.seconds||[]).map(function(k){var s=SECOND.filter(function(x){return x.k===k;})[0];if(!s||!s.cond||!s.cond.length)return null;
+      var lbl=s.label.replace(/ too$/,'');return '<button class="gx-chip gx-alsochip" onclick="V4GX.seeAlso(\''+s.cond[0]+'\')">'+s.ic+' '+esc(lbl)+' →</button>';}).filter(Boolean).join('');
+    var secNote=secBtns?'<div style="margin-top:10px"><p class="gx-hint" style="margin-bottom:6px">You also mentioned these — open one in the V2 table too:</p><div class="gx-chips">'+secBtns+'</div></div>':'';
     stage('<h2 class="gx-q">What may help you</h2>'+
       '<div class="gx-rec"><div class="kind">'+esc(condLabel)+'</div>'+
       '<div class="because">The molecules V2 associates with '+esc(condLabel)+', ranked by strength of evidence — the same set highlighted in the V2 table.</div>'+
@@ -7420,7 +7425,20 @@ document.addEventListener('keydown', function(e) {
       var inCat=currentRec().molecules.filter(function(m){return (!!G().terps[m.molId])===isTerp;});
       var allOff=inCat.length&&inCat.every(function(m){return st.excluded[m.molId];});
       inCat.forEach(function(m){if(allOff)delete st.excluded[m.molId];else st.excluded[m.molId]=1;});scRec();},
-    seeScience:function(){var c=currentCondIds()[0];var SCI_ALIAS={'appetite-stim':'appetite','nausea-relief':'nausea'};c=SCI_ALIAS[c]||c;this.close();try{if(typeof selectCondition==='function')selectCondition(c);}catch(e){}}
+    seeScience:function(){this.handoffTo(currentCondIds()[0]);},
+    seeAlso:function(c){this.handoffTo(c);},
+    // GX-10: shared hand-off into the V2 table. Carries the guided THC preference through as Refine Inventory
+    // Match exclusions — deterministic for the 3 intoxicants (Δ9-THC, Δ8-THC, THCP), and non-destructive to any
+    // other molecules an operator excluded. "A little"/"any" clears these 3 so the choice is authoritative.
+    handoffTo:function(c){var SCI_ALIAS={'appetite-stim':'appetite','nausea-relief':'nausea'};c=SCI_ALIAS[c]||c;
+      try{var THC_INTOX=['THC9','THC8','THCP'];
+        if(window._excludedMols){
+          if(st.ceiling==='none'){THC_INTOX.forEach(function(id){if(typeof M!=='undefined'&&M[id])window._excludedMols[id]=true;});}
+          else{THC_INTOX.forEach(function(id){delete window._excludedMols[id];});}
+        }
+      }catch(e){}
+      this.close();
+      try{if(typeof selectCondition==='function')selectCondition(c);}catch(e){}}
   };
 })();
 
