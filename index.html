@@ -7030,31 +7030,51 @@ document.addEventListener('keydown', function(e) {
     if(rec.thcCeiling==='none')return (top==='CBD'?'CBD-forward, non-intoxicating':nm+'-forward, non-intoxicating');
     if(rec.thcCeiling==='any'&&hasTHC)return 'Balanced THC : CBD';
     return (top==='CBD'?'CBD-forward, low THC':nm+'-forward, low THC');}
-  function scRec(){var rec=currentRec();var active=activeRec();
-    // STANDARD Guided Experience recommendation. It shows the recommended molecules, then hands off into the
-    // V2 Periodic Table for the full standard experience (evidence, receptors, Drug Interactions, Refine
-    // Search, etc.). It NEVER queries faux inventory or shows product recommendations — that entire workflow
-    // (POS query, in-stock matching, product selection) belongs ONLY to Demo Mode (the scDJ* journey).
-    var chips=rec.molecules.slice(0,6).map(function(m){
-      return '<span class="gx-chip'+(G().terps[m.molId]?' terp':'')+'">'+(G().names[m.molId]||m.molId)+'</span>';}).join('');
-    var ent=(secondCondIds().length? '<div class="gx-ent">✦ An entourage combination — these work better together for what you described.</div>':'');
+  function scRec(){
+    // STANDARD Guided Experience recommendation — now CONSISTENT with the V2 table. It shows the SAME molecule
+    // set the table highlights for the selected condition, tiered by the table's own weight thresholds
+    // (Primary >=8, Supporting <8), then hands off into the V2 Periodic Table. It NEVER queries faux inventory
+    // or shows products — that belongs ONLY to Demo Mode (scDJ*). recForConditions() is deliberately untouched
+    // so Demo Mode's journey/matcher is unaffected.
+    var condIds=currentCondIds();
+    var SCI_ALIAS={'appetite-stim':'appetite','nausea-relief':'nausea'};
+    var dispCond=SCI_ALIAS[condIds[0]]||condIds[0]; // the exact condition seeScience() hands to the table
+    var cond=(typeof CONDITIONS!=='undefined')?CONDITIONS.find(function(c){return c.id===dispCond;}):null;
+    var condLabel=cond?cond.label:'your selection';
+    function molNm(id){return G().names[id]||((typeof M!=='undefined'&&M[id])?(M[id].fullName||M[id].symbol):id);}
+    // Molecule names come from trusted M data and intentionally contain HTML entities (&beta;, &Delta;, …),
+    // so render them as-is (NOT esc()'d) — mirroring how the V2 table renders molecule names.
+    function chip(id){return '<span class="gx-chip'+(G().terps[id]?' terp':'')+'">'+molNm(id)+'</span>';}
+    var mols=cond?Object.keys(cond.molecules).filter(function(id){return typeof M!=='undefined'&&M[id];})
+      .map(function(id){return {id:id,w:cond.molecules[id]};}).sort(function(a,b){return b.w-a.w;}):[];
+    if(!mols.length){var r=currentRec();mols=r.molecules.map(function(m){return {id:m.molId,w:m.weight};});} // safety fallback
+    var primary=mols.filter(function(m){return m.w>=8;});
+    var supporting=mols.filter(function(m){return m.w<8;});
+    if(!primary.length){primary=mols.slice(0,Math.min(4,mols.length));supporting=mols.slice(primary.length);}
+    var primaryChips=primary.map(function(m){return chip(m.id);}).join('');
+    var supportingChips=supporting.map(function(m){return chip(m.id);}).join('');
     var detail=st.detail||'plain';
     var detailToggle='<div class="gx-detail"><button class="'+(detail==='plain'?'on':'')+'" onclick="V4GX.setDetail(\'plain\')">Plain language</button>'+
       '<button class="'+(detail==='clinical'?'on':'')+'" onclick="V4GX.setDetail(\'clinical\')">Clinical detail</button></div>';
     var clin='';
-    if(detail==='clinical'){clin='<div class="gx-clin">'+active.molecules.slice(0,5).map(function(m){
-      var mm=(typeof M!=='undefined'&&M[m.molId])?M[m.molId]:null;
-      var recs=(mm&&mm.receptors)?mm.receptors.map(function(r){return '<span class="gx-recep">'+(r==='5HT'?'5-HT':r)+'</span>';}).join(''):'';
-      var ev=(mm&&mm.evidence)?'<span class="gx-ev">Ev '+mm.evidence+'</span>':'';
-      var nm=mm?(mm.symbol||mm.fullName):(G().names[m.molId]||m.molId);
-      return '<div class="gx-clin-row"><div class="mn">'+nm+'</div><div class="dt">'+recs+ev+'</div></div>';}).join('')+
-      '<div class="gx-cap" style="padding:8px 12px 10px">Receptor targets &amp; evidence grade (A clinical → D emerging) per recommended molecule.</div></div>';}
+    if(detail==='clinical'){var showMols=primary.concat(supporting).slice(0,8);
+      clin='<div class="gx-clin">'+showMols.map(function(m){
+        var mm=(typeof M!=='undefined'&&M[m.id])?M[m.id]:null;
+        var recs=(mm&&mm.receptors)?mm.receptors.map(function(r){return '<span class="gx-recep">'+(r==='5HT'?'5-HT':r)+'</span>';}).join(''):'';
+        var ev=(mm&&mm.evidence)?'<span class="gx-ev">Ev '+mm.evidence+'</span>':'';
+        return '<div class="gx-clin-row"><div class="mn">'+(mm?(mm.symbol||mm.fullName):m.id)+'</div><div class="dt">'+recs+ev+'</div></div>';}).join('')+
+        '<div class="gx-cap" style="padding:8px 12px 10px">Receptor targets &amp; evidence grade (A clinical → D emerging) per recommended molecule.</div></div>';}
+    var thcNote=(st.ceiling==='none'&&cond&&cond.molecules['THC9'])?
+      '<p class="gx-hint">You preferred non-intoxicating options — THC is shown here for completeness; remove it in the table’s Refine Inventory Match if you’d rather avoid it.</p>':'';
+    var secLabels=(st.seconds||[]).map(function(k){var s=SECOND.filter(function(x){return x.k===k;})[0];return s?s.label.replace(/ too$/,''):null;}).filter(Boolean);
+    var secNote=secLabels.length?'<p class="gx-hint">You also mentioned '+esc(secLabels.join(', '))+' — you can select those conditions in the table too.</p>':'';
     stage('<h2 class="gx-q">What may help you</h2>'+
-      '<div class="gx-rec"><div class="kind">'+kindPhrase(active)+'</div>'+
-      '<div class="because">Chosen for your needs'+(active.thcCeiling==='none'?' — nothing that will make you feel high.':'.')+'</div>'+
-      '<div class="gx-chips">'+chips+'</div>'+ent+'</div>'+
-      detailToggle+clin+
-      '<p class="gx-hint" style="margin-top:12px">Open these in the V2 Periodic Table to explore the evidence levels, receptor systems, Drug Interaction Checker, and Refine Search.</p>'+
+      '<div class="gx-rec"><div class="kind">'+esc(condLabel)+'</div>'+
+      '<div class="because">The molecules V2 associates with '+esc(condLabel)+', ranked by strength of evidence — the same set highlighted in the V2 table.</div>'+
+      '<div class="dj-lbl" style="margin-top:10px">Primary</div><div class="gx-chips">'+(primaryChips||'<span class="gx-chip">—</span>')+'</div>'+
+      (supporting.length?'<div class="dj-lbl" style="margin-top:12px">Supporting</div><div class="gx-chips">'+supportingChips+'</div>':'')+'</div>'+
+      detailToggle+clin+thcNote+secNote+
+      '<p class="gx-hint" style="margin-top:12px">In the V2 table, use <b>⚙ Refine Inventory Match</b> (in the Recommended Molecules panel) to remove any molecules — or whole categories — your dispensary doesn’t carry. The recommendation updates instantly.</p>'+
       '<button class="gx-cta" onclick="V4GX.seeScience()">🔬 Explore these in the V2 Periodic Table →</button>'+
       '<button class="gx-cta ghost" onclick="V4GX.restart()">Start over</button>');}
   function scProducts(){var rec=activeRec();var res=G().match(rec);var top=res.shown.slice(0,6);
