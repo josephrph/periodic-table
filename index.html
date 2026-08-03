@@ -7016,7 +7016,7 @@ document.addEventListener('keydown', function(e) {
   var SECOND=[{k:'sleep',ic:'😴',label:'Trouble sleeping too',cond:['sleep']},
     {k:'stress',ic:'💭',label:'Stress / anxiety',cond:['stress']},{k:'pain',ic:'🌿',label:'Some pain too',cond:['pain']},
     {k:'nausea',ic:'🤢',label:'Nausea too',cond:['nausea-relief']},{k:'appetite',ic:'🍽️',label:'Low appetite too',cond:['appetite-stim']}];
-  var FUNNEL=['safety','intent','refine','experience','thc','timeofday','onset','route','second','rec']; // standard flow ends at the recommendation, then hands off to the V2 table (no faux products)
+  var FUNNEL=['safety','intent','refine','experience','thc','timeofday','onset','route','second','meds','rec']; // standard flow ends at the recommendation, then hands off to the V2 table (no faux products)
   // ONB-11: route-of-administration preference. ROUTE_META = display; ROUTE_MAP = clinical route -> inventory
   // product-form (type) values. Empty array = no filter ('any', or transdermal which the sample stock lacks).
   var ROUTE_META={
@@ -7069,8 +7069,8 @@ document.addEventListener('keydown', function(e) {
   function scSecond(){var opts=SECOND.filter(function(x){return x.k!==st.intent;});
     stage('<h2 class="gx-q">Anything else going on?</h2><p class="gx-hint">Choose any — or skip.</p>'+
     opts.map(function(o){return optBtn("V4GX.second('"+o.k+"',this)",o.ic,o.label,'',(st.seconds||[]).indexOf(o.k)>=0,true);}).join('')+
-    '<button class="gx-cta" onclick="V4GX.toRec()">See what may help →</button>'+
-    '<button class="gx-cta ghost" onclick="V4GX.toRec()">Skip</button>');}
+    '<button class="gx-cta" onclick="V4GX.toMeds()">Next →</button>'+
+    '<button class="gx-cta ghost" onclick="V4GX.toMeds()">Skip</button>');}
   // ── ONB-12 new steps (standard customer flow only) ──────────────────────────
   // A quick, private reproductive-safety touchpoint. Educational tool → no hard block; a flag surfaces a
   // prominent "check with your provider" note on the recommendation screen.
@@ -7105,6 +7105,29 @@ document.addEventListener('keydown', function(e) {
     optBtn("V4GX.route('sublingual')",'💧','Sublingual','Tincture / drops under the tongue',r==='sublingual',true)+
     optBtn("V4GX.route('topical')",'🧴','Topical','Balm, cream, lotion',r==='topical',true)+
     optBtn("V4GX.route('transdermal')",'🩹','Transdermal patch','Steady release through the skin',r==='transdermal',true));}
+  // ONB-13: optional medications / drug-interaction step in the STANDARD flow. Reuses the demo meds engine
+  // (findDdiInteractions + buildCannabisHitsByMol + djMedResults + djRenderMedSearch), but screens against the
+  // molecules THIS flow recommends (table-consistent set), and re-renders screen-aware via reRenderMeds().
+  function stdRecMolIds(){var condIds=currentCondIds();var SCI={'appetite-stim':'appetite','nausea-relief':'nausea'};var dc=SCI[condIds[0]]||condIds[0];
+    var cond=(typeof CONDITIONS!=='undefined')?CONDITIONS.find(function(c){return c.id===dc;}):null;
+    if(cond)return Object.keys(cond.molecules).filter(function(id){return typeof M!=='undefined'&&M[id];});
+    return currentRec().molecules.map(function(m){return m.molId;});}
+  function reRenderMeds(){var top=hist[hist.length-1];if(top==='meds')scMeds();else scDJMeds();}
+  function scMeds(){
+    var chips=DJ_MEDS.map(function(id){var d=(typeof DI_DATA!=='undefined')?DI_DATA.find(function(x){return x.id===id;}):null;if(!d)return '';
+      var on=(st.meds||[]).some(function(m){return m.id===id;});
+      return '<button class="dj-medchip'+(on?' on':'')+'" onclick="V4GX.djAddMed(\''+id+'\')"><span class="'+(d.cat==='otc'?'otc':'rx')+'">'+(d.cat==='otc'?'OTC':'Rx')+'</span>'+esc(d.drug.split(' /')[0])+(on?' ✓':'')+'</button>';}).join('');
+    var list=(st.meds||[]).map(function(m){return '<span class="dj-medpill">'+esc(m.drug.split(' /')[0])+'<button onclick="V4GX.djRemoveMed(\''+m.id+'\')" aria-label="Remove">×</button></span>';}).join('');
+    var hasMeds=(st.meds||[]).length>0;
+    stage('<h2 class="gx-q">Your medications <span style="font-weight:600;color:var(--dim);font-size:.62em">optional</span></h2>'+
+      '<p class="gx-hint">Add any prescriptions or OTC medicines — V2 screens them against each other <b>and</b> against the molecules recommended for you. This stays private on your device.</p>'+
+      '<div class="dj-medquick"><div class="dj-lbl">Tap common medications</div><div class="dj-chips">'+chips+'</div></div>'+
+      '<div class="dj-medsearch"><input class="gx-search" type="search" autocomplete="off" placeholder="…or search any medication (e.g. Xanax, Tylenol, metformin)" oninput="V4GX.djSearchMed(this.value)"><div id="djMedSug" class="dj-sugbox" style="display:none"></div></div>'+
+      (list?'<div class="dj-medlist"><span class="dj-lbl" style="margin:0 4px 0 0">Your list:</span>'+list+'</div>':'')+
+      '<div id="djMedResults" class="dj-medresults">'+djMedResults(stdRecMolIds())+'</div>'+
+      '<button class="gx-cta" onclick="V4GX.toRec()">'+(hasMeds?'See what may help →':'Continue →')+'</button>'+
+      (hasMeds?'':'<button class="gx-cta ghost" onclick="V4GX.toRec()">Skip — I take no medications</button>'));
+  }
   function currentCondIds(){
     if(st.intent==='learn')return ['sleep'];
     var im=G().intentMap[st.intent]; if(!im)return ['sleep'];
@@ -7175,6 +7198,14 @@ document.addEventListener('keydown', function(e) {
     if(st.timeOfDay==='day')guide.push('For daytime, favor clear-headed, lower-sedation options (limonene / pinene-forward, lower CBN).');else if(st.timeOfDay==='evening')guide.push('For evening, CBN- and myrcene-forward options support winding down.');
     if(st.onset==='fast')guide.push('For fast, shorter relief, inhalation or sublingual (tincture) formats act quickest.');else if(st.onset==='balanced')guide.push('For a balance of onset and duration, tinctures or low-dose edibles work well.');else if(st.onset==='lasting')guide.push('For longer-lasting relief, edibles, capsules, or transdermal patches last longest (slower onset).');
     if(st.route&&st.route!=='any'&&ROUTE_META[st.route])guide.push('You preferred '+ROUTE_META[st.route].label.toLowerCase()+' ('+ROUTE_META[st.route].forms+'); the dispensary inventory match prioritizes these formats.');
+    // ONB-13: compact medication-interaction summary on the recommendation (only if meds were added).
+    var medSummary='';
+    if((st.meds||[]).length){var mIds=st.meds.map(function(m){return m.id;});
+      var ddiN=((typeof findDdiInteractions==='function')?findDdiInteractions(mIds):[]).length;
+      var byM=(typeof buildCannabisHitsByMol==='function')?buildCannabisHitsByMol(mIds):{};
+      var recSet=stdRecMolIds();var recHitN=Object.keys(byM).filter(function(m){return recSet.indexOf(m)>=0;}).length;
+      var anyI=ddiN||recHitN;
+      medSummary='<div class="gx-note" style="margin-top:12px;border-left:3px solid var('+(anyI?'--accent2':'--accent')+')">'+(anyI?'⚠️ ':'✓ ')+'<b>Medication check</b> — '+st.meds.length+' reviewed: '+(ddiN?ddiN+' drug–drug interaction'+(ddiN>1?'s':''):'no drug–drug interactions')+', '+(recHitN?recHitN+' with a recommended molecule'+(recHitN>1?'s':''):'none with recommended molecules')+'.'+(anyI?' Please review with your Product Specialist (Budtender) or provider before use.':'')+'</div>';}
     var prefRecap=prefBits.length?'<div class="dj-lbl" style="margin-top:12px">Your preferences</div><div class="gx-chips">'+prefBits.map(function(b){return '<span class="gx-chip">'+b+'</span>';}).join('')+'</div>':'';
     var prefGuide=guide.length?'<ul style="margin:8px 0 0;padding-left:18px;font-size:.72rem;color:var(--dim);line-height:1.6">'+guide.map(function(g){return '<li>'+g+'</li>';}).join('')+'</ul>':'';
     var safetyNote=(st.safetyFlags&&st.safetyFlags.length)?'<div class="gx-note" style="margin-top:12px;border-left:3px solid var(--accent2)"><b>Please check with your provider first.</b> You noted pregnancy, breastfeeding, or planning to conceive. Current medical guidance advises avoiding cannabis during pregnancy and breastfeeding — please talk with your obstetric provider before using any product.</div>':'';
@@ -7183,7 +7214,7 @@ document.addEventListener('keydown', function(e) {
       '<div class="because">The molecules V2 associates with '+esc(condLabel)+', ranked by strength of evidence — the same set highlighted in the V2 table.</div>'+
       '<div class="dj-lbl" style="margin-top:10px">Primary</div><div class="gx-chips">'+(primaryChips||'<span class="gx-chip">—</span>')+'</div>'+
       (supporting.length?'<div class="dj-lbl" style="margin-top:12px">Supporting</div><div class="gx-chips">'+supportingChips+'</div>':'')+'</div>'+
-      detailToggle+clin+thcNote+secNote+prefRecap+prefGuide+
+      detailToggle+clin+thcNote+secNote+prefRecap+prefGuide+medSummary+
       '<p class="gx-hint" style="margin-top:12px">In the V2 table, use <b>⚙ Refine Inventory Match</b> (in the Recommended Molecules panel) to remove any molecules — or whole categories — your dispensary doesn’t carry. The recommendation updates instantly.</p>'+
       '<button class="gx-cta" onclick="V4GX.seeScience()">🔬 Explore these in the V2 Periodic Table →</button>'+
       '<button class="gx-cta ghost" onclick="V4GX.restart()">Start over</button>');}
@@ -7387,13 +7418,13 @@ document.addEventListener('keydown', function(e) {
       '<div class="dj-note">Next, we\'ll check the patient\'s medications against these molecules — then narrow to what\'s in stock.</div>'+
       '<button class="gx-cta" onclick="V4GX.djToMeds()">Check medications →</button>');
   }
-  function djMedResults(){
+  function djMedResults(recIds){
     var meds=st.meds||[];
     if(!meds.length)return '<div class="dj-med-empty">No medications added yet — tap a common one above, or search any drug.</div>';
     var medIds=meds.map(function(m){return m.id;});
     var ddi=(typeof findDdiInteractions==='function')?findDdiInteractions(medIds):[];
     var byMol=(typeof buildCannabisHitsByMol==='function')?buildCannabisHitsByMol(medIds):{};
-    var recIds=djActiveRec().molecules.map(function(m){return m.molId;});
+    recIds=recIds||djActiveRec().molecules.map(function(m){return m.molId;});
     var sevIc={major:'🔴',moderate:'🟠',minor:'🟡'};
     var molHits=Object.keys(byMol);var recHits=molHits.filter(function(m){return recIds.indexOf(m)>=0;});
     var ddiWorst=ddi.some(function(d){return d.sev==='major';})?'🔴':(ddi.some(function(d){return d.sev==='moderate';})?'🟠':'🟡');
@@ -7489,15 +7520,16 @@ document.addEventListener('keydown', function(e) {
 
   // ---- public API ----
   window.V4GX={
-    start:function(){st={persona:null,seconds:[],excluded:{},detail:'plain',safetyFlags:[],experience:null,timeOfDay:null,onset:null,route:'any'};hist=['persona'];el('gxOverlay').style.display='flex';scPersona();chrome('persona');},
+    start:function(){st={persona:null,seconds:[],excluded:{},detail:'plain',safetyFlags:[],experience:null,timeOfDay:null,onset:null,route:'any',meds:[]};hist=['persona'];el('gxOverlay').style.display='flex';scPersona();chrome('persona');},
     demoHub:function(){if(!demoMode())return;st={dj:true,persona:null,djConds:[],excluded:{},meds:[],ceiling:'any',djProduct:null,route:'any'};hist=['demoHub'];el('gxOverlay').style.display='flex';scDemoHub();chrome('demoHub');},
     demoGuided:function(){if(!demoMode())return;if(!hist.length)hist=['demoHub'];go('demoGuidedIntro',scDemoGuidedIntro);},
     djRun:function(){st.dj=true;st.djConds=[];st.excluded={};st.meds=[];st.djProduct=null;st.ceiling='any';st.route='any';if(!hist.length)hist=['demoHub'];go('djConds',scDJConds);},
     djToggleCond:function(id){st.djConds=st.djConds||[];var i=st.djConds.indexOf(id);if(i>=0)st.djConds.splice(i,1);else st.djConds.push(id);scDJConds();},
     djToRec:function(){if(!(st.djConds&&st.djConds.length))return;st.excluded={};go('djMol',scDJMol);},
     djToMeds:function(){go('djMeds',scDJMeds);},
-    djAddMed:function(id){st.meds=st.meds||[];if(!st.meds.some(function(m){return m.id===id;})){var e=(typeof DI_DATA!=='undefined')?DI_DATA.find(function(d){return d.id===id;}):null;if(e)st.meds.push(e);}scDJMeds();},
-    djRemoveMed:function(id){st.meds=(st.meds||[]).filter(function(m){return m.id!==id;});scDJMeds();},
+    djAddMed:function(id){st.meds=st.meds||[];if(!st.meds.some(function(m){return m.id===id;})){var e=(typeof DI_DATA!=='undefined')?DI_DATA.find(function(d){return d.id===id;}):null;if(e)st.meds.push(e);}reRenderMeds();},
+    djRemoveMed:function(id){st.meds=(st.meds||[]).filter(function(m){return m.id!==id;});reRenderMeds();},
+    toMeds:function(){go('meds',scMeds);},
     djSearchMed:function(v){djRenderMedSearch(v);},
     djToRefine:function(){go('djRefine',scDJRefine);},
     djToggleMol:function(id){st.excluded=st.excluded||{};if(st.excluded[id])delete st.excluded[id];else st.excluded[id]=1;scDJRefine();},
@@ -7506,7 +7538,7 @@ document.addEventListener('keydown', function(e) {
     djSelect:function(sku){var p=G().match(djActiveRec()).shown.filter(function(x){return x.sku===sku;})[0];st.djProduct=p||null;go('djDone',scDJDone);},
     djBack:function(){this.back();},
     close:function(){el('gxOverlay').style.display='none';},
-    back:function(){if(hist.length>1){hist.pop();var scr=hist[hist.length-1];({persona:scPersona,safety:scSafety,intent:scIntent,refine:scRefine,experience:scExperience,thc:scThc,timeofday:scTimeOfDay,onset:scOnset,route:scRoute,second:scSecond,rec:scRec,products:scProducts,handoff:scHandoff,insights:scInsights,emp:scEmp,import:scImport,importResult:scImportResult,browse:scBrowse,demoHub:scDemoHub,demoGuidedIntro:scDemoGuidedIntro,djConds:scDJConds,djMol:scDJMol,djMeds:scDJMeds,djRefine:scDJRefine,djProducts:scDJPos,djDone:scDJDone}[scr])();chrome(scr);}},
+    back:function(){if(hist.length>1){hist.pop();var scr=hist[hist.length-1];({persona:scPersona,safety:scSafety,intent:scIntent,refine:scRefine,experience:scExperience,thc:scThc,timeofday:scTimeOfDay,onset:scOnset,route:scRoute,second:scSecond,meds:scMeds,rec:scRec,products:scProducts,handoff:scHandoff,insights:scInsights,emp:scEmp,import:scImport,importResult:scImportResult,browse:scBrowse,demoHub:scDemoHub,demoGuidedIntro:scDemoGuidedIntro,djConds:scDJConds,djMol:scDJMol,djMeds:scDJMeds,djRefine:scDJRefine,djProducts:scDJPos,djDone:scDJDone}[scr])();chrome(scr);}},
     restart:function(){this.start();},
     persona:function(p){st.persona=p;st.intent=null;st.refineKey=null;st.seconds=[];
       if(p==='cust'){st.safetyFlags=st.safetyFlags||[];go('safety',scSafety);}else if(p==='emp'){go('emp',scEmp);}else{this.close();}},
