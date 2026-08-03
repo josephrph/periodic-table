@@ -614,7 +614,7 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
       <option value="">Search conditions… (A–Z)</option>
     </select>
   </div>
-  <button class="btn-filter" id="guidedBtn" onclick="if(window.V4GX)V4GX.start()" title="Return to the Guided Experience — get a personalized recommendation">🧭 Guided Finder</button>
+  <button class="btn-filter" id="guidedBtn" onclick="if(window.V4GX)V4GX.start()" title="Return to Guided Match — get a personalized recommendation">🧭 Guided Match</button>
    <button class="btn-filter" id="filterBtn" onclick="toggleFilter()">Show Health Conditions</button>
     <button class="btn-filter" id="entBtn" onclick="showEntourage()" title="Explore synergistic molecule combinations by health condition">⬢ Entourage Effect</button>
     <button class="btn-filter" id="diBtn" onclick="toggleDrugPanel()" title="Check cannabis interactions with your medications">💊 Drug Interactions</button>
@@ -2299,7 +2299,7 @@ body.is-mobile-view .demo-ribbon{bottom:calc(64px + env(safe-area-inset-bottom))
 <div id="gxOverlay"><div class="gx-wrap">
   <div class="gx-top">
     <button class="gx-back" id="gxBack" onclick="V4GX.back()" disabled>‹ Back</button>
-    <span class="gx-brand">Guided Finder</span>
+    <span class="gx-brand">Guided Match</span>
     <button class="gx-close" onclick="V4GX.close()">Full table ✕</button>
   </div>
   <div class="gx-dots" id="gxDots"></div>
@@ -7031,7 +7031,7 @@ document.addEventListener('keydown', function(e) {
       '<button class="gx-demo-link" onclick="showDemoLogin()" aria-label="Demo Mode — Acannability staff sign-in">🔒 Demo Mode</button>':'';
     stage('<h2 class="gx-q">Who’s using the table today?</h2><p class="gx-hint">Tap the one that fits you.</p>'+
     optBtn("V4GX.persona('cust')",'🌱','I’m a Customer / Patient','Help me find what fits — guide me')+
-    optBtn("V4GX.persona('emp')",'🏪','I work here','Product Specialist tools & quick lookup')+
+    optBtn("V4GX.persona('emp')",'🏪','I work here','Product Specialist (Budtender) tools & quick lookup')+
     optBtn("V4GX.persona('pro')",'⚕️','Healthcare Professional','Straight to the full table')+demoLink);}
   function scIntent(){stage('<h2 class="gx-q">Why are you here today?</h2><p class="gx-hint">There’s no wrong answer.</p>'+
     ORDER.map(function(k){var r=REASONS[k];return optBtn("V4GX.intent('"+k+"')",r.ic,r.label,'');}).join(''));}
@@ -7129,7 +7129,7 @@ document.addEventListener('keydown', function(e) {
         '<div class="gx-fit"><div class="pct">'+p.fit+'%</div><div class="lbl">fit</div></div></div>';}).join('')+
       '<div class="gx-filtered">'+res.excluded.length+' others filtered out (out of stock, or stronger in THC than you wanted).</div>';}
     stage('<h2 class="gx-q">Best matches in stock</h2>'+badge+html+
-      (top.length?'<button class="gx-cta" onclick="V4GX.handoff()">🛒 Send to Product Specialist</button>':'')+
+      (top.length?'<button class="gx-cta" onclick="V4GX.handoff()">🛒 Send to Product Specialist (Budtender)</button>':'')+
       '<button class="gx-cta ghost" onclick="V4GX.drugCheck()">💊 Check against your medications</button>'+
       optBtn("V4GX.seeScience()",'🔬','Explore the science &amp; full table','')+
       (demoMode()?'<button class="gx-cta ghost" onclick="V4GX.insights()">📊 Demo insights (for the booth)</button>':'')+
@@ -7148,7 +7148,7 @@ document.addEventListener('keydown', function(e) {
   // Hand-off: the recommendation becomes a cart the budtender can fulfil (the POS conversion moment).
   function scHandoff(){var p=G().match(activeRec()).shown[0];if(!p){scProducts();return;}
     var demo=demoMode();
-    stage('<h2 class="gx-q">Ready for the Product Specialist</h2>'+
+    stage('<h2 class="gx-q">Ready for the Product Specialist (Budtender)</h2>'+
       '<div class="gx-handoff"><div class="gx-hpick"><div class="sw">'+p.icon+'</div><div><b>'+p.name+'</b>'+
         '<div class="meta">'+cap(p.type)+' · $'+p.price+' · '+p.fit+'% fit</div></div></div>'+
         '<div class="gx-checks"><span>✓ Your goal</span><span>✓ The science</span><span>✓ In stock ('+p.count+')</span></div>'+
@@ -7175,7 +7175,7 @@ document.addEventListener('keydown', function(e) {
       '<div class="gx-cap">'+instock+' SKUs in stock. Molecules in <b style="color:#B23A3A">red</b> are thin — demand the guided flow surfaces but the shelf can\'t meet. That\'s the buying signal V2 hands dispensary owners.</div></div>'+
       '<button class="gx-cta ghost" onclick="V4GX.back()">← Back</button>');}
   function scEmp(){var imp=G().isImported&&G().isImported();
-    stage('<h2 class="gx-q">Product Specialist console</h2>'+
+    stage('<h2 class="gx-q">Product Specialist (Budtender) console</h2>'+
     '<div class="gx-placard"><b>Demo scope.</b> In the full build this is a hub: Help a customer, Look up, Drug interactions, and Match inventory — with live stock counts.</div>'+
     '<button class="gx-cta" onclick="V4GX.runGuide()">▶ Run the customer guide</button>'+
     '<button class="gx-cta ghost" onclick="V4GX.importScreen()">📥 Import inventory (CSV)</button>'+
@@ -7285,7 +7285,7 @@ document.addEventListener('keydown', function(e) {
       '<p class="gx-hint">A controlled presentation of the complete V2 platform, running on this demo dispensary’s inventory. Choose what to show your audience.</p>'+
       '<button class="gx-cta" onclick="V4GX.djRun()">▶ Run the complete patient journey</button>'+
       '<div class="dj-intro-steps">'+DJ_STEPS.map(function(s,i){return '<div class="dj-intro-step"><span>'+(i+1)+'</span>'+s+'</div>';}).join('')+'</div>'+
-      '<button class="gx-cta ghost" onclick="V4GX.demoGuided()">🧭 Show the standard Guided Experience</button>'+
+      '<button class="gx-cta ghost" onclick="V4GX.demoGuided()">🧭 Show the standard Guided Match</button>'+
       '<div class="gx-hint" style="margin:-4px 0 6px;font-size:.8rem;opacity:.82">The real patient-facing finder — concludes at the V2 science table, not this demo’s sample products.</div>'+
       '<button class="gx-cta ghost" onclick="V4GX.browse()">📦 Browse the demo inventory</button>'+
       '<button class="gx-cta ghost" onclick="window.V4DEMO.exit()">Exit Demo Mode</button></div>');
@@ -7294,11 +7294,11 @@ document.addEventListener('keydown', function(e) {
   // real, shippable patient experience (ends at the V2 table, no faux inventory) vs. the complete journey.
   function scDemoGuidedIntro(){
     stage('<div class="dj-intro"><div class="dj-intro-badge">Demonstration mode</div>'+
-      '<h2 class="gx-q">Standard Guided Experience</h2>'+
+      '<h2 class="gx-q">Standard Guided Match</h2>'+
       '<p class="gx-hint">You’re about to see the <b>real patient-facing finder</b>. It walks a patient from why they’re here to the molecules V2 recommends, then hands off to the <b>V2 science table</b>.</p>'+
       '<p class="gx-hint">Unlike the complete patient journey, it does <b>not</b> use this demo’s faux inventory or product recommendations — that’s intentional, so you can show the product as real patients experience it.</p>'+
       '<p class="gx-hint">You’re still in Demo Mode — use <b>▶ Menu</b> on the banner to return here anytime.</p>'+
-      '<button class="gx-cta" onclick="V4GX.start()">▶ Begin the Guided Experience</button>'+
+      '<button class="gx-cta" onclick="V4GX.start()">▶ Begin Guided Match</button>'+
       '<button class="gx-cta ghost" onclick="V4GX.demoHub()">≡ Back to demo menu</button></div>');
   }
   function scDJConds(){var sel=st.djConds||[];
