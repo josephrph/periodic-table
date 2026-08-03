@@ -6863,8 +6863,17 @@ document.addEventListener('keydown', function(e) {
       var reason=p.count<=0?'out of stock':(g===0?'THC above comfort level':(fit<CFG.FLOOR?'weak match':null));
       if(reason)excluded.push({name:p.name,reason:reason});
       else shown.push({sku:p.sku,name:p.name,brand:p.brand,stype:p.stype,type:p.type,price:p.price,count:p.count,icon:p.icon,fit:fit,label:label,profile:pr,fmt:(rec.format===p.type)?1:0});});
+    // ONB-11: soft route-of-administration preference. If routeTypes is set, keep only products in those
+    // forms — but if that leaves nothing in stock, fall back to all matches (never zero-out a kiosk result)
+    // and flag it so the UI can note "no <route> products; showing closest alternatives".
+    var routeFallback=false;
+    if(rec.routeTypes&&rec.routeTypes.length){
+      var onRoute=shown.filter(function(s){return rec.routeTypes.indexOf(s.type)>=0;});
+      if(onRoute.length){shown.filter(function(s){return rec.routeTypes.indexOf(s.type)<0;}).forEach(function(s){excluded.push({name:s.name,reason:'off your preferred route'});});shown=onRoute;}
+      else{routeFallback=true;}
+    }
     shown.sort(function(a,b){return (b.fit-a.fit)||(b.fmt-a.fmt)||(b.count-a.count)||(a.price-b.price);});
-    return {shown:shown,excluded:excluded};}
+    return {shown:shown,excluded:excluded,routeFallback:routeFallback};}
   // maps the friendly funnel to REAL engine condition ids
   var INTENT={sleep:{cond:['sleep'],refine:{fall:['sleep'],stay:['sleep'],both:['sleep']}},
     pain:{cond:['pain'],refine:{joint:['arthritis'],nerve:['neuropathic'],muscle:['spasm'],inflam:['inflammation'],migraine:['pain'],menstrual:['dysmenorrhea'],gen:['pain']}},
@@ -7007,7 +7016,17 @@ document.addEventListener('keydown', function(e) {
   var SECOND=[{k:'sleep',ic:'😴',label:'Trouble sleeping too',cond:['sleep']},
     {k:'stress',ic:'💭',label:'Stress / anxiety',cond:['stress']},{k:'pain',ic:'🌿',label:'Some pain too',cond:['pain']},
     {k:'nausea',ic:'🤢',label:'Nausea too',cond:['nausea-relief']},{k:'appetite',ic:'🍽️',label:'Low appetite too',cond:['appetite-stim']}];
-  var FUNNEL=['safety','intent','refine','experience','thc','timeofday','onset','second','rec']; // standard flow ends at the recommendation, then hands off to the V2 table (no faux products)
+  var FUNNEL=['safety','intent','refine','experience','thc','timeofday','onset','route','second','rec']; // standard flow ends at the recommendation, then hands off to the V2 table (no faux products)
+  // ONB-11: route-of-administration preference. ROUTE_META = display; ROUTE_MAP = clinical route -> inventory
+  // product-form (type) values. Empty array = no filter ('any', or transdermal which the sample stock lacks).
+  var ROUTE_META={
+    any:{ic:'🌀',label:'Any route',forms:'all formats'},
+    inhalation:{ic:'💨',label:'Inhalation',forms:'flower, vape, concentrate'},
+    oral:{ic:'💊',label:'Oral',forms:'edible, capsule, beverage'},
+    sublingual:{ic:'💧',label:'Sublingual',forms:'tinctures / drops'},
+    topical:{ic:'🧴',label:'Topical',forms:'balm, cream, lotion'},
+    transdermal:{ic:'🩹',label:'Transdermal patch',forms:'patch'}};
+  var ROUTE_MAP={any:[],inhalation:['flower','vape','concentrate'],oral:['edible','capsule','beverage'],sublingual:['tincture'],topical:['topical'],transdermal:['patch','transdermal']};
   var st={}, hist=[];
   var lastImport=null, browseSort={key:'name',dir:1}, browseQ='';  // INV-02 import/browse state
   function G(){return window.V4Guided;}
@@ -7078,6 +7097,14 @@ document.addEventListener('keydown', function(e) {
     optBtn("V4GX.onset('fast')",'⚡','Fast &amp; shorter','Relief in minutes (inhaled / sublingual)',o==='fast',true)+
     optBtn("V4GX.onset('balanced')",'⚖️','A balance','Moderate onset &amp; duration',o==='balanced',true)+
     optBtn("V4GX.onset('lasting')",'⏳','Slow &amp; long-lasting','Hours of relief (edible / capsule / patch)',o==='lasting',true));}
+  function scRoute(){var r=st.route||'any';
+    stage('<h2 class="gx-q">Any preferred way to take it?</h2><p class="gx-hint">This helps match the right product formats. Pick one — or keep all options open.</p>'+
+    optBtn("V4GX.route('any')",'🌀','Any route','Show me everything',r==='any',true)+
+    optBtn("V4GX.route('inhalation')",'💨','Inhalation','Flower, vape, concentrate',r==='inhalation',true)+
+    optBtn("V4GX.route('oral')",'💊','Oral','Edible, capsule, beverage',r==='oral',true)+
+    optBtn("V4GX.route('sublingual')",'💧','Sublingual','Tincture / drops under the tongue',r==='sublingual',true)+
+    optBtn("V4GX.route('topical')",'🧴','Topical','Balm, cream, lotion',r==='topical',true)+
+    optBtn("V4GX.route('transdermal')",'🩹','Transdermal patch','Steady release through the skin',r==='transdermal',true));}
   function currentCondIds(){
     if(st.intent==='learn')return ['sleep'];
     var im=G().intentMap[st.intent]; if(!im)return ['sleep'];
@@ -7089,7 +7116,7 @@ document.addEventListener('keydown', function(e) {
   // activeRec = the recommendation minus any molecules the user removed in the guided Refine step.
   // Falls back to the full rec if everything is excluded, so the products screen is never starved.
   function activeRec(){var rec=currentRec();var mols=rec.molecules.filter(function(m){return !(st.excluded&&st.excluded[m.molId]);});
-    return {molecules:mols.length?mols:rec.molecules,thcCeiling:rec.thcCeiling,conditions:rec.conditions,format:rec.format};}
+    return {molecules:mols.length?mols:rec.molecules,thcCeiling:rec.thcCeiling,conditions:rec.conditions,format:rec.format,routeTypes:ROUTE_MAP[st.route||'any']||[]};}
   function kindPhrase(rec){var cann=rec.molecules.filter(function(m){return !G().terps[m.molId];});
     var top=cann[0]?cann[0].molId:'CBD';var nm=G().names[top]||top;var hasTHC=cann.some(function(m){return m.molId==='THC9';});
     if(rec.thcCeiling==='none')return (top==='CBD'?'CBD-forward, non-intoxicating':nm+'-forward, non-intoxicating');
@@ -7142,10 +7169,12 @@ document.addEventListener('keydown', function(e) {
     if(st.experience==='new')prefBits.push('🌱 New to cannabis');else if(st.experience==='some')prefBits.push('🌤️ Some experience');else if(st.experience==='exp')prefBits.push('🌟 Experienced');
     if(st.timeOfDay==='day')prefBits.push('☀️ Daytime');else if(st.timeOfDay==='evening')prefBits.push('🌙 Evening');else if(st.timeOfDay==='any')prefBits.push('🕒 Anytime');
     if(st.onset==='fast')prefBits.push('⚡ Fast onset');else if(st.onset==='balanced')prefBits.push('⚖️ Balanced');else if(st.onset==='lasting')prefBits.push('⏳ Long-lasting');
+    if(st.route&&st.route!=='any'&&ROUTE_META[st.route])prefBits.push(ROUTE_META[st.route].ic+' '+ROUTE_META[st.route].label);
     var guide=[];
     if(st.experience==='new')guide.push('Start low and go slow — a small amount, then wait before more. Your options are leaned gentler.');
     if(st.timeOfDay==='day')guide.push('For daytime, favor clear-headed, lower-sedation options (limonene / pinene-forward, lower CBN).');else if(st.timeOfDay==='evening')guide.push('For evening, CBN- and myrcene-forward options support winding down.');
     if(st.onset==='fast')guide.push('For fast, shorter relief, inhalation or sublingual (tincture) formats act quickest.');else if(st.onset==='balanced')guide.push('For a balance of onset and duration, tinctures or low-dose edibles work well.');else if(st.onset==='lasting')guide.push('For longer-lasting relief, edibles, capsules, or transdermal patches last longest (slower onset).');
+    if(st.route&&st.route!=='any'&&ROUTE_META[st.route])guide.push('You preferred '+ROUTE_META[st.route].label.toLowerCase()+' ('+ROUTE_META[st.route].forms+'); the dispensary inventory match prioritizes these formats.');
     var prefRecap=prefBits.length?'<div class="dj-lbl" style="margin-top:12px">Your preferences</div><div class="gx-chips">'+prefBits.map(function(b){return '<span class="gx-chip">'+b+'</span>';}).join('')+'</div>':'';
     var prefGuide=guide.length?'<ul style="margin:8px 0 0;padding-left:18px;font-size:.72rem;color:var(--dim);line-height:1.6">'+guide.map(function(g){return '<li>'+g+'</li>';}).join('')+'</ul>':'';
     var safetyNote=(st.safetyFlags&&st.safetyFlags.length)?'<div class="gx-note" style="margin-top:12px;border-left:3px solid var(--accent2)"><b>Please check with your provider first.</b> You noted pregnancy, breastfeeding, or planning to conceive. Current medical guidance advises avoiding cannabis during pregnancy and breastfeeding — please talk with your obstetric provider before using any product.</div>':'';
@@ -7302,7 +7331,7 @@ document.addEventListener('keydown', function(e) {
   function djStepBar(active){var h='<div class="dj-steps">';for(var i=0;i<DJ_STEPS.length;i++){h+='<span class="dj-step'+(i===active?' on':(i<active?' done':''))+'">'+(i+1)+'</span>';}return h+'</div>';}
   function djRec(){var conds=(st.djConds&&st.djConds.length)?st.djConds:['seizures'];return G().recForConditions(conds,st.ceiling||'any',[]);}
   function djActiveRec(){var rec=djRec();var mols=rec.molecules.filter(function(m){return !(st.excluded&&st.excluded[m.molId]);});
-    return {molecules:mols.length?mols:rec.molecules,thcCeiling:rec.thcCeiling,conditions:rec.conditions};}
+    return {molecules:mols.length?mols:rec.molecules,thcCeiling:rec.thcCeiling,conditions:rec.conditions,routeTypes:ROUTE_MAP[st.route||'any']||[]};}
   // Full clinical picture (incl. flavonoids/rare, which aren't matched against stock) for the display step.
   function djClinicalGroups(){
     var conds=(st.djConds&&st.djConds.length)?st.djConds:['seizures'];var w={};
@@ -7407,12 +7436,17 @@ document.addEventListener('keydown', function(e) {
       return '<button class="gx-chip gx-tog'+(G().terps[m.molId]?' terp':'')+(off?' off':'')+'" onclick="V4GX.djToggleMol(\''+m.molId+'\')">'+(G().names[m.molId]||m.molId)+'<span class="x">'+(off?'＋':'×')+'</span></button>';}).join('');
     var hasCann=rec.molecules.some(function(m){return !G().terps[m.molId];});var hasTerp=rec.molecules.some(function(m){return G().terps[m.molId];});
     var catBtns=(hasCann?'<button class="gx-catbtn" onclick="V4GX.djToggleCat(\'cann\')">Cannabinoids</button>':'')+(hasTerp?'<button class="gx-catbtn" onclick="V4GX.djToggleCat(\'terp\')">Terpenes</button>':'');
-    var n=G().match(active).shown.length;
+    var curRoute=st.route||'any';
+    var routeBtns=['any','inhalation','oral','sublingual','topical','transdermal'].map(function(k){var on=curRoute===k;
+      return '<button class="gx-catbtn" style="'+(on?'border-color:var(--accent);color:var(--accent);font-weight:700':'')+'" onclick="V4GX.djSetRoute(\''+k+'\')">'+ROUTE_META[k].ic+' '+ROUTE_META[k].label+'</button>';}).join('');
+    var res=G().match(active);var n=res.shown.length;
+    var rfNote=res.routeFallback?'<div class="gx-hint" style="margin-top:6px">No '+ROUTE_META[curRoute].label.toLowerCase()+' products are in stock — showing the closest alternatives.</div>':'';
     stage(djStepBar(3)+'<h2 class="gx-q">Refine to match the shelf</h2>'+
       '<p class="gx-hint">Tap to remove any molecule, or a whole category, to match what the dispensary stocks. Matching uses the cannabinoids &amp; terpenes disclosed on product COAs.</p>'+
       '<div class="gx-refine"><div class="gx-chips">'+toggles+'</div>'+
       (catBtns?'<div class="gx-catrow">Remove a category: '+catBtns+'</div>':'')+
-      '<div class="gx-matchcount">'+n+' product'+(n===1?'':'s')+' in stock match this profile</div></div>'+
+      '<div class="gx-catrow">Preferred route: '+routeBtns+'</div>'+
+      '<div class="gx-matchcount">'+n+' product'+(n===1?'':'s')+' in stock match this profile</div>'+rfNote+'</div>'+
       '<button class="gx-cta" onclick="V4GX.djToProducts()">Query the inventory →</button>');
   }
   function scDJPos(){var active=djActiveRec();var n=G().match(active).shown.length;
@@ -7455,10 +7489,10 @@ document.addEventListener('keydown', function(e) {
 
   // ---- public API ----
   window.V4GX={
-    start:function(){st={persona:null,seconds:[],excluded:{},detail:'plain',safetyFlags:[],experience:null,timeOfDay:null,onset:null};hist=['persona'];el('gxOverlay').style.display='flex';scPersona();chrome('persona');},
-    demoHub:function(){if(!demoMode())return;st={dj:true,persona:null,djConds:[],excluded:{},meds:[],ceiling:'any',djProduct:null};hist=['demoHub'];el('gxOverlay').style.display='flex';scDemoHub();chrome('demoHub');},
+    start:function(){st={persona:null,seconds:[],excluded:{},detail:'plain',safetyFlags:[],experience:null,timeOfDay:null,onset:null,route:'any'};hist=['persona'];el('gxOverlay').style.display='flex';scPersona();chrome('persona');},
+    demoHub:function(){if(!demoMode())return;st={dj:true,persona:null,djConds:[],excluded:{},meds:[],ceiling:'any',djProduct:null,route:'any'};hist=['demoHub'];el('gxOverlay').style.display='flex';scDemoHub();chrome('demoHub');},
     demoGuided:function(){if(!demoMode())return;if(!hist.length)hist=['demoHub'];go('demoGuidedIntro',scDemoGuidedIntro);},
-    djRun:function(){st.dj=true;st.djConds=[];st.excluded={};st.meds=[];st.djProduct=null;st.ceiling='any';if(!hist.length)hist=['demoHub'];go('djConds',scDJConds);},
+    djRun:function(){st.dj=true;st.djConds=[];st.excluded={};st.meds=[];st.djProduct=null;st.ceiling='any';st.route='any';if(!hist.length)hist=['demoHub'];go('djConds',scDJConds);},
     djToggleCond:function(id){st.djConds=st.djConds||[];var i=st.djConds.indexOf(id);if(i>=0)st.djConds.splice(i,1);else st.djConds.push(id);scDJConds();},
     djToRec:function(){if(!(st.djConds&&st.djConds.length))return;st.excluded={};go('djMol',scDJMol);},
     djToMeds:function(){go('djMeds',scDJMeds);},
@@ -7472,7 +7506,7 @@ document.addEventListener('keydown', function(e) {
     djSelect:function(sku){var p=G().match(djActiveRec()).shown.filter(function(x){return x.sku===sku;})[0];st.djProduct=p||null;go('djDone',scDJDone);},
     djBack:function(){this.back();},
     close:function(){el('gxOverlay').style.display='none';},
-    back:function(){if(hist.length>1){hist.pop();var scr=hist[hist.length-1];({persona:scPersona,safety:scSafety,intent:scIntent,refine:scRefine,experience:scExperience,thc:scThc,timeofday:scTimeOfDay,onset:scOnset,second:scSecond,rec:scRec,products:scProducts,handoff:scHandoff,insights:scInsights,emp:scEmp,import:scImport,importResult:scImportResult,browse:scBrowse,demoHub:scDemoHub,demoGuidedIntro:scDemoGuidedIntro,djConds:scDJConds,djMol:scDJMol,djMeds:scDJMeds,djRefine:scDJRefine,djProducts:scDJPos,djDone:scDJDone}[scr])();chrome(scr);}},
+    back:function(){if(hist.length>1){hist.pop();var scr=hist[hist.length-1];({persona:scPersona,safety:scSafety,intent:scIntent,refine:scRefine,experience:scExperience,thc:scThc,timeofday:scTimeOfDay,onset:scOnset,route:scRoute,second:scSecond,rec:scRec,products:scProducts,handoff:scHandoff,insights:scInsights,emp:scEmp,import:scImport,importResult:scImportResult,browse:scBrowse,demoHub:scDemoHub,demoGuidedIntro:scDemoGuidedIntro,djConds:scDJConds,djMol:scDJMol,djMeds:scDJMeds,djRefine:scDJRefine,djProducts:scDJPos,djDone:scDJDone}[scr])();chrome(scr);}},
     restart:function(){this.start();},
     persona:function(p){st.persona=p;st.intent=null;st.refineKey=null;st.seconds=[];
       if(p==='cust'){st.safetyFlags=st.safetyFlags||[];go('safety',scSafety);}else if(p==='emp'){go('emp',scEmp);}else{this.close();}},
@@ -7481,7 +7515,9 @@ document.addEventListener('keydown', function(e) {
     safetyNext:function(){go('intent',scIntent);},
     experience:function(v){st.experience=v;if(v==='new'&&!st.ceiling)st.ceiling='low';go('thc',scThc);},
     timeOfDay:function(v){st.timeOfDay=v;go('onset',scOnset);},
-    onset:function(v){st.onset=v;go('second',scSecond);},
+    onset:function(v){st.onset=v;go('route',scRoute);},
+    route:function(v){st.route=v;go('second',scSecond);},
+    djSetRoute:function(v){st.route=v;scDJRefine();},
     intent:function(k){st.intent=k;st.refineKey=null;st.seconds=[];
       if(REASONS[k].learn){this.close();try{if(typeof showWelcome==='function')showWelcome();}catch(e){}return;}
       go('refine',scRefine);},
