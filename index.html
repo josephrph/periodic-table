@@ -632,6 +632,7 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
           <button class="di-mode-btn di-mode-active" data-mode="single" onclick="switchDiMode('single')">Single Medication</button>
           <button class="di-mode-btn" data-mode="list" onclick="switchDiMode('list')">My Medication List</button>
         </div>
+        <button onclick="printDrugReport()" title="Print this interaction report" aria-label="Print this interaction report" style="padding:8px 16px;background:var(--surface);border:2px solid var(--border);border-radius:20px;color:var(--text);font-size:.7rem;font-weight:800;letter-spacing:.04em;cursor:pointer;white-space:nowrap;transition:background-color .15s,border-color .15s,color .15s" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text)'">🖨&nbsp; Print</button>
         <button onclick="toggleDrugPanel()" style="padding:8px 18px;background:var(--surface);border:2px solid var(--border);border-radius:20px;color:var(--text);font-size:.7rem;font-weight:800;letter-spacing:.04em;cursor:pointer;white-space:nowrap;transition:background-color .15s,border-color .15s,color .15s,box-shadow .15s" onmouseover="this.style.borderColor='#CC2200';this.style.color='#CC2200'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text)'">✕&nbsp; Close Panel</button>
       </div>
     </div>
@@ -5285,6 +5286,53 @@ var _activeDrugId = null;
 var _diMolSev = {};        // mol ID → worst severity for current drug search
 var _diMatchedDrug = '';   // human-readable drug name for the current search
 
+// ===== PRINT / PDF: clean, branded results summary (UX-06). No libraries; native window.print(). =====
+// Reuses the header's embedded logo (base64) so nothing is duplicated. Forces a light, ink-friendly layout
+// via #printRoot + an @media print isolation rule, regardless of the app's active theme.
+function PT_logoSrc(){var i=document.querySelector('.hdr-brand img');return (i&&i.src)?i.src:'';}
+function PT_shell(titleText, ctxLine, bodyHtml, opts){
+  opts=opts||{};
+  var logo=PT_logoSrc();
+  var now=new Date();
+  var when=now.toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric'})+' · '+now.toLocaleTimeString(undefined,{hour:'2-digit',minute:'2-digit'});
+  var head='<div class="pt-print-hd">'+(logo?'<img src="'+logo+'" alt="Acannability">':'')+
+    '<div><div class="pt-print-brand">PhytoTable&trade;</div>'+
+    '<div class="pt-print-desc">Acannability Periodic Table of Cannabis Plant Molecules</div>'+
+    '<div class="pt-print-meta">Generated '+when+'</div></div></div>';
+  var title='<div class="pt-print-title">'+titleText+'</div>'+(ctxLine?'<div class="pt-print-ctx">'+ctxLine+'</div>':'');
+  var phi=opts.phi?'<div class="pt-print-phi">This summary was generated on your device and now exists on paper — it may contain your personal medication information, so please handle and store it privately.</div>':'';
+  var foot='<div class="pt-print-foot"><strong>Educational use only — not medical advice.</strong> This summary is generated from published research for educational and informational purposes. It is not a diagnosis, a treatment recommendation, or a claim of efficacy or safety for any individual. Evidence grades (A–D) reflect the quality of published research, not clinical approval. Always consult a licensed healthcare professional before making any health decision.'+
+    phi+
+    '<div style="margin-top:6px">PhytoTable&trade; · Acannability&trade; · josephrph.github.io/periodic-table</div></div>';
+  return head+title+bodyHtml+foot;
+}
+function PT_doPrint(titleText, ctxLine, bodyHtml, opts){
+  var root=document.getElementById('printRoot'); if(!root) return;
+  root.innerHTML=PT_shell(titleText, ctxLine, bodyHtml, opts);
+  var cleanup=function(){root.innerHTML='';window.removeEventListener('afterprint',cleanup);};
+  window.addEventListener('afterprint',cleanup);
+  window.print();
+}
+// Drug-interaction report — captures whichever results view is active (single-medication search or the
+// "My Medication List" drug–drug + cannabis report). Reuses the already-rendered .di-card markup.
+function printDrugReport(){
+  var mode=(typeof _diMode!=='undefined')?_diMode:'single';
+  var container=document.getElementById(mode==='list'?'medListResults':'diResults');
+  var html=container?container.innerHTML:'';
+  var title, ctx;
+  if(mode==='list'){
+    title='Medication Interaction Report';
+    var n=(typeof _medList!=='undefined'&&_medList)?_medList.length:0;
+    ctx='Drug–drug and cannabis–drug interactions for '+n+' medication'+(n===1?'':'s')+' in your list.';
+  } else {
+    title='Cannabis Drug-Interaction Report';
+    ctx=(typeof _diMatchedDrug!=='undefined'&&_diMatchedDrug)?('Medication searched: '+_diMatchedDrug):'Cannabis interaction check.';
+  }
+  var body=(html && /di-card/.test(html))
+    ? '<div class="pt-print-sec">'+html+'</div>'
+    : '<div class="pt-print-sec"><p>No interaction results to display yet. Search a medication (or add your medication list and run “Check All Interactions”), then print.</p></div>';
+  PT_doPrint(title, ctx, body, {phi:true});
+}
 function toggleDrugPanel() {
   _diOpen = !_diOpen;
   var panel = document.getElementById('diPanel');
@@ -7285,6 +7333,7 @@ document.addEventListener('keydown', function(e) {
       detailToggle+clin+thcNote+secNote+prefRecap+prefGuide+medSummary+
       '<p class="gx-hint" style="margin-top:12px">In the PhytoTable, use <b>⚙ Refine Inventory Match</b> (in the Recommended Molecules panel) to remove any molecules — or whole categories — your dispensary doesn’t carry. The recommendation updates instantly.</p>'+
       '<button class="gx-cta" onclick="V4GX.seeScience()">🔬 Explore these in the PhytoTable →</button>'+
+      '<button class="gx-cta ghost" onclick="V4GX.printRec()">🖨 Print this summary</button>'+
       '<button class="gx-cta ghost" onclick="V4GX.restart()">Start over</button>');}
   function scProducts(){var rec=activeRec();var res=G().match(rec);var top=res.shown.slice(0,6);
     var recIds=rec.molecules.map(function(m){return m.molId;});var html='';
@@ -7608,6 +7657,37 @@ document.addEventListener('keydown', function(e) {
     close:function(){el('gxOverlay').style.display='none';},
     back:function(){if(hist.length>1){hist.pop();var scr=hist[hist.length-1];({persona:scPersona,safety:scSafety,intent:scIntent,refine:scRefine,experience:scExperience,thc:scThc,timeofday:scTimeOfDay,onset:scOnset,route:scRoute,second:scSecond,meds:scMeds,rec:scRec,products:scProducts,handoff:scHandoff,insights:scInsights,emp:scEmp,import:scImport,importResult:scImportResult,browse:scBrowse,demoHub:scDemoHub,demoGuidedIntro:scDemoGuidedIntro,djConds:scDJConds,djMol:scDJMol,djMeds:scDJMeds,djRefine:scDJRefine,djProducts:scDJPos,djDone:scDJDone}[scr])();chrome(scr);}},
     restart:function(){this.start();},
+    // UX-06 print: clean, branded summary of the standard Guided Match recommendation.
+    printRec:function(){
+      var condIds=currentCondIds();var SCI={'appetite-stim':'appetite','nausea-relief':'nausea'};var dc=SCI[condIds[0]]||condIds[0];
+      var cond=(typeof CONDITIONS!=='undefined')?CONDITIONS.find(function(c){return c.id===dc;}):null;
+      var condLabel=cond?cond.label:'your selection';
+      function molNm(id){return G().names[id]||((typeof M!=='undefined'&&M[id])?(M[id].fullName||M[id].symbol):id);}
+      var mols=cond?Object.keys(cond.molecules).filter(function(id){return typeof M!=='undefined'&&M[id];}).map(function(id){return {id:id,w:cond.molecules[id]};}).sort(function(a,b){return b.w-a.w;}):[];
+      var primary=mols.filter(function(m){return m.w>=8;}),supporting=mols.filter(function(m){return m.w<8;});
+      if(!primary.length){primary=mols.slice(0,Math.min(4,mols.length));supporting=mols.slice(primary.length);}
+      function chips(arr){return arr.length?arr.map(function(m){return '<span class="pt-print-chip">'+molNm(m.id)+' <b>'+m.w+'</b></span>';}).join(''):'<span class="pt-print-chip">—</span>';}
+      var body='<div class="pt-print-sec"><h3>Recommended molecules — '+esc(condLabel)+'</h3>'+
+        '<div style="font-size:.72rem;font-weight:700;margin-bottom:5px">Primary</div><div>'+chips(primary)+'</div>'+
+        (supporting.length?'<div style="font-size:.72rem;font-weight:700;margin:8px 0 5px">Supporting</div><div>'+chips(supporting)+'</div>':'')+
+        '<div style="font-size:.66rem;color:#555 !important;margin-top:6px">Number = strength of evidence for this condition (per the PhytoTable evidence base).</div></div>';
+      var prefBits=[];
+      var ceilMap={none:'Non-intoxicating (avoid THC)',low:'A little THC is okay',any:'THC is fine'};
+      if(st.ceiling&&ceilMap[st.ceiling])prefBits.push('THC preference — '+ceilMap[st.ceiling]);
+      if(st.experience)prefBits.push('Experience — '+({'new':'New to cannabis',some:'Some experience',exp:'Experienced'}[st.experience]||st.experience));
+      if(st.timeOfDay)prefBits.push('Time of day — '+({day:'Daytime',evening:'Evening',any:'Anytime'}[st.timeOfDay]||st.timeOfDay));
+      if(st.onset)prefBits.push('Onset/duration — '+({fast:'Fast & shorter',balanced:'Balanced',lasting:'Long-lasting'}[st.onset]||st.onset));
+      if(st.route&&st.route!=='any'&&typeof ROUTE_META!=='undefined'&&ROUTE_META[st.route])prefBits.push('Route — '+ROUTE_META[st.route].label);
+      if(prefBits.length)body+='<div class="pt-print-sec"><h3>Your preferences</h3><ul style="margin:0;padding-left:18px;font-size:.8rem;line-height:1.6">'+prefBits.map(function(p){return '<li>'+esc(p)+'</li>';}).join('')+'</ul></div>';
+      if((st.meds||[]).length){var mIds=st.meds.map(function(m){return m.id;});
+        var ddiN=((typeof findDdiInteractions==='function')?findDdiInteractions(mIds):[]).length;
+        var byM=(typeof buildCannabisHitsByMol==='function')?buildCannabisHitsByMol(mIds):{};
+        var recSet=stdRecMolIds();var recHitN=Object.keys(byM).filter(function(m){return recSet.indexOf(m)>=0;}).length;
+        body+='<div class="pt-print-sec"><h3>Medication check</h3><div style="font-size:.8rem;line-height:1.6">'+st.meds.length+' medication'+(st.meds.length>1?'s':'')+' reviewed: '+
+          (ddiN?ddiN+' drug–drug interaction'+(ddiN>1?'s':''):'no drug–drug interactions')+', '+
+          (recHitN?recHitN+' with a recommended molecule'+(recHitN>1?'s':''):'none with recommended molecules')+'. Please review with your Product Specialist (Budtender) or provider before use.</div></div>';}
+      if(typeof PT_doPrint==='function')PT_doPrint('Guided Match — Recommendation Summary','Prepared for: '+esc(condLabel),body,{phi:(st.meds||[]).length>0});
+    },
     persona:function(p){st.persona=p;st.intent=null;st.refineKey=null;st.seconds=[];
       if(p==='cust'){st.safetyFlags=st.safetyFlags||[];go('safety',scSafety);}else if(p==='emp'){go('emp',scEmp);}else{this.close();}},
     runGuide:function(){st.persona='cust';st.safetyFlags=st.safetyFlags||[];go('safety',scSafety);},
@@ -7838,4 +7918,34 @@ function djToast(msg){try{var t=document.getElementById('djToastEl');if(!t){t=do
     </div>
   </div>
 </div>
+<!-- ===== PRINT / PDF (UX-06 · results summaries) — native window.print(), no libs ===== -->
+<style id="ptPrintStyles">
+#printRoot{display:none}
+@media print{
+  body > *:not(#printRoot){display:none !important}
+  #printRoot{display:block !important}
+  @page{margin:14mm}
+  html,body{background:#fff !important}
+}
+#printRoot,#printRoot *{color:#111 !important;box-sizing:border-box}
+#printRoot{font-family:Georgia,'Times New Roman',serif;background:#fff;max-width:720px;margin:0 auto;padding:8px;line-height:1.5}
+#printRoot .pt-print-hd{display:flex;align-items:center;gap:14px;border-bottom:2px solid #6B1E2E;padding-bottom:10px;margin-bottom:14px}
+#printRoot .pt-print-hd img{height:46px;width:auto}
+#printRoot .pt-print-brand{font-size:1.35rem;font-weight:700;letter-spacing:.02em}
+#printRoot .pt-print-desc{font-size:.72rem;color:#555 !important;letter-spacing:.03em}
+#printRoot .pt-print-meta{font-size:.66rem;color:#555 !important;margin-top:2px}
+#printRoot .pt-print-title{font-size:1.05rem;font-weight:700;margin:2px 0 6px}
+#printRoot .pt-print-ctx{font-size:.82rem;color:#333 !important;margin-bottom:12px;font-style:italic}
+#printRoot .pt-print-sec{margin:0 0 14px;break-inside:avoid;page-break-inside:avoid}
+#printRoot .pt-print-sec h3{font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid #ccc;padding-bottom:3px;margin:0 0 7px}
+#printRoot .pt-print-chip{display:inline-block;border:1px solid #999;border-radius:4px;padding:2px 8px;margin:0 4px 5px 0;font-size:.8rem}
+#printRoot .pt-print-foot{margin-top:18px;border-top:1px solid #ccc;padding-top:8px;font-size:.64rem;color:#555 !important;line-height:1.55}
+#printRoot .pt-print-phi{margin-top:6px;font-size:.64rem;color:#6B1E2E !important;font-weight:700}
+#printRoot .di-card{background:#fff !important;border:1px solid #bbb !important;border-left-width:4px !important;padding:8px 10px;margin-bottom:7px;border-radius:4px;break-inside:avoid;page-break-inside:avoid}
+#printRoot .di-card.major{border-left-color:#CC2200 !important}
+#printRoot .di-card.moderate{border-left-color:#E07000 !important}
+#printRoot .di-card.minor{border-left-color:#C8A800 !important}
+#printRoot button,#printRoot .di-btn{display:none !important}
+</style>
+<div id="printRoot" aria-hidden="true"></div>
 </body></html>
