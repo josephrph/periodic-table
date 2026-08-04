@@ -6990,7 +6990,7 @@ document.addEventListener('keydown', function(e) {
   function restoreDemo(){_setINV(DEMO_INV);invImported=false;try{localStorage.removeItem(INV_KEY);}catch(e){}}
   function loadPersisted(){try{var s=localStorage.getItem(INV_KEY);if(s){var a=JSON.parse(s);
     if(Array.isArray(a)&&a.length){_setINV(a);invImported=true;return true;}}}catch(e){}return false;}
-  var ROUTES={flower:'🌿',vape:'💨',concentrate:'🍯',tincture:'💧',capsule:'💊',edible:'🍬',beverage:'🥤',topical:'🧴'};
+  var ROUTES={flower:'🌿',vape:'💨',concentrate:'🍯',tincture:'💧',capsule:'💊',tablet:'💊',edible:'🍬',beverage:'🥤',topical:'🧴'};
   function _iconFor(type,effects){var e=(effects||'').toLowerCase();
     if(/sleep|sedat|night|\brest\b/.test(e))return '🌙';
     if(/energy|focus|uplift|mood-?lift|daytime/.test(e))return '☀️';
@@ -7090,11 +7090,11 @@ document.addEventListener('keydown', function(e) {
   var ROUTE_META={
     any:{ic:'🌀',label:'Any route',forms:'all formats'},
     inhalation:{ic:'💨',label:'Inhalation',forms:'flower, vape, concentrate'},
-    oral:{ic:'💊',label:'Oral',forms:'edible, capsule, beverage'},
+    oral:{ic:'💊',label:'Oral',forms:'edible, capsule, tablet, beverage'},
     sublingual:{ic:'💧',label:'Sublingual',forms:'tinctures / drops'},
     topical:{ic:'🧴',label:'Topical',forms:'balm, cream, lotion'},
     transdermal:{ic:'🩹',label:'Transdermal patch',forms:'patch'}};
-  var ROUTE_MAP={any:[],inhalation:['flower','vape','concentrate'],oral:['edible','capsule','beverage'],sublingual:['tincture'],topical:['topical'],transdermal:['patch','transdermal']};
+  var ROUTE_MAP={any:[],inhalation:['flower','vape','concentrate'],oral:['edible','capsule','tablet','beverage'],sublingual:['tincture'],topical:['topical'],transdermal:['patch','transdermal']};
   var st={}, hist=[];
   var lastImport=null, browseSort={key:'name',dir:1}, browseQ='';  // INV-02 import/browse state
   function G(){return window.V4Guided;}
@@ -7164,12 +7164,12 @@ document.addEventListener('keydown', function(e) {
     stage('<h2 class="gx-q">How do you want it to work?</h2><p class="gx-hint">Onset is how fast you feel it; duration is how long it lasts.</p>'+
     optBtn("V4GX.onset('fast')",'⚡','Fast &amp; shorter','Relief in minutes (inhaled / sublingual)',o==='fast',true)+
     optBtn("V4GX.onset('balanced')",'⚖️','A balance','Moderate onset &amp; duration',o==='balanced',true)+
-    optBtn("V4GX.onset('lasting')",'⏳','Slow &amp; long-lasting','Hours of relief (edible / capsule / patch)',o==='lasting',true));}
+    optBtn("V4GX.onset('lasting')",'⏳','Slow &amp; long-lasting','Hours of relief (edible / capsule / tablet / patch)',o==='lasting',true));}
   function scRoute(){var r=st.route||'any';
     stage('<h2 class="gx-q">Any preferred way to take it?</h2><p class="gx-hint">This helps match the right product formats. Pick one — or keep all options open.</p>'+
     optBtn("V4GX.route('any')",'🌀','Any route','Show me everything',r==='any',true)+
     optBtn("V4GX.route('inhalation')",'💨','Inhalation','Flower, vape, concentrate',r==='inhalation',true)+
-    optBtn("V4GX.route('oral')",'💊','Oral','Edible, capsule, beverage',r==='oral',true)+
+    optBtn("V4GX.route('oral')",'💊','Oral','Edible, capsule, tablet, beverage',r==='oral',true)+
     optBtn("V4GX.route('sublingual')",'💧','Sublingual','Tincture / drops under the tongue',r==='sublingual',true)+
     optBtn("V4GX.route('topical')",'🧴','Topical','Balm, cream, lotion',r==='topical',true)+
     optBtn("V4GX.route('transdermal')",'🩹','Transdermal patch','Steady release through the skin',r==='transdermal',true));}
@@ -7264,7 +7264,7 @@ document.addEventListener('keydown', function(e) {
     var guide=[];
     if(st.experience==='new')guide.push('Start low and go slow — a small amount, then wait before more. Your options are leaned gentler.');
     if(st.timeOfDay==='day')guide.push('For daytime, favor clear-headed, lower-sedation options (limonene / pinene-forward, lower CBN).');else if(st.timeOfDay==='evening')guide.push('For evening, CBN- and myrcene-forward options support winding down.');
-    if(st.onset==='fast')guide.push('For fast, shorter relief, inhalation or sublingual (tincture) formats act quickest.');else if(st.onset==='balanced')guide.push('For a balance of onset and duration, tinctures or low-dose edibles work well.');else if(st.onset==='lasting')guide.push('For longer-lasting relief, edibles, capsules, or transdermal patches last longest (slower onset).');
+    if(st.onset==='fast')guide.push('For fast, shorter relief, inhalation or sublingual (tincture) formats act quickest.');else if(st.onset==='balanced')guide.push('For a balance of onset and duration, tinctures or low-dose edibles work well.');else if(st.onset==='lasting')guide.push('For longer-lasting relief, edibles, capsules, tablets, or transdermal patches last longest (slower onset).');
     if(st.route&&st.route!=='any'&&ROUTE_META[st.route])guide.push('You preferred '+ROUTE_META[st.route].label.toLowerCase()+' ('+ROUTE_META[st.route].forms+'); the dispensary inventory match prioritizes these formats.');
     // ONB-13: compact medication-interaction summary on the recommendation (only if meds were added).
     var medSummary='';
@@ -7369,7 +7369,7 @@ document.addEventListener('keydown', function(e) {
       '<p class="gx-hint">Upload a product CSV from your POS or the fill-in template. It stays on this device — nothing is uploaded.</p>'+
       '<div class="gx-import">'+
         '<label class="gx-file"><input type="file" accept=".csv,text/csv" onchange="V4GX.onFile(this)"><span>📄 Choose CSV file…</span></label>'+
-        '<div class="gx-import-help">Required columns: <b>name</b>, <b>type</b> (flower, vape, tincture, capsule, edible, beverage, topical). Optional: thc, cbd, cannabinoids, terpenes, price, quantity, in_stock, effects.</div>'+
+        '<div class="gx-import-help">Required columns: <b>name</b>, <b>type</b> (flower, vape, tincture, capsule, tablet, edible, beverage, topical). Optional: thc, cbd, cannabinoids, terpenes, price, quantity, in_stock, effects.</div>'+
       '</div>'+
       '<div id="gxImportMsg"></div>'+
       (imp?'<button class="gx-cta ghost" onclick="V4GX.restoreDemoInv()">↩ Restore sample catalogue</button>':'')+
