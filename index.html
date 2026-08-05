@@ -7749,8 +7749,39 @@ document.addEventListener('keydown', function(e) {
         '<button class="dj-select" onclick="V4GX.djSelect(\''+esc(p.sku)+'\')">Select this product →</button></div>'+
         '<div class="gx-fit"><div class="pct">'+p.fit+'%</div><div class="lbl">fit</div></div></div>';}).join('')+
       '<div class="gx-filtered">'+res.excluded.length+' others filtered out (out of stock, or off-profile).</div>';}
-    stage(djStepBar(4)+'<h2 class="gx-q">Best matches in stock</h2><div class="gx-posline"><span class="dot"></span>Connected · Demo-POS · live stock</div>'+html+
+    stage(djStepBar(4)+'<h2 class="gx-q">Best matches in stock</h2><div class="gx-posline"><span class="dot"></span>Connected · Demo-POS · live stock</div>'+
+      '<div class="gx-cap" style="margin:-2px 0 10px">Live POS integration (simulated). On a licensed dispensary, V2 connects to your POS / seed-to-sale system to rank in-stock products in real time (INV-05).</div>'+html+
       '<button class="gx-cta ghost" onclick="V4GX.djBack()">← Refine again</button>');
+  }
+  // INV-06 demo: a sample Certificate of Analysis for the selected product. Shows what a live
+  // POS/lab integration would surface; clearly labeled SAMPLE (demonstration data only).
+  function _coaList(str){if(!str)return [];return String(str).split(';').map(function(x){var i=x.indexOf(':');return i<0?{n:x.trim(),v:''}:{n:x.slice(0,i).trim(),v:x.slice(i+1).trim()};}).filter(function(o){return o.n;});}
+  function coaCard(p){
+    var prof=p.profile||(G().buildProfile?G().buildProfile(p):{})||{};var terpSet=G().terps||{};
+    var cannNames=[],terpNames=[];
+    Object.keys(prof).forEach(function(id){var nm=G().names[id]||id;if(terpSet[id])terpNames.push(nm);else cannNames.push(nm);});
+    var cE=_coaList(p.cann),tE=_coaList(p.terp);
+    function fmt(o){return o.n+(o.v?' '+o.v+(/%$/.test(o.v)?'':'%'):'');}
+    var canns=cE.length?cE.map(fmt):cannNames;
+    var terps=tE.length?tE.map(fmt):terpNames;
+    var batch='ACB-'+String(p.sku||'000000').replace(/[^A-Za-z0-9]/g,'').slice(-6).toUpperCase();
+    var d=new Date(Date.now()-12*864e5),tested=d.toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'});
+    function chips(list,fb){return list.length?list.map(function(n){return '<span class="dj-mol">'+esc(n)+'</span>';}).join(''):'<span class="dj-mol" style="opacity:.6">'+fb+'</span>';}
+    var potency='';
+    if((p.thc||0)>0||(p.cbd||0)>0){potency='<div style="display:flex;gap:22px;margin-bottom:10px">'+
+      ((p.thc||0)>0?'<div><div style="font-size:.62rem;color:var(--dim);text-transform:uppercase;letter-spacing:.06em">THC</div><div style="font-weight:800;font-size:1.05rem;color:var(--accent)">'+p.thc+'%</div></div>':'')+
+      ((p.cbd||0)>0?'<div><div style="font-size:.62rem;color:var(--dim);text-transform:uppercase;letter-spacing:.06em">CBD</div><div style="font-weight:800;font-size:1.05rem;color:var(--accent)">'+p.cbd+'%</div></div>':'')+'</div>';}
+    return '<details style="margin-top:12px;border:1px solid var(--border);border-radius:10px;overflow:hidden">'+
+      '<summary style="cursor:pointer;padding:10px 14px;font-weight:700;font-size:.82rem;background:var(--surface2,#EDE8DC)">🧪 View lab report (sample COA)</summary>'+
+      '<div style="padding:12px 14px">'+
+        '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><b style="font-size:.9rem">Certificate of Analysis</b><span class="gx-sample-badge">SAMPLE</span></div>'+
+        '<div style="font-size:.7rem;color:var(--dim);margin:2px 0 10px">Batch '+esc(batch)+' · Tested '+tested+' · '+esc(p.name)+'</div>'+
+        potency+
+        '<div style="font-size:.66rem;color:var(--dim);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Cannabinoid profile</div><div class="mols" style="margin-bottom:8px">'+chips(canns,'See product label')+'</div>'+
+        '<div style="font-size:.66rem;color:var(--dim);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Terpene profile</div><div class="mols" style="margin-bottom:8px">'+chips(terps,'See product label')+'</div>'+
+        '<div style="font-size:.74rem;color:#2E7D32;font-weight:700;margin:8px 0 4px">✓ Passed — Pesticides · Microbials · Heavy Metals · Residual Solvents · Mycotoxins</div>'+
+        '<div class="gx-cap" style="padding:0">Sample lab report for demonstration — cannabinoid/terpene profile reflects the product’s chemotype. On a live POS / lab integration this shows the product’s actual COA with measured concentrations (INV-06).</div>'+
+      '</div></details>';
   }
   function scDJDone(){var p=st.djProduct||G().match(djActiveRec()).shown[0];if(!p){scDJProducts();return;}
     stage(djStepBar(5)+'<h2 class="gx-q">Product selected</h2>'+
@@ -7758,6 +7789,7 @@ document.addEventListener('keydown', function(e) {
         '<div class="meta">'+cap(p.type)+' · $'+p.price+' · '+p.fit+'% fit</div></div></div>'+
         '<div class="gx-checks"><span>✓ Clinical fit</span><span>✓ Meds screened</span><span>✓ In stock ('+p.count+')</span></div>'+
         '<div class="gx-sent"><span class="dot"></span>Sent to POS terminal · added to cart <em>(demonstration)</em></div></div>'+
+      coaCard(p)+
       '<div class="dj-recap">The full V2 journey: health concern → clinical recommendation → medication safety → refined match → in-stock product, all connected to the dispensary POS.</div>'+
       '<button class="gx-cta" onclick="V4GX.djRun()">↻ Run Another Research Demonstration</button>'+
       '<button class="gx-cta ghost" onclick="V4GX.demoHub()">≡ Back to demo menu</button>'+
