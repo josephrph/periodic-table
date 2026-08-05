@@ -7497,6 +7497,31 @@ document.addEventListener('keydown', function(e) {
       '<div class="gx-gap"><span class="gx-refine-h">Inventory optimization — supply depth by molecule</span>'+gap+
       '<div class="gx-cap">'+instock+' SKUs in stock. Molecules in <b style="color:#B23A3A">red</b> are thin — demand the guided flow surfaces but the shelf can\'t meet. That\'s the buying signal V2 hands dispensary owners.</div></div>'+
       '<button class="gx-cta ghost" onclick="V4GX.back()">← Back</button>');}
+  // FEED-05 demo — simulated aggregate of the anonymous, opt-in demographic data V2 collects.
+  // Illustrative figures only (no PII, nothing real); also shows any opt-in responses captured on
+  // THIS device this session so the end-to-end flow is visible in a booth. Demo Mode only.
+  function scResearchInsights(){
+    function bars(rows){var mx=0;rows.forEach(function(r){if(r.v>mx)mx=r.v;});
+      return rows.map(function(r){var w=mx?Math.round(r.v/mx*100):0;
+        return '<div class="gx-gap-row"><span class="lbl">'+r.l+'</span><span class="bar"><i style="width:'+w+'%"></i></span><span class="n">'+r.p+'</span></div>';}).join('');}
+    var age=[{l:'21–29',v:22,p:'22%'},{l:'30–39',v:27,p:'27%'},{l:'40–49',v:19,p:'19%'},{l:'50–59',v:15,p:'15%'},{l:'60–69',v:11,p:'11%'},{l:'70+',v:6,p:'6%'}];
+    var sex=[{l:'Female',v:54,p:'54%'},{l:'Male',v:43,p:'43%'},{l:'Intersex / Other',v:1,p:'1%'},{l:'Prefer not to say',v:2,p:'2%'}];
+    var geo=[{l:'Illinois',v:71,p:'71%'},{l:'Indiana',v:9,p:'9%'},{l:'Wisconsin',v:7,p:'7%'},{l:'Missouri',v:5,p:'5%'},{l:'Other',v:8,p:'8%'}];
+    var localN=(window.ResearchData&&ResearchData.count)?ResearchData.count():0;
+    stage('<h2 class="gx-q">Research insights — anonymous demographics</h2>'+
+      '<div class="dj-intro-badge" style="margin-bottom:8px">Simulated demonstration data</div>'+
+      '<p class="gx-hint">How V2 summarizes the <b>anonymous, opt-in</b> details patients choose to share (age group, sex, city/state). <b>No personal or health information</b> is ever collected. Figures below are illustrative; live data appears once Acannability’s research backend is connected.</p>'+
+      '<div class="gx-stats">'+
+        '<div class="gx-stat"><div class="v">1,284</div><div class="k">Anonymous responses</div></div>'+
+        '<div class="gx-stat"><div class="v">61%</div><div class="k">Opt-in rate</div></div>'+
+        '<div class="gx-stat"><div class="v">10</div><div class="k">Kiosk locations</div></div>'+
+        '<div class="gx-stat"><div class="v">0</div><div class="k">PII fields collected</div></div>'+
+      '</div>'+
+      '<div class="gx-gap"><span class="gx-refine-h">Age group</span>'+bars(age)+'</div>'+
+      '<div class="gx-gap"><span class="gx-refine-h">Sex</span>'+bars(sex)+'</div>'+
+      '<div class="gx-gap"><span class="gx-refine-h">Top locations (state)</span>'+bars(geo)+
+      '<div class="gx-cap">Captured on <b>this device</b> this session: <b>'+localN+'</b> opt-in response'+(localN===1?'':'s')+'. In production these flow anonymously to Acannability’s research database — opt-in only, no PII, and withdrawable.</div></div>'+
+      '<button class="gx-cta ghost" onclick="V4GX.back()">← Back</button>');}
   function scEmp(){var imp=G().isImported&&G().isImported();
     stage('<h2 class="gx-q">Product Specialist (Budtender) console</h2>'+
     '<div class="gx-placard"><b>Demo scope.</b> In the full build this is a hub: Help a customer, Look up, Drug interactions, and Match inventory — with live stock counts.</div>'+
@@ -7611,6 +7636,7 @@ document.addEventListener('keydown', function(e) {
       '<button class="gx-cta ghost" onclick="V4GX.demoGuided()">🧭 Show the standard Guided Match</button>'+
       '<div class="gx-hint" style="margin:-4px 0 6px;font-size:.8rem;opacity:.82">The real patient-facing finder — concludes at the Periodic Table, not this demo’s sample products.</div>'+
       '<button class="gx-cta ghost" onclick="V4GX.browse()">📦 Browse the demo inventory</button>'+
+      '<button class="gx-cta ghost" onclick="V4GX.researchInsights()">📊 Research insights (booth)</button>'+
       '<button class="gx-cta ghost" onclick="window.V4DEMO.exit()">Exit Demo Mode</button></div>');
   }
   // Interstitial shown when the demo hub launches the STANDARD guided flow — signposts that this is the
@@ -7759,7 +7785,7 @@ document.addEventListener('keydown', function(e) {
     djSelect:function(sku){var p=G().match(djActiveRec()).shown.filter(function(x){return x.sku===sku;})[0];st.djProduct=p||null;go('djDone',scDJDone);},
     djBack:function(){this.back();},
     close:function(){el('gxOverlay').style.display='none';},
-    back:function(){if(hist.length>1){hist.pop();var scr=hist[hist.length-1];({persona:scPersona,safety:scSafety,intent:scIntent,refine:scRefine,experience:scExperience,thc:scThc,timeofday:scTimeOfDay,onset:scOnset,route:scRoute,second:scSecond,meds:scMeds,rec:scRec,products:scProducts,handoff:scHandoff,insights:scInsights,emp:scEmp,import:scImport,importResult:scImportResult,browse:scBrowse,demoHub:scDemoHub,demoGuidedIntro:scDemoGuidedIntro,djConds:scDJConds,djMol:scDJMol,djMeds:scDJMeds,djRefine:scDJRefine,djProducts:scDJPos,djDone:scDJDone}[scr])();chrome(scr);}},
+    back:function(){if(hist.length>1){hist.pop();var scr=hist[hist.length-1];({persona:scPersona,safety:scSafety,intent:scIntent,refine:scRefine,experience:scExperience,thc:scThc,timeofday:scTimeOfDay,onset:scOnset,route:scRoute,second:scSecond,meds:scMeds,rec:scRec,products:scProducts,handoff:scHandoff,insights:scInsights,researchInsights:scResearchInsights,emp:scEmp,import:scImport,importResult:scImportResult,browse:scBrowse,demoHub:scDemoHub,demoGuidedIntro:scDemoGuidedIntro,djConds:scDJConds,djMol:scDJMol,djMeds:scDJMeds,djRefine:scDJRefine,djProducts:scDJPos,djDone:scDJDone}[scr])();chrome(scr);}},
     restart:function(){this.start();},
     // UX-06 print: clean, branded summary of the standard Guided Match recommendation.
     printRec:function(){
@@ -7812,6 +7838,7 @@ document.addEventListener('keydown', function(e) {
     toProducts:function(){go('products',demoMode()?scPosQuery:scProducts);},
     handoff:function(){go('handoff',scHandoff);},
     insights:function(){go('insights',scInsights);},
+    researchInsights:function(){if(!demoMode())return;if(!hist.length)hist=['demoHub'];go('researchInsights',scResearchInsights);},
     importScreen:function(){lastImport=null;go('import',scImport);},
     onFile:function(input){var f=input&&input.files&&input.files[0];if(!f){return;}
       var rd=new FileReader();
