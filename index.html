@@ -775,7 +775,27 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
       </div>
       <div class="eg-section">
         <div class="eg-section-title">🔒 Privacy, Data Handling &amp; HIPAA</div>
-        <div class="eg-section-body">This platform runs entirely in your browser and has no backend server or database — it does not collect, store, or transmit Protected Health Information (PHI) as defined under HIPAA. Any medication list you enter in the Drug Interaction Checker exists only in your browser's temporary memory for the current session; it is never saved to a server, never transmitted over the internet, and is cleared when you end your session, close the tab, or refresh the page. If this platform is used on a shared or public device (for example, a dispensary kiosk), select <strong>"New Session"</strong> or <strong>"I'm Done"</strong> when finished so no information you entered remains visible to the next person. This platform is not itself a HIPAA-covered entity's medical record or communication system; organizations that are HIPAA-covered entities or business associates remain independently responsible for their own compliance obligations when using this tool in a patient-facing setting, and should consult their own legal or compliance counsel. <strong>One limited exception:</strong> the optional "Suggest an addition" feedback form. If you <em>voluntarily choose</em> to submit a suggestion, only the item you type (for example, the name of a medication or condition you feel is missing) is saved anonymously in this browser so our staff can review it and improve the platform. It is never linked to your identity — please do not enter your name or any personal health information in it.</div>
+        <div class="eg-section-body">This platform runs entirely in your browser and has no backend server or database — it does not collect, store, or transmit Protected Health Information (PHI) as defined under HIPAA. Any medication list you enter in the Drug Interaction Checker exists only in your browser's temporary memory for the current session; it is never saved to a server, never transmitted over the internet, and is cleared when you end your session, close the tab, or refresh the page. If this platform is used on a shared or public device (for example, a dispensary kiosk), select <strong>"New Session"</strong> or <strong>"I'm Done"</strong> when finished so no information you entered remains visible to the next person. This platform is not itself a HIPAA-covered entity's medical record or communication system; organizations that are HIPAA-covered entities or business associates remain independently responsible for their own compliance obligations when using this tool in a patient-facing setting, and should consult their own legal or compliance counsel. <strong>One limited exception:</strong> the optional "Suggest an addition" feedback form. If you <em>voluntarily choose</em> to submit a suggestion, only the item you type (for example, the name of a medication or condition you feel is missing) is saved anonymously in this browser so our staff can review it and improve the platform. It is never linked to your identity — please do not enter your name or any personal health information in it. <strong>Optional research contribution:</strong> if you opt in on the welcome screen, the anonymous, non-identifying details you provide (age group, sex, and city/state) are saved on this device and, where that feature is enabled, shared with Acannability’s research database to help improve this platform — never linked to your identity and never including personal or health information. Leave those fields blank to skip.</div>
+      </div>
+      <div class="eg-section" id="egResearch">
+        <div class="eg-section-title">📊 Contribute to Research <span style="font-weight:400;color:var(--dim);text-transform:none;letter-spacing:0">(optional)</span></div>
+        <div class="eg-section-body">
+          You may <strong>optionally</strong> share a few <strong>anonymous, non-identifying</strong> details to help Acannability improve this platform and understand how people explore cannabis research. <strong>No personal or health information is collected</strong>, responses are never linked to your identity, and you can skip this entirely — just leave it blank.
+          <div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:12px">
+            <label style="font-size:.72rem;color:var(--dim);display:flex;flex-direction:column;gap:3px">Age group
+              <select id="rdAge" style="font-size:.85rem;padding:6px 8px;border:1px solid var(--border);border-radius:6px;background:var(--surface,#fff)"><option value="">—</option><option value="21-29">21–29</option><option value="30-39">30–39</option><option value="40-49">40–49</option><option value="50-59">50–59</option><option value="60-69">60–69</option><option value="70+">70+</option></select></label>
+            <label style="font-size:.72rem;color:var(--dim);display:flex;flex-direction:column;gap:3px">Sex
+              <select id="rdSex" style="font-size:.85rem;padding:6px 8px;border:1px solid var(--border);border-radius:6px;background:var(--surface,#fff)"><option value="">—</option><option value="female">Female</option><option value="male">Male</option><option value="intersex">Intersex / Other</option><option value="na">Prefer not to say</option></select></label>
+            <label style="font-size:.72rem;color:var(--dim);display:flex;flex-direction:column;gap:3px">State
+              <select id="rdState" style="font-size:.85rem;padding:6px 8px;border:1px solid var(--border);border-radius:6px;background:var(--surface,#fff)"><option value="">—</option></select></label>
+            <label style="font-size:.72rem;color:var(--dim);display:flex;flex-direction:column;gap:3px">City <span style="opacity:.7">(optional)</span>
+              <input id="rdCity" type="text" maxlength="40" autocomplete="off" placeholder="City" style="font-size:.85rem;padding:6px 8px;border:1px solid var(--border);border-radius:6px;background:var(--surface,#fff)"></label>
+          </div>
+          <label style="display:flex;gap:8px;margin-top:12px;font-size:.8rem;align-items:flex-start;cursor:pointer">
+            <input type="checkbox" id="rdConsent" style="margin-top:3px;flex:none">
+            <span>Yes — include my anonymous responses to support cannabis research. (Optional; leave unchecked to skip. Never linked to your identity; never includes personal or health information.)</span>
+          </label>
+        </div>
       </div>
       <div class="eg-agree-box">
         <div class="eg-agree-title">By clicking "I Agree &amp; Enter" you confirm that:</div>
@@ -785,7 +805,7 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
           <li>You agree to use this platform for educational purposes only</li>
           <li>You understand this content is not medical advice and does not replace professional consultation</li>
           <li>You accept responsibility for compliance with all laws applicable in your jurisdiction</li>
-          <li>You understand this platform does not store or transmit the medication list or other health information you enter (other than anonymous product suggestions you voluntarily submit via the optional feedback form), and that shared-device users should end their session when finished</li>
+          <li>You understand this platform does not store or transmit the medication list or other health information you enter (other than anonymous product suggestions you voluntarily submit via the optional feedback form, and the optional anonymous research details you choose to provide above), and that shared-device users should end their session when finished</li>
         </ul>
       </div>
     </div>
@@ -1967,6 +1987,8 @@ body.is-mobile-view .panel-body{touch-action:pan-y}
     <button type="button" class="fb-foot-link" onclick="Feedback.fromContext('general','Footer','')">💬 Can't find what you're looking for? Suggest an addition or report a problem</button>
     <span style="color:var(--mute);margin:0 9px">·</span>
     <button type="button" class="fb-staff-link" onclick="Feedback.openLogin()" title="Acannability staff only">Staff review</button>
+    <span style="color:var(--mute);margin:0 9px">·</span>
+    <button type="button" class="fb-foot-link" onclick="try{ResearchData.openInfo()}catch(e){}">📊 Research data &amp; privacy</button>
   </div>
 </footer>
 
@@ -5656,6 +5678,7 @@ function resetToEntryGate() {
   try { hideEntourage(); } catch(e) {}
   // Clear the in-progress feedback DRAFT + sign staff out (stored suggestions are KEPT for review)
   try { if (window.Feedback) Feedback.clearDraft(); } catch(e) {}
+  try { if (window.ResearchData) ResearchData.resetGateFields(); } catch(e) {} // FEED-05: clear opt-in inputs for next kiosk user
   // Re-copy the logo in case it was cleared
   var hdrLogo = document.querySelector('.hdr-logo-img');
   var egLogo = document.getElementById('egLogoImg');
@@ -5682,6 +5705,7 @@ function resetToEntryGate() {
 // ── END INACTIVITY TIMER ───────────────────────────────────────────────────
 function acceptEntryGate() {
   sessionStorage.setItem('eg_accepted', '1');
+  try { if (window.ResearchData) ResearchData.captureFromGate(); } catch(e) {} // FEED-05: opt-in only
   document.getElementById('entryGate').style.display = 'none';
   showImDoneBtn(); // show the patient-facing end-session button
   // Clear any stale warning state before starting the idle timer
@@ -8481,6 +8505,77 @@ window.Feedback = (function(){
     // FEED-02 (dev/testing): manual flush + introspection. No-ops unless syncReady().
     flush:flush, _syncReady:syncReady, _locationId:locationId
   };
+})();
+
+/* ── FEED-05: Anonymous research / demographic data (opt-in). Mirrors the FEED-02
+   sync scaffold and is a COMPLETE NO-OP until the owner provisions Supabase and sets
+   RD_SYNC_ENABLED=true + fills SUPABASE_URL/SUPABASE_ANON (same values as the Feedback
+   FEED-02 constants). Anonymous only — no PII, no health info. Opt-in via the welcome
+   screen; leaving the fields blank (or the consent box unchecked) collects nothing. ── */
+window.ResearchData = (function(){
+  var KEY='acann_research_v1';
+  var RD_SYNC_ENABLED=false;              // MASTER FLAG — false = local only, zero network
+  var SUPABASE_URL='';                    // owner provides (same project as FEED-02)
+  var SUPABASE_ANON='';                   // public anon key — RLS limits to INSERT
+  var APP_VERSION='962bee0';              // build id sent with each row
+  var STATES=['AL','AK','AZ','AR','CA','CO','CT','DE','DC','FL','GA','HI','ID','IL','IN','IA','KS','KY','LA','ME','MD','MA','MI','MN','MS','MO','MT','NE','NV','NH','NJ','NM','NY','NC','ND','OH','OK','OR','PA','RI','SC','SD','TN','TX','UT','VT','VA','WA','WV','WI','WY'];
+  var _flushing=false;
+  function uid(){return 'rd_'+Date.now().toString(36)+Math.random().toString(36).slice(2,8);}
+  function val(id){var el=document.getElementById(id);return el?el.value:'';}
+  function locationId(){try{var m=(location.search||'').match(/[?&]loc=([^&]+)/);return m?decodeURIComponent(m[1]):'';}catch(e){return '';}}
+  function syncReady(){return !!(RD_SYNC_ENABLED&&SUPABASE_URL&&SUPABASE_ANON);}
+  function load(){try{var a=JSON.parse(localStorage.getItem(KEY)||'[]');return Array.isArray(a)?a:[];}catch(e){return [];}}
+  function save(a){try{localStorage.setItem(KEY,JSON.stringify(a.slice(-500)));}catch(e){}}
+  function count(){return load().length;}
+  function submit(p){
+    p=p||{};
+    var rec={id:uid(),ts:(new Date()).toISOString(),consent:true,
+      age_group:p.age||'',sex:p.sex||'',state:p.state||'',city:p.city||'',
+      location_id:locationId(),app_version:APP_VERSION,synced:false};
+    if(!(rec.age_group||rec.sex||rec.state||rec.city))return false; // nothing meaningful -> store nothing
+    var a=load();a.push(rec);save(a);
+    try{flush();}catch(e){}
+    return true;
+  }
+  function flush(){
+    if(!syncReady()||_flushing)return;
+    var a=load(),pending=a.filter(function(e){return e&&e.synced!==true;});
+    if(!pending.length)return;
+    _flushing=true;
+    var rows=pending.map(function(e){return {client_id:e.id,submitted_at:e.ts,age_group:e.age_group,sex:e.sex,state:e.state,city:e.city,location_id:e.location_id||locationId(),app_version:e.app_version||APP_VERSION};});
+    fetch(SUPABASE_URL.replace(/\/+$/,'')+'/rest/v1/research_profiles',{
+      method:'POST',
+      headers:{'apikey':SUPABASE_ANON,'Authorization':'Bearer '+SUPABASE_ANON,'Content-Type':'application/json','Prefer':'return=minimal'},
+      body:JSON.stringify(rows)
+    }).then(function(r){if(r&&r.ok){var all=load();all.forEach(function(e){if(pending.some(function(x){return x.id===e.id;}))e.synced=true;});save(all);}}).catch(function(){}).then(function(){_flushing=false;});
+  }
+  function captureFromGate(){
+    try{var c=document.getElementById('rdConsent');if(!c||!c.checked)return; // opt-out is the default
+      submit({age:val('rdAge'),sex:val('rdSex'),state:val('rdState'),city:(val('rdCity')||'').trim().slice(0,40)});
+    }catch(e){}
+  }
+  function resetGateFields(){['rdAge','rdSex','rdState','rdCity'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});var c=document.getElementById('rdConsent');if(c)c.checked=false;}
+  function populateStates(){var s=document.getElementById('rdState');if(!s||s._filled)return;STATES.forEach(function(st){var o=document.createElement('option');o.value=st;o.textContent=st;s.appendChild(o);});s._filled=true;}
+  function withdrawLocal(){try{localStorage.removeItem(KEY);}catch(e){}}
+  function openInfo(){
+    var wrap=document.getElementById('rdInfoOv');
+    if(!wrap){wrap=document.createElement('div');wrap.id='rdInfoOv';
+      wrap.setAttribute('style','position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:100000;padding:20px');
+      wrap.onclick=function(e){if(e.target===wrap)wrap.style.display='none';};document.body.appendChild(wrap);}
+    wrap.innerHTML='<div role="dialog" aria-modal="true" aria-label="Research data and privacy" style="background:var(--surface,#FDFAF4);max-width:520px;width:100%;border-radius:12px;padding:22px 24px;box-shadow:0 20px 60px rgba(0,0,0,.35)">'+
+      '<div style="font-family:Georgia,serif;font-size:1.2rem;color:var(--accent);font-weight:700;margin-bottom:8px">📊 Anonymous Research Data</div>'+
+      '<p style="font-size:.86rem;line-height:1.6;margin:0 0 10px">Acannability may collect <strong>anonymous, non-identifying</strong> information — age group, sex, and city/state — to understand how people explore cannabis research and improve this platform. <strong>No personal or health information is ever collected</strong>, and responses are never linked to your identity.</p>'+
+      '<p style="font-size:.86rem;line-height:1.6;margin:0 0 10px">Sharing is <strong>optional and opt-in</strong>: add your responses on the welcome screen at the start of a session, or leave those fields blank to collect nothing.</p>'+
+      '<p style="font-size:.78rem;color:var(--dim);margin:0 0 14px">Anonymous responses stored on this device: <strong>'+count()+'</strong>.</p>'+
+      '<div style="display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap">'+
+      '<button onclick="try{ResearchData.withdrawLocal()}catch(e){};document.getElementById(\'rdInfoOv\').style.display=\'none\'" style="background:none;border:1px solid var(--accent2,#B23A3A);color:var(--accent2,#B23A3A);border-radius:8px;padding:8px 14px;font-size:.8rem;cursor:pointer">Withdraw my responses from this device</button>'+
+      '<button onclick="document.getElementById(\'rdInfoOv\').style.display=\'none\'" style="background:var(--accent);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:.8rem;cursor:pointer">Close</button>'+
+      '</div></div>';
+    wrap.style.display='flex';
+  }
+  try{populateStates();}catch(e){}
+  try{if(syncReady()){window.addEventListener('online',flush);setTimeout(function(){try{flush();}catch(e){}},1600);}}catch(e){}
+  return {submit:submit,captureFromGate:captureFromGate,resetGateFields:resetGateFields,populateStates:populateStates,withdrawLocal:withdrawLocal,count:count,openInfo:openInfo,flush:flush,_syncReady:syncReady};
 })();
 </script>
 </body></html>
