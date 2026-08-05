@@ -663,7 +663,7 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
   <!-- MY MEDICATION LIST MODE -->
   <div id="diListSection" style="display:none">
     <div style="font-size:.72rem;color:var(--dim);line-height:1.65;margin-bottom:12px;padding:10px 14px;background:#F5F0E6;border:1px solid var(--accent);border-radius:7px">
-      Add all your medications below — prescription and OTC. V2 will screen for <strong>drug-drug interactions within your list</strong>, then evaluate <strong>cannabis interactions</strong> for each medication against the molecules recommended for your selected health condition.
+      Add all your medications below — prescription and OTC. V2 will screen for <strong>drug-drug interactions within your list</strong>, then evaluate <strong>cannabis interactions</strong> for each medication against the molecules the research associates with your selected health condition.
     </div>
     <!-- Add medication search -->
     <div style="position:relative;margin-bottom:4px">
@@ -7148,38 +7148,38 @@ document.addEventListener('keydown', function(e) {
 /* ===== V4 Guided Finder — UI controller (additive). Uses window.V4Guided + selectCondition ===== */
 (function(){
   var REASONS={
-    sleep:{ic:'😴',label:'Trouble sleeping',rq:"What's harder for you?",opts:[
+    sleep:{ic:'😴',label:'Sleep',rq:"What's harder for you?",opts:[
       {k:'fall',ic:'🛏️',label:'Falling asleep'},{k:'stay',ic:'⏰',label:'Staying asleep'},{k:'both',ic:'🌗',label:'Both'}]},
-    pain:{ic:'🌿',label:"I'm looking for pain relief",rq:'What kind of pain?',opts:[
+    pain:{ic:'🌿',label:'Pain Relief',rq:'What kind of pain?',opts:[
       {k:'joint',ic:'🦴',label:'Aching joints / arthritis'},{k:'nerve',ic:'⚡',label:'Nerve / burning'},
       {k:'muscle',ic:'💪',label:'Muscle tension / spasm'},{k:'inflam',ic:'🔥',label:'Inflammation / swelling'},
       {k:'migraine',ic:'🤕',label:'Migraine / headache'},{k:'menstrual',ic:'🩸',label:'Menstrual / period pain'},
       {k:'gen',ic:'🤷',label:'General / not sure'}]},
-    anxiety:{ic:'💭',label:'Anxious or stressed',rq:'When is it worst?',opts:[
+    anxiety:{ic:'💭',label:'Anxiety & Stress',rq:'When is it worst?',opts:[
       {k:'day',ic:'🌤️',label:'During the day (I need to function)'},{k:'night',ic:'🌙',label:'Racing thoughts at night'},
       {k:'social',ic:'🫂',label:'Social situations'},{k:'ptsd',ic:'🛡️',label:'Trauma / PTSD'},
       {k:'mood',ic:'☁️',label:'Low mood / feeling down'}]},
-    appetite:{ic:'🍽️',label:'Appetite & nausea',rq:'What are you dealing with?',opts:[
+    appetite:{ic:'🍽️',label:'Appetite & Nausea',rq:'What are you dealing with?',opts:[
       {k:'lowapp',ic:'🍽️',label:"Low appetite / can't eat"},{k:'nausea',ic:'🤢',label:'Nausea or upset stomach'},
       {k:'chemo',ic:'💉',label:'Nausea from chemo or treatment'},{k:'gut',ic:'🌀',label:'Gut issues (IBS / Crohn’s)'}]},
-    cancer:{ic:'🎗️',label:'Cancer & treatment support',rq:'What would help most right now?',
-      note:'These help with comfort and symptoms — they are not a cancer treatment. Please talk with your care team.',opts:[
+    cancer:{ic:'🎗️',label:'Cancer Symptom Support',rq:'Which symptom is the focus?',
+      note:'Research here relates to comfort and symptom support — not a cancer treatment. Please talk with your care team.',opts:[
       {k:'nausea',ic:'🤢',label:'Nausea / vomiting'},{k:'appetite',ic:'🍽️',label:'Poor appetite'},
       {k:'pain',ic:'🌿',label:'Pain'},{k:'sleep',ic:'😴',label:'Trouble sleeping'},
       {k:'anx',ic:'💭',label:'Anxiety / stress'}]},
-    relax:{ic:'🛋️',label:'I just want to relax',rq:'How do you want to feel?',opts:[
+    relax:{ic:'🛋️',label:'Relaxation',rq:'What kind of calm?',opts:[
       {k:'body',ic:'🧘',label:'Mellow, body-calm'},{k:'light',ic:'🎈',label:'Light & easy'},{k:'social',ic:'🎉',label:'Social & chatty'}]},
-    other:{ic:'✨',label:'Something else',rq:'Roughly, what are you after?',opts:[
+    other:{ic:'✨',label:'Something Else',rq:'Which area?',opts:[
       {k:'well',ic:'🌱',label:'General wellness'},{k:'energy',ic:'⚡',label:'A little energy / focus'},
       {k:'mood',ic:'☀️',label:'A mood lift'},{k:'womens',ic:'🌸',label:'Women’s health (cramps, menopause)'}]},
-    seizure:{ic:'🧠',label:'Seizures / epilepsy',rq:'What best describes your situation?',
+    seizure:{ic:'🧠',label:'Seizures / Epilepsy',rq:'What best describes your situation?',
       note:'Educational matching only — epilepsy needs a physician’s care. CBD is the most evidence-backed cannabinoid here; never start, stop, or change seizure medication without your doctor.',opts:[
       {k:'freq',ic:'📆',label:'Frequent / ongoing seizures'},{k:'breakthrough',ic:'⚡',label:'Breakthrough episodes'},
       {k:'adjunct',ic:'💊',label:'Alongside my current medication'},{k:'unsure',ic:'🤷',label:'Not sure / exploring'}]},
-    glaucoma:{ic:'👁️',label:'Eye pressure / glaucoma',rq:'What best describes your situation?',
+    glaucoma:{ic:'👁️',label:'Eye Pressure / Glaucoma',rq:'What best describes your situation?',
       note:'Educational only — cannabis is not a first-line glaucoma therapy. Any eye-pressure drop from THC is short-lived (about 3–4 hours), and CBD may raise pressure. Please work with your ophthalmologist and never stop prescribed eye drops.',opts:[
       {k:'diagnosed',ic:'💧',label:'Diagnosed — using eye drops'},{k:'pressure',ic:'👁️',label:'Concerned about eye pressure'},{k:'exploring',ic:'🤷',label:'Just exploring / curious'}]},
-    learn:{ic:'📚',label:'Curious — teach me',learn:true}
+    learn:{ic:'📚',label:'Explore the Research',learn:true}
   };
   var ORDER=['sleep','pain','anxiety','appetite','cancer','seizure','glaucoma','relax','learn','other'];
   var SECOND=[{k:'sleep',ic:'😴',label:'Trouble sleeping too',cond:['sleep']},
@@ -7289,12 +7289,12 @@ document.addEventListener('keydown', function(e) {
     var list=(st.meds||[]).map(function(m){return '<span class="dj-medpill">'+esc(m.drug.split(' /')[0])+'<button onclick="V4GX.djRemoveMed(\''+m.id+'\')" aria-label="Remove">×</button></span>';}).join('');
     var hasMeds=(st.meds||[]).length>0;
     stage('<h2 class="gx-q">Your medications <span style="font-weight:600;color:var(--dim);font-size:.62em">optional</span></h2>'+
-      '<p class="gx-hint">Add any prescriptions or OTC medicines — V2 screens them against each other <b>and</b> against the molecules recommended for you. This stays private on your device.</p>'+
+      '<p class="gx-hint">Add any prescriptions or OTC medicines — V2 screens them against each other <b>and</b> against the molecules the research associates with your topic. This stays private on your device.</p>'+
       '<div class="dj-medquick"><div class="dj-lbl">Tap common medications</div><div class="dj-chips">'+chips+'</div></div>'+
       '<div class="dj-medsearch"><input class="gx-search" type="search" autocomplete="off" placeholder="…or search any medication (e.g. Xanax, Tylenol, metformin)" oninput="V4GX.djSearchMed(this.value)"><div id="djMedSug" class="dj-sugbox" style="display:none"></div></div>'+
       (list?'<div class="dj-medlist"><span class="dj-lbl" style="margin:0 4px 0 0">Your list:</span>'+list+'</div>':'')+
       '<div id="djMedResults" class="dj-medresults">'+djMedResults(stdRecMolIds())+'</div>'+
-      '<button class="gx-cta" onclick="V4GX.toRec()">'+(hasMeds?'See what may help →':'Continue →')+'</button>'+
+      '<button class="gx-cta" onclick="V4GX.toRec()">'+(hasMeds?'See the research →':'Continue →')+'</button>'+
       (hasMeds?'':'<button class="gx-cta ghost" onclick="V4GX.toRec()">Skip — I take no medications</button>'));
   }
   function currentCondIds(){
@@ -7374,11 +7374,11 @@ document.addEventListener('keydown', function(e) {
       var byM=(typeof buildCannabisHitsByMol==='function')?buildCannabisHitsByMol(mIds):{};
       var recSet=stdRecMolIds();var recHitN=Object.keys(byM).filter(function(m){return recSet.indexOf(m)>=0;}).length;
       var anyI=ddiN||recHitN;
-      medSummary='<div class="gx-note" style="margin-top:12px;border-left:3px solid var('+(anyI?'--accent2':'--accent')+')">'+(anyI?'⚠️ ':'✓ ')+'<b>Medication check</b> — '+st.meds.length+' reviewed: '+(ddiN?ddiN+' drug–drug interaction'+(ddiN>1?'s':''):'no drug–drug interactions')+', '+(recHitN?recHitN+' with a recommended molecule'+(recHitN>1?'s':''):'none with recommended molecules')+'.'+(anyI?' Please review with your Product Specialist (Budtender) or provider before use.':'')+'</div>';}
+      medSummary='<div class="gx-note" style="margin-top:12px;border-left:3px solid var('+(anyI?'--accent2':'--accent')+')">'+(anyI?'⚠️ ':'✓ ')+'<b>Medication check</b> — '+st.meds.length+' reviewed: '+(ddiN?ddiN+' drug–drug interaction'+(ddiN>1?'s':''):'no drug–drug interactions')+', '+(recHitN?recHitN+' with an associated molecule'+(recHitN>1?'s':''):'none with associated molecules')+'.'+(anyI?' Please review with your Product Specialist (Budtender) or provider before use.':'')+'</div>';}
     var prefRecap=prefBits.length?'<div class="dj-lbl" style="margin-top:12px">Your preferences</div><div class="gx-chips">'+prefBits.map(function(b){return '<span class="gx-chip">'+b+'</span>';}).join('')+'</div>':'';
     var prefGuide=guide.length?'<ul style="margin:8px 0 0;padding-left:18px;font-size:.72rem;color:var(--dim);line-height:1.6">'+guide.map(function(g){return '<li>'+g+'</li>';}).join('')+'</ul>':'';
     var safetyNote=(st.safetyFlags&&st.safetyFlags.length)?'<div class="gx-note" style="margin-top:12px;border-left:3px solid var(--accent2)"><b>Please check with your provider first.</b> You noted pregnancy, breastfeeding, or planning to conceive. Current medical guidance advises avoiding cannabis during pregnancy and breastfeeding — please talk with your obstetric provider before using any product.</div>':'';
-    stage('<h2 class="gx-q">What may help you</h2>'+safetyNote+
+    stage('<h2 class="gx-q">What the research associates</h2>'+safetyNote+
       '<div class="gx-rec"><div class="kind">'+esc(condLabel)+'</div>'+
       '<div class="because">The molecules V2 associates with '+esc(condLabel)+', ranked by strength of evidence — the same set highlighted in the Periodic Table.</div>'+
       '<div class="dj-lbl" style="margin-top:10px">Primary</div><div class="gx-chips">'+(primaryChips||'<span class="gx-chip">—</span>')+'</div>'+
@@ -7556,7 +7556,7 @@ document.addEventListener('keydown', function(e) {
     stage('<div class="dj-intro"><div class="dj-intro-badge">Demonstration mode</div>'+
       '<h2 class="gx-q">'+esc(d0.name)+'</h2>'+
       '<p class="gx-hint">A controlled presentation of the complete V2 platform, running on this demo dispensary’s inventory. Choose what to show your audience.</p>'+
-      '<button class="gx-cta" onclick="V4GX.djRun()">▶ Run the complete patient journey</button>'+
+      '<button class="gx-cta" onclick="V4GX.djRun()">▶ Run the Complete Research Demonstration</button>'+
       '<div class="dj-intro-steps">'+DJ_STEPS.map(function(s,i){return '<div class="dj-intro-step"><span>'+(i+1)+'</span>'+s+'</div>';}).join('')+'</div>'+
       '<button class="gx-cta ghost" onclick="V4GX.demoGuided()">🧭 Show the standard Guided Match</button>'+
       '<div class="gx-hint" style="margin:-4px 0 6px;font-size:.8rem;opacity:.82">The real patient-facing finder — concludes at the Periodic Table, not this demo’s sample products.</div>'+
@@ -7568,8 +7568,8 @@ document.addEventListener('keydown', function(e) {
   function scDemoGuidedIntro(){
     stage('<div class="dj-intro"><div class="dj-intro-badge">Demonstration mode</div>'+
       '<h2 class="gx-q">Standard Guided Match</h2>'+
-      '<p class="gx-hint">You’re about to see the <b>real patient-facing finder</b>. It walks a patient from why they’re here to the molecules V2 recommends, then hands off to the <b>V2</b>.</p>'+
-      '<p class="gx-hint">Unlike the complete patient journey, it does <b>not</b> use this demo’s faux inventory or product recommendations — that’s intentional, so you can show the product as real patients experience it.</p>'+
+      '<p class="gx-hint">You’re about to see the <b>real patient-facing finder</b>. It walks a customer from why they’re here to the molecules the research associates, then hands off to the <b>Periodic Table</b>.</p>'+
+      '<p class="gx-hint">Unlike the complete Research Demonstration, it does <b>not</b> use this demo’s faux inventory or product recommendations — that’s intentional, so you can show the product as real patients experience it.</p>'+
       '<p class="gx-hint">You’re still in Demo Mode — use <b>▶ Menu</b> on the banner to return here anytime.</p>'+
       '<button class="gx-cta" onclick="V4GX.start()">▶ Begin Guided Match</button>'+
       '<button class="gx-cta ghost" onclick="V4GX.demoHub()">≡ Back to demo menu</button></div>');
@@ -7577,12 +7577,12 @@ document.addEventListener('keydown', function(e) {
   function scDJConds(){var sel=st.djConds||[];
     stage(djStepBar(0)+'<h2 class="gx-q">Why are you here today?</h2><p class="gx-hint">Select one or more — a patient can have more than one concern (try <b>Seizures + Anxiety</b>).</p>'+
       DJ_CONDS.map(function(c){var on=sel.indexOf(c.id)>=0;return optBtn("V4GX.djToggleCond('"+c.id+"')",c.ic,c.label,'',on,true);}).join('')+
-      '<button class="gx-cta" onclick="V4GX.djToRec()"'+(sel.length?'':' disabled')+'>See what V2 recommends →</button>');
+      '<button class="gx-cta" onclick="V4GX.djToRec()"'+(sel.length?'':' disabled')+'>See the research associations →</button>');
   }
   function scDJMol(){var g=djClinicalGroups();
     function grp(title,ids){if(!ids.length)return '';return '<div class="dj-molgrp"><div class="dj-molgrp-h">'+title+' <span style="opacity:.6;font-weight:600">('+ids.length+')</span></div><div class="dj-mols">'+ids.map(function(mid){return '<span class="dj-mol">'+esc(djMolName(mid))+'</span>';}).join('')+'</div></div>';}
     var condNames=(st.djConds||[]).map(djLabelFor).join(' + ');
-    stage(djStepBar(1)+'<h2 class="gx-q">What V2 recommends</h2>'+
+    stage(djStepBar(1)+'<h2 class="gx-q">What the research associates</h2>'+
       '<p class="gx-hint">For <b>'+esc(condNames)+'</b> — the molecular profile from V2\'s condition-to-molecule evidence base.</p>'+
       grp('🧪 Cannabinoids',g.cannabinoid)+grp('🌿 Terpenes',g.terpene)+grp('🌼 Flavonoids',g.flavonoid)+
       '<div class="dj-note">Next, we\'ll check the patient\'s medications against these molecules — then narrow to what\'s in stock.</div>'+
@@ -7625,7 +7625,7 @@ document.addEventListener('keydown', function(e) {
       return '<button class="dj-medchip'+(on?' on':'')+'" onclick="V4GX.djAddMed(\''+id+'\')"><span class="'+(d.cat==='otc'?'otc':'rx')+'">'+(d.cat==='otc'?'OTC':'Rx')+'</span>'+esc(d.drug.split(' /')[0])+(on?' ✓':'')+'</button>';}).join('');
     var list=(st.meds||[]).map(function(m){return '<span class="dj-medpill">'+esc(m.drug.split(' /')[0])+'<button onclick="V4GX.djRemoveMed(\''+m.id+'\')" aria-label="Remove">×</button></span>';}).join('');
     stage(djStepBar(2)+'<h2 class="gx-q">Medication safety check</h2>'+
-      '<p class="gx-hint">Add the patient\'s prescriptions and OTC medicines. V2 screens them against each other <b>and</b> against the recommended cannabis molecules.</p>'+
+      '<p class="gx-hint">Add the patient\'s prescriptions and OTC medicines. V2 screens them against each other <b>and</b> against the cannabis molecules associated with the selected condition.</p>'+
       '<div class="dj-medquick"><div class="dj-lbl">Tap common medications</div><div class="dj-chips">'+chips+'</div></div>'+
       '<div class="dj-medsearch"><input class="gx-search" type="search" autocomplete="off" placeholder="…or search any medication (e.g. Xanax, Tylenol, metformin)" oninput="V4GX.djSearchMed(this.value)"><div id="djMedSug" class="dj-sugbox" style="display:none"></div></div>'+
       (list?'<div class="dj-medlist"><span class="dj-lbl" style="margin:0 4px 0 0">Patient\'s list:</span>'+list+'</div>':'')+
@@ -7683,7 +7683,7 @@ document.addEventListener('keydown', function(e) {
         '<div class="gx-checks"><span>✓ Clinical fit</span><span>✓ Meds screened</span><span>✓ In stock ('+p.count+')</span></div>'+
         '<div class="gx-sent"><span class="dot"></span>Sent to POS terminal · added to cart <em>(demonstration)</em></div></div>'+
       '<div class="dj-recap">The full V2 journey: health concern → clinical recommendation → medication safety → refined match → in-stock product, all connected to the dispensary POS.</div>'+
-      '<button class="gx-cta" onclick="V4GX.djRun()">↻ Run another patient journey</button>'+
+      '<button class="gx-cta" onclick="V4GX.djRun()">↻ Run Another Research Demonstration</button>'+
       '<button class="gx-cta ghost" onclick="V4GX.demoHub()">≡ Back to demo menu</button>'+
       '<button class="gx-cta ghost" onclick="window.V4DEMO.exit()">Exit Demo Mode</button>');
   }
@@ -7738,7 +7738,7 @@ document.addEventListener('keydown', function(e) {
         var recSet=stdRecMolIds();var recHitN=Object.keys(byM).filter(function(m){return recSet.indexOf(m)>=0;}).length;
         body+='<div class="pt-print-sec"><h3>Medication check</h3><div style="font-size:.8rem;line-height:1.6">'+st.meds.length+' medication'+(st.meds.length>1?'s':'')+' reviewed: '+
           (ddiN?ddiN+' drug–drug interaction'+(ddiN>1?'s':''):'no drug–drug interactions')+', '+
-          (recHitN?recHitN+' with a recommended molecule'+(recHitN>1?'s':''):'none with recommended molecules')+'. Please review with your Product Specialist (Budtender) or provider before use.</div></div>';}
+          (recHitN?recHitN+' with an associated molecule'+(recHitN>1?'s':''):'none with associated molecules')+'. Please review with your Product Specialist (Budtender) or provider before use.</div></div>';}
       if(typeof PT_doPrint==='function')PT_doPrint('Guided Match — Recommendation Summary','Prepared for: '+esc(condLabel),body,{phi:(st.meds||[]).length>0});
     },
     persona:function(p){st.persona=p;st.intent=null;st.refineKey=null;st.seconds=[];
