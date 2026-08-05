@@ -7196,7 +7196,7 @@ document.addEventListener('keydown', function(e) {
   var SECOND=[{k:'sleep',ic:'😴',label:'Trouble sleeping too',cond:['sleep']},
     {k:'stress',ic:'💭',label:'Stress / anxiety',cond:['stress']},{k:'pain',ic:'🌿',label:'Some pain too',cond:['pain']},
     {k:'nausea',ic:'🤢',label:'Nausea too',cond:['nausea-relief']},{k:'appetite',ic:'🍽️',label:'Low appetite too',cond:['appetite-stim']}];
-  var FUNNEL=['safety','intent','refine','experience','thc','timeofday','onset','route','second','meds','rec']; // standard flow ends at the recommendation, then hands off to the Periodic Table (no faux products)
+  var FUNNEL=['intent','refine','experience','thc','timeofday','onset','route','second','safety','meds','rec']; // safety check now sits with the medications/drug-interaction step (educational checkpoint, not an entry gate); flow ends at the recommendation, then hands off to the Periodic Table (no faux products)
   // ONB-11: route-of-administration preference. ROUTE_META = display; ROUTE_MAP = clinical route -> inventory
   // product-form (type) values. Empty array = no filter ('any', or transdermal which the sample stock lacks).
   var ROUTE_META={
@@ -7249,16 +7249,20 @@ document.addEventListener('keydown', function(e) {
   function scSecond(){var opts=SECOND.filter(function(x){return x.k!==st.intent;});
     stage('<h2 class="gx-q">Anything else going on?</h2><p class="gx-hint">Choose any — or skip.</p>'+
     opts.map(function(o){return optBtn("V4GX.second('"+o.k+"',this)",o.ic,o.label,'',(st.seconds||[]).indexOf(o.k)>=0,true);}).join('')+
-    '<button class="gx-cta" onclick="V4GX.toMeds()">Next →</button>'+
-    '<button class="gx-cta ghost" onclick="V4GX.toMeds()">Skip</button>');}
+    '<button class="gx-cta" onclick="V4GX.toSafety()">Next →</button>'+
+    '<button class="gx-cta ghost" onclick="V4GX.toSafety()">Skip</button>');}
   // ── ONB-12 new steps (standard customer flow only) ──────────────────────────
   // A quick, private reproductive-safety touchpoint. Educational tool → no hard block; a flag surfaces a
   // prominent "check with your provider" note on the recommendation screen.
   function scSafety(){var f=st.safetyFlags||[];
-    stage('<h2 class="gx-q">A quick safety check</h2><p class="gx-hint">Do any of these apply right now? Tap any that do — or skip. This stays private on your device.</p>'+
+    stage('<h2 class="gx-q">A quick safety check</h2><p class="gx-hint">Published research suggests cannabis deserves extra caution in some situations. Tap any that apply — or skip. This is <b>educational</b>, stays private on your device, and won’t block you; it simply adds a note to review with a healthcare professional.</p>'+
     optBtn("V4GX.safetyToggle('preg',this)",'🤰','Pregnant','',f.indexOf('preg')>=0,true)+
     optBtn("V4GX.safetyToggle('bf',this)",'🍼','Breastfeeding','',f.indexOf('bf')>=0,true)+
     optBtn("V4GX.safetyToggle('ttc',this)",'🌱','Trying to conceive','',f.indexOf('ttc')>=0,true)+
+    optBtn("V4GX.safetyToggle('resp',this)",'🫁','Respiratory condition (e.g. asthma, COPD)','',f.indexOf('resp')>=0,true)+
+    optBtn("V4GX.safetyToggle('cardio',this)",'❤️','Heart or cardiovascular condition','',f.indexOf('cardio')>=0,true)+
+    optBtn("V4GX.safetyToggle('psych',this)",'🧠','History of psychosis or a serious mental-health condition','',f.indexOf('psych')>=0,true)+
+    optBtn("V4GX.safetyToggle('rx',this)",'💊','Taking prescription medication(s)','',f.indexOf('rx')>=0,true)+
     '<p class="gx-hint" style="margin-top:8px">You confirmed you meet the age requirement when you entered.</p>'+
     '<button class="gx-cta" onclick="V4GX.safetyNext()">Continue →</button>'+
     '<button class="gx-cta ghost" onclick="V4GX.safetyNext()">None of these — skip</button>');}
@@ -7388,7 +7392,18 @@ document.addEventListener('keydown', function(e) {
       medSummary='<div class="gx-note" style="margin-top:12px;border-left:3px solid var('+(anyI?'--accent2':'--accent')+')">'+(anyI?'⚠️ ':'✓ ')+'<b>Medication check</b> — '+st.meds.length+' reviewed: '+(ddiN?ddiN+' drug–drug interaction'+(ddiN>1?'s':''):'no drug–drug interactions')+', '+(recHitN?recHitN+' with an associated molecule'+(recHitN>1?'s':''):'none with associated molecules')+'.'+(anyI?' Please review with your Product Specialist (Budtender) or provider before use.':'')+'</div>';}
     var prefRecap=prefBits.length?'<div class="dj-lbl" style="margin-top:12px">Your preferences</div><div class="gx-chips">'+prefBits.map(function(b){return '<span class="gx-chip">'+b+'</span>';}).join('')+'</div>':'';
     var prefGuide=guide.length?'<ul style="margin:8px 0 0;padding-left:18px;font-size:.72rem;color:var(--dim);line-height:1.6">'+guide.map(function(g){return '<li>'+g+'</li>';}).join('')+'</ul>':'';
-    var safetyNote=(st.safetyFlags&&st.safetyFlags.length)?'<div class="gx-note" style="margin-top:12px;border-left:3px solid var(--accent2)"><b>Please check with your provider first.</b> You noted pregnancy, breastfeeding, or planning to conceive. Current medical guidance advises avoiding cannabis during pregnancy and breastfeeding — please talk with your obstetric provider before using any product.</div>':'';
+    var sf=st.safetyFlags||[]; var sfMsgs=[];
+    if(sf.indexOf('preg')>=0||sf.indexOf('bf')>=0||sf.indexOf('ttc')>=0)
+      sfMsgs.push('<b>Pregnancy / breastfeeding / trying to conceive:</b> current medical guidance advises avoiding cannabis in these situations. Please talk with your obstetric provider before using any product.');
+    if(sf.indexOf('resp')>=0)
+      sfMsgs.push('<b>Respiratory condition:</b> smoking or vaping any product can irritate the airways and may worsen asthma or COPD; research generally favors non-inhaled routes here. Please discuss with your provider.');
+    if(sf.indexOf('cardio')>=0)
+      sfMsgs.push('<b>Heart / cardiovascular condition:</b> THC can raise heart rate and change blood pressure; published research advises caution with significant cardiovascular disease. Please review with your provider.');
+    if(sf.indexOf('psych')>=0)
+      sfMsgs.push('<b>Serious mental-health history:</b> research has associated THC with anxiety and, in people with a personal or family history, with triggering or worsening psychosis. Please discuss with your mental-health provider first.');
+    if(sf.indexOf('rx')>=0)
+      sfMsgs.push('<b>Prescription medications:</b> cannabis can interact with some medications — use the medications step to screen for interactions and review with your pharmacist or prescriber.');
+    var safetyNote=sfMsgs.length?'<div class="gx-note" style="margin-top:12px;border-left:3px solid var(--accent2)"><b>A few things to review with a healthcare professional first.</b><ul style="margin:6px 0 0;padding-left:18px;line-height:1.55">'+sfMsgs.map(function(m){return '<li>'+m+'</li>';}).join('')+'</ul></div>':'';
     stage('<h2 class="gx-q">What the research associates</h2>'+safetyNote+
       '<div class="gx-rec"><div class="kind">'+esc(condLabel)+'</div>'+
       '<div class="because">The molecules V2 associates with '+esc(condLabel)+', ranked by strength of evidence — the same set highlighted in the Periodic Table.</div>'+
@@ -7711,6 +7726,7 @@ document.addEventListener('keydown', function(e) {
     djAddMed:function(id){st.meds=st.meds||[];if(!st.meds.some(function(m){return m.id===id;})){var e=(typeof DI_DATA!=='undefined')?DI_DATA.find(function(d){return d.id===id;}):null;if(e)st.meds.push(e);}reRenderMeds();},
     djRemoveMed:function(id){st.meds=(st.meds||[]).filter(function(m){return m.id!==id;});reRenderMeds();},
     toMeds:function(){go('meds',scMeds);},
+    toSafety:function(){go('safety',scSafety);},
     djSearchMed:function(v){djRenderMedSearch(v);},
     djToRefine:function(){go('djRefine',scDJRefine);},
     djToggleMol:function(id){st.excluded=st.excluded||{};if(st.excluded[id])delete st.excluded[id];else st.excluded[id]=1;scDJRefine();},
@@ -7753,10 +7769,10 @@ document.addEventListener('keydown', function(e) {
       if(typeof PT_doPrint==='function')PT_doPrint('Guided Match — Recommendation Summary','Prepared for: '+esc(condLabel),body,{phi:(st.meds||[]).length>0});
     },
     persona:function(p){st.persona=p;st.intent=null;st.refineKey=null;st.seconds=[];
-      if(p==='cust'){st.safetyFlags=st.safetyFlags||[];go('safety',scSafety);}else if(p==='emp'){go('emp',scEmp);}else{this.close();}},
-    runGuide:function(){st.persona='cust';st.safetyFlags=st.safetyFlags||[];go('safety',scSafety);},
+      if(p==='cust'){st.safetyFlags=st.safetyFlags||[];go('intent',scIntent);}else if(p==='emp'){go('emp',scEmp);}else{this.close();}},
+    runGuide:function(){st.persona='cust';st.safetyFlags=st.safetyFlags||[];go('intent',scIntent);},
     safetyToggle:function(k,btn){st.safetyFlags=st.safetyFlags||[];var i=st.safetyFlags.indexOf(k);if(i>=0){st.safetyFlags.splice(i,1);if(btn)btn.classList.remove('sel');}else{st.safetyFlags.push(k);if(btn)btn.classList.add('sel');}},
-    safetyNext:function(){go('intent',scIntent);},
+    safetyNext:function(){go('meds',scMeds);},
     experience:function(v){st.experience=v;if(v==='new'&&!st.ceiling)st.ceiling='low';go('thc',scThc);},
     timeOfDay:function(v){st.timeOfDay=v;go('onset',scOnset);},
     onset:function(v){st.onset=v;go('route',scRoute);},
