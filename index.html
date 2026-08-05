@@ -8161,6 +8161,18 @@ window.Feedback = (function(){
   var PURGE_DAYS = 30;                    // auto-purge submissions older than this
   var ADMIN_USER = 'acannadmin';         // temp creds pending owner approval (see security note above)
   var AUTH_HASH  = '882482690860192';    // cyrb53('acannadmin:AcannFeedback2026!')
+  /* ── FEED-02 SYNC SCAFFOLD (flag-off; document/dev only, NOT deployed) ──────────────
+     With SYNC_ENABLED=false this is a COMPLETE NO-OP: no network, no behavior change —
+     the box is byte-for-byte Phase 1 (local capture + console + export). When the owner
+     provisions Supabase, fill the 3 constants + set SYNC_ENABLED=true to centralize
+     submissions across all 10 kiosks. The anon key is public (RLS restricts it to INSERT).
+     See V4_FEED-02_spec.md. */
+  var SYNC_ENABLED   = false;            // MASTER FLAG — false = pure Phase-1 (local only)
+  var SUPABASE_URL   = '';               // e.g. 'https://xxxx.supabase.co' (owner provides)
+  var SUPABASE_ANON  = '';               // public anon key — RLS limits to INSERT (owner provides)
+  var APP_VERSION    = 'f3dad41';        // build id sent with each row for debugging
+  var SYNC_INTERVAL_MS = 4*60*1000;      // retry cadence while entries remain unsynced
+  var _syncTimer = null, _flushing = false;
   var CATS = [
     {id:'missing_med',       label:'Missing medication',      admin:'Missing medications'},
     {id:'missing_condition', label:'Missing condition',       admin:'Missing health conditions'},
@@ -8186,14 +8198,64 @@ window.Feedback = (function(){
   function load(){
     var arr=[]; try{var s=localStorage.getItem(KEY); if(s)arr=JSON.parse(s)||[];}catch(e){arr=[];}
     if(!(arr instanceof Array))arr=[];
-    // auto-purge old entries
+    // auto-purge old entries — but never drop an entry that hasn't synced yet while
+    // sync is ON (prevents data loss on a kiosk that's been offline a long time).
     var cutoff=Date.now()-PURGE_DAYS*864e5;
-    arr=arr.filter(function(e){var t=Date.parse(e&&e.ts); return isNaN(t)?true:t>=cutoff;});
+    arr=arr.filter(function(e){
+      var t=Date.parse(e&&e.ts);
+      if(isNaN(t))return true;
+      if(t>=cutoff)return true;
+      if(syncReady() && e && e.synced!==true) return true; // keep unsynced when sync active
+      return false;
+    });
     return arr;
   }
   function save(arr){
     if(arr.length>MAX)arr=arr.slice(arr.length-MAX);
     try{localStorage.setItem(KEY,JSON.stringify(arr));}catch(e){}
+  }
+
+  /* ── FEED-02 sync helpers (all no-ops unless syncReady()) ────────────────────────── */
+  function locationId(){
+    // ?loc=ivyhall-03 sets + persists this kiosk's id; else stored value; else 'unknown'
+    try{
+      var m=(location.search||'').match(/[?&]loc=([A-Za-z0-9_-]{1,40})/);
+      if(m){try{localStorage.setItem('acann_fb_loc',m[1]);}catch(e){}return m[1];}
+      return localStorage.getItem('acann_fb_loc')||'unknown';
+    }catch(e){return 'unknown';}
+  }
+  function syncReady(){return !!(SYNC_ENABLED && SUPABASE_URL && SUPABASE_ANON);}
+  function _stopTimer(){if(_syncTimer){clearTimeout(_syncTimer);_syncTimer=null;}}
+  function _armTimer(){
+    if(!syncReady()||_syncTimer)return;
+    var pending=load().some(function(e){return e && e.synced!==true;});
+    if(pending)_syncTimer=setTimeout(function(){_syncTimer=null;flush();},SYNC_INTERVAL_MS);
+  }
+  /* Push all unsynced entries to Supabase (idempotent upsert on client_id). Never throws
+     to callers; any failure just leaves entries queued for the next retry. Migrates
+     pre-existing Phase-1 entries automatically (they lack `synced` → treated as pending). */
+  function flush(){
+    if(!syncReady()||_flushing)return;
+    var pending=load().filter(function(e){return e && e.synced!==true;});
+    if(!pending.length){_stopTimer();return;}
+    _flushing=true;
+    var payload=pending.map(function(e){return {
+      client_id:e.id, submitted_at:e.ts, location_id:e.location_id||locationId(),
+      category:e.cat, item:e.item, comment:e.comment||'', context:e.context||'',
+      app_version:e.app_version||APP_VERSION };});
+    fetch(SUPABASE_URL.replace(/\/+$/,'')+'/rest/v1/feedback',{
+      method:'POST',
+      headers:{'apikey':SUPABASE_ANON,'Authorization':'Bearer '+SUPABASE_ANON,
+               'Content-Type':'application/json','Prefer':'resolution=merge-duplicates,return=minimal'},
+      body:JSON.stringify(payload)
+    }).then(function(r){
+      _flushing=false;
+      if(r && (r.ok || r.status===201 || r.status===200 || r.status===409)){
+        var cur=load(), ids={}; pending.forEach(function(e){ids[e.id]=1;});
+        cur.forEach(function(e){if(ids[e.id])e.synced=true;});
+        save(cur); _stopTimer(); _armTimer();          // re-arm only if new ones arrived meanwhile
+      } else { _armTimer(); }                            // server said no → retry later
+    }).catch(function(){_flushing=false;_armTimer();});  // offline/network → retry later
   }
 
   /* ---- capture form ---- */
@@ -8240,12 +8302,16 @@ window.Feedback = (function(){
       cat: _sel,
       item: item.slice(0,120),
       comment: comment.slice(0,500),
-      context: (window.Feedback._ctx||'')      // where in the app it was raised
+      context: (window.Feedback._ctx||''),     // where in the app it was raised
+      location_id: locationId(),               // FEED-02: which kiosk (no-op label when sync off)
+      app_version: APP_VERSION,                // FEED-02: build id
+      synced: false                            // FEED-02: outbox flag (ignored when sync off)
     });
     save(arr);
     window.Feedback._ctx='';
     document.getElementById('fbBox').style.display='none';
     document.getElementById('fbThanks').style.display='';
+    try{flush();}catch(e){}                     // FEED-02: background push (no-op unless syncReady)
     return false;
   }
 
@@ -8371,12 +8437,21 @@ window.Feedback = (function(){
   // ?feedback-admin deep-link OPENS the sign-in (never bypasses it)
   try{if(/[?&]feedback-admin=1(&|$)/.test(location.search||''))setTimeout(openLogin,400);}catch(e){}
 
+  // FEED-02 init — wire retry triggers ONLY when sync is actually configured (else nothing runs).
+  // The initial flush also migrates any pre-existing Phase-1 entries the first time sync goes live.
+  try{ if(syncReady()){
+    try{window.addEventListener('online',flush);}catch(e){}
+    setTimeout(function(){try{flush();}catch(e){}},1500);
+  }}catch(e){}
+
   return {
     _ctx:'',
     open:open, close:close, submit:submit, pick:pick, fromContext:fromContext, clearDraft:clearDraft,
     openLogin:openLogin, closeLogin:closeLogin, login:login, signOut:signOut,
     openAdmin:openAdmin, closeAdmin:closeAdmin, setFilter:setFilter,
-    exportCSV:exportCSV, exportJSON:exportJSON, clearAll:clearAll
+    exportCSV:exportCSV, exportJSON:exportJSON, clearAll:clearAll,
+    // FEED-02 (dev/testing): manual flush + introspection. No-ops unless syncReady().
+    flush:flush, _syncReady:syncReady, _locationId:locationId
   };
 })();
 </script>
