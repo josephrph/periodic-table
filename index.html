@@ -7050,9 +7050,10 @@ document.addEventListener('keydown', function(e) {
     appetite:{cond:['appetite-stim'],refine:{lowapp:['appetite-stim'],nausea:['nausea-relief'],chemo:['nausea-relief'],gut:['ibd']}},
     cancer:{cond:['cancer'],refine:{nausea:['nausea-relief'],appetite:['appetite-stim'],pain:['pain'],sleep:['sleep'],anx:['anxiety']}},
     relax:{cond:['stress'],refine:{body:['stress','sleep'],light:['stress'],social:['stress','anxiety']}},
-    other:{cond:['antioxidant'],refine:{well:['antioxidant'],energy:['appetite'],mood:['depression'],womens:['dysmenorrhea','menopause']}},
+    other:{cond:['antioxidant'],refine:{well:['antioxidant'],energy:['appetite'],mood:['depression']}},
     seizure:{cond:['seizures'],refine:{freq:['seizures'],breakthrough:['seizures'],adjunct:['seizures'],unsure:['seizures']}},
-    glaucoma:{cond:['glaucoma'],refine:{diagnosed:['glaucoma'],pressure:['glaucoma'],exploring:['glaucoma']}}};
+    glaucoma:{cond:['glaucoma'],refine:{diagnosed:['glaucoma'],pressure:['glaucoma'],exploring:['glaucoma']}},
+    womens:{cond:['dysmenorrhea'],refine:{endo:['endometriosis'],fibroids:['fibroids'],menstrual:['dysmenorrhea'],menopause:['menopause']}}};
   // Guided-only molecule profiles for funnel intents that have no clean single science condition,
   // or where the science entry is intentionally bidirectional. Used ONLY for product matching in the
   // guided flow — CONDITIONS, M, and the science filter bar are untouched. 'appetite-stim' = stimulate
@@ -7171,7 +7172,7 @@ document.addEventListener('keydown', function(e) {
       {k:'body',ic:'🧘',label:'Mellow, body-calm'},{k:'light',ic:'🎈',label:'Light & easy'},{k:'social',ic:'🎉',label:'Social & chatty'}]},
     other:{ic:'✨',label:'Something Else',rq:'Which area?',opts:[
       {k:'well',ic:'🌱',label:'General wellness'},{k:'energy',ic:'⚡',label:'A little energy / focus'},
-      {k:'mood',ic:'☀️',label:'A mood lift'},{k:'womens',ic:'🌸',label:'Women’s health (cramps, menopause)'}]},
+      {k:'mood',ic:'☀️',label:'A mood lift'}]},
     seizure:{ic:'🧠',label:'Seizures / Epilepsy',rq:'What best describes your situation?',
       note:'Educational matching only — epilepsy needs a physician’s care. CBD is the most evidence-backed cannabinoid here; never start, stop, or change seizure medication without your doctor.',opts:[
       {k:'freq',ic:'📆',label:'Frequent / ongoing seizures'},{k:'breakthrough',ic:'⚡',label:'Breakthrough episodes'},
@@ -7179,9 +7180,13 @@ document.addEventListener('keydown', function(e) {
     glaucoma:{ic:'👁️',label:'Eye Pressure / Glaucoma',rq:'What best describes your situation?',
       note:'Educational only — cannabis is not a first-line glaucoma therapy. Any eye-pressure drop from THC is short-lived (about 3–4 hours), and CBD may raise pressure. Please work with your ophthalmologist and never stop prescribed eye drops.',opts:[
       {k:'diagnosed',ic:'💧',label:'Diagnosed — using eye drops'},{k:'pressure',ic:'👁️',label:'Concerned about eye pressure'},{k:'exploring',ic:'🤷',label:'Just exploring / curious'}]},
+    womens:{ic:'🌸',label:'Women’s Health',rq:'Which area?',
+      note:'Cannabis research in women’s health is mostly early-stage (observational or preclinical). This is educational information, not a treatment plan — please discuss options with your gynecologic or primary-care provider.',opts:[
+      {k:'endo',ic:'🌷',label:'Endometriosis / Pelvic Pain'},{k:'fibroids',ic:'🌺',label:'Uterine Fibroids'},
+      {k:'menstrual',ic:'🩸',label:'Menstrual Pain / Cramps'},{k:'menopause',ic:'🌙',label:'Menopause / Perimenopause'}]},
     learn:{ic:'📚',label:'Explore the Research',learn:true}
   };
-  var ORDER=['sleep','pain','anxiety','appetite','cancer','seizure','glaucoma','relax','learn','other'];
+  var ORDER=['sleep','pain','anxiety','appetite','cancer','seizure','glaucoma','womens','relax','learn','other'];
   var SECOND=[{k:'sleep',ic:'😴',label:'Trouble sleeping too',cond:['sleep']},
     {k:'stress',ic:'💭',label:'Stress / anxiety',cond:['stress']},{k:'pain',ic:'🌿',label:'Some pain too',cond:['pain']},
     {k:'nausea',ic:'🤢',label:'Nausea too',cond:['nausea-relief']},{k:'appetite',ic:'🍽️',label:'Low appetite too',cond:['appetite-stim']}];
