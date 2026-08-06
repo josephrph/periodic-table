@@ -834,6 +834,11 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
     <div class="wlc-bd">
       <div class="wlc-cards">
         <div class="wlc-card">
+          <span class="wlc-ci">🧭</span>
+          <div class="wlc-ct">New here? Start with the Guided Match</div>
+          <div class="wlc-cd">The easiest way in. Click <strong>🧭 Guided Match</strong> in the header (or the <strong>Guided</strong> tab on mobile) and answer a few plain-language questions — starting with <em>"Why are you here today?"</em> — to see the molecules research associates with your goal. It's educational, includes a quick safety check, and ends by handing you into the Periodic Table. Use <strong>Full table ✕</strong> anytime to browse on your own instead.</div>
+        </div>
+        <div class="wlc-card">
           <span class="wlc-ci">🔍</span>
           <div class="wlc-ct">Search Molecules &amp; Conditions</div>
           <div class="wlc-cd">Use the two search bars at the top: search by molecule name/symbol (CBD, THC) or by health condition (pain, anxiety, sleep). Results update instantly.</div>
@@ -846,12 +851,12 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
         <div class="wlc-card">
           <span class="wlc-ci">♥</span>
           <div class="wlc-ct">Find by Condition</div>
-          <div class="wlc-cd">Click "Show Health Conditions" to highlight every molecule with published scientific evidence for your condition — anxiety, pain, sleep, inflammation, and more. Tiles glow by evidence strength: bright for strong clinical data, softer for emerging research. A Associated Molecules panel appears automatically, organizing matched molecules by category so you can see your options at a glance.</div>
+          <div class="wlc-cd">Click "Show Health Conditions" to highlight every molecule with published scientific evidence for your condition — anxiety, pain, sleep, inflammation, and more. Tiles glow by evidence strength: bright for strong clinical data, softer for emerging research. An Associated Molecules panel appears automatically, organizing matched molecules by category so you can see your options at a glance.</div>
         </div>
         <div class="wlc-card">
           <span class="wlc-ci">🎯</span>
           <div class="wlc-ct">Match to Your Dispensary's Inventory</div>
-          <div class="wlc-cd">Once your condition is selected and the Associated Molecules panel appears, use two powerful tools to find your best available product: (1) Filter by Evidence Level — choose All A–D, A+B (Clinical + Observational), or A Only (Human Trials) to prioritize molecules with the strongest science. (2) Click Refine Inventory Match to uncheck any molecules or categories your dispensary doesn't currently carry. The recommendation updates instantly — narrowing results to the best scientifically supported molecules your dispensary actually has in stock right now.</div>
+          <div class="wlc-cd">Once your condition is selected and the Associated Molecules panel appears, use two powerful tools to find your best available product: (1) Filter by Evidence Level — choose All A–D, A+B (Clinical + Observational), or A Only (Human Trials) to prioritize molecules with the strongest science. (2) Click Refine Inventory Match to uncheck any molecules or categories your dispensary doesn't currently carry. The recommendation updates instantly — narrowing results to the best scientifically supported molecules that are actually available. Today this is a manual refinement; live point-of-sale (POS) integration that syncs real-time stock automatically is coming (previewed in Demo Mode).</div>
         </div>
         <div class="wlc-card">
           <span class="wlc-ci">⊙</span>
@@ -897,6 +902,68 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
               <p><u>Women's Health Conditions</u> — New conditions added: Endometriosis, Uterine Fibroids, Dysmenorrhea, and Menopause/Perimenopause Symptoms.</p>
               <p><u>New Citations</u> — Sex-differentiated pharmacokinetics data (Moazen-Zadeh 2024 meta-regression for CBD; Piotrowska 2018 CB2 cardiac sex/age distribution for CBD and CBG) added to relevant molecule panels. CBG now maps to the Cardiovascular Health condition based on this literature.</p>
               <p><u>Official Acannability™ Logo</u> — Replaced the placeholder icon in the header, Welcome screen, and grid hero panel with the official Acannability™ wordmark.</p>
+              <p><u>Guided Match</u> — A step-by-step "Why are you here today?" finder that maps your goal to the molecules research associates with it, then hands you into the Periodic Table.</p>
+              <p><u>Quick Safety Check</u> — An educational, private checkpoint in the Guided Match that flags situations where cannabis deserves extra caution (pregnancy, respiratory, cardiovascular, serious mental-health history, prescription medications).</p>
+              <p><u>Print / Save as PDF</u> — Print or save a clean summary of your Guided Match recommendation or your Drug Interaction report.</p>
+              <p><u>Optional Anonymous Research Contribution</u> — Opt in (off by default) to share a few non-identifying details (age group, sex, city/state) to support cannabis research. No personal or health information is ever collected.</p>
+            </div>
+          </details>
+
+          <details class="faq-item">
+            <summary><span class="faq-q" style="font-size:.95rem">What is the Guided Match, and how does "Why are you here today?" work?</span><span class="faq-icon" style="width:22px;height:22px;font-size:1.1rem">+</span></summary>
+            <div class="faq-content" style="font-size:.82rem">
+              <p>The Guided Match is a step-by-step, plain-language guide that helps you find the cannabis molecules research associates with your goal — no prior knowledge needed. Open it with the <strong>🧭 Guided Match</strong> button in the header (or the <strong>Guided</strong> tab on mobile); it also appears automatically the first time you enter.</p>
+              <p>It begins by asking who's using the table (Customer/Patient · "I work here" for dispensary staff · Healthcare Professional, which goes straight to the full table). Patients are then asked <strong>"Why are you here today?"</strong> with everyday options: Sleep, Pain Relief, Anxiety &amp; Stress, Appetite &amp; Nausea, Cancer Symptom Support, Seizures/Epilepsy, Eye Pressure/Glaucoma, Women's Health, Relaxation, Explore the Research, or Something Else.</p>
+              <p>From there it asks a few short, optional questions to tailor results — the kind of relief you want, your experience level, how you feel about feeling "high" (THC comfort), time of day, how fast or long you want effects, preferred format, other concerns, a quick safety check, and any medications. It ends on <strong>"What the research associates"</strong> — the same molecules the Periodic Table highlights for your topic, tiered into <strong>Primary</strong> and <strong>Supporting</strong> by strength of evidence — then hands you into the table to explore. Leave anytime via <strong>Full table ✕</strong> or <strong>Skip to full table</strong>.</p>
+              <p>The Guided Match is educational: it shows research-supported molecules, not products or medical advice.</p>
+            </div>
+          </details>
+
+          <details class="faq-item">
+            <summary><span class="faq-q" style="font-size:.95rem">What is the "quick safety check," and when might cannabis not be appropriate?</span><span class="faq-icon" style="width:22px;height:22px;font-size:1.1rem">+</span></summary>
+            <div class="faq-content" style="font-size:.82rem">
+              <p>Near the end of the Guided Match, V2 shows <strong>"A quick safety check."</strong> It is educational, stays private on your device, and never blocks you — if anything applies, it simply adds a note to review with a healthcare professional. Tap any that apply, or skip.</p>
+              <p>The situations it asks about, because published research advises extra caution:</p>
+              <p><u>Pregnancy, breastfeeding, or trying to conceive</u> — current medical guidance advises avoiding cannabis; talk with your obstetric provider.</p>
+              <p><u>Respiratory conditions (asthma, COPD)</u> — smoking or vaping can irritate the airways; research generally favors non-inhaled routes.</p>
+              <p><u>Heart or cardiovascular conditions</u> — THC can raise heart rate and change blood pressure.</p>
+              <p><u>History of psychosis or a serious mental-health condition</u> — THC has been associated with anxiety and, in some people, with triggering or worsening psychosis.</p>
+              <p><u>Prescription medications</u> — cannabis can interact with some drugs; use the medication step and the Drug Interaction Checker to screen.</p>
+              <p>Age is confirmed at the entry gate (21+, or 18+ with a valid medical recommendation where permitted). These checks reflect research-based caution, not a diagnosis — always consult a licensed professional.</p>
+            </div>
+          </details>
+
+          <details class="faq-item">
+            <summary><span class="faq-q" style="font-size:.95rem">Can I print or save my results as a PDF?</span><span class="faq-icon" style="width:22px;height:22px;font-size:1.1rem">+</span></summary>
+            <div class="faq-content" style="font-size:.82rem">
+              <p>Yes. Two screens have a print button: the <strong>Guided Match</strong> recommendation (<strong>🖨 Print this summary</strong>) and the <strong>Drug Interaction Checker</strong> results (<strong>🖨 Print</strong>). Each opens your device's print dialog, where you can send it to a printer or choose <strong>Save as PDF</strong> as the destination.</p>
+              <p>The printout is a clean, ink-friendly summary with the V2 header, date, and full educational disclaimer — the rest of the interface is hidden. If it includes medications you entered, it notes that it may contain personal information, so handle it privately. Nothing is uploaded — the summary is generated on your device.</p>
+            </div>
+          </details>
+
+          <details class="faq-item">
+            <summary><span class="faq-q" style="font-size:.95rem">What is Demo Mode?</span><span class="faq-icon" style="width:22px;height:22px;font-size:1.1rem">+</span></summary>
+            <div class="faq-content" style="font-size:.82rem">
+              <p>Demo Mode is a <strong>staff-only presentation mode</strong> for trade-show booths, dispensary demos, and training — not part of the everyday patient experience. It runs on a clearly labeled <strong>fictional</strong> dispensary ("Acannability Cannabis Dispensary Demo — not a licensed store") with sample inventory, so presenters can show the full platform end-to-end without touching any real store data.</p>
+              <p>It walks through a simulated journey — condition → molecules → medication check → inventory refine → a simulated point-of-sale "in-stock" product match → a sample Certificate of Analysis (COA) — plus booth dashboards showing the business case and simulated anonymous research demographics. A banner is always visible so no one mistakes it for a live store.</p>
+              <p>Demo Mode is turned off in licensed dispensary builds. Regular patients never see products — the standard experience always ends at the research-based molecule recommendation and the Periodic Table.</p>
+            </div>
+          </details>
+
+          <details class="faq-item">
+            <summary><span class="faq-q" style="font-size:.95rem">What is the optional anonymous research contribution, and how is my privacy protected?</span><span class="faq-icon" style="width:22px;height:22px;font-size:1.1rem">+</span></summary>
+            <div class="faq-content" style="font-size:.82rem">
+              <p>You can <strong>optionally</strong> share a few anonymous, non-identifying details — <strong>age group, sex, and city/state</strong> — to help Acannability understand how people explore cannabis research and improve the platform. It is strictly opt-in: <strong>opting out is the default.</strong></p>
+              <p>You share only if you check the box on the welcome screen (or choose "Share anonymously" at the end of a Guided Match); leave the fields blank and nothing is collected. <strong>No personal or health information is ever collected, and responses are never linked to your identity.</strong> You can withdraw everything from your device anytime via <strong>Research data &amp; privacy</strong> in the footer.</p>
+              <p>This supports future cannabis research using aggregate demographics only, while keeping you anonymous.</p>
+            </div>
+          </details>
+
+          <details class="faq-item">
+            <summary><span class="faq-q" style="font-size:.95rem">Is V2 medical advice? What is it for?</span><span class="faq-icon" style="width:22px;height:22px;font-size:1.1rem">+</span></summary>
+            <div class="faq-content" style="font-size:.82rem">
+              <p>No. V2 is an <strong>educational and cannabis-research reference</strong>, not medical advice. It organizes what peer-reviewed science says about cannabis molecules, receptors, conditions, and interactions — with direct PubMed links — so patients, caregivers, dispensary staff, healthcare professionals, and researchers can have better-informed, science-based conversations.</p>
+              <p>It does not diagnose, treat, or recommend a product or dose. Evidence grades reflect research <em>quality</em>, not clinical approval or proven safety, and the absence of a safety flag does not mean a molecule is safe. Always consult a licensed healthcare professional before making any health decision.</p>
             </div>
           </details>
 
@@ -1015,6 +1082,8 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
               <p><u>Entourage Effect</u> (top button) visualizes synergistic molecule combinations for a selected condition.</p>
               <p><u>Evidence filter</u> (bar below Health Conditions) narrows highlights by A/B/C/D grade.</p>
               <p><u>Reset button</u> (end of Evidence bar) clears all active filters at once.</p>
+              <p><u>Getting around.</u> The desktop header holds two search bars plus 🧭 Guided Match, Show Health Conditions, ⬢ Entourage Effect, 💊 Drug Interactions, and ↩ New Session. On phones, a bottom tab bar gives Guided · Molecules · Conditions · Interactions · Entourage · Info. Move into the Guided Match anytime with the 🧭 button or Guided tab, and return with <strong>Full table ✕</strong>.</p>
+              <p><u>Shared or kiosk device.</u> Use ↩ New Session (or "I'm Done") to reset to the disclaimer for the next visitor; an inactivity timer also resets the session automatically after a short idle period. On phones, swipe down to dismiss a molecule sheet and swipe left/right to move between molecules.</p>
             </div>
           </details>
 
@@ -1025,6 +1094,7 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
               <p><u>Drug-Cannabis interactions</u> show how a searched medication interacts with specific cannabis molecules — severity (major/moderate/minor), evidence grade (A–D), mechanism, expected effect, and monitoring guidance, with PubMed citations where available.</p>
               <p><u>Drug-Drug interactions</u> appear automatically once your medication list has two or more drugs that interact directly with each other, independent of cannabis.</p>
               <p>A molecule's detail panel also has its own <strong>💊 Drug Interactions</strong> tab, listing every medication known to interact with that specific molecule.</p>
+              <p>You can <strong>🖨 Print</strong> the results (or save them as a PDF) for your pharmacist or physician. This tool is an educational reference only and does not replace advice from a licensed professional.</p>
             </div>
           </details>
 
@@ -1050,6 +1120,7 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
             <div class="faq-content" style="font-size:.82rem">
               <p>Refine Inventory Match is a tool for dispensary professionals and pharmacists. It lets you exclude specific molecule classes (e.g., all flavonoids) or individual molecules (e.g., THCV) from the recommendation if your dispensary doesn't carry products containing them.</p>
               <p>Once exclusions are set, the Associated Molecules panel and Entourage Effect analysis both recalculate instantly to draw recommendations only from molecules your inventory can actually fulfill. Exclusions are shared across both Health Conditions and Entourage Effect panels.</p>
+              <p><strong>Today this is a manual refinement</strong> — staff uncheck what the store doesn't carry (or load the store's catalogue by CSV). <strong>Live, real-time integration</strong> — where V2 connects directly to a dispensary's point-of-sale (POS) / seed-to-sale system to rank in-stock products automatically and show each product's actual lab report (COA) — is the next step, previewed today as a simulation in Demo Mode. Ask your dispensary whether they've connected V2 to their POS.</p>
             </div>
           </details>
 
@@ -1738,6 +1809,14 @@ body.is-mobile-view .panel-body{touch-action:pan-y}
   <div class="faq-hd-sub">The Periodic Table of Cannabis Plant Molecules · Acannability</div>
 
   <details class="faq-item">
+    <summary><span class="faq-q">Is V2 medical advice? What is it for?</span><span class="faq-icon">+</span></summary>
+    <div class="faq-content">
+      <p>No. V2 is an <strong>educational and cannabis-research reference</strong>, not medical advice. It organizes what peer-reviewed science says about cannabis molecules, receptors, conditions, and interactions — with direct links to PubMed — so patients, caregivers, dispensary staff, healthcare professionals, and researchers can have better-informed, science-based conversations.</p>
+      <p>It does not diagnose, treat, or recommend a product or a dose. Evidence grades reflect research <em>quality</em>, not clinical approval or proven safety, and the absence of a safety flag does not mean a molecule is safe. Always consult a licensed healthcare professional before making any health decision.</p>
+    </div>
+  </details>
+
+  <details class="faq-item">
     <summary><span class="faq-q">What is new in V2?</span><span class="faq-icon">+</span></summary>
     <div class="faq-content">
       <p>V2 includes the following features, interactive tools, and safety enhancements:</p>
@@ -1749,6 +1828,60 @@ body.is-mobile-view .panel-body{touch-action:pan-y}
       <p><u>Women’s Health Conditions.</u> Four new conditions added: Endometriosis, Uterine Fibroids, Dysmenorrhea, and Menopause/Perimenopause Symptoms.</p>
       <p><u>New Citations.</u> Sex-differentiated pharmacokinetics data added for CBD (Moazen-Zadeh 2024 meta-regression on sex-dependent absorption) and CBG (Piotrowska 2018 CB2 cardiac receptor sex/age distribution). CBG now maps to the Cardiovascular Health condition.</p>
       <p><u>Official Acannability™ Logo.</u> The official Acannability™ wordmark now appears in the header, Welcome screen, and grid hero panel.</p>
+      <p><u>Guided Match.</u> A step-by-step "Why are you here today?" finder that maps your goal to the molecules research associates with it, then hands you into the Periodic Table.</p>
+      <p><u>Quick Safety Check.</u> An educational, private checkpoint in the Guided Match that flags situations where cannabis deserves extra caution (pregnancy, respiratory, cardiovascular, serious mental-health history, prescription medications).</p>
+      <p><u>Print / Save as PDF.</u> Print or save a clean summary of your Guided Match recommendation or your Drug Interaction report.</p>
+      <p><u>Optional Anonymous Research Contribution.</u> Opt in (off by default) to share a few non-identifying details (age group, sex, city/state) to support cannabis research. No personal or health information is ever collected.</p>
+    </div>
+  </details>
+
+  <details class="faq-item">
+    <summary><span class="faq-q">What is the Guided Match, and how does "Why are you here today?" work?</span><span class="faq-icon">+</span></summary>
+    <div class="faq-content">
+      <p>The Guided Match is a step-by-step, plain-language guide that helps you find the cannabis molecules research associates with your goal — no prior knowledge needed. Open it with the <strong>🧭 Guided Match</strong> button in the header (or the <strong>Guided</strong> tab on mobile); it also appears automatically the first time you enter.</p>
+      <p>It begins by asking who's using the table (Customer/Patient · "I work here" for dispensary staff · Healthcare Professional, which goes straight to the full table). Patients are then asked <strong>"Why are you here today?"</strong> with everyday options: Sleep, Pain Relief, Anxiety &amp; Stress, Appetite &amp; Nausea, Cancer Symptom Support, Seizures/Epilepsy, Eye Pressure/Glaucoma, Women's Health, Relaxation, Explore the Research, or Something Else.</p>
+      <p>From there it asks a few short, optional questions to tailor results — the kind of relief you want, your experience level, how you feel about feeling "high" (THC comfort), time of day, how fast or long you want effects, preferred format, other concerns, a quick safety check, and any medications. It ends on <strong>"What the research associates"</strong> — the same molecules the Periodic Table highlights for your topic, tiered into <strong>Primary</strong> and <strong>Supporting</strong> by strength of evidence — then hands you into the table to explore. Leave anytime via <strong>Full table ✕</strong> or <strong>Skip to full table</strong>.</p>
+      <p>The Guided Match is educational: it shows research-supported molecules, not products or medical advice.</p>
+    </div>
+  </details>
+
+  <details class="faq-item">
+    <summary><span class="faq-q">What is the "quick safety check," and when might cannabis not be appropriate?</span><span class="faq-icon">+</span></summary>
+    <div class="faq-content">
+      <p>Near the end of the Guided Match, V2 shows <strong>"A quick safety check."</strong> It is educational, stays private on your device, and never blocks you — if anything applies, it simply adds a note to review with a healthcare professional. Tap any that apply, or skip.</p>
+      <p>The situations it asks about, because published research advises extra caution:</p>
+      <p><u>Pregnancy, breastfeeding, or trying to conceive</u> — current medical guidance advises avoiding cannabis; talk with your obstetric provider.</p>
+      <p><u>Respiratory conditions (asthma, COPD)</u> — smoking or vaping can irritate the airways; research generally favors non-inhaled routes.</p>
+      <p><u>Heart or cardiovascular conditions</u> — THC can raise heart rate and change blood pressure.</p>
+      <p><u>History of psychosis or a serious mental-health condition</u> — THC has been associated with anxiety and, in some people, with triggering or worsening psychosis.</p>
+      <p><u>Prescription medications</u> — cannabis can interact with some drugs; use the medication step and the Drug Interaction Checker to screen.</p>
+      <p>Age is confirmed at the entry gate (21+, or 18+ with a valid medical recommendation where permitted). These checks reflect research-based caution, not a diagnosis — always consult a licensed professional.</p>
+    </div>
+  </details>
+
+  <details class="faq-item">
+    <summary><span class="faq-q">Can I print or save my results as a PDF?</span><span class="faq-icon">+</span></summary>
+    <div class="faq-content">
+      <p>Yes. Two screens have a print button: the <strong>Guided Match</strong> recommendation (<strong>🖨 Print this summary</strong>) and the <strong>Drug Interaction Checker</strong> results (<strong>🖨 Print</strong>). Each opens your device's native print dialog, where you can send it to a printer or choose <strong>Save as PDF</strong> as the destination.</p>
+      <p>The printout is a clean, ink-friendly summary carrying the V2 header, the date, and the full educational disclaimer — the rest of the interface is hidden. If it includes medications you entered, it notes that the page may contain personal information, so please handle it privately. Nothing is uploaded — the summary is generated on your device.</p>
+    </div>
+  </details>
+
+  <details class="faq-item">
+    <summary><span class="faq-q">What is Demo Mode?</span><span class="faq-icon">+</span></summary>
+    <div class="faq-content">
+      <p>Demo Mode is a <strong>staff-only presentation mode</strong> for trade-show booths, dispensary demos, and training — not part of the everyday patient experience. It runs on a clearly labeled <strong>fictional</strong> dispensary ("Acannability Cannabis Dispensary Demo — not a licensed store") with sample inventory, so presenters can show the full platform end-to-end without touching any real store data.</p>
+      <p>It walks through a simulated journey — condition → molecules → medication check → inventory refine → a simulated point-of-sale "in-stock" product match → a sample Certificate of Analysis (COA) — plus booth dashboards showing the business case and simulated anonymous research demographics. A banner is always visible so no one mistakes it for a live store, and everything is clearly marked "sample" or "simulated."</p>
+      <p>Demo Mode is turned off in licensed dispensary builds. Regular patients never see products — the standard experience always ends at the research-based molecule recommendation and the Periodic Table.</p>
+    </div>
+  </details>
+
+  <details class="faq-item">
+    <summary><span class="faq-q">What is the optional anonymous research contribution, and how is my privacy protected?</span><span class="faq-icon">+</span></summary>
+    <div class="faq-content">
+      <p>You can <strong>optionally</strong> share a few anonymous, non-identifying details — <strong>age group, sex, and city/state</strong> — to help Acannability understand how people explore cannabis research and improve the platform. It is strictly opt-in: <strong>opting out is the default.</strong></p>
+      <p>You share only if you check the box on the welcome screen (or choose "Share anonymously" at the end of a Guided Match); leave the fields blank and nothing is collected. <strong>No personal or health information is ever collected, and responses are never linked to your identity.</strong> You can withdraw everything from your device at any time via <strong>Research data &amp; privacy</strong> in the footer.</p>
+      <p>This supports future cannabis research using aggregate demographics only, while keeping you anonymous.</p>
     </div>
   </details>
 
@@ -1871,6 +2004,8 @@ body.is-mobile-view .panel-body{touch-action:pan-y}
       <p><u>Receptor System filter</u> (below Health Conditions) can be combined with a condition — only molecules matching both will be highlighted. Use × Reset to clear all filters at once.</p>
       <p><u>Refine Inventory Match</u> (in the Associated Molecules panel) lets dispensaries or patients exclude molecules not in current inventory, so recommendations reflect only what’s available.</p>
       <p><u>Entourage Effect</u> (top button) visualizes synergistic molecule combinations for a selected condition.</p>
+      <p><u>Getting around.</u> The desktop header holds two search bars plus 🧭 Guided Match, Show Health Conditions, ⬢ Entourage Effect, 💊 Drug Interactions, and ↩ New Session. On phones, a bottom tab bar gives Guided · Molecules · Conditions · Interactions · Entourage · Info. Move into the Guided Match anytime with the 🧭 button or Guided tab, and return to the grid with <strong>Full table ✕</strong> or <strong>Explore these in the Periodic Table →</strong>.</p>
+      <p><u>Shared or kiosk device.</u> Use ↩ New Session (or "I'm Done") to reset to the disclaimer for the next visitor; an inactivity timer also resets the session automatically after a short idle period. On phones, swipe down to dismiss a molecule sheet and swipe left/right to move between molecules.</p>
       <p>The table is optimised for desktop viewing. On smaller screens, the grid scrolls horizontally.</p>
     </div>
   </details>
@@ -1883,6 +2018,7 @@ body.is-mobile-view .panel-body{touch-action:pan-y}
       <p><u>Drug-Drug interactions</u> appear automatically when your medication list contains two or more drugs that interact directly with each other, independent of any cannabis molecule.</p>
       <p>The database covers common medication classes including antibiotics and cancer chemotherapy agents, alongside standard drug classes. A search that returns “Not found in local database” simply means that drug hasn’t been added yet — coverage is continually expanded.</p>
       <p>Any molecule’s detail panel also includes its own <strong>💊 Drug Interactions</strong> tab, listing every medication with a known interaction for that specific molecule.</p>
+      <p>You can <strong>🖨 Print</strong> the interaction results — or save them as a PDF — to share with your pharmacist or physician.</p>
       <p>This tool is for educational reference only and does not replace advice from a licensed pharmacist or physician.</p>
     </div>
   </details>
@@ -1909,6 +2045,7 @@ body.is-mobile-view .panel-body{touch-action:pan-y}
     <div class="faq-content">
       <p>Refine Inventory Match is a dispensary integration tool. It lets staff or patients exclude specific molecule classes (e.g., all flavonoids) or individual molecules (e.g., THCV) from the recommendation when a dispensary does not carry products containing them.</p>
       <p>Once exclusions are set, the Associated Molecules panel and Entourage Effect analysis both recalculate instantly to reflect only molecules the dispensary’s current inventory can fulfill. Exclusions apply across both the Health Conditions and Entourage Effect panels simultaneously.</p>
+      <p><strong>Today this is a manual refinement</strong> — staff uncheck what the store doesn’t carry, or load the store’s catalogue by CSV. <strong>Live, real-time integration</strong> — where V2 connects directly to a dispensary’s point-of-sale (POS) / seed-to-sale system to rank in-stock products automatically and show each product’s actual lab report (COA) — is the next step, and is previewed today as a simulation in Demo Mode. See the patient-focused question below for how this helps you find the right product.</p>
     </div>
   </details>
 
