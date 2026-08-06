@@ -7887,10 +7887,21 @@ document.addEventListener('keydown', function(e) {
       '<div>'+(molHits.length?(molWorst+' Cannabis interactions with <b>'+molHits.length+'</b> molecule'+(molHits.length>1?'s':'')+(recHits.length?' — including <b>'+recHits.length+'</b> we just associated':'')):'✓ No cannabis interactions with the associated molecules')+'</div></div>';
     if(ddi.length){html+='<div class="dj-med-h">Drug–drug interactions in the list</div>'+ddi.map(function(d){
       return '<div class="dj-di '+d.sev+'"><div class="t">'+(sevIc[d.sev]||'')+' '+esc(d.label||d.drugs.join(' + '))+'<span class="ev">Ev '+esc(d.ev||'?')+'</span></div><div class="m">'+esc(d.effect||d.mech||'')+'</div></div>';}).join('');}
-    if(molHits.length){molHits.sort(function(a,b){return (recIds.indexOf(b)>=0?1:0)-(recIds.indexOf(a)>=0?1:0);});
-      html+='<div class="dj-med-h">Cannabis ↔ medication interactions</div>'+molHits.map(function(mid){var isRec=recIds.indexOf(mid)>=0;var entries=byMol[mid];
-        return '<div class="dj-di '+entries[0].sev+(isRec?' rec':'')+'"><div class="t">'+(sevIc[entries[0].sev]||'')+' '+esc(djMolName(mid))+(isRec?'<span class="recflag">recommended</span>':'')+'</div>'+
-          entries.map(function(e){return '<div class="m"><b>'+esc(e.drug)+':</b> '+esc(e.effect||e.mech||'')+'</div>';}).join('')+'</div>';}).join('');}
+    if(molHits.length){
+      // Split into (1) your recommended molecules and (2) other molecules that also interact (not recommended
+      // here, but may be present in full-spectrum products) — kept for safety, clearly separated. molName is
+      // rendered as-is (trusted M data with intended entities e.g. Δ9-THC); do NOT esc() it (that showed the raw
+      // "&Delta;9-THC"). Drug names / effects stay esc()'d.
+      var recMols=molHits.filter(function(m){return recIds.indexOf(m)>=0;});
+      var otherMols=molHits.filter(function(m){return recIds.indexOf(m)<0;});
+      var molCard=function(mid){var isRec=recIds.indexOf(mid)>=0;var entries=byMol[mid];
+        return '<div class="dj-di '+entries[0].sev+(isRec?' rec':'')+'"><div class="t">'+(sevIc[entries[0].sev]||'')+' '+djMolName(mid)+(isRec?'<span class="recflag">recommended</span>':'')+'</div>'+
+          entries.map(function(e){return '<div class="m"><b>'+esc(e.drug)+':</b> '+esc(e.effect||e.mech||'')+'</div>';}).join('')+'</div>';};
+      if(recMols.length){html+='<div class="dj-med-h">Cannabis ↔ medication — your recommended molecules</div>'+recMols.map(molCard).join('');}
+      if(otherMols.length){html+='<div class="dj-med-h">Other cannabis molecules that also interact</div>'+
+        '<div style="font-size:.68rem;color:var(--dim);font-style:italic;line-height:1.5;margin:-2px 0 7px">Not recommended for you here, but these can be present in full-spectrum products — shown for safety.</div>'+
+        otherMols.map(molCard).join('');}
+    }
     return html;
   }
   function djRenderMedSearch(q){var box=el('djMedSug');if(!box)return;q=(q||'').trim().toLowerCase();
@@ -8054,29 +8065,36 @@ document.addEventListener('keydown', function(e) {
         // medications step (djMedResults) from the same data functions, so the printout is a complete record.
         var ddiHits=((typeof findDdiInteractions==='function')?findDdiInteractions(mIds):[]);
         var byM=(typeof buildCannabisHitsByMol==='function')?buildCannabisHitsByMol(mIds):{};
-        var recSet=stdRecMolIds();var recHitN=Object.keys(byM).filter(function(m){return recSet.indexOf(m)>=0;}).length;
+        var recSet=stdRecMolIds();
+        var allMolIds=Object.keys(byM);
+        var recMolIds=allMolIds.filter(function(m){return recSet.indexOf(m)>=0;});
+        var otherMolIds=allMolIds.filter(function(m){return recSet.indexOf(m)<0;});
+        var recHitN=recMolIds.length,totalMolN=allMolIds.length;
         var ddiN=ddiHits.length;
         var sevLbl={major:'Major',moderate:'Moderate',minor:'Minor'};var evName={A:'Clinical',B:'Observational',C:'Preclinical',D:'Theoretical'};
         function evTag(ev){return ev?' <span style="font-weight:400;color:#555 !important">(Evidence '+esc(ev)+(evName[ev]?' · '+evName[ev]:'')+')</span>':'';}
         function detRow(lbl,val){return val?'<div style="font-size:.75rem;margin:1px 0"><b>'+lbl+':</b> '+val+'</div>':'';}
-        // Summary (lead-in) — same counts shown on the recommendation screen, plus the reviewed medication list.
+        // Summary (lead-in) — counts reflect exactly what is listed below, plus the reviewed medication list.
         body+='<div class="pt-print-sec"><h3>Medication check</h3><div style="font-size:.8rem;line-height:1.6">'+st.meds.length+' medication'+(st.meds.length>1?'s':'')+' reviewed: '+
-          (ddiN?ddiN+' drug–drug interaction'+(ddiN>1?'s':''):'no drug–drug interactions')+', '+
-          (recHitN?recHitN+' with an associated molecule'+(recHitN>1?'s':''):'none with associated molecules')+'. Please review with your Product Specialist (Budtender) or provider before use.</div>'+
+          (ddiN?ddiN+' drug–drug interaction'+(ddiN>1?'s':''):'no drug–drug interactions')+'; '+
+          (totalMolN?totalMolN+' cannabis molecule'+(totalMolN>1?'s':'')+' interact'+(totalMolN>1?'':'s')+' with these medications'+(recHitN?' ('+recHitN+' recommended for you)':' (none of them recommended for you)'):'no cannabis–medication interactions')+'. Please review with your Product Specialist (Budtender) or provider before use.</div>'+
           '<div style="font-size:.72rem;color:#555 !important;margin-top:4px">Medications reviewed: '+st.meds.map(function(m){return esc(String(m.drug||m.id).split(' /')[0]);}).join(', ')+'.</div></div>';
         // Detailed drug–drug interactions (each card can break across pages on its own).
         if(ddiN){body+='<div style="font-size:.74rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin:6px 0 5px">Drug–drug interactions within your list</div>'+
           ddiHits.map(function(d){return '<div class="di-card '+(d.sev||'')+'"><div style="font-weight:700;font-size:.82rem;margin-bottom:2px">'+esc(d.label||(d.drugs||[]).join(' + '))+(d.sev?' — '+(sevLbl[d.sev]||d.sev):'')+evTag(d.ev)+'</div>'+
             detRow('Mechanism',d.mech||'')+detRow('Clinical effect',d.effect||'')+detRow('Monitoring / action',d.monitor||'')+
             (d.pmid?'<div style="font-size:.7rem;color:#555 !important;margin-top:2px">PubMed '+esc(String(d.pmid))+'</div>':'')+'</div>';}).join('');}
-        // Detailed cannabis ↔ medication interactions, grouped by molecule (recommended molecules first).
-        var molIds=Object.keys(byM).sort(function(a,b){return (recSet.indexOf(b)>=0?1:0)-(recSet.indexOf(a)>=0?1:0);});
-        if(molIds.length){body+='<div style="font-size:.74rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin:8px 0 5px">Cannabis ↔ medication interactions</div>'+
-          molIds.map(function(mid){var isRec=recSet.indexOf(mid)>=0;var worst=(byM[mid][0]||{}).sev||'';
-            return '<div class="di-card '+worst+'"><div style="font-weight:700;font-size:.82rem;margin-bottom:2px">'+molNm(mid)+(isRec?' — recommended for this condition':'')+'</div>'+
-              byM[mid].map(function(e){return '<div style="margin:4px 0 0;padding-top:4px;border-top:1px solid #ddd"><div style="font-size:.78rem;font-weight:700">'+esc(e.drug||'')+(e.sev?' — '+(sevLbl[e.sev]||e.sev):'')+evTag(e.ev)+'</div>'+
-                detRow('Mechanism',e.mech||'')+detRow('Clinical effect',e.effect||'')+detRow('Monitoring / action',e.monitor||'')+
-                (e.pmid?'<div style="font-size:.7rem;color:#555 !important">PubMed '+esc(String(e.pmid))+'</div>':'')+'</div>';}).join('')+'</div>';}).join('');}
+        // Cannabis ↔ medication interactions — split into (1) your recommended molecules and (2) other molecules
+        // that also interact (not recommended here, but may be present in full-spectrum products). Kept for safety.
+        function molCard(mid){var worst=(byM[mid][0]||{}).sev||'';
+          return '<div class="di-card '+worst+'"><div style="font-weight:700;font-size:.82rem;margin-bottom:2px">'+molNm(mid)+'</div>'+
+            byM[mid].map(function(e){return '<div style="margin:4px 0 0;padding-top:4px;border-top:1px solid #ddd"><div style="font-size:.78rem;font-weight:700">'+esc(e.drug||'')+(e.sev?' — '+(sevLbl[e.sev]||e.sev):'')+evTag(e.ev)+'</div>'+
+              detRow('Mechanism',e.mech||'')+detRow('Clinical effect',e.effect||'')+detRow('Monitoring / action',e.monitor||'')+
+              (e.pmid?'<div style="font-size:.7rem;color:#555 !important">PubMed '+esc(String(e.pmid))+'</div>':'')+'</div>';}).join('')+'</div>';}
+        if(recMolIds.length){body+='<div style="font-size:.74rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin:8px 0 5px">Cannabis ↔ medication — your recommended molecules</div>'+recMolIds.map(molCard).join('');}
+        if(otherMolIds.length){body+='<div style="font-size:.74rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin:8px 0 3px">Other cannabis molecules that also interact</div>'+
+          '<div style="font-size:.7rem;color:#555 !important;margin:0 0 5px;font-style:italic">Not recommended for this patient — but these can be present in full-spectrum products, so they are listed for safety.</div>'+
+          otherMolIds.map(molCard).join('');}
       }
       if(typeof PT_doPrint==='function')PT_doPrint('Guided Match — Recommendation Summary','Prepared for: '+esc(condLabel),body,{phi:(st.meds||[]).length>0});
     },
