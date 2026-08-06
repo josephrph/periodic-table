@@ -418,7 +418,9 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 
 /* ── ENTOURAGE OVERLAY ─────────────────────────────────────── */
-#ent-ov{position:fixed;inset:0;background:rgba(28,26,20,.58);z-index:300;display:none;align-items:flex-start;justify-content:center;padding:16px;overflow-y:auto}
+/* z-index 9100 keeps the Entourage overlay above the Guided overlay (#gxOverlay = 9000), so it can be
+   opened from within the Guided Match; still below feedback/disclaimer/demo modals (9200–9999). */
+#ent-ov{position:fixed;inset:0;background:rgba(28,26,20,.58);z-index:9100;display:none;align-items:flex-start;justify-content:center;padding:16px;overflow-y:auto}
 #ent-ov.open{display:flex}
 #ent-box{background:var(--surface);border:1px solid var(--border);border-radius:10px;width:100%;max-width:920px;max-height:calc(100vh - 32px);overflow-y:auto;box-shadow:0 10px 48px rgba(0,0,0,.28);display:flex;flex-direction:column}
 .ent-hdr{padding:16px 22px 13px;border-bottom:2px solid var(--accent);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--surface);z-index:1;border-radius:10px 10px 0 0}
@@ -2243,6 +2245,17 @@ body.is-mobile-view .panel-body{touch-action:pan-y}
 #gxOverlay .gx-disc a{color:var(--accent,#2E7D57);font-weight:700;text-decoration:underline;white-space:nowrap}
 /* INV-02: CSV import + browse (operator-facing, budtender console) */
 #gxOverlay .gx-invnote{font-size:.72rem;color:var(--dim,#777);text-align:center;margin:2px 0}
+/* Guided Match → optional Entourage Effect expander (collapsed by default) */
+#gxOverlay .gx-ent{border:1px solid var(--border,#e2e2dc);border-radius:10px;background:var(--surface2,#f3f2ec);margin-top:14px;overflow:hidden}
+#gxOverlay .gx-ent>summary{list-style:none;cursor:pointer;padding:12px 14px;font-weight:700;font-size:.82rem;color:var(--accent2,#8B6914);display:flex;align-items:center;gap:8px}
+#gxOverlay .gx-ent>summary::-webkit-details-marker{display:none}
+#gxOverlay .gx-ent>summary::after{content:'＋';margin-left:auto;font-weight:400;color:var(--dim,#777)}
+#gxOverlay .gx-ent[open]>summary::after{content:'－'}
+#gxOverlay .gx-ent-body{padding:0 14px 14px;font-size:.74rem;line-height:1.65;color:var(--dim,#555)}
+#gxOverlay .gx-ent-body p{margin:0 0 8px}
+#gxOverlay .gx-ent-type{font-weight:700;color:var(--accent,#2E7D57)}
+#gxOverlay .gx-ent-eg{background:var(--surface,#fff);border-left:3px solid var(--accent,#2E7D57);border-radius:6px;padding:8px 11px}
+#gxOverlay .gx-ent-safe{font-size:.68rem;color:var(--mute,#999)}
 #gxOverlay .gx-sample-badge{display:inline-block;margin-left:8px;font-size:.6rem;font-weight:800;letter-spacing:.07em;padding:2px 7px;border-radius:999px;background:var(--accent2,#8B6914);color:#fff;vertical-align:middle}
 #gxOverlay .gx-import{border:1px dashed var(--border,#ccc);border-radius:12px;padding:20px;text-align:center;background:var(--surface,#fff)}
 #gxOverlay .gx-file{display:inline-block;cursor:pointer}
@@ -7587,12 +7600,45 @@ document.addEventListener('keydown', function(e) {
     if(sf.indexOf('rx')>=0)
       sfMsgs.push('<b>Prescription medications:</b> cannabis can interact with some medications — use the medications step to screen for interactions and review with your pharmacist or prescriber.');
     var safetyNote=sfMsgs.length?'<div class="gx-note" style="margin-top:12px;border-left:3px solid var(--accent2)"><b>A few things to review with a healthcare professional first.</b><ul style="margin:6px 0 0;padding-left:18px;line-height:1.55">'+sfMsgs.map(function(m){return '<li>'+m+'</li>';}).join('')+'</ul></div>':'';
+    // ── Optional Entourage Effect teaser (collapsed) ─────────────────────────────
+    // Educational only; does NOT change the recommendation. Reuses the SAME condition + molecule scoring as
+    // the Periodic Table and the full Entourage analysis, and respects Refine Inventory Match (_excludedMols),
+    // so if the set is narrowed to in-stock molecules this preview narrows too. The "See the full analysis"
+    // button opens the existing Entourage overlay (renderEntourageAnalysis) scoped to this condition.
+    function buildEntPreview(){
+      if(!cond||typeof M==='undefined') return '';
+      var avail=mols.filter(function(m){return M[m.id]&&m.w>=4&&!(typeof _excludedMols!=='undefined'&&_excludedMols[m.id]);});
+      if(avail.length<2) return ''; // not enough for a meaningful combination → hide the section entirely
+      var catMax={phytocannabinoid:2,terpene:2,flavonoid:2,acid:1,rare:1},catCount={},sel=[];
+      for(var i=0;i<avail.length&&sel.length<4;i++){var mm=M[avail[i].id];var c=mm.category;var n=catCount[c]||0;if(n<(catMax[c]||1)){sel.push(avail[i]);catCount[c]=n+1;}}
+      if(sel.length<2) sel=avail.slice(0,Math.min(3,avail.length));
+      var cats={};sel.forEach(function(s){cats[M[s.id].category]=1;});
+      var nCat=Object.keys(cats).length;
+      var effType=nCat>=3?'Potentially synergistic':nCat===2?'Complementary':'Additive';
+      var comboChips=sel.map(function(s){return chip(s.id);}).join('');
+      // Surface one real, cited synergy if a recommended molecule pairs with another recommended molecule.
+      var recIds=mols.map(function(m){return m.id;}),eg='';
+      for(var j=0;j<sel.length&&!eg;j++){var sm=M[sel[j].id];if(sm&&sm.synergy&&sm.synergy.length){
+        for(var k=0;k<sm.synergy.length;k++){var sy=sm.synergy[k];if(recIds.indexOf(sy.partner)>=0){
+          eg='<p class="gx-ent-eg"><b>From the research:</b> '+(sm.symbol||sel[j].id)+' + '+(sy.partnerName||sy.partner)+' — '+(sy.note||'')+(sy.citation?' <span style="color:var(--mute)">('+esc(sy.citation)+')</span>':'')+'</p>';break;}}
+      }}
+      return '<details class="gx-ent"><summary>🔬 See how these work together — the Entourage Effect</summary>'+
+        '<div class="gx-ent-body">'+
+        '<p>These molecules may work better together than any one alone — an idea called the <b>Entourage Effect</b>: cannabinoids, terpenes, and flavonoids can complement one another.</p>'+
+        '<p><b>A suggested combination for '+esc(condLabel)+':</b></p><div class="gx-chips">'+comboChips+'</div>'+
+        '<p class="gx-ent-type" style="margin-top:8px">'+effType+' — based on how many molecule families it spans.</p>'+
+        eg+
+        '<p class="gx-ent-safe">Educational only — a combination is not a dose or a product recommendation. Your dispensary refinement applies here too: narrow to in-stock molecules and this updates to match.</p>'+
+        '<button class="gx-cta ghost" onclick="V4GX.entourage()">See the full Entourage Effect analysis for '+esc(condLabel)+' →</button>'+
+        '</div></details>';
+    }
+    var entHtml=buildEntPreview();
     stage('<h2 class="gx-q">What the research associates</h2>'+safetyNote+
       '<div class="gx-rec"><div class="kind">'+esc(condLabel)+'</div>'+
       '<div class="because">The molecules V2 associates with '+esc(condLabel)+', ranked by strength of evidence — the same set highlighted in the Periodic Table.</div>'+
       '<div class="dj-lbl" style="margin-top:10px">Primary</div><div class="gx-chips">'+(primaryChips||'<span class="gx-chip">—</span>')+'</div>'+
       (supporting.length?'<div class="dj-lbl" style="margin-top:12px">Supporting</div><div class="gx-chips">'+supportingChips+'</div>':'')+'</div>'+
-      detailToggle+clin+thcNote+secNote+prefRecap+prefGuide+medSummary+
+      detailToggle+clin+thcNote+secNote+prefRecap+prefGuide+medSummary+entHtml+
       '<p class="gx-hint" style="margin-top:12px">In the Periodic Table, use <b>⚙ Refine Inventory Match</b> (in the Associated Molecules panel) to remove any molecules — or whole categories — your dispensary doesn’t carry. The recommendation updates instantly.</p>'+
       '<button class="gx-cta" onclick="V4GX.seeScience()">🔬 Explore these in the Periodic Table →</button>'+
       '<button class="gx-cta ghost" onclick="V4GX.printRec()">🖨 Print this summary</button>'+
@@ -8056,6 +8102,9 @@ document.addEventListener('keydown', function(e) {
       var allOff=inCat.length&&inCat.every(function(m){return st.excluded[m.molId];});
       inCat.forEach(function(m){if(allOff)delete st.excluded[m.molId];else st.excluded[m.molId]=1;});scRec();},
     seeScience:function(){this.handoffTo(currentCondIds()[0]);},
+    // Open the full Entourage Effect analysis scoped to this session's condition. The Guided overlay stays
+    // open underneath (Entourage overlay is z-index 9100 > gxOverlay 9000), so closing it returns here.
+    entourage:function(){var ids=currentCondIds();var SCI_ALIAS={'appetite-stim':'appetite','nausea-relief':'nausea'};var c=SCI_ALIAS[ids[0]]||ids[0];try{if(typeof showEntourage==='function')showEntourage(c);}catch(e){}},
     seeAlso:function(c){this.handoffTo(c);},
     // GX-10: shared hand-off into the Periodic Table. Carries the guided THC preference through as Refine Inventory
     // Match exclusions — deterministic for the 3 intoxicants (Δ9-THC, Δ8-THC, THCP), and non-destructive to any
