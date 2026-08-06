@@ -7353,6 +7353,26 @@ document.addEventListener('keydown', function(e) {
     if(rec.thcCeiling==='none')return (top==='CBD'?'CBD-forward, non-intoxicating':nm+'-forward, non-intoxicating');
     if(rec.thcCeiling==='any'&&hasTHC)return 'Balanced THC : CBD';
     return (top==='CBD'?'CBD-forward, low THC':nm+'-forward, low THC');}
+  // FEED-05 (option C): optional research opt-in appended to the Guided Match recommendation screen.
+  // Shows the mini-form only if the user hasn't already opted in (gate or here) and hasn't dismissed it.
+  function rdResearchPrompt(){
+    if(!window.ResearchData) return '';
+    if(ResearchData.contributed())
+      return '<div class="gx-note" style="margin-top:14px;border-left:3px solid var(--accent)">✓ <b>Thank you.</b> Your anonymous research details were recorded on this device — no personal information, and you can withdraw anytime via “Research data &amp; privacy” in the footer.</div>';
+    if(ResearchData.dismissed()) return '';
+    var selCss='font-size:.85rem;padding:6px 9px;border:1px solid var(--border);border-radius:6px;background:var(--surface,#fff);color:var(--text)';
+    return '<div style="margin-top:16px;padding:14px 16px;border:1px solid var(--border);border-radius:10px;background:var(--surface2)">'+
+      '<div style="font-weight:700;color:var(--accent);font-size:.95rem;margin-bottom:4px">🔬 Help advance cannabis research <span style="font-weight:400;color:var(--dim)">(optional)</span></div>'+
+      '<p class="gx-hint" style="margin:0 0 10px">Share a few <b>anonymous, non-identifying</b> details — no personal or health information, never linked to you.</p>'+
+      '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px">'+
+        '<select id="rgAge" style="'+selCss+'"><option value="">Age group</option><option value="21-29">21–29</option><option value="30-39">30–39</option><option value="40-49">40–49</option><option value="50-59">50–59</option><option value="60-69">60–69</option><option value="70+">70+</option></select>'+
+        '<select id="rgSex" style="'+selCss+'"><option value="">Sex</option><option value="female">Female</option><option value="male">Male</option><option value="intersex">Intersex / Other</option><option value="na">Prefer not to say</option></select>'+
+        '<select id="rgState" style="'+selCss+'"><option value="">State</option></select>'+
+      '</div>'+
+      '<button class="gx-cta" onclick="V4GX.rdShare()">Share anonymously</button>'+
+      '<button class="gx-cta ghost" onclick="V4GX.rdSkip()">No thanks</button>'+
+    '</div>';
+  }
   function scRec(){
     // STANDARD Guided Experience recommendation — now CONSISTENT with the Periodic Table. It shows the SAME molecule
     // set the table highlights for the selected condition, tiered by the table's own weight thresholds
@@ -7437,7 +7457,8 @@ document.addEventListener('keydown', function(e) {
       '<p class="gx-hint" style="margin-top:12px">In the Periodic Table, use <b>⚙ Refine Inventory Match</b> (in the Associated Molecules panel) to remove any molecules — or whole categories — your dispensary doesn’t carry. The recommendation updates instantly.</p>'+
       '<button class="gx-cta" onclick="V4GX.seeScience()">🔬 Explore these in the Periodic Table →</button>'+
       '<button class="gx-cta ghost" onclick="V4GX.printRec()">🖨 Print this summary</button>'+
-      '<button class="gx-cta ghost" onclick="V4GX.restart()">Start over</button>');}
+      '<button class="gx-cta ghost" onclick="V4GX.restart()">Start over</button>'+rdResearchPrompt());
+    try{if(window.ResearchData&&document.getElementById('rgState'))ResearchData.fillStates('rgState');}catch(e){}}
   function scProducts(){var rec=activeRec();var res=G().match(rec);var top=res.shown.slice(0,6);
     var recIds=rec.molecules.map(function(m){return m.molId;});var html='';
     var badge=demoMode()?'<div class="gx-posline"><span class="dot"></span>Connected · Demo-POS · live stock</div>':'';
@@ -7819,6 +7840,8 @@ document.addEventListener('keydown', function(e) {
     close:function(){el('gxOverlay').style.display='none';},
     back:function(){if(hist.length>1){hist.pop();var scr=hist[hist.length-1];({persona:scPersona,safety:scSafety,intent:scIntent,refine:scRefine,experience:scExperience,thc:scThc,timeofday:scTimeOfDay,onset:scOnset,route:scRoute,second:scSecond,meds:scMeds,rec:scRec,products:scProducts,handoff:scHandoff,insights:scInsights,researchInsights:scResearchInsights,emp:scEmp,import:scImport,importResult:scImportResult,browse:scBrowse,demoHub:scDemoHub,demoGuidedIntro:scDemoGuidedIntro,djConds:scDJConds,djMol:scDJMol,djMeds:scDJMeds,djRefine:scDJRefine,djProducts:scDJPos,djDone:scDJDone}[scr])();chrome(scr);}},
     restart:function(){this.start();},
+    rdShare:function(){try{if(window.ResearchData)ResearchData.submitGuided();}catch(e){}scRec();},
+    rdSkip:function(){try{if(window.ResearchData)ResearchData.dismissGuided();}catch(e){}scRec();},
     // UX-06 print: clean, branded summary of the standard Guided Match recommendation.
     printRec:function(){
       var condIds=currentCondIds();var SCI={'appetite-stim':'appetite','nausea-relief':'nausea'};var dc=SCI[condIds[0]]||condIds[0];
@@ -8578,7 +8601,7 @@ window.ResearchData = (function(){
   var SUPABASE_ANON='';                   // public anon key — RLS limits to INSERT
   var APP_VERSION='962bee0';              // build id sent with each row
   var STATES=['AL','AK','AZ','AR','CA','CO','CT','DE','DC','FL','GA','HI','ID','IL','IN','IA','KS','KY','LA','ME','MD','MA','MI','MN','MS','MO','MT','NE','NV','NH','NJ','NM','NY','NC','ND','OH','OK','OR','PA','RI','SC','SD','TN','TX','UT','VT','VA','WA','WV','WI','WY'];
-  var _flushing=false;
+  var _flushing=false,_scont=false,_dismiss=false;
   function uid(){return 'rd_'+Date.now().toString(36)+Math.random().toString(36).slice(2,8);}
   function val(id){var el=document.getElementById(id);return el?el.value:'';}
   function locationId(){try{var m=(location.search||'').match(/[?&]loc=([^&]+)/);return m?decodeURIComponent(m[1]):'';}catch(e){return '';}}
@@ -8611,10 +8634,23 @@ window.ResearchData = (function(){
   function captureFromGate(){
     try{var c=document.getElementById('rdConsent');if(!c||!c.checked)return; // opt-out is the default
       submit({age:val('rdAge'),sex:val('rdSex'),state:val('rdState'),city:(val('rdCity')||'').trim().slice(0,40)});
+      _scont=true; // opted in at the gate -> don't re-ask at the end of the Guided Match
     }catch(e){}
   }
-  function resetGateFields(){['rdAge','rdSex','rdState','rdCity'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});var c=document.getElementById('rdConsent');if(c)c.checked=false;}
-  function populateStates(){var s=document.getElementById('rdState');if(!s||s._filled)return;STATES.forEach(function(st){var o=document.createElement('option');o.value=st;o.textContent=st;s.appendChild(o);});s._filled=true;}
+  // FEED-05 (option C): optional opt-in shown at the END of the Guided Match (scRec). Uses its own
+  // field ids (rgAge/rgSex/rgState) so it never collides with the gate form's rd* ids.
+  function submitGuided(){
+    try{var age=val('rgAge'),sex=val('rgSex'),state=val('rgState');
+      if(age||sex||state) submit({age:age,sex:sex,state:state,city:''});
+      _scont=true;
+    }catch(e){}
+  }
+  function contributed(){return _scont;}
+  function dismissed(){return _dismiss;}
+  function dismissGuided(){_dismiss=true;}
+  function resetGateFields(){['rdAge','rdSex','rdState','rdCity','rgAge','rgSex','rgState'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});var c=document.getElementById('rdConsent');if(c)c.checked=false;_scont=false;_dismiss=false;}
+  function fillStates(id){var s=document.getElementById(id);if(!s||s._filled)return;STATES.forEach(function(st){var o=document.createElement('option');o.value=st;o.textContent=st;s.appendChild(o);});s._filled=true;}
+  function populateStates(){fillStates('rdState');}
   function withdrawLocal(){try{localStorage.removeItem(KEY);}catch(e){}}
   function openInfo(){
     var wrap=document.getElementById('rdInfoOv');
@@ -8634,7 +8670,7 @@ window.ResearchData = (function(){
   }
   try{populateStates();}catch(e){}
   try{if(syncReady()){window.addEventListener('online',flush);setTimeout(function(){try{flush();}catch(e){}},1600);}}catch(e){}
-  return {submit:submit,captureFromGate:captureFromGate,resetGateFields:resetGateFields,populateStates:populateStates,withdrawLocal:withdrawLocal,count:count,openInfo:openInfo,flush:flush,_syncReady:syncReady};
+  return {submit:submit,captureFromGate:captureFromGate,submitGuided:submitGuided,resetGateFields:resetGateFields,populateStates:populateStates,fillStates:fillStates,contributed:contributed,dismissed:dismissed,dismissGuided:dismissGuided,withdrawLocal:withdrawLocal,count:count,openInfo:openInfo,flush:flush,_syncReady:syncReady};
 })();
 </script>
 </body></html>
