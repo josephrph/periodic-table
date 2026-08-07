@@ -7448,7 +7448,19 @@ document.addEventListener('keydown', function(e) {
     optBtn("V4GX.thc('none')",'🚫','I’d rather avoid it','Non-intoxicating options',st.ceiling==='none',true)+
     optBtn("V4GX.thc('low')",'🌤️','A little is okay','Gentle, balanced options',st.ceiling==='low',true)+
     optBtn("V4GX.thc('any')",'🙂','I don’t mind it','All options on the table',st.ceiling==='any',true));}
-  function scSecond(){var opts=SECOND.filter(function(x){return x.k!==st.intent;});
+  function scSecond(){
+    // De-dupe: hide any "anything else" option the user already chose as their primary focus — matched on the
+    // RESOLVED condition set (currentCondIds covers intent + refined symptom) plus the intent key, with
+    // anxiety/stress treated as one concept. Prevents e.g. Cancer → Nausea/Vomiting then offering "Nausea too"
+    // again, or an Anxiety patient being re-offered "Stress / anxiety".
+    var EQ={anxiety:'stress'};function norm(x){return EQ[x]||x;}
+    var selected={};currentCondIds().forEach(function(c){selected[norm(c)]=1;});selected[norm(st.intent)]=1;
+    var opts=SECOND.filter(function(x){
+      var keys=[x.k].concat(x.cond||[]).map(norm);
+      return !keys.some(function(kk){return !!selected[kk];});
+    });
+    // keep state consistent if a previously-picked secondary is now the primary (e.g. user went Back and changed intent)
+    st.seconds=(st.seconds||[]).filter(function(k){return opts.some(function(o){return o.k===k;});});
     stage('<h2 class="gx-q">Anything else going on?</h2><p class="gx-hint">Choose any — or skip.</p>'+
     opts.map(function(o){return optBtn("V4GX.second('"+o.k+"',this)",o.ic,o.label,'',(st.seconds||[]).indexOf(o.k)>=0,true);}).join('')+
     '<button class="gx-cta" onclick="V4GX.toSafety()">Next →</button>'+
