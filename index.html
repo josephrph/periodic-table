@@ -83,17 +83,26 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 #newSessionBtn{flex:none;padding:6px 14px;border:1.5px solid rgba(255,255,255,.35);border-radius:20px;background:rgba(255,255,255,.12);color:#fff;font-size:.62rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;transition:background .15s,border-color .15s;white-space:nowrap}
 #newSessionBtn:hover{background:rgba(255,255,255,.25);border-color:rgba(255,255,255,.6)}
 /* INACTIVITY WARNING OVERLAY */
-#inactivityWarn{position:fixed;inset:0;z-index:8500;background:rgba(0,0,0,.72);display:none;align-items:center;justify-content:center;backdrop-filter:blur(3px)}
-#inactivityWarnBox{background:#fff;border-radius:12px;padding:32px 36px;max-width:420px;width:90%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.5)}
-.iw-icon{font-size:2.5rem;margin-bottom:14px}
-.iw-title{font-size:1rem;font-weight:800;color:#1C0A00;margin-bottom:8px}
-.iw-msg{font-size:.8rem;color:#555;line-height:1.7;margin-bottom:20px}
-.iw-countdown{font-size:2.4rem;font-weight:800;color:#CC2200;margin-bottom:20px;font-variant-numeric:tabular-nums}
-.iw-btns{display:flex;gap:10px;justify-content:center}
-.iw-continue-btn{padding:11px 28px;background:#5A7A1A;border:none;border-radius:8px;color:#fff;font-size:.78rem;font-weight:800;cursor:pointer;transition:background .15s}
-.iw-continue-btn:hover{background:#4A6A10}
-.iw-reset-btn{padding:11px 20px;background:none;border:2px solid #ccc;border-radius:8px;color:#888;font-size:.78rem;font-weight:700;cursor:pointer;transition:background-color .15s,border-color .15s,color .15s,box-shadow .15s}
+/* Inactivity warning — a DISCREET, non-blocking pill pinned bottom-centre, always on top (z 10001) so it
+   appears on EVERY screen (Guided Match, Entourage, side panels, modals) with NO full-screen backdrop, so it
+   never covers page content. "Continue session" preserves the whole session (answers + medications). */
+#inactivityWarn{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:10001;display:none;max-width:calc(100vw - 24px)}
+#inactivityWarnBox{display:flex;align-items:center;flex-wrap:wrap;justify-content:center;gap:10px 14px;background:var(--surface,#fff);border:1px solid var(--border,#e2e2dc);border-left:5px solid #E07000;border-radius:12px;padding:11px 15px;box-shadow:0 8px 30px rgba(0,0,0,.28);animation:iwPulse 2.4s ease-in-out infinite}
+@keyframes iwPulse{0%,100%{box-shadow:0 8px 30px rgba(0,0,0,.28)}50%{box-shadow:0 8px 30px rgba(0,0,0,.28),0 0 0 4px rgba(224,112,0,.20)}}
+@media (prefers-reduced-motion:reduce){#inactivityWarnBox{animation:none}}
+.iw-icon{font-size:1.4rem;line-height:1;flex-shrink:0}
+.iw-text{display:flex;flex-direction:column;gap:1px;text-align:left}
+.iw-title{font-size:.82rem;font-weight:800;color:var(--text,#1C0A00);line-height:1.25;white-space:nowrap}
+.iw-msg{font-size:.66rem;color:var(--dim,#666);line-height:1.4}
+.iw-countdown{font-weight:800;color:#CC2200;font-variant-numeric:tabular-nums}
+.iw-btns{display:flex;gap:8px;flex-shrink:0}
+.iw-continue-btn{padding:9px 16px;background:#2D6B1A;border:none;border-radius:8px;color:#fff;font-size:.75rem;font-weight:800;cursor:pointer;white-space:nowrap;transition:background .15s}
+.iw-continue-btn:hover{background:#245A14}
+.iw-reset-btn{padding:9px 11px;background:none;border:1px solid var(--border,#ccc);border-radius:8px;color:var(--dim,#888);font-size:.72rem;font-weight:700;cursor:pointer;white-space:nowrap;transition:border-color .15s,color .15s}
 .iw-reset-btn:hover{border-color:#CC2200;color:#CC2200}
+body.is-mobile-view #inactivityWarn{bottom:76px}
+body.is-mobile-view .iw-msg{display:none}
+@media (max-width:560px){#inactivityWarnBox{gap:8px 10px;padding:10px 12px}.iw-msg{display:none}}
 /* END INACTIVITY */
 /* I'M DONE FLOATING BUTTON */
 #imDoneBtn{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);z-index:7000;display:none;flex-direction:column;align-items:center}
@@ -723,16 +732,16 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 <!-- END I'M DONE -->
 
 <!-- INACTIVITY WARNING — shown before automatic session reset -->
-<div id="inactivityWarn">
+<div id="inactivityWarn" role="alertdialog" aria-live="assertive" aria-label="Session expiring due to inactivity">
   <div id="inactivityWarnBox">
-    <div class="iw-icon">⏱</div>
-    <div class="iw-title">Session Expiring</div>
-    <div class="iw-msg">This session will automatically reset in</div>
-    <div class="iw-countdown" id="inactivityCountdown">30</div>
-    <div class="iw-msg">Tap anywhere or click Continue to keep your session active.</div>
+    <span class="iw-icon" aria-hidden="true">⏱</span>
+    <div class="iw-text">
+      <div class="iw-title">Session resets in <span class="iw-countdown" id="inactivityCountdown">30</span>s</div>
+      <div class="iw-msg">Inactive — click Continue to keep your session &amp; answers.</div>
+    </div>
     <div class="iw-btns">
-      <button class="iw-reset-btn" onclick="newSession()">Reset Now</button>
-      <button class="iw-continue-btn" onclick="dismissInactivityWarning()">Continue Session</button>
+      <button class="iw-reset-btn" onclick="newSession()">Reset</button>
+      <button class="iw-continue-btn" onclick="dismissInactivityWarning()">Continue session</button>
     </div>
   </div>
 </div>
@@ -5596,8 +5605,12 @@ function PT_shell(titleText, ctxLine, bodyHtml, opts){
 }
 function PT_doPrint(titleText, ctxLine, bodyHtml, opts){
   var root=document.getElementById('printRoot'); if(!root) return;
+  // Printing/reviewing a report is genuine engagement, but it fires no mouse/key events — so treat a print as
+  // activity and restart the idle timer both when the dialog opens and when it closes, so the kiosk session
+  // does not silently time out while the user prints or reads the printout.
+  try{ if(typeof resetInactivityTimer==='function') resetInactivityTimer(); }catch(e){}
   root.innerHTML=PT_shell(titleText, ctxLine, bodyHtml, opts);
-  var cleanup=function(){root.innerHTML='';window.removeEventListener('afterprint',cleanup);};
+  var cleanup=function(){root.innerHTML='';window.removeEventListener('afterprint',cleanup);try{ if(typeof resetInactivityTimer==='function') resetInactivityTimer(); }catch(e){}};
   window.addEventListener('afterprint',cleanup);
   window.print();
 }
