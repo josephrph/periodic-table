@@ -4594,7 +4594,6 @@ function renderMedListResults(ddiHits, cannabisHits) {
 
   // ── Cannabis Interactions by Molecule ──
   html += '<div class="cannabis-section-hdr">💊 Cannabis Molecule Interactions with Your Medications</div>';
-  if (condName) html += '<div style="font-size:.65rem;color:var(--dim);margin-bottom:10px;font-style:italic">Filtered to molecules recommended for <strong>' + condName + '</strong>. Scroll for all molecules.</div>';
 
   if (!molIds.length) {
     html += '<div style="font-size:.76rem;color:#2D6B1A;padding:8px 0">✓ No cannabis interactions found for any medications in your list.</div>';
@@ -4604,12 +4603,13 @@ function renderMedListResults(ddiHits, cannabisHits) {
       var rb = cannabisHits[b][0] ? {major:3,moderate:2,minor:1}[cannabisHits[b][0].sev]||0 : 0;
       return rb !== ra ? rb - ra : cannabisHits[b].length - cannabisHits[a].length;
     });
-    sortedMols.forEach(function(molId) {
-      var mol = M[molId]; if (!mol) return;
+    // Render one molecule's accordion card.
+    function cannMolCard(molId) {
+      var mol = M[molId]; if (!mol) return '';
       var ints = cannabisHits[molId];
       var maxSev = ints[0] ? ints[0].sev : 'minor';
       var catColor = mol.category==='phytocannabinoid'?'var(--c-canna)':mol.category==='terpene'?'var(--c-terp)':'var(--c-flav)';
-      html += '<div class="cannabis-mol-result">'
+      return '<div class="cannabis-mol-result">'
         + '<div class="cannabis-mol-hdr">'
         + '<span style="display:inline-block;padding:2px 10px;border-radius:10px;background:'+catColor+';color:#fff;font-size:.72rem;font-weight:800">' + cleanMolName(mol.symbol) + '</span>'
         + '<span style="font-size:.75rem;font-weight:700;color:var(--text)">' + cleanMolName(mol.fullName) + '</span>'
@@ -4620,7 +4620,7 @@ function renderMedListResults(ddiHits, cannabisHits) {
         + ints.map(function(entry) {
             var ct = entry.cat==='otc'?'<span class="di-otc-tag">OTC</span>':'<span class="di-rx-tag">Rx</span>';
             return '<div style="padding:8px 0;border-bottom:1px solid var(--border)">'
-              + '<div class="di-card-hdr" style="margin-bottom:5px"><span class="di-drug-name" style="font-size:.75rem">' + entry.drug + '</span>' + ct
+              + '<div class="di-card-hdr" style="margin-bottom:5px"><span class="di-drug-name" style="font-size:.75rem">' + medLabel(entry) + '</span>' + ct
               + '<span class="di-sev-badge di-sev-' + entry.sev + '">' + sevLabel3[entry.sev] + '</span>'
               + '<span class="di-ev-badge" style="background:' + evColor2[entry.ev] + '">' + entry.ev + '</span></div>'
               + '<div class="di-section-lbl">Mechanism</div><div class="di-section-body">' + entry.mech + '</div>'
@@ -4628,7 +4628,28 @@ function renderMedListResults(ddiHits, cannabisHits) {
               + '</div>';
           }).join('')
         + '</div></div>';
-    });
+    }
+    var subhdr = 'font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);font-weight:700;margin:12px 0 6px';
+    // When a health condition is active, mirror the Guided Match report: group the interacting molecules into
+    // the condition's recommended set vs. "other" molecules, and explain why the non-recommended ones appear
+    // (so users always understand — same treatment for any molecule, not just CBN). No active condition → plain list.
+    var recSet = condObj ? Object.keys(condObj.molecules).filter(function(id){ return M[id]; }) : null;
+    if (recSet) {
+      var recM = sortedMols.filter(function(m){ return recSet.indexOf(m) >= 0; });
+      var othM = sortedMols.filter(function(m){ return recSet.indexOf(m) < 0; });
+      if (recM.length) html += '<div style="'+subhdr+'">Molecules recommended for ' + condName + '</div>' + recM.map(cannMolCard).join('');
+      if (othM.length) {
+        var onm = othM.map(function(m){ return cleanMolName(M[m].symbol); });
+        var oj = onm.length <= 1 ? onm.join('') : onm.slice(0,-1).join(', ') + ' and ' + onm[onm.length-1];
+        var oneO = onm.length === 1;
+        var onote = '<b>' + oj + '</b> ' + (oneO?'was':'were') + ' not among the molecules recommended for ' + condName + ', but ' + (oneO?'is':'are') + ' included here because ' + (oneO?'it':'they') + ' may be present in some full-spectrum cannabis products.';
+        html += '<div style="'+subhdr+'">Other cannabis molecules that also interact</div>'
+          + '<div style="font-size:.66rem;color:var(--dim);font-style:italic;line-height:1.5;margin:-2px 0 8px">' + onote + '</div>'
+          + othM.map(cannMolCard).join('');
+      }
+    } else {
+      html += sortedMols.map(cannMolCard).join('');
+    }
   }
 
   el.innerHTML = html;
