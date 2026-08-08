@@ -6907,10 +6907,10 @@ document.addEventListener('keydown', function(e) {
   function buildRow(id){
     var mol = M[id];
     if (!mol) return '';
-    var sub = (mol.fullName && mol.fullName !== mol.symbol) ? ' <span class="mml-row-sub">&mdash; ' + escapeHtml(mol.fullName) + '</span>' : '';
+    var sub = (mol.fullName && mol.fullName !== mol.symbol) ? ' <span class="mml-row-sub">&mdash; ' + mol.fullName + '</span>' : '';
     return '<div class="mml-row" data-id="' + id + '">'
       + '<span class="mml-row-dot" style="background:' + (CAT_COLOR[mol.category] || '#888') + '"></span>'
-      + '<span class="mml-row-name"><strong>' + escapeHtml(mol.symbol) + '</strong>' + sub + '</span>'
+      + '<span class="mml-row-name"><strong>' + mol.symbol + '</strong>' + sub + '</span>'
       + '<span class="mml-row-ev" style="background:' + (EV_COLOR[mol.evidence] || '#888') + '">' + escapeHtml(mol.evidence) + '</span>'
       + '</div>';
   }
