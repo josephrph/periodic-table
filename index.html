@@ -2687,6 +2687,7 @@ const ADVERSE_FINDINGS = {
     {
       title: 'Erectile Dysfunction &amp; Lowered Testosterone',
       condition: 'Erectile Dysfunction',
+      group: 'mens',
       evidence: 'B',
       summary: 'Population-level analyses and a Mendelian-randomization study associate cannabis use with higher odds of erectile dysfunction and with lower testosterone / testosterone deficiency. This is an association with cannabis use, not evidence that cannabis treats ED.',
       citations: [
@@ -2697,6 +2698,7 @@ const ADVERSE_FINDINGS = {
     {
       title: 'Reduced Male Fertility',
       condition: 'Male Fertility',
+      group: 'mens',
       evidence: 'B',
       summary: 'Systematic reviews and meta-analyses associate cannabis use with reduced sperm concentration and motility and with altered testicular function.',
       citations: [
@@ -2707,6 +2709,7 @@ const ADVERSE_FINDINGS = {
     {
       title: 'Testicular Germ-Cell Tumor Risk',
       condition: 'Testicular Cancer',
+      group: 'mens',
       evidence: 'B',
       summary: 'A systematic review and meta-analysis of observational studies associates cannabis exposure with an increased risk of testicular germ-cell tumors, with the association most evident for frequent or long-term use.',
       citations: [
@@ -3462,6 +3465,38 @@ function toggleFilter() {
   btn.textContent = on ? 'Hide Health Conditions' : 'Show Health Conditions';
   btn.classList.toggle('active', on);
 }
+// Build a data-driven "Safety Considerations" banner for a selected condition:
+// aggregates ADVERSE_FINDINGS matching either the condition's label (finding.condition)
+// or its category (finding.group vs the condition's group, which may be a string or array).
+// Returns '' when there are no relevant findings. The global ⚠ filter and the Breast Cancer
+// banner keep their own dedicated copy in selectCondition() — this covers every other condition.
+function buildConditionSafetyHTML(cond) {
+  if (!cond || typeof ADVERSE_FINDINGS === 'undefined') return '';
+  function matchGroup(fg) {
+    if (!fg) return false;
+    var g = cond.group;
+    return Array.isArray(g) ? g.indexOf(fg) >= 0 : g === fg;
+  }
+  var rows = [];
+  Object.keys(ADVERSE_FINDINGS).forEach(function(mol) {
+    ADVERSE_FINDINGS[mol].forEach(function(f) {
+      if (f.footnote) return;
+      if (f.condition === cond.label || matchGroup(f.group)) {
+        var sym = (typeof M !== 'undefined' && M[mol]) ? (M[mol].symbol || mol) : mol;
+        var cite = '';
+        if (f.citations && f.citations.length && f.citations[0].pmid) {
+          var p = f.citations[0].pmid;
+          cite = ' <a href="https://pubmed.ncbi.nlm.nih.gov/' + p + '/" target="_blank" rel="noopener">PMID ' + p + '</a>';
+        }
+        rows.push('<div style="margin-top:5px"><strong>' + sym + ' &mdash; ' + f.title + '</strong> (Evidence ' + (f.evidence || '') + '): ' + f.summary + cite + '</div>');
+      }
+    });
+  });
+  if (!rows.length) return '';
+  return '<strong>&#x26A0; Safety Considerations &mdash; ' + cond.label + ':</strong> Published research documents cannabis-related cautions relevant to this area:'
+    + rows.join('')
+    + '<div style="margin-top:6px;font-style:italic">Educational only &mdash; these are associations or preclinical signals, not treatment claims. Always discuss with a licensed healthcare professional.</div>';
+}
 function selectCondition(condId, btn) {
   if (activeCond === condId) { clearCondition(); return; }
   activeCond = condId;
@@ -3482,7 +3517,9 @@ function selectCondition(condId, btn) {
       warn.innerHTML = '<strong>⚠ THC9 Caution (Breast Cancer):</strong> Δ9-THC is highlighted in red — preclinical evidence suggests it may enhance tumor growth and suppress anti-tumor immunity in some breast cancer subtypes (McKallip et al. 2005 — <a href="https://pubmed.ncbi.nlm.nih.gov/15749859/" target="_blank" rel="noopener">PMID 15749859</a>). All other highlighted molecules have demonstrated anti-cancer activity. Consult an oncologist before use.';
       warn.style.display = 'block';
     } else {
-      warn.style.display = 'none';
+      var _safety = buildConditionSafetyHTML(cond);
+      if (_safety) { warn.innerHTML = _safety; warn.style.display = 'block'; }
+      else { warn.style.display = 'none'; }
     }
   }
   updateResetBtn();
