@@ -4721,13 +4721,13 @@ var DI_DATA = [
    effect:'Elevated SSRI plasma levels, potential serotonin syndrome risk, increased side effects (nausea, agitation, sweating).',
    monitor:'Monitor for serotonin syndrome symptoms. Consider SSRI dose adjustment.',
    pmid:'31288397'},
-  {id:'benzos',drug:'Benzodiazepines',brands:['Xanax','Valium','Ativan','Klonopin','Restoril','Halcion'],cls:'Benzodiazepine / CNS Depressant',cat:'rx',
+  {id:'benzos',isClass:true,drug:'Benzodiazepines',brands:['Xanax','Valium','Ativan','Klonopin','Restoril','Halcion'],cls:'Benzodiazepine / CNS Depressant',cat:'rx',
    mols:['CBD','THC9','CBN'],sev:'moderate',ev:'B',
    mech:'Additive CNS depression. CBD inhibits CYP3A4, which metabolizes many benzodiazepines, potentially elevating their plasma concentrations.',
    effect:'Enhanced sedation, cognitive impairment, psychomotor slowing. Respiratory depression risk at high doses.',
    monitor:'Avoid driving or operating machinery. Consider dose reduction of benzodiazepine.',
    pmid:'38868665'},
-  {id:'opioids',drug:'Opioids',brands:['OxyContin','Vicodin','Percocet','Norco','MS Contin','Dilaudid','Fentanyl'],cls:'Opioid Analgesic',cat:'rx',
+  {id:'opioids',isClass:true,drug:'Opioids',brands:['OxyContin','Vicodin','Percocet','Norco','MS Contin','Dilaudid','Fentanyl'],cls:'Opioid Analgesic',cat:'rx',
    mols:['THC9'],sev:'major',ev:'B',
    mech:'Additive CNS and respiratory depression. THC potentiates opioid analgesia but also amplifies CNS depressant effects at the brainstem level.',
    effect:'Severely enhanced respiratory depression, increased overdose risk, excessive sedation.',
@@ -5555,6 +5555,7 @@ var DI_ALIASES = {
 function medLabel(entry){
   if(!entry) return '';
   var g=entry.drug||'';
+  if(entry.isClass) return g;  // drug-class entries (e.g. Benzodiazepines): don't append one example brand — it misrepresents the class
   var b=(entry.brands&&entry.brands.length)?String(entry.brands[0]):'';
   if(b && g.indexOf('(')<0 && g.indexOf('/')<0 && g.toLowerCase().indexOf(b.toLowerCase())<0) return g+' ('+b+')';
   return g;
@@ -7957,7 +7958,7 @@ document.addEventListener('keydown', function(e) {
       '<button class="gx-cta" onclick="V4GX.djToRec()"'+(sel.length?'':' disabled')+'>See the research associations →</button>');
   }
   function scDJMol(){var g=djClinicalGroups();
-    function grp(title,ids){if(!ids.length)return '';return '<div class="dj-molgrp"><div class="dj-molgrp-h">'+title+' <span style="opacity:.6;font-weight:600">('+ids.length+')</span></div><div class="dj-mols">'+ids.map(function(mid){return '<span class="dj-mol">'+esc(djMolName(mid))+'</span>';}).join('')+'</div></div>';}
+    function grp(title,ids){if(!ids.length)return '';return '<div class="dj-molgrp"><div class="dj-molgrp-h">'+title+' <span style="opacity:.6;font-weight:600">('+ids.length+')</span></div><div class="dj-mols">'+ids.map(function(mid){return '<span class="dj-mol">'+djMolName(mid)+'</span>';}).join('')+'</div></div>';}
     var condNames=(st.djConds||[]).map(djLabelFor).join(' + ');
     stage(djStepBar(1)+'<h2 class="gx-q">What the research associates</h2>'+
       '<p class="gx-hint">For <b>'+esc(condNames)+'</b> — the molecular profile from V2\'s condition-to-molecule evidence base.</p>'+
