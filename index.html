@@ -6074,7 +6074,16 @@ var REFINE_CAT_LABEL = {phytocannabinoid:'Phytocannabinoids', rare:'Rare / Emerg
 function molsInCategory(cat) {
   return Object.keys(M).filter(function(id) { return M[id].category === cat; });
 }
-function cleanMolName(s) { return (s || '').replace(/&[^;]+;/g, ''); }
+function cleanMolName(s) {
+  // Decode the HTML entities used in molecule symbols/names to their Unicode characters
+  // (e.g. &Delta;9-THC -> Δ9-THC) instead of stripping them, so plain-text render sites
+  // (drug-interaction chips, entourage Refine) keep the Greek prefix. Any unmapped entity is
+  // stripped as before (defensive fallback).
+  return (s || '')
+    .replace(/&Delta;/g, 'Δ').replace(/&alpha;/g, 'α').replace(/&beta;/g, 'β')
+    .replace(/&gamma;/g, 'γ').replace(/&times;/g, '×').replace(/&mdash;/g, '—')
+    .replace(/&[a-zA-Z0-9#]+;/g, '');
+}
 function getCandidateMolIds(condId) {
   var cond = CONDITIONS.find(function(c) { return c.id === condId; });
   if (!cond || !cond.molecules) return [];
