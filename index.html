@@ -3331,6 +3331,16 @@ function buildGrid() {
   });
 }
 
+// True when a condition has documented (non-footnote) Adverse Findings — matched by label or
+// category (group), mirroring buildConditionSafetyHTML. Used to add a subtle caution marker to
+// its chip. The global ⚠ filter chip (isRisk) is excluded — it is already the adverse entry point.
+function condHasAdverse(cond) {
+  if (!cond || cond.isRisk || typeof ADVERSE_FINDINGS === 'undefined') return false;
+  function mg(fg) { if (!fg) return false; var g = cond.group; return Array.isArray(g) ? g.indexOf(fg) >= 0 : g === fg; }
+  return Object.keys(ADVERSE_FINDINGS).some(function(mol) {
+    return ADVERSE_FINDINGS[mol].some(function(f) { return !f.footnote && (f.condition === cond.label || mg(f.group)); });
+  });
+}
 // ── BUILD CONDITIONS BAR ───────────────────────────────────────
 function buildConditionsBar() {
   const container = document.getElementById('fpGroups');
@@ -3348,7 +3358,8 @@ function buildConditionsBar() {
     div.innerHTML = '<div class="cg-lbl" style="display:flex;align-items:center;flex-wrap:wrap;gap:0">' + grp.label + dots + '</div>'
       + '<div class="cg-chips">' + groupConds.map(function(c) {
           var cls = 'cc' + (c.isRisk ? ' risk-btn' : '');
-          return '<button class="' + cls + '" data-cid="' + c.id + '" onclick="selectCondition(\'' + c.id + '\',this)">' + c.label + '</button>';
+          var adv = condHasAdverse(c) ? ' <span class="cc-adv" title="Documented safety cautions — select to view" style="color:#c17d2a">&#x26A0;</span>' : '';
+          return '<button class="' + cls + '" data-cid="' + c.id + '" onclick="selectCondition(\'' + c.id + '\',this)">' + c.label + adv + '</button>';
         }).join('') + '</div>';
     container.appendChild(div);
   });
