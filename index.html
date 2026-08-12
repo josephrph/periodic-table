@@ -506,6 +506,9 @@ body.is-mobile-view .iw-msg{display:none}
 .fp-reco-grp{display:flex;align-items:center;flex-wrap:wrap;gap:5px;margin-bottom:7px}
 .fp-reco-grplbl{font-size:.55rem;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);margin-right:4px;width:100%}
 .fp-reco-chip{display:inline-flex;align-items:center;padding:3px 9px;border-radius:12px;color:#fff;font-size:.66rem;font-weight:700}
+/* Print this match (UX-06 Phase 2) — secondary weight so ⚙ Refine Inventory Match stays the primary action */
+.fp-reco-print{display:flex;align-items:center;padding:9px 14px;border:2px solid var(--border);border-radius:7px;font-size:.7rem;line-height:1;letter-spacing:.04em;text-transform:uppercase;background:var(--surface);color:var(--text);cursor:pointer;font-weight:800;white-space:nowrap;transition:border-color .12s,color .12s}
+.fp-reco-print:hover{border-color:var(--accent);color:var(--accent)}
 /* WELCOME OVERLAY */
 #wlcOv{position:fixed;inset:0;z-index:1000;background:rgba(28,26,20,.6);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:20px}
 #wlcBox{background:var(--surface);border:1px solid var(--border);border-radius:12px;max-width:680px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.28);max-height:90vh;overflow-y:auto}
@@ -1221,6 +1224,8 @@ body.is-mobile-view .iw-msg{display:none}
 <div id="fpRecoWrap" style="display:none;background:var(--surface2);border-bottom:1px solid var(--border);padding:12px 20px">
   <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:8px">
     <div class="fp-reco-title">Associated Molecules — <span id="fpRecoCondLabel"></span></div>
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+    <button type="button" class="fp-reco-print" onclick="printRecoReport()" title="Print or save this match as a PDF">&#x1F5A8;&nbsp; Print this match</button>
     <div class="ent-refine-wrap" id="fpRefineWrap">
       <button type="button" class="ent-refine-btn" id="fpRefineBtn" onclick="toggleFpRefinePanel(event)" title="Exclude molecule classes or individual molecules your dispensary doesn't stock" aria-haspopup="true" aria-expanded="false">
         &#x2699; Refine Inventory Match
@@ -1233,6 +1238,7 @@ body.is-mobile-view .iw-msg{display:none}
           <button type="button" class="ent-refine-done" onclick="closeFpRefinePanel()">Done</button>
         </div>
       </div>
+    </div>
     </div>
   </div>
   <div id="fpEvThreshSection"></div>
@@ -4044,9 +4050,11 @@ function openPanel(id, tileEl) {
     + '<span>Scientific References</span><span class="acc-icon">&#x25BE;</span></button>'
     + '<div class="acc-body">' + citesInner + '</div></div>';
 
-  document.getElementById('panelPdf').innerHTML = mol.pdf
-    ? '<button class="pdf-btn" onclick="openRefCard(\'' + id + '\')">&#x1F4C4; View Reference Article</button>'
-    : '';
+  // Panel footer actions. The print button (UX-06 Phase 2) is always offered; the reference-article
+  // button only when the molecule has a PDF, exactly as before.
+  document.getElementById('panelPdf').innerHTML =
+    (mol.pdf ? '<button class="pdf-btn" onclick="openRefCard(\'' + id + '\')">&#x1F4C4; View Reference Article</button>' : '')
+    + '<button class="pdf-btn" onclick="printMoleculeReport(\'' + id + '\')" title="Print or save this molecule profile as a PDF">&#x1F5A8; Print this molecule profile</button>';
 
   document.getElementById('panel').classList.add('open');
   document.getElementById('mainArea').classList.add('panel-open');
@@ -5729,6 +5737,215 @@ function printDrugReport(){
     ? '<div class="pt-print-sec">'+html+'</div>'
     : '<div class="pt-print-sec"><p>No interaction results to display yet. Search a medication (or add your medication list and run “Check All Interactions”), then print.</p></div>';
   PT_doPrint(title, ctx, body, {phi:true});
+}
+
+// ===== PRINT / PDF Phase 2 (UX-06): molecule profile + Associated Molecules printouts =====
+// These two build a purpose-made print body from the underlying data instead of cloning the live
+// DOM (as printDrugReport does), because: (a) the molecule panel's accordions are collapsed by
+// default, so a clone would print empty section bodies; (b) the Associated Molecules panel renders
+// symbol-only colored chips, which are cryptic on paper. Same PT_shell letterhead/footer as the
+// Guided Match and drug-interaction reports — nothing about those is changed here.
+function PT_evLabel(ev) {
+  return ({A:'A — Clinical Evidence (Human Trials)', B:'B — Observational (Case Studies / Survey)',
+           C:'C — Preclinical (Animal / In Vitro)',  D:'D — Emerging / Theoretical'})[ev] || ev;
+}
+// Section wrapper — returns nothing when there is no content, so empty sections never print.
+function PT_sec(titleText, inner) {
+  return inner ? '<div class="pt-print-sec"><h3>' + titleText + '</h3>' + inner + '</div>' : '';
+}
+// Compact, ink-friendly citation line. The PMID prints as TEXT because paper cannot be clicked —
+// the reader needs the number itself to look the paper up.
+function PT_cite(c) {
+  var src = c.pmid ? 'PMID ' + c.pmid
+    : (c.url ? (c.type === 'CT' ? 'ClinicalTrials.gov ' + (c.vol || '')
+              : (c.type === 'FDA' ? 'FDA Database' : c.url)) : '');
+  return '<div class="pt-print-cite">' + c.authors + ' <em>' + c.title + '</em> ' + c.journal
+    + (c.vol ? ' ' + c.vol : '') + '; ' + c.year + (src ? '. <strong>' + src + '</strong>' : '')
+    + (c.note ? '<div class="pt-print-citenote">' + c.note + '</div>' : '') + '</div>';
+}
+// Molecule profile report — mirrors the detail panel's sections (tags, adverse findings, drug
+// interactions, background, synergies, references) for the molecule whose panel is open.
+function printMoleculeReport(id) {
+  var mol = M[id]; if (!mol) return;
+  var catLabel = {phytocannabinoid:'Phytocannabinoid', acid:'Acidic Cannabinoid', terpene:'Terpene', flavonoid:'Flavonoid', rare:'Rare / Emerging'};
+  var rcLabel  = {CB1:'CB1', CB2:'CB2', TRP:'TRP', '5HT':'5-HT (Serotonin)', PPAR:'PPAR', MULTI:'Multi'};
+  var sevLabel = {major:'Major', moderate:'Moderate', minor:'Minor'};
+  var body = '';
+
+  // Several molecules use their name as their symbol (Limonene, Linalool …) — don't print it twice.
+  var molLabel = (cleanMolName(mol.symbol) === mol.fullName) ? mol.fullName : mol.fullName + ' (' + mol.symbol + ')';
+  body += PT_sec('Profile',
+      '<div class="pt-print-kv"><strong>Molecule:</strong> ' + molLabel + '</div>'
+    + '<div class="pt-print-kv"><strong>Category:</strong> ' + (catLabel[mol.category] || mol.category) + '</div>'
+    + '<div class="pt-print-kv"><strong>Molecular weight:</strong> ' + mol.mass + ' g/mol</div>'
+    + '<div class="pt-print-kv"><strong>Evidence grade:</strong> ' + PT_evLabel(mol.evidence) + '</div>'
+    + '<div class="pt-print-kv"><strong>Receptor targets:</strong> '
+      + (mol.receptors.map(function(r) { return rcLabel[r] || r; }).join(' · ') || '—') + '</div>');
+
+  var tags = mol.indications.filter(function(i) { return i.indexOf('Unknown') === -1; });
+  body += PT_sec('Researched Areas', tags.length
+    ? tags.map(function(i) { return '<span class="pt-print-chip">' + i + '</span>'; }).join('')
+    : '<p class="pt-print-p">No indexed research areas for this molecule yet.</p>');
+
+  body += PT_sec('Background', '<p class="pt-print-p">' + mol.description + '</p>');
+
+  // Adverse Findings — full findings, then footnote-level (ecological/preliminary) entries. When a
+  // molecule has neither, print the standing "absence is not safety" caution rather than nothing.
+  var adv = getMolFindings(id);
+  var advHtml = '';
+  if (adv.full.length) {
+    advHtml += '<p class="pt-print-p">Documented adverse, risk, or safety-signal findings for ' + mol.symbol
+      + ' from peer-reviewed literature, graded on the same A–D evidence scale as the therapeutic findings.</p>';
+    advHtml += adv.full.map(function(f) {
+      return '<div class="pt-print-item"><div class="pt-print-item-hd">' + f.title
+        + ' <span class="pt-print-grade">Evidence ' + (f.evidence || '') + '</span></div>'
+        + (f.condition ? '<div class="pt-print-sub">Related condition: ' + f.condition + '</div>' : '')
+        + '<div class="pt-print-body">' + f.summary + '</div>'
+        + (f.citations || []).map(PT_cite).join('')
+        + '</div>';
+    }).join('');
+  }
+  if (adv.footnotes.length) {
+    advHtml += '<div class="pt-print-item"><div class="pt-print-item-hd">Footnote — Ecological / Preliminary Evidence</div>'
+      + adv.footnotes.map(function(f) {
+          return '<div class="pt-print-body"><strong>' + f.title + ':</strong> ' + f.summary + '</div>'
+            + (f.citations || []).map(PT_cite).join('');
+        }).join('')
+      + '</div>';
+  }
+  if (!adv.full.length && !adv.footnotes.length) {
+    advHtml = '<p class="pt-print-p">No adverse findings are documented for ' + mol.symbol + ' in this database. '
+      + '<strong>The absence of a finding does not imply safety</strong> — most cannabis plant molecules have not yet been sufficiently studied for adverse effects.</p>';
+  }
+  body += PT_sec('&#x26A0; Adverse Findings', advHtml);
+
+  // Drug interactions — a molecule like Δ9-THC carries ~130 documented interactions, so printing the
+  // full mechanism/effect/monitoring card for each (as the panel shows on screen) would run to dozens
+  // of pages. The profile therefore prints a compact list grouped by severity, keeping the actionable
+  // monitoring line; full per-drug detail stays in the dedicated Drug Interaction Report, which is
+  // scoped to the medications the reader actually takes.
+  var molDi = getMolDrugInteractions(id);
+  var diHtml;
+  if (molDi.length) {
+    diHtml = '<p class="pt-print-p">' + molDi.length + ' documented interaction' + (molDi.length === 1 ? '' : 's')
+      + ' for ' + mol.symbol + '. Always consult your pharmacist or prescriber before combining cannabis with any medication.</p>';
+    ['major','moderate','minor'].forEach(function(sev) {
+      var rows = molDi.filter(function(r) { return r.sev === sev; });
+      if (!rows.length) return;
+      diHtml += '<div class="pt-print-grp"><div class="pt-print-grplbl">' + sevLabel[sev] + ' (' + rows.length + ')</div>'
+        + rows.map(function(r) {
+            return '<div class="pt-print-molrow"><strong>' + r.drug + '</strong> '
+              + '<span class="pt-print-grade">(' + (r.cat === 'otc' ? 'OTC' : 'Rx') + ' · Evidence ' + r.ev + ')</span>'
+              + ' — ' + r.monitor + (r.pmid ? ' <span class="pt-print-grade">PMID ' + r.pmid + '</span>' : '')
+              + '</div>';
+          }).join('')
+        + '</div>';
+    });
+    diHtml += '<p class="pt-print-p">Mechanism and clinical-effect detail for a specific medication is available in the '
+      + '&#x1F48A; Drug Interactions panel — search the medication there and print that report. '
+      + 'This list reflects currently documented interactions; absence from it does not confirm safety.</p>';
+  } else {
+    diHtml = '<p class="pt-print-p">No cannabis drug interactions are currently documented for ' + mol.symbol
+      + ' in this database. This does not confirm safety — always consult your pharmacist before combining cannabis with any medication.</p>';
+  }
+  body += PT_sec('&#x1F48A; Drug Interactions', diHtml);
+
+  if (mol.synergy && mol.synergy.length) {
+    body += PT_sec('Notable Synergies', mol.synergy.map(function(s) {
+      return '<div class="pt-print-item"><div class="pt-print-item-hd">' + mol.symbol + ' + ' + s.partnerName
+        + ' <span class="pt-print-grade">' + s.condition + '</span></div>'
+        + '<div class="pt-print-body">' + s.note + '</div>'
+        + '<div class="pt-print-cite">' + s.citation + '</div></div>';
+    }).join(''));
+  }
+
+  var cites = CITATIONS[id] || [];
+  body += PT_sec('Scientific References', cites.length
+    ? cites.map(PT_cite).join('')
+    : '<p class="pt-print-p">No indexed studies for this molecule yet. Search PubMed for “' + mol.fullName + '”.</p>');
+
+  PT_doPrint('Molecule Profile — ' + mol.fullName,
+    mol.symbol + ' · ' + (catLabel[mol.category] || mol.category) + ' · Evidence grade ' + mol.evidence,
+    body);
+}
+// Associated Molecules report — recomputes the list from the SAME source the on-screen panel uses
+// (highlighted tiles + Refine exclusions + evidence threshold) so the printout can never drift from
+// the panel, and carries the condition's rendered safety banner verbatim.
+function printRecoReport() {
+  if (!activeCond) return;
+  var cond = CONDITIONS.find(function(c) { return c.id === activeCond; });
+  if (!cond) return;
+  var sevLabel = {major:'Major', moderate:'Moderate', minor:'Minor'};
+
+  var included = Array.from(document.querySelectorAll(
+      '.mol-tile.cond-primary, .mol-tile.cond-secondary, .mol-tile.cond-tertiary, .mol-tile.cond-warning'
+    ))
+    .map(function(t) { return t.dataset.id; })
+    .filter(function(id) {
+      if (!M[id] || _excludedMols[id]) return false;
+      if (_refineMinEvidence === 'A')  return M[id].evidence === 'A';
+      if (_refineMinEvidence === 'AB') return M[id].evidence === 'A' || M[id].evidence === 'B';
+      return true;
+    });
+  var excludedIds = getCandidateMolIds(activeCond).filter(function(id) { return _excludedMols[id]; });
+
+  var byCat = {};
+  included.forEach(function(id) { (byCat[M[id].category] = byCat[M[id].category] || []).push(id); });
+  var listHtml = REFINE_CAT_ORDER.map(function(cat) {
+    if (!byCat[cat] || !byCat[cat].length) return '';
+    return '<div class="pt-print-grp"><div class="pt-print-grplbl">' + REFINE_CAT_LABEL[cat]
+      + ' (' + byCat[cat].length + ')</div>'
+      + byCat[cat].map(function(id) {
+          var sev = _diMolSev[id];
+          // Several molecules use their name as their symbol (Limonene, Linalool …) — don't print it twice.
+          var name = (cleanMolName(M[id].symbol) === M[id].fullName) ? '' : ' — ' + M[id].fullName;
+          return '<div class="pt-print-molrow"><strong>' + M[id].symbol + '</strong>' + name
+            + ' <span class="pt-print-grade">Evidence ' + M[id].evidence + '</span>'
+            + (sev ? ' <span class="pt-print-flag">&#x26A0; ' + (sevLabel[sev] || sev) + ' interaction</span>' : '')
+            + '</div>';
+        }).join('')
+      + '</div>';
+  }).join('');
+
+  // Section header stays generic — the report title above it already names the condition.
+  var body = PT_sec('Matched Molecules', listHtml
+    || '<p class="pt-print-p">No molecules match the current selection.</p>');
+
+  // Drug-interaction alert, when a medication search is active alongside the condition.
+  if (Object.keys(_diMolSev).length) {
+    var alerts = included.filter(function(id) { return _diMolSev[id]; });
+    if (alerts.length) {
+      body += PT_sec('&#x26A0; Drug Interaction Alert — ' + _diMatchedDrug,
+          alerts.map(function(id) {
+            return '<div class="pt-print-molrow"><strong>' + M[id].symbol + '</strong> — '
+              + (sevLabel[_diMolSev[id]] || _diMolSev[id]) + '</div>';
+          }).join('')
+        + '<p class="pt-print-p">Print the full Drug Interaction Report from the 💊 Drug Interactions panel for mechanism, effect, and monitoring detail. Consult your pharmacist before use.</p>');
+    }
+  }
+
+  // The condition's safety banner, exactly as rendered on screen (per-category Adverse Findings).
+  var warnEl = document.getElementById('csWarn');
+  if (warnEl && warnEl.style.display !== 'none' && warnEl.innerHTML) {
+    body += PT_sec('Safety Considerations', '<div class="pt-print-body">' + warnEl.innerHTML + '</div>');
+  }
+
+  // Active refinements — so a printed match is reproducible later.
+  var notes = [];
+  if (excludedIds.length) {
+    notes.push('Refine Inventory Match active — ' + excludedIds.length + ' molecule(s) excluded from matching ('
+      + excludedIds.map(function(id) { return cleanMolName(M[id].symbol); }).join(', ') + ').');
+  }
+  if (_refineMinEvidence === 'A')       notes.push('Evidence threshold: showing only A — Clinical (Human Trial) molecules.');
+  else if (_refineMinEvidence === 'AB') notes.push('Evidence threshold: showing only A (Clinical) + B (Observational) molecules.');
+  else                                  notes.push('Evidence threshold: all grades A–D.');
+  if (activeRec) notes.push('Receptor filter (' + activeRec + ') active — showing only molecules that interact with ' + activeRec + '.');
+  body += PT_sec('Filters Applied', notes.map(function(n) {
+    return '<div class="pt-print-kv">' + n + '</div>';
+  }).join(''));
+
+  PT_doPrint('Associated Molecules — ' + cond.label,
+    'Molecules that published research associates with ' + cond.label + '.', body);
 }
 function toggleDrugPanel() {
   _diOpen = !_diOpen;
@@ -8556,6 +8773,21 @@ function djToast(msg){try{var t=document.getElementById('djToastEl');if(!t){t=do
 #printRoot .di-card.major{border-left-color:#CC2200 !important}
 #printRoot .di-card.moderate{border-left-color:#E07000 !important}
 #printRoot .di-card.minor{border-left-color:#C8A800 !important}
+/* Phase 2 print blocks (molecule profile + Associated Molecules) */
+#printRoot .pt-print-p{font-size:.8rem;margin:0 0 7px;line-height:1.55}
+#printRoot .pt-print-kv{font-size:.8rem;margin-bottom:3px}
+#printRoot .pt-print-item{border:1px solid #ccc;border-radius:4px;padding:7px 10px;margin-bottom:7px;break-inside:avoid;page-break-inside:avoid}
+#printRoot .pt-print-item-hd{font-size:.82rem;font-weight:700;margin-bottom:3px}
+#printRoot .pt-print-grade{font-size:.66rem;font-weight:600;color:#555 !important;white-space:nowrap}
+#printRoot .pt-print-sub{font-size:.68rem;color:#555 !important;font-style:italic;margin-bottom:4px}
+#printRoot .pt-print-body{font-size:.78rem;line-height:1.55;margin-bottom:4px}
+#printRoot .pt-print-cite{font-size:.66rem;color:#333 !important;line-height:1.5;margin-top:4px;padding-left:9px;border-left:2px solid #ccc}
+#printRoot .pt-print-citenote{font-size:.63rem;color:#555 !important;font-style:italic}
+#printRoot .pt-print-grp{margin-bottom:9px;break-inside:avoid;page-break-inside:avoid}
+#printRoot .pt-print-grplbl{font-size:.66rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#555 !important;margin-bottom:3px}
+#printRoot .pt-print-molrow{font-size:.8rem;line-height:1.5;padding:1px 0 1px 9px}
+#printRoot .pt-print-flag{font-size:.68rem;font-weight:700;color:#8B1000 !important}
+#printRoot a{color:#111 !important;text-decoration:none}
 #printRoot button,#printRoot .di-btn{display:none !important}
 </style>
 <div id="printRoot" aria-hidden="true"></div>
