@@ -4229,9 +4229,23 @@ function openPanel(id, tileEl) {
         + '<a href="https://pubmed.ncbi.nlm.nih.gov/?term=' + qBroad + '&sort=relevance" target="_blank" rel="noopener" style="color:var(--mute);text-decoration:none">All ' + mol.symbol + ' research &#x2197;</a>'
         + '</div>'
         + '</div>';
-    var summaryNote = '<div style="font-size:.68rem;color:var(--dim);line-height:1.55;margin-bottom:8px;padding:7px 9px;background:var(--surface2);border-radius:4px;border-left:3px solid ' + evColor[mol.evidence] + '">'
+    // UX-49: the evidence grade belongs to the MOLECULE's overall research base, not to every one of
+    // its indications. Where V2 holds no citation for this specific pairing, saying e.g. "supported by
+    // human clinical trial data" asserted trial support for a pairing with none — and directly
+    // contradicted the "Citation Not Yet Indexed" panel rendered immediately below it. So the sentence
+    // is now scoped honestly, and the accent stripe drops to a neutral tone rather than the grade
+    // colour, which was itself implying grade-level support for the pairing.
+    var evGradeLabel = {A:'A &mdash; clinical, human trials', B:'B &mdash; observational studies',
+                        C:'C &mdash; preclinical, animal / in vitro', D:'D &mdash; emerging / theoretical'};
+    var stripe = relCites.length ? evColor[mol.evidence] : 'var(--mute)';
+    var claim = relCites.length
+      ? 'This indication for <strong>' + i + '</strong> ' + evSummary[mol.evidence]
+      : mol.symbol + '&rsquo;s evidence grade of <strong>' + evGradeLabel[mol.evidence]
+        + '</strong> describes its overall research base, <strong>not this specific pairing</strong> '
+        + '&mdash; see the note below on indexed citations.';
+    var summaryNote = '<div style="font-size:.68rem;color:var(--dim);line-height:1.55;margin-bottom:8px;padding:7px 9px;background:var(--surface2);border-radius:4px;border-left:3px solid ' + stripe + '">'
       + '<strong>' + mol.symbol + ' &mdash; ' + i + '</strong><br>'
-      + 'This indication for <strong>' + i + '</strong> ' + evSummary[mol.evidence] + ' ' + mol.description.split('.')[0] + '.'
+      + claim + ' ' + mol.description.split('.')[0] + '.'
       + '</div>';
     var bottomLink = relCites.length
       ? '<a class="ind-srch" style="margin-top:6px" href="https://pubmed.ncbi.nlm.nih.gov/?term=' + q + '&sort=relevance" target="_blank" rel="noopener">&#x1F50D; Search PubMed: all ' + mol.symbol + ' ' + i.toLowerCase() + ' research</a>'
