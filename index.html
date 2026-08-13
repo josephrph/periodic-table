@@ -1187,9 +1187,9 @@ body.is-mobile-view .iw-msg{display:none}
           <details class="faq-item">
             <summary><span class="faq-q" style="font-size:.95rem">What health conditions does V2 cover?</span><span class="faq-icon" style="width:22px;height:22px;font-size:1.1rem">+</span></summary>
             <div class="faq-content" style="font-size:.82rem">
-              <p>V2 covers 49 health conditions across eight clinical groups (Prostate Cancer is cross-listed under both Cancer Sub-types and Men's Health), plus a dedicated ⚠ Adverse Findings safety filter:</p>
+              <p>V2 covers 50 health conditions across eight clinical groups (Prostate Cancer is cross-listed under both Cancer Sub-types and Men's Health), plus a dedicated ⚠ Adverse Findings safety filter:</p>
               <p><u>Pain &amp; Inflammation (6):</u> Analgesic/Pain, Neuropathic Pain, Arthritis/Joint Pain, Muscle Spasm/Spasticity, Anti-Inflammatory, Skin Health/Acne.</p>
-              <p><u>Neurological (9):</u> Epilepsy/Seizures, Sleep &amp; Insomnia, Multiple Sclerosis, Neuroprotection, Alzheimer's, Parkinson's, Neurodegenerative, Autism (ASD), Glaucoma.</p>
+              <p><u>Neurological (10):</u> Epilepsy/Seizures, Sleep &amp; Insomnia, Multiple Sclerosis, Neuroprotection, Alzheimer's, Parkinson's, Neurodegenerative, Autism (ASD), Glaucoma, Essential Tremor.</p>
               <p><u>Mental Health (5):</u> Anxiety, Anti-depressant, PTSD/Trauma, Stress/Cortisol, Psychosis/Schizophrenia.</p>
               <p><u>Cancer &amp; Immune (5):</u> Cancer/Anti-Tumor, Antiviral/Immune, Antibacterial, Antifungal, Antioxidant.</p>
               <p><u>Metabolic &amp; Digestive (8):</u> Antiemetic/Nausea, Appetite Regulation, Diabetes/Blood Sugar, IBD/Crohn's/Colitis, Liver/Hepatoprotective, Cardiovascular, Hyperlipidemia, Bone Health.</p>
@@ -2109,7 +2109,7 @@ body.is-mobile-view .panel-body{touch-action:pan-y}
   <details class="faq-item">
     <summary><span class="faq-q">What health conditions does V2 cover?</span><span class="faq-icon">+</span></summary>
     <div class="faq-content">
-      <p>V2 expanded the therapeutic conditions filter from 30 to 49 health conditions, organized across eight clinical groups — Prostate Cancer is cross-listed under both Cancer Sub-types and Men's Health, plus a dedicated ⚠ Adverse Findings safety filter:</p>
+      <p>V2 expanded the therapeutic conditions filter from 30 to 50 health conditions, organized across eight clinical groups — Prostate Cancer is cross-listed under both Cancer Sub-types and Men's Health, plus a dedicated ⚠ Adverse Findings safety filter:</p>
       <p><u>Pain &amp; Inflammation (6 conditions):</u> Analgesic/Pain, Neuropathic Pain, Arthritis/Joint Pain, Muscle Spasm/Spasticity, Anti-Inflammatory, and Skin Health/Acne.</p>
       <p><u>Neurological (9 conditions):</u> Epilepsy/Seizures, Sleep &amp; Insomnia, Multiple Sclerosis, Neuroprotection, Alzheimer's Disease, Parkinson's Disease, Neurodegenerative disease, Autism Spectrum Disorder (ASD), and Glaucoma / Ocular Pressure.</p>
       <p><u>Mental Health (5 conditions):</u> Anxiety, Anti-depressant, PTSD/Trauma, Stress/Cortisol, and Psychosis/Schizophrenia.</p>
@@ -2779,6 +2779,26 @@ const M = {
 const ADVERSE_FINDINGS = {
   THC9: [
     {
+      title: 'Essential Tremor — Negative Randomized Trial',
+      condition: 'Essential Tremor',
+      evidence: 'A',
+      summary: 'In a randomized, double-blind, placebo-controlled crossover trial of oral THC&nbsp;5&nbsp;mg + CBD&nbsp;100&nbsp;mg in essential tremor, no significant effect was seen on the primary tremor-amplitude endpoint or on any secondary endpoint. Tolerability was also a concern in a small sample: of seven participants, one withdrew following a serious adverse event and one could not tolerate the lowest dose. The authors concluded their data do not support anecdotal reports of cannabinoid effectiveness for essential tremor.',
+      citations: [
+        {type:'RCT', authors:'Longardner K, Shen Q, Castellanos FX, et al.', year:'2025', title:'Double-Blind, Randomized, Placebo-Controlled, Crossover Study of Oral Cannabidiol and Tetrahydrocannabinol for Essential Tremor', journal:'Tremor Other Hyperkinet Mov', vol:'15:14', pmid:'40248111'}
+      ]
+    },
+    {
+      footnote: true,
+      title: 'Essential Tremor — Contradictory Animal-Model Evidence (Footnote)',
+      summary: 'Rodent harmaline models of essential tremor have reported tremor suppression with cannabinoid treatment, but in opposing pharmacological directions &mdash; one study found CB1 receptor <em>agonism</em> reduced tremor, another found CB1 <em>antagonism</em> did. Contradictory mechanisms in the same animal model, combined with two negative human trials, are why these preclinical signals are recorded as a footnote and not as supporting evidence.',
+      citations: [
+        {type:'Pre', authors:'Loomis S, et al.', year:'2024', title:'Nabiximols (NBX) suppresses tremor in a rat Harmaline model of essential tremor', journal:'Exp Neurol', vol:'382:114988', pmid:'39368533'},
+        {type:'Pre', authors:'Abbassian H, et al.', year:'2016', title:'Cannabinoid receptor agonism suppresses tremor, cognition disturbances and anxiety-like behaviors in a rat model of essential tremor', journal:'Physiol Behav', vol:'164(Pt A):314-20', pmid:'27317835'},
+        {type:'Pre', authors:'Abbassian H, et al.', year:'2016', title:'Cannabinoid type 1 receptor antagonism ameliorates harmaline-induced essential tremor in rat', journal:'Br J Pharmacol', vol:'173(22):3196-3207', pmid:'27545646'},
+        {type:'Pre', authors:'Carlsen EMM, et al.', year:'2021', title:'Spinal astroglial cannabinoid receptors control pathological tremor', journal:'Nat Neurosci', vol:'24(5):658-666', pmid:'33737752'}
+      ]
+    },
+    {
       title: 'Breast Cancer Growth &amp; Metastasis Promotion',
       condition: 'Breast Cancer',
       evidence: 'C',
@@ -2857,6 +2877,27 @@ const ADVERSE_FINDINGS = {
     }
   ],
   CBD: [
+    {
+      title: 'Essential Tremor — Two Negative Human Trials',
+      condition: 'Essential Tremor',
+      evidence: 'A',
+      summary: 'Two randomized, double-blind, placebo-controlled crossover trials tested cannabidiol in essential tremor and neither found benefit. A single 300&nbsp;mg oral CBD dose produced no significant change in upper-limb tremor, specific motor-task scores, or clinical impression of change in 19 patients (Santos de Alencar 2021). A trial of oral THC&nbsp;5&nbsp;mg + CBD&nbsp;100&nbsp;mg detected no efficacy signal on digital or clinical tremor measures, and its authors concluded the data do not support anecdotal reports of cannabinoid effectiveness for essential tremor (Longardner 2025).',
+      citations: [
+        {type:'RCT', authors:'Santos de Alencar S, Crippa JAS, Brito MCM, et al.', year:'2021', title:'A single oral dose of cannabidiol did not reduce upper limb tremor in patients with essential tremor', journal:'Parkinsonism Relat Disord', vol:'83:37-40', pmid:'33465546'},
+        {type:'RCT', authors:'Longardner K, Shen Q, Castellanos FX, et al.', year:'2025', title:'Double-Blind, Randomized, Placebo-Controlled, Crossover Study of Oral Cannabidiol and Tetrahydrocannabinol for Essential Tremor', journal:'Tremor Other Hyperkinet Mov', vol:'15:14', pmid:'40248111'}
+      ]
+    },
+    {
+      footnote: true,
+      title: 'Essential Tremor — Contradictory Animal-Model Evidence (Footnote)',
+      summary: 'Rodent harmaline models of essential tremor have reported tremor suppression with cannabinoid treatment, but in opposing pharmacological directions &mdash; one study found CB1 receptor <em>agonism</em> reduced tremor, another found CB1 <em>antagonism</em> did. Contradictory mechanisms in the same animal model, combined with two negative human trials, are why these preclinical signals are recorded as a footnote and not as supporting evidence.',
+      citations: [
+        {type:'Pre', authors:'Loomis S, et al.', year:'2024', title:'Nabiximols (NBX) suppresses tremor in a rat Harmaline model of essential tremor', journal:'Exp Neurol', vol:'382:114988', pmid:'39368533'},
+        {type:'Pre', authors:'Abbassian H, et al.', year:'2016', title:'Cannabinoid receptor agonism suppresses tremor, cognition disturbances and anxiety-like behaviors in a rat model of essential tremor', journal:'Physiol Behav', vol:'164(Pt A):314-20', pmid:'27317835'},
+        {type:'Pre', authors:'Abbassian H, et al.', year:'2016', title:'Cannabinoid type 1 receptor antagonism ameliorates harmaline-induced essential tremor in rat', journal:'Br J Pharmacol', vol:'173(22):3196-3207', pmid:'27545646'},
+        {type:'Pre', authors:'Carlsen EMM, et al.', year:'2021', title:'Spinal astroglial cannabinoid receptors control pathological tremor', journal:'Nat Neurosci', vol:'24(5):658-666', pmid:'33737752'}
+      ]
+    },
     {
       title: 'Liver Enzyme Elevation (Hepatotoxicity)',
       condition: 'Liver / Hepatoprotective',
@@ -2950,8 +2991,11 @@ var INDIVIDUAL_RESPONSE_FACTORS = [
 // Huestis MA, Human cannabinoid pharmacokinetics — verified against NCBI esummary 2026-08-13.
 var INDIVIDUAL_RESPONSE_CITE = {type:'Rev', authors:'Hue' + 'stis MA.', year:'2007',
   title:'Human cannabinoid pharmacokinetics', journal:'Chem Biodivers', vol:'4(8):1770-804', pmid:'17712819'};
-var INDIVIDUAL_RESPONSE_LEAD = 'The same product, at the same dose, can affect two people differently. How much of a cannabis molecule reaches the bloodstream &mdash; and how long it stays there &mdash; varies from person to person. Published findings describe what researchers observed in study populations, not what any one individual will experience.';
-var INDIVIDUAL_RESPONSE_TAIL = 'Educational information only &mdash; not dosing guidance and not a treatment recommendation. Discuss any decision with a licensed pharmacist, physician, or other qualified provider.';
+var INDIVIDUAL_RESPONSE_LEAD = 'The same product, at the same dose, can affect two people differently. How much of a cannabis molecule reaches the bloodstream &mdash; and how long it stays there &mdash; varies from person to person.';
+// Owner-authored closing statement (RPh, 2026-08-13) — use verbatim. It replaced a "start low and
+// go slow" line, which was advice rather than education; this frames the limits of the evidence
+// itself instead of instructing the reader.
+var INDIVIDUAL_RESPONSE_TAIL = 'Published findings describe what researchers observed in study populations and should not be interpreted as predicting how any individual will respond. Discuss any decision with a licensed pharmacist, physician, or other qualified provider.';
 function individualResponseFactorsHTML() {
   return INDIVIDUAL_RESPONSE_FACTORS.map(function(f) {
     return '<li><strong>' + f[0] + '</strong> &mdash; ' + f[1] + '</li>';
@@ -3384,6 +3428,16 @@ const CONDITIONS = [
   // 2006) + preclinical (Miller 2018) data show no IOP benefit and a possible IOP increase. THC9 strongest
   // (Hepler 1971; Merritt 1980; Tomida 2006; Miller 2018); THC8/CBN older/weaker; THCV/CBG preclinical only.
   {id:'glaucoma',label:'Glaucoma / Ocular Pressure',group:'neuro',hasRisk:true,molecules:{THC9:6,THC8:5,CBN:4,THCV:3,CBG:3}},
+  // Essential Tremor — deliberately an EVIDENCE-NEGATIVE entry (UX-44, owner-approved 2026-08-13).
+  // Anecdotal claims are widespread, so the condition exists here to give a searching patient the
+  // real answer rather than nothing. BOTH human trials were negative: Longardner 2025 (randomized,
+  // placebo-controlled crossover, THC 5mg + CBD 100mg) detected no efficacy signal and explicitly
+  // concluded the data do not support the anecdotal reports; Santos de Alencar 2021 found a single
+  // oral CBD dose did not reduce upper-limb tremor. CBD and THC9 are listed at the minimum weight
+  // because they are the molecules STUDIED, not molecules supported — the ADVERSE_FINDINGS entries
+  // below carry the negative results, which (per UX-41) renders both tiles as red caution tiles and
+  // surfaces the safety banner automatically. No terpene or flavonoid has been studied for ET.
+  {id:'essential-tremor',label:'Essential Tremor',group:'neuro',hasRisk:true,molecules:{CBD:4,THC9:4}},
   {id:'anxiety',label:'Anxiety',group:'mental',molecules:{CBD:7,APG:7,LI:7,LN:6,bCA:6,aBI:6,ISX:6,aPI:4,CB:2}},
   {id:'depression',label:'Anti-depressant',group:'mental',molecules:{CBD:7,APG:7,LI:7,VIX:6,bCA:6,GE:4,THCB:3,LN:5}},
   {id:'ptsd',label:'PTSD / Trauma',group:'mental',molecules:{THC9:8,CBD:7,CBN:6,MY:5,LN:5,LI:5,aTP:4}},
@@ -5612,6 +5666,13 @@ var DI_ALIASES = {
   'desyrel':'trazodone',
   'dexamethasone':'prednisone',
   'dry eye':'oph_cyclosporine',
+  'simbrinza':'oph_cai',                 // brinzolamide + brimonidine (combination)
+  'vyzulta':'oph_prostaglandin',         // latanoprostene bunod
+  'latanoprostene bunod':'oph_prostaglandin',
+  'iyuzeh':'oph_prostaglandin',          // preservative-free latanoprost
+  'omlonti':'oph_prostaglandin',         // omidenepag isopropyl (EP2 agonist)
+  'omidenepag':'oph_prostaglandin',
+  'durysta':'oph_prostaglandin',         // bimatoprost intracameral implant
   'dexilant':'omeprazole',
   'dexlansoprazole':'omeprazole',
   'diazepam':'benzos',
