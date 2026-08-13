@@ -274,12 +274,21 @@ body.is-mobile-view .iw-msg{display:none}
 
 /* INDICATION TAGS */
 .ind-tags{display:flex;flex-wrap:wrap;gap:5px;padding-top:2px}
+/* UX-50 — citation-state indicator on indication tags. Not colour-coded on purpose: red means
+   "safety signal" and green means "evidence grade A" elsewhere in V2, so both would collide.
+   Filled/hollow reads the same in greyscale, in either theme, and with colour vision deficiency. */
+.ind-dot{margin-left:5px;font-size:.5rem;vertical-align:1.5px;opacity:.8}
+.ind-key{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:9px;font-size:.56rem;color:var(--mute);line-height:1.5}
+.ind-key .ind-dot{margin-left:0;margin-right:3px}
 /* font-family:inherit added because tags are now <button>s for in-panel navigation (UX-48) */
 .ind-tag{display:inline-block;padding:4px 9px;border:1px solid var(--border);border-radius:14px;font-size:.64rem;color:var(--dim);text-decoration:none;transition:background-color .12s,border-color .12s,color .12s,box-shadow .12s;background:var(--bg);cursor:pointer;font-family:inherit;line-height:1.4}
 /* brief highlight on the section a tag jumps to, so the landing is obvious */
 .acc.ind-flash{background:var(--surface2);box-shadow:inset 3px 0 0 var(--accent);transition:background-color .5s,box-shadow .5s}
 @media (prefers-reduced-motion:reduce){.acc.ind-flash{transition:none}}
 .ind-tag:hover{background:var(--surface2);border-color:var(--mute);color:var(--text)}
+/* must follow .ind-tag: its `border:` shorthand would otherwise reset border-style (UX-50) */
+.ind-tag-nocite{border-style:dashed;color:var(--mute)}
+.ind-tag-nocite:hover{color:var(--dim);border-color:var(--mute)}
 .syn-card{border-left:3px solid var(--accent2);background:var(--surface2);border-radius:0 6px 6px 0;padding:10px 12px;margin:8px 0}
 .syn-header{display:flex;align-items:center;gap:6px;margin-bottom:5px}
 .syn-partner-badge{font-size:.62rem;font-weight:700;background:var(--accent2);color:#fff;padding:2px 8px;border-radius:10px}
@@ -4203,8 +4212,17 @@ function openPanel(id, tileEl) {
       var q = encodeURIComponent('"' + molTerm + '"[ti]');
       return '<a class="ind-tag" href="https://pubmed.ncbi.nlm.nih.gov/?term=' + q + '&sort=relevance" target="_blank" rel="noopener">' + i + '</a>';
     }
-    return '<button type="button" class="ind-tag" onclick="openIndication(\'' + indAccId(id, i) + '\')"'
-      + ' title="See the research V2 has for this">' + i + '</button>';
+    // UX-50: filled vs hollow dot shows whether V2 holds an indexed citation for THIS pairing.
+    // Deliberately not colour-coded: red already means "documented safety signal" everywhere else in
+    // V2 and green already means evidence grade A, so reusing either would collide. Filled/hollow also
+    // survives colour-blindness, greyscale printing and both themes.
+    var nCites = findRelevantCites(id, i).length;
+    var tip = nCites
+      ? 'V2 has ' + nCites + ' indexed citation' + (nCites === 1 ? '' : 's') + ' for this — click to read'
+      : 'No indexed citation for this pairing yet — click for V2\'s research notes';
+    return '<button type="button" class="ind-tag' + (nCites ? '' : ' ind-tag-nocite') + '"'
+      + ' onclick="openIndication(\'' + indAccId(id, i) + '\')" title="' + tip + '">' + i
+      + '<span class="ind-dot" aria-hidden="true">' + (nCites ? '&#9679;' : '&#9675;') + '</span></button>';
   }).join('');
 
   // Per-indication accordion sections with summaries + journal links
@@ -4377,7 +4395,10 @@ function openPanel(id, tileEl) {
     '<div class="panel-disc-bar"><strong>⚠ Not Medical Advice</strong>Evidence grades reflect research quality — not clinical approval or proven efficacy. Preclinical findings may not translate to humans. Always consult a licensed healthcare professional. No personal health information is stored or transmitted by this platform. <a href="javascript:void(0)" onclick="showFullDisclaimer()" style="color:#FF6B3D;font-weight:700;text-decoration:underline">Full disclaimer ↗</a></div>'
     + '<div class="acann-fwd">' + '<div class="acann-fwd-brand">Acannability&trade;</div>' + '<div class="acann-fwd-title">Periodic Table of the Cannabis Plant Molecules<br>Scientific References</div>' + '<div class="acann-fwd-body">The periodic table has been taught and used by millions since its beginning in 1869. Its array of elements are used in a variety of different ways that are necessary in keeping up with today&#x2019;s world. Similarly, we put together a periodic table of cannabis plant molecules with the same purpose in mind &#x2014; to state each molecule&#x2019;s purpose and use in the changing world. When it comes to cannabis, there are many limitations on what can be spoken about. This periodic table will be used to educate on the many medicinal possibilities that cannabis brings to the table.</div>' + '</div>' + '<div class="acc open"><button class="acc-btn" onclick="toggleAcc(this.parentElement)">'
     + '<span>' + mol.symbol + ' Tags</span><span class="acc-icon">&#x25BE;</span></button>'
-    + '<div class="acc-body"><div class="ind-tags">' + tagsHtml + '</div></div></div>'
+    + '<div class="acc-body"><div class="ind-tags">' + tagsHtml + '</div>'
+    + '<div class="ind-key"><span><span class="ind-dot">&#9679;</span> indexed research in V2</span>'
+    + '<span><span class="ind-dot">&#9675;</span> none yet &mdash; opens research notes</span></div>'
+    + '</div></div>'
     + advSectionHtml
     + diSectionHtml
     + noAdvDisclaimerHtml
