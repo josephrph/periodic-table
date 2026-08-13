@@ -935,7 +935,7 @@ body.is-mobile-view #imDoneBtn{right:10px;bottom:calc(56px + env(safe-area-inset
       </div>
       <div class="eg-section">
         <div class="eg-section-title">🔒 Privacy, Data Handling &amp; HIPAA</div>
-        <div class="eg-section-body">This platform runs entirely in your browser and has no backend server or database — it does not collect, store, or transmit Protected Health Information (PHI) as defined under HIPAA. Any medication list you enter in the Drug Interaction Checker exists only in your browser's temporary memory for the current session; it is never saved to a server, never transmitted over the internet, and is cleared when you end your session, close the tab, or refresh the page. If this platform is used on a shared or public device (for example, a dispensary kiosk), select <strong>"New Session"</strong> or <strong>"I'm Done"</strong> when finished so no information you entered remains visible to the next person. This platform is not itself a HIPAA-covered entity's medical record or communication system; organizations that are HIPAA-covered entities or business associates remain independently responsible for their own compliance obligations when using this tool in a patient-facing setting, and should consult their own legal or compliance counsel. <strong>One limited exception:</strong> the optional "Suggest an addition" feedback form. If you <em>voluntarily choose</em> to submit a suggestion, only the item you type (for example, the name of a medication or condition you feel is missing) is saved anonymously in this browser so our staff can review it and improve this educational resource. It is never linked to your identity — please do not enter your name or any personal health information in it. <strong>Optional research contribution:</strong> if you opt in on the next screen, the anonymous, non-identifying details you provide (age group, sex, and city/state) are saved on this device and, where that feature is enabled, shared with Acannability’s research database to help improve this platform — never linked to your identity and never including personal or health information. Leave those fields blank to skip.</div>
+        <div class="eg-section-body">This platform runs entirely in your browser and has no backend server or database — it does not collect, store, or transmit Protected Health Information (PHI) as defined under HIPAA. Any medication list you enter in the Drug Interaction Checker exists only in your browser's temporary memory for the current session; it is never saved to a server, never transmitted over the internet, and is cleared when you end your session, close the tab, or refresh the page. If this platform is used on a shared or public device (for example, a dispensary kiosk), select <strong>"New Session"</strong> or <strong>"I'm Done"</strong> when finished so no information you entered remains visible to the next person. This platform is not itself a HIPAA-covered entity's medical record or communication system; organizations that are HIPAA-covered entities or business associates remain independently responsible for their own compliance obligations when using this tool in a patient-facing setting, and should consult their own legal or compliance counsel. <strong>One limited exception:</strong> the optional "Suggest an addition" feedback form. If you <em>voluntarily choose</em> to submit a suggestion, only the item you type (for example, the name of a medication or condition you feel is missing) is saved anonymously in this browser so our staff can review it and improve this educational resource. It is never linked to your identity — please do not enter your name or any personal health information in it. <strong>Optional research contribution:</strong> if you opt in at the end of a Guided Match, the anonymous, non-identifying details you provide (age group, sex, and city/state) are saved on this device and, where that feature is enabled, shared with Acannability’s research database to help improve this platform — never linked to your identity and never including personal or health information. Leave those fields blank to skip.</div>
       </div>
       <!-- (The optional research opt-in that used to sit here is now entry-sequence screen 3,
            #researchGate — same field IDs, so ResearchData.captureFromGate() is unchanged.) -->
@@ -947,7 +947,7 @@ body.is-mobile-view #imDoneBtn{right:10px;bottom:calc(56px + env(safe-area-inset
           <li>You agree to use this platform for educational purposes only</li>
           <li>You understand this content is not medical advice and does not replace professional consultation</li>
           <li>You accept responsibility for compliance with all laws applicable in your jurisdiction</li>
-          <li>You understand this platform does not store or transmit the medication list or other health information you enter (other than anonymous product suggestions you voluntarily submit via the optional feedback form, and the optional anonymous research details you may choose to provide on the next screen), and that shared-device users should end their session when finished</li>
+          <li>You understand this platform does not store or transmit the medication list or other health information you enter (other than anonymous product suggestions you voluntarily submit via the optional feedback form, and the optional anonymous research details you may choose to provide at the end of a Guided Match), and that shared-device users should end their session when finished</li>
         </ul>
       </div>
     </div>
@@ -1140,7 +1140,7 @@ body.is-mobile-view #imDoneBtn{right:10px;bottom:calc(56px + env(safe-area-inset
             <summary><span class="faq-q" style="font-size:.95rem">What is the optional anonymous research contribution, and how is my privacy protected?</span><span class="faq-icon" style="width:22px;height:22px;font-size:1.1rem">+</span></summary>
             <div class="faq-content" style="font-size:.82rem">
               <p>You can <strong>optionally</strong> share a few anonymous, non-identifying details — <strong>age group, sex, and city/state</strong> — to help Acannability understand how people explore cannabis research and improve this educational resource. It is strictly opt-in: <strong>opting out is the default.</strong></p>
-              <p>You share only if you check the box on the third entry screen (or choose "Share anonymously" at the end of a Guided Match); choose “Skip” there and nothing is collected — the fields are cleared. <strong>No personal or health information is ever collected, and responses are never linked to your identity.</strong> You can withdraw everything from your device anytime via <strong>Research data &amp; privacy</strong> in the footer.</p>
+              <p>You share only if you choose “Share anonymously” at the end of a Guided Match — after you have seen what V2 does, not before you get in. Decline and nothing is collected. <strong>No personal or health information is ever collected, and responses are never linked to your identity.</strong> You can withdraw everything from your device anytime via <strong>Research data &amp; privacy</strong> in the footer.</p>
               <p>This supports future cannabis research using aggregate demographics only, while keeping you anonymous.</p>
             </div>
           </details>
@@ -1347,7 +1347,7 @@ body.is-mobile-view #imDoneBtn{right:10px;bottom:calc(56px + env(safe-area-inset
           <details class="faq-item">
             <summary><span class="faq-q" style="font-size:.95rem">What happens before I get to the table?</span><span class="faq-icon" style="width:22px;height:22px;font-size:1.1rem">+</span></summary>
             <div class="faq-content" style="font-size:.82rem">
-              <p>Three short screens, in this order. <strong>First</strong> a welcome page introducing what this educational resource is, with four plain-language acknowledgements to confirm. <strong>Second</strong> the full disclaimer, with all six acknowledgements and the same “I Agree &amp; Enter” confirmation as before. <strong>Third</strong> an entirely optional anonymous research contribution, which you can skip in one tap. Nothing was removed from the disclaimer — the welcome screen adds a friendlier front door in front of it. The point of the checkpoint is unchanged: every visitor actively acknowledges that this is an educational resource, not medical advice.</p>
+              <p>Two short screens. <strong>First</strong> a welcome page introducing what this educational resource is, with four plain-language acknowledgements to confirm. <strong>Second</strong> the full disclaimer, with all six acknowledgements and the same “I Agree &amp; Enter” confirmation as before. Nothing was removed from the disclaimer — the welcome screen adds a friendlier front door in front of it. The point of the checkpoint is unchanged: every visitor actively acknowledges that this is an educational resource, not medical advice. The optional anonymous research contribution is not part of getting in; V2 offers it at the end of a Guided Match instead.</p>
               <p>Key limitations users confirm before entering:</p>
               <p><u>Evidence grades ≠ clinical approval</u> — An "A" grade means human trial data exists, not that the treatment is FDA-approved or right for you.</p>
               <p><u>Most molecules are understudied</u> — Especially for adverse effects. Absence of a safety flag ≠ proven safe.</p>
@@ -2104,7 +2104,7 @@ body.is-mobile-view .panel-body{touch-action:pan-y}
     <summary><span class="faq-q">What is the optional anonymous research contribution, and how is my privacy protected?</span><span class="faq-icon">+</span></summary>
     <div class="faq-content">
       <p>You can <strong>optionally</strong> share a few anonymous, non-identifying details — <strong>age group, sex, and city/state</strong> — to help Acannability understand how people explore cannabis research and improve this educational resource. It is strictly opt-in: <strong>opting out is the default.</strong></p>
-      <p>You share only if you check the box on the third entry screen (or choose "Share anonymously" at the end of a Guided Match); choose “Skip” there and nothing is collected — the fields are cleared. <strong>No personal or health information is ever collected, and responses are never linked to your identity.</strong> You can withdraw everything from your device at any time via <strong>Research data &amp; privacy</strong> in the footer.</p>
+      <p>You share only if you choose “Share anonymously” at the end of a Guided Match — after you have seen what V2 does, not before you get in. Decline and nothing is collected. <strong>No personal or health information is ever collected, and responses are never linked to your identity.</strong> You can withdraw everything from your device at any time via <strong>Research data &amp; privacy</strong> in the footer.</p>
       <p>This supports future cannabis research using aggregate demographics only, while keeping you anonymous.</p>
     </div>
   </details>
@@ -6706,10 +6706,13 @@ function denyWelcomeGate() {
   showGateScreen('disclaimer');
 }
 function acceptEntryGate() {
-  // Screen 2 → screen 3. This is still where session acceptance is recorded (the legal gate);
-  // the app is entered from screen 3 so the optional data ask can never block entry.
+  // Screen 2 of 2 — straight into the app (UX-53). The research opt-in used to be a third screen
+  // here; it now lives only at the end of a Guided Match, where V2 already offered it. Asking before
+  // anyone has seen the product cost a third click to get in and produced weaker consent.
+  // #researchGate markup is retained (unreachable from the flow) so ResearchData.captureFromGate()
+  // and resetGateFields() keep resolving their field ids, and so the screen can be restored quickly.
   sessionStorage.setItem('eg_accepted', '1');
-  showGateScreen('research');
+  enterApp();
 }
 function acceptResearchGate() {
   try { if (window.ResearchData) ResearchData.captureFromGate(); } catch(e) {} // FEED-05: opt-in only
