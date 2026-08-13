@@ -274,7 +274,11 @@ body.is-mobile-view .iw-msg{display:none}
 
 /* INDICATION TAGS */
 .ind-tags{display:flex;flex-wrap:wrap;gap:5px;padding-top:2px}
-.ind-tag{display:inline-block;padding:4px 9px;border:1px solid var(--border);border-radius:14px;font-size:.64rem;color:var(--dim);text-decoration:none;transition:background-color .12s,border-color .12s,color .12s,box-shadow .12s;background:var(--bg);cursor:pointer}
+/* font-family:inherit added because tags are now <button>s for in-panel navigation (UX-48) */
+.ind-tag{display:inline-block;padding:4px 9px;border:1px solid var(--border);border-radius:14px;font-size:.64rem;color:var(--dim);text-decoration:none;transition:background-color .12s,border-color .12s,color .12s,box-shadow .12s;background:var(--bg);cursor:pointer;font-family:inherit;line-height:1.4}
+/* brief highlight on the section a tag jumps to, so the landing is obvious */
+.acc.ind-flash{background:var(--surface2);box-shadow:inset 3px 0 0 var(--accent);transition:background-color .5s,box-shadow .5s}
+@media (prefers-reduced-motion:reduce){.acc.ind-flash{transition:none}}
 .ind-tag:hover{background:var(--surface2);border-color:var(--mute);color:var(--text)}
 .syn-card{border-left:3px solid var(--accent2);background:var(--surface2);border-radius:0 6px 6px 0;padding:10px 12px;margin:8px 0}
 .syn-header{display:flex;align-items:center;gap:6px;margin-bottom:5px}
@@ -4191,12 +4195,16 @@ function openPanel(id, tileEl) {
   const molTerm = PUBMED_TERMS[id] || mol.fullName;
 
   // Indication tags
+  // Tags open the matching indication section below (UX-48) rather than firing a PubMed search that
+  // returns nothing 17% of the time. "Unknown …" entries have no section, so those keep a broad
+  // molecule-level search — it always returns results.
   const tagsHtml = mol.indications.map(function(i) {
-    var it = INDICATION_TERMS[i];
-    var q = (it && i.indexOf('Unknown') === -1)
-      ? encodeURIComponent('"' + molTerm + '"[ti] AND (' + it + ')')
-      : encodeURIComponent('"' + molTerm + '"[ti]');
-    return '<a class="ind-tag" href="https://pubmed.ncbi.nlm.nih.gov/?term=' + q + '&sort=relevance" target="_blank" rel="noopener">' + i + '</a>';
+    if (i.indexOf('Unknown') !== -1) {
+      var q = encodeURIComponent('"' + molTerm + '"[ti]');
+      return '<a class="ind-tag" href="https://pubmed.ncbi.nlm.nih.gov/?term=' + q + '&sort=relevance" target="_blank" rel="noopener">' + i + '</a>';
+    }
+    return '<button type="button" class="ind-tag" onclick="openIndication(\'' + indAccId(id, i) + '\')"'
+      + ' title="See the research V2 has for this">' + i + '</button>';
   }).join('');
 
   // Per-indication accordion sections with summaries + journal links
@@ -4228,7 +4236,7 @@ function openPanel(id, tileEl) {
     var bottomLink = relCites.length
       ? '<a class="ind-srch" style="margin-top:6px" href="https://pubmed.ncbi.nlm.nih.gov/?term=' + q + '&sort=relevance" target="_blank" rel="noopener">&#x1F50D; Search PubMed: all ' + mol.symbol + ' ' + i.toLowerCase() + ' research</a>'
       : '';
-    return '<div class="acc"><button class="acc-btn" onclick="toggleAcc(this.parentElement)">'
+    return '<div class="acc" id="' + indAccId(id, i) + '"><button class="acc-btn" onclick="toggleAcc(this.parentElement)">'
       + '<span>' + mol.symbol + ' as ' + i + '</span><span class="acc-icon">&#x25BE;</span></button>'
       + '<div class="acc-body">'
       + summaryNote
@@ -4394,6 +4402,27 @@ function closePanel() {
 }
 
 function toggleAcc(el) { el.classList.toggle('open'); }
+// ── INDICATION TAGS → V2'S OWN EVIDENCE (UX-48) ──────────────────────────────
+// The tags used to fire a live PubMed search of the form "molecule"[ti] AND (indication terms).
+// An audit of all 331 tags found 57 returned ZERO results — and on 31 of those V2 already held a
+// curated citation that the failed search was hiding. So a tag now opens that indication's own
+// section, which shows either the citation or the existing "Citation Not Yet Indexed" explanation.
+// The PubMed links still live inside that section, where they are properly framed.
+// Slugified id, never the raw label: indications include apostrophes ("Crohn's Disease").
+function indAccId(molId, indication) {
+  return 'ind-' + molId + '-' + String(indication).toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+}
+function openIndication(accId) {
+  var el = document.getElementById(accId);
+  if (!el) return;
+  if (!el.classList.contains('open')) el.classList.add('open');
+  try { el.scrollIntoView({behavior: 'smooth', block: 'center'}); }
+  catch (e) { el.scrollIntoView(); }
+  // brief highlight so it is obvious where the click landed
+  el.classList.add('ind-flash');
+  setTimeout(function() { el.classList.remove('ind-flash'); }, 1300);
+}
 
 // ── ENTOURAGE EFFECT MAPPING ───────────────────────────────────
 const ENT_REC_NAMES = {
