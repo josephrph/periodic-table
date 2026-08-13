@@ -19,14 +19,26 @@ html{font-size:14px}
 body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,'Segoe UI',sans-serif;min-height:100vh}
 
 /* HEADER */
-.hdr{background:var(--surface);border-bottom:2px solid var(--accent);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;position:sticky;top:0;z-index:100}
+/* UX-46 (item 4): the header row did not wrap, so on a phone the brand block consumed the full
+   width and pushed the control block off-screen. Wrapping lets the controls drop to a second row. */
+.hdr{background:var(--surface);border-bottom:2px solid var(--accent);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;position:sticky;top:0;z-index:100}
+@media(max-width:620px){
+  .hdr{padding:10px 12px;gap:10px}
+  .hdr-brand{max-width:100%}
+  .hdr-ctrl{width:100%}
+}
 .hdr-brand{display:flex;align-items:center;gap:12px}
 .hdr-logo-img{height:44px;width:auto;max-width:220px;object-fit:contain;flex-shrink:0}
 .hdr-txt{}
 .hdr-title{font-family:Georgia,serif;font-size:1.05rem;font-weight:400;letter-spacing:.04em;text-transform:uppercase;line-height:1.1}
 .hdr-title em{color:var(--accent);font-style:italic}
 .hdr-sub{font-size:1rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin-top:5px;line-height:1.3}
-.hdr-ctrl{display:flex;align-items:center;gap:8px}
+/* flex-wrap added for UX-46 (item 4, cross-platform): without it this row was a rigid ~1044px
+   and forced the whole page to scroll sideways on anything under ~1100px — 986px of horizontal
+   overflow on a 375px phone. The inner search group already wrapped; the outer row did not. */
+.hdr-ctrl{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.hdr-search-group{min-width:300px}
+@media(max-width:620px){.hdr-search-group{min-width:0;width:100%}}
 .srch{height:30px;padding:0 10px;border:1px solid var(--border);border-radius:4px;background:var(--bg);color:var(--text);font-size:.78rem;width:190px;outline:none}
 .cs-wrap{position:relative}
 .cs-btn{width:100%;display:flex;align-items:center;justify-content:space-between;gap:6px;cursor:pointer;text-align:left;font-family:inherit}
@@ -165,7 +177,10 @@ body.is-mobile-view .iw-msg{display:none}
 .fp-clear.on{display:inline-block}
 
 /* GRID */
-.grid-scroll{overflow-x:auto;padding:20px;flex-shrink:0}
+/* UX-46 (item 4): min-width:0 + shrink lets the grid scroll INSIDE this container instead of
+   forcing the whole page wider than the viewport. flex-shrink:0 meant a 1440px laptop scrolled
+   sideways by ~123px, because the desktop layout wanted ~1563px. */
+.grid-scroll{overflow-x:auto;padding:20px;flex-shrink:1;min-width:0}
 .side-panel{background:var(--surface);border:1px solid var(--border);border-radius:8px;flex-shrink:0;padding:20px 16px;align-self:flex-start;position:sticky;top:20px}
 .side-left{width:194px;margin:20px 0 20px 20px}
 .side-right{width:184px;margin:20px 20px 20px 0}
@@ -661,7 +676,7 @@ body.is-mobile-view .iw-msg{display:none}
     </div>
   </div>
   <div class="hdr-ctrl">
-    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;flex:1;min-width:300px">
+    <div class="hdr-search-group" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;flex:1">
     <div class="cs-wrap" id="molSelectWrap" style="flex:1;min-width:150px">
       <button type="button" class="srch cs-btn" id="molSelectBtn" onclick="toggleMolPanel()" title="Jump to molecule categories (A–Z)" aria-haspopup="listbox" aria-expanded="false">
         <span class="cs-btn-label" id="molSelectLabel">Search molecule categories… (A–Z)</span>
@@ -888,7 +903,7 @@ body.is-mobile-view .iw-msg{display:none}
       </div>
       <div class="eg-section">
         <div class="eg-section-title">🔒 Privacy, Data Handling &amp; HIPAA</div>
-        <div class="eg-section-body">This platform runs entirely in your browser and has no backend server or database — it does not collect, store, or transmit Protected Health Information (PHI) as defined under HIPAA. Any medication list you enter in the Drug Interaction Checker exists only in your browser's temporary memory for the current session; it is never saved to a server, never transmitted over the internet, and is cleared when you end your session, close the tab, or refresh the page. If this platform is used on a shared or public device (for example, a dispensary kiosk), select <strong>"New Session"</strong> or <strong>"I'm Done"</strong> when finished so no information you entered remains visible to the next person. This platform is not itself a HIPAA-covered entity's medical record or communication system; organizations that are HIPAA-covered entities or business associates remain independently responsible for their own compliance obligations when using this tool in a patient-facing setting, and should consult their own legal or compliance counsel. <strong>One limited exception:</strong> the optional "Suggest an addition" feedback form. If you <em>voluntarily choose</em> to submit a suggestion, only the item you type (for example, the name of a medication or condition you feel is missing) is saved anonymously in this browser so our staff can review it and improve the platform. It is never linked to your identity — please do not enter your name or any personal health information in it. <strong>Optional research contribution:</strong> if you opt in on the next screen, the anonymous, non-identifying details you provide (age group, sex, and city/state) are saved on this device and, where that feature is enabled, shared with Acannability’s research database to help improve this platform — never linked to your identity and never including personal or health information. Leave those fields blank to skip.</div>
+        <div class="eg-section-body">This platform runs entirely in your browser and has no backend server or database — it does not collect, store, or transmit Protected Health Information (PHI) as defined under HIPAA. Any medication list you enter in the Drug Interaction Checker exists only in your browser's temporary memory for the current session; it is never saved to a server, never transmitted over the internet, and is cleared when you end your session, close the tab, or refresh the page. If this platform is used on a shared or public device (for example, a dispensary kiosk), select <strong>"New Session"</strong> or <strong>"I'm Done"</strong> when finished so no information you entered remains visible to the next person. This platform is not itself a HIPAA-covered entity's medical record or communication system; organizations that are HIPAA-covered entities or business associates remain independently responsible for their own compliance obligations when using this tool in a patient-facing setting, and should consult their own legal or compliance counsel. <strong>One limited exception:</strong> the optional "Suggest an addition" feedback form. If you <em>voluntarily choose</em> to submit a suggestion, only the item you type (for example, the name of a medication or condition you feel is missing) is saved anonymously in this browser so our staff can review it and improve this educational resource. It is never linked to your identity — please do not enter your name or any personal health information in it. <strong>Optional research contribution:</strong> if you opt in on the next screen, the anonymous, non-identifying details you provide (age group, sex, and city/state) are saved on this device and, where that feature is enabled, shared with Acannability’s research database to help improve this platform — never linked to your identity and never including personal or health information. Leave those fields blank to skip.</div>
       </div>
       <!-- (The optional research opt-in that used to sit here is now entry-sequence screen 3,
            #researchGate — same field IDs, so ResearchData.captureFromGate() is unchanged.) -->
@@ -905,7 +920,7 @@ body.is-mobile-view .iw-msg{display:none}
       </div>
     </div>
     <div class="eg-ftr">
-      <div class="eg-ftr-note">Acannability™ is an educational reference tool. For full terms and limitations, review the Full Disclaimer accessible from within the platform.</div>
+      <div class="eg-ftr-note">Acannability™ is an educational reference tool. For full terms and limitations, review the Full Disclaimer accessible from within V2.</div>
       <div class="eg-btns">
         <button class="eg-decline-btn" onclick="denyEntryGate()">I Do Not Agree</button>
         <button class="eg-agree-btn" onclick="acceptEntryGate()">I Agree &amp; Enter ›</button>
@@ -1075,7 +1090,7 @@ body.is-mobile-view .iw-msg{display:none}
           <details class="faq-item">
             <summary><span class="faq-q" style="font-size:.95rem">Can I print or save my results as a PDF?</span><span class="faq-icon" style="width:22px;height:22px;font-size:1.1rem">+</span></summary>
             <div class="faq-content" style="font-size:.82rem">
-              <p>Yes. Two screens have a print button: the <strong>Guided Match</strong> recommendation (<strong>🖨 Print this summary</strong>) and the <strong>Drug Interaction Checker</strong> results (<strong>🖨 Print</strong>). Each opens your device's print dialog, where you can send it to a printer or choose <strong>Save as PDF</strong> as the destination.</p>
+              <p>Yes. Four places have a print button: the <strong>Guided Match</strong> recommendation (<strong>🖨 Print this summary</strong>), the <strong>Drug Interaction Checker</strong> results (<strong>🖨 Print</strong>), any <strong>molecule tile</strong> you open (<strong>🖨 Print this molecule profile</strong>), and the <strong>Associated Molecules</strong> panel (<strong>🖨 Print this match</strong>). Each opens your device's print dialog, where you can send it to a printer or choose <strong>Save as PDF</strong> as the destination. Every printout carries the same educational-use footer and the note that individual responses vary.</p>
               <p>The printout is a clean, ink-friendly summary with the V2 header, date, and full educational disclaimer — the rest of the interface is hidden. If it includes medications you entered, it notes that it may contain personal information, so handle it privately. Nothing is uploaded — the summary is generated on your device.</p>
             </div>
           </details>
@@ -1092,8 +1107,8 @@ body.is-mobile-view .iw-msg{display:none}
           <details class="faq-item">
             <summary><span class="faq-q" style="font-size:.95rem">What is the optional anonymous research contribution, and how is my privacy protected?</span><span class="faq-icon" style="width:22px;height:22px;font-size:1.1rem">+</span></summary>
             <div class="faq-content" style="font-size:.82rem">
-              <p>You can <strong>optionally</strong> share a few anonymous, non-identifying details — <strong>age group, sex, and city/state</strong> — to help Acannability understand how people explore cannabis research and improve the platform. It is strictly opt-in: <strong>opting out is the default.</strong></p>
-              <p>You share only if you check the box on the welcome screen (or choose "Share anonymously" at the end of a Guided Match); leave the fields blank and nothing is collected. <strong>No personal or health information is ever collected, and responses are never linked to your identity.</strong> You can withdraw everything from your device anytime via <strong>Research data &amp; privacy</strong> in the footer.</p>
+              <p>You can <strong>optionally</strong> share a few anonymous, non-identifying details — <strong>age group, sex, and city/state</strong> — to help Acannability understand how people explore cannabis research and improve this educational resource. It is strictly opt-in: <strong>opting out is the default.</strong></p>
+              <p>You share only if you check the box on the third entry screen (or choose "Share anonymously" at the end of a Guided Match); choose “Skip” there and nothing is collected — the fields are cleared. <strong>No personal or health information is ever collected, and responses are never linked to your identity.</strong> You can withdraw everything from your device anytime via <strong>Research data &amp; privacy</strong> in the footer.</p>
               <p>This supports future cannabis research using aggregate demographics only, while keeping you anonymous.</p>
             </div>
           </details>
@@ -1270,17 +1285,30 @@ body.is-mobile-view .iw-msg{display:none}
           <details class="faq-item">
             <summary><span class="faq-q" style="font-size:.95rem">What are Adverse Findings, and how are they different from therapeutic findings?</span><span class="faq-icon" style="width:22px;height:22px;font-size:1.1rem">+</span></summary>
             <div class="faq-content" style="font-size:.82rem">
-              <p>Adverse Findings are documented safety signals, risk associations, or known side effects from peer-reviewed scientific literature. They are graded on the same A–D evidence scale used for therapeutic findings, so users can assess their strength.</p>
+              <p>Adverse Findings are documented safety signals, risk associations, or known side effects from peer-reviewed scientific literature. They are graded on the same A–D evidence scale used for therapeutic findings, so users can assess their strength. <strong>Every health topic presents them the same way</strong> — one evidence-graded, cited format across the whole resource, so no condition looks more or less serious than the evidence warrants. Any molecule with a documented finding for the topic you selected is also highlighted in red on the grid.</p>
               <p>Molecules with documented adverse findings display a red ⚠ badge on their tile. Clicking the tile shows an Adverse Findings section in the detail panel with a plain-language summary and direct PubMed citation links.</p>
               <p><strong>Important:</strong> The absence of a ⚠ badge does not mean a molecule is safe — most cannabis molecules have not yet been sufficiently studied for adverse effects. As new research emerges, additional molecules will be flagged. This platform is for educational use only; always consult a licensed healthcare professional.</p>
               <p>Some citations with weak study designs (e.g., ecological studies) appear as footnotes rather than full adverse entries, per Acannability editorial policy.</p>
             </div>
           </details>
+<details class="faq-item">
+<summary><span class="faq-q" style="font-size:.95rem">Why can the same product affect two people differently?</span><span class="faq-icon" style="width:22px;height:22px;font-size:1.1rem">+</span></summary>
+<div class="faq-a">
+<p>Because people are not interchangeable. How much of a cannabis molecule reaches your bloodstream &mdash; and how long it stays there &mdash; varies from person to person, so the same product at the same dose can affect two people differently. Factors include <strong>genetics</strong> (inherited differences in the liver enzymes that process cannabinoids), <strong>metabolism</strong>, <strong>prior cannabis exposure</strong> (regular use can change sensitivity over time), <strong>route of administration</strong> (inhaled, oral, sublingual, topical and transdermal forms differ substantially in how much reaches the bloodstream and how fast), <strong>concurrent medications</strong>, and <strong>individual bioavailability</strong>.</p><p>You will find this stated in three places: on any molecule tile you open, on the Guided Match recommendation, and on every printout. Published findings describe what researchers observed in study populations and should not be interpreted as predicting how any individual will respond. This is educational information, not dosing guidance.</p>
+</div>
+</details>
+<details class="faq-item">
+<summary><span class="faq-q" style="font-size:.95rem">How does inventory matching work, and what is coming next?</span><span class="faq-icon" style="width:22px;height:22px;font-size:1.1rem">+</span></summary>
+<div class="faq-a">
+<p>Today, matching is manual and honest about it: pick a health topic, and the Associated Molecules panel lists every molecule published research associates with it. Use <strong>&#x2699; Refine Inventory Match</strong> to remove molecules or whole categories your dispensary does not carry, and the match updates instantly. Dispensary staff can also import a stock list as a CSV.</p><p>What is coming is automation. With a point-of-sale connection, in-stock ranking becomes live instead of manual. With certificate-of-analysis (COA) data, matching reaches past cannabinoids into the terpene profile, which is where most of the differentiation actually sits. Both are previewed in Demo Mode today.</p><p>One honest limit worth knowing: dispensary menus publish cannabinoid content for every product, terpene content for some, and <strong>flavonoid content for none</strong>. Where a product publishes no lab data for a molecule, V2 reports that it cannot verify a match rather than guessing.</p>
+</div>
+</details>
+
 
           <details class="faq-item">
-            <summary><span class="faq-q" style="font-size:.95rem">Why does the platform require me to agree to a disclaimer before entering?</span><span class="faq-icon" style="width:22px;height:22px;font-size:1.1rem">+</span></summary>
+            <summary><span class="faq-q" style="font-size:.95rem">What happens before I get to the table?</span><span class="faq-icon" style="width:22px;height:22px;font-size:1.1rem">+</span></summary>
             <div class="faq-content" style="font-size:.82rem">
-              <p>Acannability is committed to responsible presentation of cannabis science. V2 added a consent checkpoint to ensure all users actively acknowledge that this platform is for educational purposes only — not medical advice.</p>
+              <p>Three short screens, in this order. <strong>First</strong> a welcome page introducing what this educational resource is, with four plain-language acknowledgements to confirm. <strong>Second</strong> the full disclaimer, with all six acknowledgements and the same “I Agree &amp; Enter” confirmation as before. <strong>Third</strong> an entirely optional anonymous research contribution, which you can skip in one tap. Nothing was removed from the disclaimer — the welcome screen adds a friendlier front door in front of it. The point of the checkpoint is unchanged: every visitor actively acknowledges that this is an educational resource, not medical advice.</p>
               <p>Key limitations users confirm before entering:</p>
               <p><u>Evidence grades ≠ clinical approval</u> — An "A" grade means human trial data exists, not that the treatment is FDA-approved or right for you.</p>
               <p><u>Most molecules are understudied</u> — Especially for adverse effects. Absence of a safety flag ≠ proven safe.</p>
@@ -1710,6 +1738,10 @@ body.is-mobile-view .mobile-toolbar{display:flex;align-items:center;gap:8px;padd
 body.is-mobile-view .mobile-mol-list{display:block;padding:8px 10px 24px}
 body.is-mobile-view.mobile-table-view .mobile-mol-list{display:none}
 body.is-mobile-view .grid-scroll{display:none}
+/* UX-46 (item 4, cross-platform): the desktop side panels were still laid out beside a grid that
+   mobile view hides, leaving ~420px of sideways scroll on a 375px phone. Categories remain reachable
+   on mobile through the molecule list's own category headers and the tab bar, so hide both panels. */
+body.is-mobile-view .side-panel{display:none}
 body.is-mobile-view.mobile-table-view .grid-scroll{display:block;overflow:auto;max-width:100vw}
 body.is-mobile-view.mobile-table-view .mml-table-hint{display:block;font-size:.62rem;color:var(--dim);text-align:center;padding:6px 12px 10px}
 
@@ -2008,7 +2040,7 @@ body.is-mobile-view .panel-body{touch-action:pan-y}
   <details class="faq-item">
     <summary><span class="faq-q">Can I print or save my results as a PDF?</span><span class="faq-icon">+</span></summary>
     <div class="faq-content">
-      <p>Yes. Two screens have a print button: the <strong>Guided Match</strong> recommendation (<strong>🖨 Print this summary</strong>) and the <strong>Drug Interaction Checker</strong> results (<strong>🖨 Print</strong>). Each opens your device's native print dialog, where you can send it to a printer or choose <strong>Save as PDF</strong> as the destination.</p>
+      <p>Yes. Four places have a print button: the <strong>Guided Match</strong> recommendation (<strong>🖨 Print this summary</strong>), the <strong>Drug Interaction Checker</strong> results (<strong>🖨 Print</strong>), any <strong>molecule tile</strong> you open (<strong>🖨 Print this molecule profile</strong>), and the <strong>Associated Molecules</strong> panel (<strong>🖨 Print this match</strong>). Each opens your device's native print dialog, where you can send it to a printer or choose <strong>Save as PDF</strong> as the destination. Every printout carries the same educational-use footer and the note that individual responses vary.</p>
       <p>The printout is a clean, ink-friendly summary carrying the V2 header, the date, and the full educational disclaimer — the rest of the interface is hidden. If it includes medications you entered, it notes that the page may contain personal information, so please handle it privately. Nothing is uploaded — the summary is generated on your device.</p>
     </div>
   </details>
@@ -2025,8 +2057,8 @@ body.is-mobile-view .panel-body{touch-action:pan-y}
   <details class="faq-item">
     <summary><span class="faq-q">What is the optional anonymous research contribution, and how is my privacy protected?</span><span class="faq-icon">+</span></summary>
     <div class="faq-content">
-      <p>You can <strong>optionally</strong> share a few anonymous, non-identifying details — <strong>age group, sex, and city/state</strong> — to help Acannability understand how people explore cannabis research and improve the platform. It is strictly opt-in: <strong>opting out is the default.</strong></p>
-      <p>You share only if you check the box on the welcome screen (or choose "Share anonymously" at the end of a Guided Match); leave the fields blank and nothing is collected. <strong>No personal or health information is ever collected, and responses are never linked to your identity.</strong> You can withdraw everything from your device at any time via <strong>Research data &amp; privacy</strong> in the footer.</p>
+      <p>You can <strong>optionally</strong> share a few anonymous, non-identifying details — <strong>age group, sex, and city/state</strong> — to help Acannability understand how people explore cannabis research and improve this educational resource. It is strictly opt-in: <strong>opting out is the default.</strong></p>
+      <p>You share only if you check the box on the third entry screen (or choose "Share anonymously" at the end of a Guided Match); choose “Skip” there and nothing is collected — the fields are cleared. <strong>No personal or health information is ever collected, and responses are never linked to your identity.</strong> You can withdraw everything from your device at any time via <strong>Research data &amp; privacy</strong> in the footer.</p>
       <p>This supports future cannabis research using aggregate demographics only, while keeping you anonymous.</p>
     </div>
   </details>
@@ -2199,9 +2231,9 @@ body.is-mobile-view .panel-body{touch-action:pan-y}
   </details>
 
   <details class="faq-item">
-    <summary><span class="faq-q">As a patient, how does Refine Inventory Match help me find the right product at my dispensary?</span><span class="faq-icon">+</span></summary>
+    <summary><span class="faq-q">How does Refine Inventory Match help me find the right product at my dispensary?</span><span class="faq-icon">+</span></summary>
     <div class="faq-content">
-      <p>When your dispensary has connected V2 to its point-of-sale (POS) and inventory system, the platform can reflect what is actually on the shelves right now — not just what the science recommends in theory.</p>
+      <p>When your dispensary has connected V2 to its point-of-sale (POS) and inventory system, V2 can reflect what is actually on the shelves right now — not just what the science recommends in theory.</p>
       <p>Here is the challenge Refine Inventory Match solves: the science may recommend five molecules for your condition, but your dispensary may only carry products containing three of them today. Without this feature, you might leave with a product that is missing a key molecule, reducing how well it matches your therapeutic needs.</p>
       <p><u>How it works for you:</u></p>
       <p><strong>Step 1 — Start with the science.</strong> Select your health condition (e.g., Anxiety, Pain, Sleep). The platform highlights every molecule with published evidence for that condition and shows the Associated Molecules panel.</p>
@@ -2214,11 +2246,24 @@ body.is-mobile-view .panel-body{touch-action:pan-y}
   <details class="faq-item">
     <summary><span class="faq-q">What are Adverse Findings, and how are they different from therapeutic findings?</span><span class="faq-icon">+</span></summary>
     <div class="faq-content">
-      <p>Adverse Findings are documented safety signals, risk associations, or known side effects from peer-reviewed scientific literature. They are graded on the same A–D evidence scale used for therapeutic findings, so users can assess their scientific strength.</p>
+      <p>Adverse Findings are documented safety signals, risk associations, or known side effects from peer-reviewed scientific literature. They are graded on the same A–D evidence scale used for therapeutic findings, so users can assess their scientific strength. <strong>Every health topic presents them the same way</strong> — one evidence-graded, cited format across the whole resource, so no condition looks more or less serious than the evidence warrants. Any molecule with a documented finding for the topic you selected is also highlighted in red on the grid.</p>
       <p>Molecules with documented adverse findings display a red ⚠ badge on their tile. Clicking the tile shows an Adverse Findings section in the detail panel with a plain-language summary and direct PubMed citation links.</p>
       <p><strong>Important:</strong> The absence of a ⚠ badge does not mean a molecule is safe — most cannabis molecules have not yet been sufficiently studied for adverse effects. As new research emerges, additional molecules will be flagged. Some citations with weak study designs (e.g., ecological studies) appear as footnotes rather than full adverse entries, per Acannability editorial policy.</p>
     </div>
   </details>
+<details class="faq-item">
+<summary><span class="faq-q">Why can the same product affect two people differently?</span><span class="faq-icon">+</span></summary>
+<div class="faq-a">
+<p>Because people are not interchangeable. How much of a cannabis molecule reaches your bloodstream &mdash; and how long it stays there &mdash; varies from person to person, so the same product at the same dose can affect two people differently. Factors include <strong>genetics</strong> (inherited differences in the liver enzymes that process cannabinoids), <strong>metabolism</strong>, <strong>prior cannabis exposure</strong> (regular use can change sensitivity over time), <strong>route of administration</strong> (inhaled, oral, sublingual, topical and transdermal forms differ substantially in how much reaches the bloodstream and how fast), <strong>concurrent medications</strong>, and <strong>individual bioavailability</strong>.</p><p>You will find this stated in three places: on any molecule tile you open, on the Guided Match recommendation, and on every printout. Published findings describe what researchers observed in study populations and should not be interpreted as predicting how any individual will respond. This is educational information, not dosing guidance.</p>
+</div>
+</details>
+<details class="faq-item">
+<summary><span class="faq-q">How does inventory matching work, and what is coming next?</span><span class="faq-icon">+</span></summary>
+<div class="faq-a">
+<p>Today, matching is manual and honest about it: pick a health topic, and the Associated Molecules panel lists every molecule published research associates with it. Use <strong>&#x2699; Refine Inventory Match</strong> to remove molecules or whole categories your dispensary does not carry, and the match updates instantly. Dispensary staff can also import a stock list as a CSV.</p><p>What is coming is automation. With a point-of-sale connection, in-stock ranking becomes live instead of manual. With certificate-of-analysis (COA) data, matching reaches past cannabinoids into the terpene profile, which is where most of the differentiation actually sits. Both are previewed in Demo Mode today.</p><p>One honest limit worth knowing: dispensary menus publish cannabinoid content for every product, terpene content for some, and <strong>flavonoid content for none</strong>. Where a product publishes no lab data for a molecule, V2 reports that it cannot verify a match rather than guessing.</p>
+</div>
+</details>
+
 
   <details class="faq-item">
     <summary><span class="faq-q">What is the Entourage Effect and how is it displayed in this table?</span><span class="faq-icon">+</span></summary>
@@ -8589,7 +8634,7 @@ document.addEventListener('keydown', function(e) {
     var d0=(window.V4DEMO&&window.V4DEMO.dispensary)?window.V4DEMO.dispensary:{name:'Acannability Cannabis Dispensary Demo'};
     stage('<div class="dj-intro"><div class="dj-intro-badge">Demonstration mode</div>'+
       '<h2 class="gx-q">'+esc(d0.name)+'</h2>'+
-      '<p class="gx-hint">A controlled presentation of the complete V2 platform, running on this demo dispensary’s inventory. Choose what to show your audience.</p>'+
+      '<p class="gx-hint">A controlled presentation of the complete V2 experience, running on this demo dispensary’s inventory. Choose what to show your audience.</p>'+
       '<button class="gx-cta" onclick="V4GX.djRun()">▶ Run the Complete Research Demonstration</button>'+
       '<div class="dj-intro-steps">'+DJ_STEPS.map(function(s,i){return '<div class="dj-intro-step"><span>'+(i+1)+'</span>'+s+'</div>';}).join('')+'</div>'+
       '<button class="gx-cta ghost" onclick="V4GX.demoGuided()">🧭 Show the standard Guided Match</button>'+
@@ -9666,7 +9711,7 @@ window.ResearchData = (function(){
       wrap.onclick=function(e){if(e.target===wrap)wrap.style.display='none';};document.body.appendChild(wrap);}
     wrap.innerHTML='<div role="dialog" aria-modal="true" aria-label="Research data and privacy" style="background:var(--surface,#FDFAF4);max-width:520px;width:100%;border-radius:12px;padding:22px 24px;box-shadow:0 20px 60px rgba(0,0,0,.35)">'+
       '<div style="font-family:Georgia,serif;font-size:1.2rem;color:var(--accent);font-weight:700;margin-bottom:8px">📊 Anonymous Research Data</div>'+
-      '<p style="font-size:.86rem;line-height:1.6;margin:0 0 10px">Acannability may collect <strong>anonymous, non-identifying</strong> information — age group, sex, and city/state — to understand how people explore cannabis research and improve this platform. <strong>No personal or health information is ever collected</strong>, and responses are never linked to your identity.</p>'+
+      '<p style="font-size:.86rem;line-height:1.6;margin:0 0 10px">Acannability may collect <strong>anonymous, non-identifying</strong> information — age group, sex, and city/state — to understand how people explore cannabis research and improve this educational resource. <strong>No personal or health information is ever collected</strong>, and responses are never linked to your identity.</p>'+
       '<p style="font-size:.86rem;line-height:1.6;margin:0 0 10px">Sharing is <strong>optional and opt-in</strong>: add your responses on the welcome screen at the start of a session, or leave those fields blank to collect nothing.</p>'+
       '<p style="font-size:.78rem;color:var(--dim);margin:0 0 14px">Anonymous responses stored on this device: <strong>'+count()+'</strong>.</p>'+
       '<div style="display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap">'+
