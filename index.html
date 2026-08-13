@@ -47,6 +47,44 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 
 /* FILTER PANEL */
 /* ENTRY GATE DISCLAIMER */
+/* ── ENTRY SEQUENCE (UX-40): welcome → full disclaimer → research opt-in ──
+   Screen 1 is bright and consumer-facing; screens 2 and 3 keep the existing dark-overlay
+   treatment. Exactly one is visible at a time (see showGateScreen()). */
+#welcomeGate{position:fixed;inset:0;z-index:9000;background:linear-gradient(160deg,#FBF7EF 0%,#F3EADA 55%,#E9DFC9 100%);display:none;align-items:flex-start;justify-content:center;padding:16px;overflow-y:auto}
+#welcomeGateBox{background:#fff;border-radius:16px;max-width:680px;width:100%;box-shadow:0 24px 70px rgba(60,40,10,.22);overflow:hidden;margin:auto}
+.wg-hero{position:relative;background:linear-gradient(150deg,#F7F2E6 0%,#FFFDF8 100%);border-bottom:1px solid #EADFC8;padding:22px 26px 18px;text-align:center}
+.wg-hero-art{display:block;width:100%;max-width:340px;height:auto;margin:0 auto 6px}
+.wg-logo{height:46px;width:auto;object-fit:contain;margin-bottom:10px}
+.wg-h1{font-family:Georgia,'Times New Roman',serif;font-size:1.5rem;line-height:1.28;font-weight:700;color:#2E2214;margin:2px 0 8px}
+.wg-h1 em{font-style:normal;color:#8B6914}
+.wg-sub{font-size:.9rem;line-height:1.6;color:#4A3C28;margin:0 auto;max-width:520px}
+.wg-body{padding:18px 26px 4px}
+.wg-lead{font-size:.86rem;line-height:1.68;color:#4A3C28;margin:0 0 14px}
+.wg-aud{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:0 0 16px}
+.wg-aud-chip{font-size:.66rem;font-weight:700;letter-spacing:.03em;color:#5A4A2A;background:#F7F2E6;border:1px solid #E3D6B8;border-radius:14px;padding:4px 11px}
+.wg-ack-hd{font-size:.66rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:#8B6914;margin-bottom:9px}
+.wg-ack{display:flex;gap:10px;align-items:flex-start;padding:9px 11px;margin-bottom:7px;border:1px solid #E6DCC6;border-radius:9px;background:#FDFBF6;cursor:pointer;transition:border-color .12s,background-color .12s}
+.wg-ack:hover{border-color:#C9A227;background:#FBF6E9}
+.wg-ack input{margin-top:2px;flex:none;width:17px;height:17px;accent-color:#5A7A1A;cursor:pointer}
+.wg-ack span{font-size:.82rem;line-height:1.55;color:#3A2E1C}
+.wg-ftr{background:#F7F2E6;border-top:1px solid #E6DCC6;padding:14px 26px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.wg-note{font-size:.62rem;color:#7A6A4A;line-height:1.5;flex:1;min-width:150px}
+.wg-enter-btn{padding:12px 26px;background:#5A7A1A;border:none;border-radius:8px;color:#fff;font-size:.8rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase;cursor:pointer;transition:background-color .15s,opacity .15s}
+.wg-enter-btn:hover:not(:disabled){background:#4A6A10}
+.wg-enter-btn:disabled{background:#B8B0A0;cursor:not-allowed}
+.wg-decline{background:none;border:none;color:#8A7A5A;font-size:.68rem;text-decoration:underline;cursor:pointer;padding:6px 4px}
+.wg-decline:hover{color:#CC2200}
+#researchGate{position:fixed;inset:0;z-index:9000;background:#0F1A0A;display:none;align-items:flex-start;justify-content:center;padding:16px;overflow-y:auto}
+#researchGateBox{background:#fff;border-radius:12px;max-width:660px;width:100%;box-shadow:0 24px 80px rgba(0,0,0,.7);overflow:hidden;margin:auto}
+.rg-skip-btn{padding:10px 18px;background:none;border:2px solid #999;border-radius:7px;color:#666;font-size:.74rem;font-weight:700;cursor:pointer;transition:border-color .15s,color .15s}
+.rg-skip-btn:hover{border-color:#5A7A1A;color:#5A7A1A}
+@media(max-width:560px){
+  .wg-h1{font-size:1.24rem}
+  .wg-hero{padding:18px 16px 14px}
+  .wg-body{padding:16px 16px 4px}
+  .wg-ftr{padding:12px 16px;justify-content:center}
+  .wg-enter-btn{width:100%}
+}
 #entryGate{position:fixed;inset:0;z-index:9000;background:#0F1A0A;display:flex;align-items:flex-start;justify-content:center;padding:16px;overflow-y:auto}
 #entryGateBox{background:#fff;border-radius:12px;max-width:660px;width:100%;box-shadow:0 24px 80px rgba(0,0,0,.7);overflow:hidden;margin:auto}
 .eg-hdr{background:#1C0A00;padding:14px 22px;display:flex;align-items:center;gap:14px}
@@ -751,19 +789,73 @@ body.is-mobile-view .iw-msg{display:none}
 <!-- END INACTIVITY WARNING -->
 
 <!-- ENTRY GATE DISCLAIMER — shows on every session before any content is accessible -->
+<!-- ENTRY SEQUENCE SCREEN 1 of 3 — consumer welcome (UX-40).
+     Carries COPIES of 4 of the 6 acknowledgements; all 6 remain, unchanged, on the full
+     disclaimer (screen 2), which the user still passes through. Nothing is removed. -->
+<div id="welcomeGate">
+  <div id="welcomeGateBox">
+    <div class="wg-hero">
+      <img id="wgLogoImg" src="" alt="Acannability" class="wg-logo">
+      <!-- Molecular-constellation motif: hexagonal rings + bonds, conveying chemistry and structure.
+           Inline SVG so it stays crisp at any size and costs no external request (CSP-safe). -->
+      <svg class="wg-hero-art" viewBox="0 0 340 84" role="img" aria-label="Illustration of connected cannabis plant molecules" xmlns="http://www.w3.org/2000/svg">
+        <g fill="none" stroke="#C9A227" stroke-width="1.4" opacity=".55">
+          <path d="M60 42 L104 30 M104 30 L150 44 M150 44 L196 30 M196 30 L242 44 M242 44 L286 32"/>
+          <path d="M104 30 L106 60 M196 30 L198 60 M150 44 L148 16 M242 44 L240 16"/>
+        </g>
+        <g stroke="#5A7A1A" stroke-width="1.8" fill="#F2F6E8">
+          <polygon points="60,32 69,37 69,47 60,52 51,47 51,37"/>
+          <polygon points="150,34 159,39 159,49 150,54 141,49 141,39"/>
+          <polygon points="242,34 251,39 251,49 242,54 233,49 233,39"/>
+        </g>
+        <g stroke="#8B6914" stroke-width="1.6" fill="#FBF3DE">
+          <polygon points="104,20 112,24.5 112,33.5 104,38 96,33.5 96,24.5"/>
+          <polygon points="196,20 204,24.5 204,33.5 196,38 188,33.5 188,24.5"/>
+        </g>
+        <g fill="#5A7A1A" opacity=".8">
+          <circle cx="106" cy="62" r="4"/><circle cx="198" cy="62" r="4"/>
+          <circle cx="148" cy="14" r="4"/><circle cx="240" cy="14" r="4"/>
+          <circle cx="286" cy="32" r="5"/>
+        </g>
+      </svg>
+      <h1 class="wg-h1">Understand cannabis by its <em>molecules</em> —<br>not its strain names.</h1>
+      <p class="wg-sub">An educational resource from Acannability covering <strong>65 cannabis plant molecules</strong> — cannabinoids, terpenes, and flavonoids — and what published research reports about each, across <strong>49 health topics</strong>.</p>
+    </div>
+    <div class="wg-body">
+      <p class="wg-lead">Strain names are inconsistent from grower to grower. Molecules aren’t. V2 organizes the published science around the compounds themselves, so you can see what researchers have actually studied — and how strong that evidence is.</p>
+      <div class="wg-aud">
+        <span class="wg-aud-chip">Medical consumers</span>
+        <span class="wg-aud-chip">Adult-use consumers</span>
+        <span class="wg-aud-chip">Caregivers</span>
+        <span class="wg-aud-chip">Researchers</span>
+      </div>
+      <div class="wg-ack-hd">Before you begin, please confirm:</div>
+      <label class="wg-ack"><input type="checkbox" class="wg-ack-cb" id="wgAck1" onchange="updateWelcomeGateBtn()"><span>I am <strong>21 or older</strong> — or 18+ with a valid medical recommendation where I live.</span></label>
+      <label class="wg-ack"><input type="checkbox" class="wg-ack-cb" id="wgAck2" onchange="updateWelcomeGateBtn()"><span>I understand this is <strong>educational information, not medical advice</strong>, and it does not replace a doctor, pharmacist, or other licensed professional.</span></label>
+      <label class="wg-ack"><input type="checkbox" class="wg-ack-cb" id="wgAck3" onchange="updateWelcomeGateBtn()"><span>I understand <strong>cannabis laws vary</strong> by state and locality, and complying with the laws where I live is my responsibility.</span></label>
+      <label class="wg-ack"><input type="checkbox" class="wg-ack-cb" id="wgAck4" onchange="updateWelcomeGateBtn()"><span>I understand the <strong>full disclaimer on the next screen</strong> applies to my use of this resource.</span></label>
+    </div>
+    <div class="wg-ftr">
+      <div class="wg-note">Educational information only — not medical advice. The full disclaimer follows on the next screen.</div>
+      <button type="button" class="wg-decline" onclick="denyWelcomeGate()">I do not agree</button>
+      <button type="button" class="wg-enter-btn" id="wgEnterBtn" disabled onclick="acceptWelcomeGate()">Continue ›</button>
+    </div>
+  </div>
+</div>
+<!-- ENTRY SEQUENCE SCREEN 2 of 3 — the full disclaimer, all 6 acknowledgements intact -->
 <div id="entryGate">
   <div id="entryGateBox">
     <div class="eg-hdr">
       <img id="egLogoImg" src="" alt="Acannability" class="eg-hdr-logo">
       <div class="eg-hdr-text">
-        <div class="eg-hdr-title">Welcome to Acannability’s Cannabis Research Platform</div>
+        <div class="eg-hdr-title">Full Disclaimer &amp; Terms of Use</div>
         <div class="eg-hdr-sub">V2 · The Periodic Table of Cannabis Plant Molecules · Acannability</div>
       </div>
     </div>
     <div class="eg-body">
       <div class="eg-welcome" style="border:1px solid var(--accent);background:#FDFAF4;border-radius:10px;padding:16px 18px;margin-bottom:16px">
-        <div style="font-family:Georgia,serif;font-size:1.2rem;color:var(--accent);font-weight:700;margin-bottom:6px">Welcome 👋</div>
-        <p style="margin:0 0 8px;font-size:.9rem;line-height:1.6"><strong>V2 – The Periodic Table of Cannabis Plant Molecules</strong> is an educational and research platform from Acannability. It organizes and summarizes <strong>published scientific research</strong> on cannabis-derived molecules — cannabinoids, terpenes, and flavonoids — so you can explore what the literature reports.</p>
+        <div style="font-family:Georgia,serif;font-size:1.2rem;color:var(--accent);font-weight:700;margin-bottom:6px">Please read this before you continue</div>
+        <p style="margin:0 0 8px;font-size:.9rem;line-height:1.6"><strong>V2 – The Periodic Table of Cannabis Plant Molecules</strong> is an educational resource from Acannability. It organizes and summarizes <strong>published scientific research</strong> on cannabis-derived molecules — cannabinoids, terpenes, and flavonoids — so you can explore what the literature reports.</p>
         <p style="margin:0 0 8px;font-size:.9rem;line-height:1.6">It presents <strong>research findings and scientific evidence — not treatment recommendations</strong>. V2 does <strong>not</strong> provide medical advice, a diagnosis, or a prescription, and it is not a substitute for professional care. Please consult a qualified healthcare professional — a physician, pharmacist, or other licensed provider — about any medical decision.</p>
         <p style="margin:0;font-size:.82rem;color:var(--dim)">Please review the information below, then confirm to enter.</p>
       </div>
@@ -789,12 +881,54 @@ body.is-mobile-view .iw-msg{display:none}
       </div>
       <div class="eg-section">
         <div class="eg-section-title">🔒 Privacy, Data Handling &amp; HIPAA</div>
-        <div class="eg-section-body">This platform runs entirely in your browser and has no backend server or database — it does not collect, store, or transmit Protected Health Information (PHI) as defined under HIPAA. Any medication list you enter in the Drug Interaction Checker exists only in your browser's temporary memory for the current session; it is never saved to a server, never transmitted over the internet, and is cleared when you end your session, close the tab, or refresh the page. If this platform is used on a shared or public device (for example, a dispensary kiosk), select <strong>"New Session"</strong> or <strong>"I'm Done"</strong> when finished so no information you entered remains visible to the next person. This platform is not itself a HIPAA-covered entity's medical record or communication system; organizations that are HIPAA-covered entities or business associates remain independently responsible for their own compliance obligations when using this tool in a patient-facing setting, and should consult their own legal or compliance counsel. <strong>One limited exception:</strong> the optional "Suggest an addition" feedback form. If you <em>voluntarily choose</em> to submit a suggestion, only the item you type (for example, the name of a medication or condition you feel is missing) is saved anonymously in this browser so our staff can review it and improve the platform. It is never linked to your identity — please do not enter your name or any personal health information in it. <strong>Optional research contribution:</strong> if you opt in on the welcome screen, the anonymous, non-identifying details you provide (age group, sex, and city/state) are saved on this device and, where that feature is enabled, shared with Acannability’s research database to help improve this platform — never linked to your identity and never including personal or health information. Leave those fields blank to skip.</div>
+        <div class="eg-section-body">This platform runs entirely in your browser and has no backend server or database — it does not collect, store, or transmit Protected Health Information (PHI) as defined under HIPAA. Any medication list you enter in the Drug Interaction Checker exists only in your browser's temporary memory for the current session; it is never saved to a server, never transmitted over the internet, and is cleared when you end your session, close the tab, or refresh the page. If this platform is used on a shared or public device (for example, a dispensary kiosk), select <strong>"New Session"</strong> or <strong>"I'm Done"</strong> when finished so no information you entered remains visible to the next person. This platform is not itself a HIPAA-covered entity's medical record or communication system; organizations that are HIPAA-covered entities or business associates remain independently responsible for their own compliance obligations when using this tool in a patient-facing setting, and should consult their own legal or compliance counsel. <strong>One limited exception:</strong> the optional "Suggest an addition" feedback form. If you <em>voluntarily choose</em> to submit a suggestion, only the item you type (for example, the name of a medication or condition you feel is missing) is saved anonymously in this browser so our staff can review it and improve the platform. It is never linked to your identity — please do not enter your name or any personal health information in it. <strong>Optional research contribution:</strong> if you opt in on the next screen, the anonymous, non-identifying details you provide (age group, sex, and city/state) are saved on this device and, where that feature is enabled, shared with Acannability’s research database to help improve this platform — never linked to your identity and never including personal or health information. Leave those fields blank to skip.</div>
       </div>
-      <div class="eg-section" id="egResearch">
+      <!-- (The optional research opt-in that used to sit here is now entry-sequence screen 3,
+           #researchGate — same field IDs, so ResearchData.captureFromGate() is unchanged.) -->
+      <div class="eg-agree-box">
+        <div class="eg-agree-title">By clicking "I Agree &amp; Enter" you confirm that:</div>
+        <ul class="eg-agree-list">
+          <li>You are 21 years of age or older (or 18+ with a valid medical recommendation where applicable)</li>
+          <li>You have read and understand this disclaimer in full</li>
+          <li>You agree to use this platform for educational purposes only</li>
+          <li>You understand this content is not medical advice and does not replace professional consultation</li>
+          <li>You accept responsibility for compliance with all laws applicable in your jurisdiction</li>
+          <li>You understand this platform does not store or transmit the medication list or other health information you enter (other than anonymous product suggestions you voluntarily submit via the optional feedback form, and the optional anonymous research details you may choose to provide on the next screen), and that shared-device users should end their session when finished</li>
+        </ul>
+      </div>
+    </div>
+    <div class="eg-ftr">
+      <div class="eg-ftr-note">Acannability™ is an educational reference tool. For full terms and limitations, review the Full Disclaimer accessible from within the platform.</div>
+      <div class="eg-btns">
+        <button class="eg-decline-btn" onclick="denyEntryGate()">I Do Not Agree</button>
+        <button class="eg-agree-btn" onclick="acceptEntryGate()">I Agree &amp; Enter ›</button>
+      </div>
+    </div>
+  </div>
+  <div id="entryGateDenied">
+    <div class="eg-denied-icon">🚫</div>
+    <div class="eg-denied-title">Access Restricted</div>
+    <div class="eg-denied-text">You must agree to the terms of use to access this platform. If you believe you reached this message in error, please refresh the page and review the disclaimer carefully.</div>
+  </div>
+</div>
+<!-- ENTRY SEQUENCE SCREEN 3 of 3 — optional anonymous research opt-in (FEED-05).
+     Moved out of the disclaimer so it reads as clearly optional and skippable. Field IDs are
+     unchanged (rdAge/rdSex/rdState/rdCity/rdConsent), so ResearchData.captureFromGate() and
+     resetGateFields() keep working exactly as before. Opt-OUT remains the default. -->
+<div id="researchGate">
+  <div id="researchGateBox">
+    <div class="eg-hdr">
+      <img id="rgLogoImg" src="" alt="Acannability" class="eg-hdr-logo">
+      <div class="eg-hdr-text">
+        <div class="eg-hdr-title">One last thing — entirely optional</div>
+        <div class="eg-hdr-sub">V2 · The Periodic Table of Cannabis Plant Molecules · Acannability</div>
+      </div>
+    </div>
+    <div class="eg-body">
+      <div class="eg-section" id="egResearch" style="border-bottom:none;margin-bottom:0;padding-bottom:0">
         <div class="eg-section-title">📊 Contribute to Research <span style="font-weight:400;color:var(--dim);text-transform:none;letter-spacing:0">(optional)</span></div>
         <div class="eg-section-body">
-          You may <strong>optionally</strong> share a few <strong>anonymous, non-identifying</strong> details to help Acannability improve this platform and understand how people explore cannabis research. <strong>No personal or health information is collected</strong>, responses are never linked to your identity, and you can skip this entirely — just leave it blank.
+          You may <strong>optionally</strong> share a few <strong>anonymous, non-identifying</strong> details to help Acannability improve this educational resource and understand how people explore cannabis research. <strong>No personal or health information is collected</strong>, responses are never linked to your identity, and you can skip this entirely — just choose “Skip.”
           <div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:12px">
             <label style="font-size:.72rem;color:var(--dim);display:flex;flex-direction:column;gap:3px">Age group
               <select id="rdAge" style="font-size:.85rem;padding:6px 8px;border:1px solid var(--border);border-radius:6px;background:var(--surface,#fff)"><option value="">—</option><option value="21-29">21–29</option><option value="30-39">30–39</option><option value="40-49">40–49</option><option value="50-59">50–59</option><option value="60-69">60–69</option><option value="70+">70+</option></select></label>
@@ -811,30 +945,14 @@ body.is-mobile-view .iw-msg{display:none}
           </label>
         </div>
       </div>
-      <div class="eg-agree-box">
-        <div class="eg-agree-title">By clicking "I Agree &amp; Enter" you confirm that:</div>
-        <ul class="eg-agree-list">
-          <li>You are 21 years of age or older (or 18+ with a valid medical recommendation where applicable)</li>
-          <li>You have read and understand this disclaimer in full</li>
-          <li>You agree to use this platform for educational purposes only</li>
-          <li>You understand this content is not medical advice and does not replace professional consultation</li>
-          <li>You accept responsibility for compliance with all laws applicable in your jurisdiction</li>
-          <li>You understand this platform does not store or transmit the medication list or other health information you enter (other than anonymous product suggestions you voluntarily submit via the optional feedback form, and the optional anonymous research details you choose to provide above), and that shared-device users should end their session when finished</li>
-        </ul>
-      </div>
     </div>
     <div class="eg-ftr">
-      <div class="eg-ftr-note">Acannability™ is an educational reference tool. For full terms and limitations, review the Full Disclaimer accessible from within the platform.</div>
+      <div class="eg-ftr-note">You can withdraw your contribution at any time via “Research data &amp; privacy” in the footer.</div>
       <div class="eg-btns">
-        <button class="eg-decline-btn" onclick="denyEntryGate()">I Do Not Agree</button>
-        <button class="eg-agree-btn" onclick="acceptEntryGate()">I Agree &amp; Enter ›</button>
+        <button class="rg-skip-btn" onclick="skipResearchGate()">Skip</button>
+        <button class="eg-agree-btn" onclick="acceptResearchGate()">Continue ›</button>
       </div>
     </div>
-  </div>
-  <div id="entryGateDenied">
-    <div class="eg-denied-icon">🚫</div>
-    <div class="eg-denied-title">Access Restricted</div>
-    <div class="eg-denied-text">You must agree to the terms of use to access this platform. If you believe you reached this message in error, please refresh the page and review the disclaimer carefully.</div>
   </div>
 </div>
 <!-- END ENTRY GATE -->
@@ -6215,19 +6333,18 @@ function resetToEntryGate() {
   // Clear the in-progress feedback DRAFT + sign staff out (stored suggestions are KEPT for review)
   try { if (window.Feedback) Feedback.clearDraft(); } catch(e) {}
   try { if (window.ResearchData) ResearchData.resetGateFields(); } catch(e) {} // FEED-05: clear opt-in inputs for next kiosk user
-  // Re-copy the logo in case it was cleared
-  var hdrLogo = document.querySelector('.hdr-logo-img');
-  var egLogo = document.getElementById('egLogoImg');
-  if (hdrLogo && egLogo && hdrLogo.src) egLogo.src = hdrLogo.src;
-  // Show the entry gate
-  var gate = document.getElementById('entryGate');
+  // Re-copy the logo into all three entry screens in case it was cleared
+  syncGateLogos();
+  // Reset the disclaimer screen's own state (box visible, "Access Restricted" hidden)
   var gateBox = document.getElementById('entryGateBox');
   var denied = document.getElementById('entryGateDenied');
-  if (gate) gate.style.display = 'flex';
   if (gateBox) gateBox.style.display = 'block';
   if (denied) denied.style.display = 'none';
-  // Scroll to top
-  window.scrollTo(0, 0);
+  // Clear the welcome screen's acknowledgements so the next kiosk user must tick them again
+  Array.prototype.forEach.call(document.querySelectorAll('.wg-ack-cb'), function(b) { b.checked = false; });
+  updateWelcomeGateBtn();
+  // Back to screen 1 of the entry sequence
+  showGateScreen('welcome');
 }
 
 // Start tracking activity — any interaction resets the idle timer
@@ -6239,10 +6356,61 @@ function resetToEntryGate() {
   if (sessionStorage.getItem('eg_accepted')) resetInactivityTimer();
 })();
 // ── END INACTIVITY TIMER ───────────────────────────────────────────────────
+// ── ENTRY SEQUENCE (UX-40) ─────────────────────────────────────────────────
+// Three screens, exactly one visible at a time:
+//   1. #welcomeGate    — consumer welcome carrying COPIES of 4 of the 6 acknowledgements
+//   2. #entryGate      — the full disclaimer, all 6 acknowledgements, unchanged
+//   3. #researchGate   — the optional anonymous research opt-in (was inside screen 2)
+// The legal path is unchanged: the user still passes through the full disclaimer and still
+// makes an affirmative "I Agree & Enter" click there. Screen 1 adds a layer; it removes none.
+var GATE_SCREENS = {welcome:'welcomeGate', disclaimer:'entryGate', research:'researchGate'};
+function showGateScreen(which) {
+  Object.keys(GATE_SCREENS).forEach(function(k) {
+    var el = document.getElementById(GATE_SCREENS[k]);
+    if (el) el.style.display = (k === which) ? 'flex' : 'none';
+  });
+  window.scrollTo(0, 0);
+}
+// Screen 1 — all four boxes must be ticked before Continue enables.
+function updateWelcomeGateBtn() {
+  var boxes = document.querySelectorAll('.wg-ack-cb');
+  var all = boxes.length > 0;
+  Array.prototype.forEach.call(boxes, function(b) { if (!b.checked) all = false; });
+  var btn = document.getElementById('wgEnterBtn');
+  if (btn) btn.disabled = !all;
+}
+function acceptWelcomeGate() {
+  var boxes = document.querySelectorAll('.wg-ack-cb');
+  for (var i = 0; i < boxes.length; i++) {
+    if (!boxes[i].checked) { boxes[i].focus(); return; }
+  }
+  showGateScreen('disclaimer');
+}
+function denyWelcomeGate() {
+  // Reuse the existing "Access Restricted" panel rather than duplicating it.
+  var box = document.getElementById('entryGateBox');
+  var denied = document.getElementById('entryGateDenied');
+  if (box) box.style.display = 'none';
+  if (denied) denied.style.display = 'flex';
+  showGateScreen('disclaimer');
+}
 function acceptEntryGate() {
+  // Screen 2 → screen 3. This is still where session acceptance is recorded (the legal gate);
+  // the app is entered from screen 3 so the optional data ask can never block entry.
   sessionStorage.setItem('eg_accepted', '1');
+  showGateScreen('research');
+}
+function acceptResearchGate() {
   try { if (window.ResearchData) ResearchData.captureFromGate(); } catch(e) {} // FEED-05: opt-in only
-  document.getElementById('entryGate').style.display = 'none';
+  enterApp();
+}
+function skipResearchGate() {
+  // Explicit skip — clear anything typed so nothing can be captured, then enter.
+  try { if (window.ResearchData) ResearchData.resetGateFields(); } catch(e) {}
+  enterApp();
+}
+function enterApp() {
+  showGateScreen(null); // hides all three
   showImDoneBtn(); // show the patient-facing end-session button
   // Clear any stale warning state before starting the idle timer
   clearInterval(_countdownInterval);
@@ -6251,7 +6419,7 @@ function acceptEntryGate() {
   var warn = document.getElementById('inactivityWarn');
   if (warn) warn.style.display = 'none';
   resetInactivityTimer(); // begin idle tracking now that user has entered
-  // After accepting, launch the Guided Finder (persona chooser). The Professional path
+  // After accepting, launch the Guided Match (persona chooser). The Researcher path
   // and the "Full table" button dismiss it to the existing table. (Additive — guided-experience branch.)
   if (window.V4GX) { V4GX.start(); }
   else if (!localStorage.getItem(window.V4DEMO.key('acannability_onboarded'))) {
@@ -6265,15 +6433,21 @@ function denyEntryGate() {
   if (denied) denied.style.display = 'flex';
 }
 // Show entry gate on every new session (sessionStorage resets on tab/browser close)
-(function initEntryGate() {
-  // Copy the logo from the header into the entry gate
+// Copy the header's embedded logo into all three entry screens (single source, per PERF-02).
+function syncGateLogos() {
   var hdrLogo = document.querySelector('.hdr-logo-img');
-  var egLogo = document.getElementById('egLogoImg');
-  if (hdrLogo && egLogo) egLogo.src = hdrLogo.src;
+  if (!hdrLogo || !hdrLogo.src) return;
+  ['egLogoImg','wgLogoImg','rgLogoImg'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.src = hdrLogo.src;
+  });
+}
+(function initEntryGate() {
+  syncGateLogos();
   if (!sessionStorage.getItem('eg_accepted')) {
-    document.getElementById('entryGate').style.display = 'flex';
+    showGateScreen('welcome'); // screen 1 of 3
   } else {
-    document.getElementById('entryGate').style.display = 'none';
+    showGateScreen(null);
     showImDoneBtn();
     if (!localStorage.getItem(window.V4DEMO.key('acannability_onboarded'))) {
       document.getElementById('wlcOv').style.display = 'flex';
