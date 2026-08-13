@@ -357,6 +357,13 @@ body.is-mobile-view .iw-msg{display:none}
 .cite-link{display:inline-block;margin-top:4px;font-size:.6rem;color:var(--accent);text-decoration:none}
 .cite-link:hover{text-decoration:underline}
 .cite-note{margin-top:3px;color:var(--mute);font-size:.6rem;font-style:italic}
+/* Individual response / bioavailability (UX-43) */
+.ir-list{margin:0 0 8px;padding-left:18px;font-size:.72rem;line-height:1.65;color:var(--dim)}
+.ir-list li{margin-bottom:4px}
+.ir-list strong{color:var(--text)}
+.ir-note{font-size:.66rem;line-height:1.6;color:var(--mute);font-style:italic;margin:0 0 6px}
+.ir-cite{font-size:.62rem;line-height:1.5;color:var(--mute);padding-left:9px;border-left:2px solid var(--border)}
+.ir-cite a{color:var(--accent);text-decoration:none}
 
 /* PDF + FOOTER */
 .pdf-btn{display:flex;align-items:center;justify-content:center;gap:8px;margin:0 16px 10px;padding:9px 16px;border:1px solid var(--border);border-radius:4px;background:var(--bg);color:var(--text);font-size:.7rem;font-weight:600;letter-spacing:.04em;text-decoration:none;transition:background-color .12s,border-color .12s,color .12s,box-shadow .12s}
@@ -2926,6 +2933,40 @@ function getMolFindings(id) {
 // and in the panel for molecules that have no full adverse findings of their own
 const ADVERSE_CATEGORY_DISCLAIMER = 'The <strong>&#x26A0; Adverse Findings</strong> category currently highlights molecules for which documented safety signals have been identified in peer-reviewed literature. <strong>The absence of this tag does not imply safety</strong> — the majority of cannabis plant molecules have not yet been sufficiently studied for adverse effects. As new research emerges, additional molecules will be added to this category. This platform is for educational purposes only; always consult a licensed healthcare professional before making any clinical decisions.';
 
+// ── INDIVIDUAL RESPONSE / BIOAVAILABILITY (UX-43) ────────────────────────────
+// Owner request 2026-08-13: state plainly that an identical product at an identical dose can
+// affect two people differently. Strictly educational framing — this copy deliberately contains
+// NO dosing guidance (not even "start low"), because that would cross from education into advice.
+// One source of truth, rendered on the molecule panel, the Guided Match recommendation, and the
+// printed reports, so the message is identical wherever it appears.
+var INDIVIDUAL_RESPONSE_FACTORS = [
+  ['Genetics', 'Inherited differences in the liver enzymes that process cannabinoids.'],
+  ['Metabolism', 'Enzyme activity, age, body composition, and liver or kidney function.'],
+  ['Prior cannabis exposure', 'Regular use can change sensitivity over time (tolerance).'],
+  ['Route of administration', 'Inhaled, oral, sublingual, topical and transdermal forms differ substantially in how much reaches the bloodstream, and how quickly.'],
+  ['Concurrent medications', 'Other medicines can raise or lower cannabinoid levels &mdash; and cannabinoids can do the same to them.'],
+  ['Individual bioavailability', 'The share of a dose that actually reaches the bloodstream varies from person to person, and from product to product.']
+];
+// Huestis MA, Human cannabinoid pharmacokinetics — verified against NCBI esummary 2026-08-13.
+var INDIVIDUAL_RESPONSE_CITE = {type:'Rev', authors:'Hue' + 'stis MA.', year:'2007',
+  title:'Human cannabinoid pharmacokinetics', journal:'Chem Biodivers', vol:'4(8):1770-804', pmid:'17712819'};
+var INDIVIDUAL_RESPONSE_LEAD = 'The same product, at the same dose, can affect two people differently. How much of a cannabis molecule reaches the bloodstream &mdash; and how long it stays there &mdash; varies from person to person. Published findings describe what researchers observed in study populations, not what any one individual will experience.';
+var INDIVIDUAL_RESPONSE_TAIL = 'Educational information only &mdash; not dosing guidance and not a treatment recommendation. Discuss any decision with a licensed pharmacist, physician, or other qualified provider.';
+function individualResponseFactorsHTML() {
+  return INDIVIDUAL_RESPONSE_FACTORS.map(function(f) {
+    return '<li><strong>' + f[0] + '</strong> &mdash; ' + f[1] + '</li>';
+  }).join('');
+}
+function buildIndividualResponseHTML() {
+  var c = INDIVIDUAL_RESPONSE_CITE;
+  return '<p style="margin:0 0 8px">' + INDIVIDUAL_RESPONSE_LEAD + '</p>'
+    + '<ul class="ir-list">' + individualResponseFactorsHTML() + '</ul>'
+    + '<p class="ir-note">' + INDIVIDUAL_RESPONSE_TAIL + '</p>'
+    + '<div class="ir-cite">' + c.authors + ' <em>' + c.title + '.</em> ' + c.journal + ' '
+    + c.vol + '; ' + c.year + '. <a href="https://pubmed.ncbi.nlm.nih.gov/' + c.pmid
+    + '/" target="_blank" rel="noopener">PMID ' + c.pmid + ' &#x2197;</a></div>';
+}
+
 // ── CITATIONS ─────────────────────────────────────────────────
 const CITATIONS = {
   THC9:[{type:'Reg',authors:'FDA.',year:'1985',title:'Marinol (dronabinol) Approval — NDA 018651',journal:'FDA Drug Database',vol:'',pmid:'',url:'https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=018651'},{type:'Clin',authors:'Svendsen KB, et al.',year:'2004',title:'Does the cannabinoid dronabinol reduce central pain in multiple sclerosis?',journal:'BMJ',vol:'329(7460):253',pmid:'15258006'},{type:'Clin',authors:'Ware MA, et al.',year:'2010',title:'Smoked cannabis for chronic neuropathic pain: a randomized controlled trial',journal:'CMAJ',vol:'182(14):E694-701',pmid:'20805210'},{type:'Clin',authors:'Abrams DI, et al.',year:'2007',title:'Cannabis in painful HIV-associated sensory neuropathy: a randomized placebo-controlled trial',journal:'Neurology',vol:'68(7):515-21',pmid:'17296917'},{type:'Clin',authors:'Walsh JH, et al.',year:'2021',title:'Treating insomnia symptoms with medicinal cannabis: a randomized, crossover trial of the efficacy of a cannabinoid medicine compared with placebo',journal:'Sleep',vol:'44(11)',pmid:'34115851'},{type:'Rev',authors:'Whiting PF, et al.',year:'2015',title:'Cannabinoids for Medical Use: A Systematic Review and Meta-analysis',journal:'JAMA',vol:'313(24):2456-73',pmid:'26103030'},{type:'Rev',authors:'Bloomfield MA, et al.',year:'2016',title:'The effects of Δ(9)-tetrahydrocannabinol on the dopamine system',journal:'Nature',vol:'539(7529):369-377',pmid:'27853201'},{type:'Rev',authors:'Tramèr MR, et al.',year:'2001',title:'Cannabinoids for control of chemotherapy induced nausea and vomiting: quantitative systematic review',journal:'BMJ',vol:'323(7303):16-21',pmid:'11440936'},{type:'Pre',authors:'Leelawat S, et al.',year:'2022',title:'Antitumor Effects of Delta (9)-Tetrahydrocannabinol and Cannabinol on Cholangiocarcinoma Cells and Xenograft Mouse Models',journal:'Evid Based Complement Alternat Med',vol:'2022:6477132',pmid:'36452140'},{type:'Pre',authors:'Sido JM, et al.',year:'2015',title:'Delta-9-tetrahydrocannabinol attenuates allogeneic host-versus-graft response and delays skin graft rejection through activation of cannabinoid receptor 1 and induction of myeloid-derived suppressor cells',journal:'J Leukoc Biol',vol:'98(3):435-47',pmid:'26034207',note:'THC delays skin graft rejection in rats via CB1 activation — direct transplant rejection suppression evidence'},{type:'Rev',authors:'Seifalian A, Kenyon J, Khullar V.',year:'2022',title:'Dysmenorrhoea: Can Medicinal Cannabis Bring New Hope for a Collective Group of Women Suffering in Pain, Globally?',journal:'Int J Mol Sci',vol:'23(24):16201',pmid:'36555842'},{type:'Pre',authors:'Menezes PMN, et al.',year:'2025',title:'Antinociceptive, anti-inflammatory, and anti-dysmenorrheal activities of aerial parts of Cannabis sativa L. from the sub-middle region of the Vale do São Francisco',journal:'Front Pharmacol',vol:'16:1677987',pmid:'41089847',note:'Whole-plant Cannabis sativa extract (THC-containing) tested in animal dysmenorrhea models.'},{type:'Clin',authors:'Dahlgren MK, et al.',year:'2025',title:'A National Survey Study of Cannabis Use During Menopause: Identifying Variables Associated With Recreational, Medical, and Hybrid Use',journal:'J Stud Alcohol Drugs',vol:'86(1):68-74',pmid:'39042073',note:'Self-report survey data on real-world cannabis use for menopause symptoms, not an interventional trial.'},{type:'Clin',authors:'Tomida I, et al.',year:'2006',title:'Effect of sublingual application of cannabinoids on intraocular pressure: a pilot study',journal:'J Glaucoma',vol:'15(5):349-53',pmid:'16988594',note:'Randomized, double-masked, placebo-controlled crossover in ocular hypertension / early glaucoma: sublingual THC 5 mg lowered intraocular pressure at 2 h then returned to baseline by 4 h; CBD 20 mg had no effect and 40 mg produced a transient IOP rise.'},{type:'Rev',authors:'Jampel H.',year:'2010',title:'American Glaucoma Society position statement: marijuana and the treatment of glaucoma',journal:'J Glaucoma',vol:'19(2):75-6',pmid:'20160576',note:'Position statement: cannabis lowers intraocular pressure only briefly (about 3 to 4 h), and its systemic effects (including lowered blood pressure that may reduce optic-nerve perfusion) mean it is not recommended for glaucoma.'}],
@@ -4211,6 +4252,11 @@ function openPanel(id, tileEl) {
     + '<div class="ev-row"><div class="ev-dot ev-dot-' + mol.evidence + '">' + mol.evidence + '</div>'
     + '<div class="ev-txt"><div class="ev-lbl">' + evLabel[mol.evidence] + '</div></div></div>'
     + '<div class="panel-desc">' + mol.description + '</div></div></div>'
+    // Individual response / bioavailability (UX-43) — sits directly after Background Info so it
+    // frames every finding below it: the research describes populations, not individuals.
+    + '<div class="acc"><button class="acc-btn" onclick="toggleAcc(this.parentElement)">'
+    + '<span>Why the same product affects people differently</span><span class="acc-icon">&#x25BE;</span></button>'
+    + '<div class="acc-body">' + buildIndividualResponseHTML() + '</div></div>'
     + indSections
     + synergyHtml
     + '<div class="acc"><button class="acc-btn" onclick="toggleAcc(this.parentElement)">'
@@ -5931,6 +5977,17 @@ function PT_cite(c) {
     + (c.vol ? ' ' + c.vol : '') + '; ' + c.year + (src ? '. <strong>' + src + '</strong>' : '')
     + (c.note ? '<div class="pt-print-citenote">' + c.note + '</div>' : '') + '</div>';
 }
+// Individual response / bioavailability as a print section (UX-43). Same source of truth as the
+// on-screen copy, so a printout that leaves the building carries the identical statement.
+function PT_individualResponse() {
+  var c = INDIVIDUAL_RESPONSE_CITE;
+  var items = INDIVIDUAL_RESPONSE_FACTORS.map(function(f) {
+    return '<div class="pt-print-molrow"><strong>' + f[0] + '</strong> &mdash; ' + f[1] + '</div>';
+  }).join('');
+  return PT_sec('Individual Response Varies',
+    '<p class="pt-print-p">' + INDIVIDUAL_RESPONSE_LEAD + '</p>' + items
+    + '<p class="pt-print-p">' + INDIVIDUAL_RESPONSE_TAIL + '</p>' + PT_cite(c));
+}
 // Molecule profile report — mirrors the detail panel's sections (tags, adverse findings, drug
 // interactions, background, synergies, references) for the molecule whose panel is open.
 function printMoleculeReport(id) {
@@ -5956,6 +6013,7 @@ function printMoleculeReport(id) {
     : '<p class="pt-print-p">No indexed research areas for this molecule yet.</p>');
 
   body += PT_sec('Background', '<p class="pt-print-p">' + mol.description + '</p>');
+  body += PT_individualResponse();   // UX-43
 
   // Adverse Findings — full findings, then footnote-level (ecological/preliminary) entries. When a
   // molecule has neither, print the standing "absence is not safety" caution rather than nothing.
@@ -6112,6 +6170,7 @@ function printRecoReport() {
     return '<div class="pt-print-kv">' + n + '</div>';
   }).join(''));
 
+  body += PT_individualResponse();   // UX-43
   PT_doPrint('Associated Molecules — ' + cond.label,
     'Molecules that published research associates with ' + cond.label + '.', body);
 }
@@ -8261,12 +8320,17 @@ document.addEventListener('keydown', function(e) {
         '</div></details>';
     }
     var entHtml=buildEntPreview();
+    // Individual response / bioavailability (UX-43). Collapsed by default, mirroring the optional
+    // Entourage expander — this is the screen where someone is most likely to act on what they
+    // see, so it belongs here, but it should not push the recommendation off the page.
+    var irHtml='<details class="gx-ent"><summary>&#x2696; Why the same product affects people differently</summary>'
+      +'<div class="gx-ent-body">'+buildIndividualResponseHTML()+'</div></details>';
     stage('<h2 class="gx-q">What the research associates</h2>'+safetyNote+
       '<div class="gx-rec"><div class="kind">'+esc(condLabel)+'</div>'+
       '<div class="because">The molecules V2 associates with '+esc(condLabel)+', ranked by strength of evidence — the same set highlighted in the Periodic Table.</div>'+
       '<div class="dj-lbl" style="margin-top:10px">Primary</div><div class="gx-chips">'+(primaryChips||'<span class="gx-chip">—</span>')+'</div>'+
       (supporting.length?'<div class="dj-lbl" style="margin-top:12px">Supporting</div><div class="gx-chips">'+supportingChips+'</div>':'')+'</div>'+
-      detailToggle+clin+thcNote+secNote+prefRecap+prefGuide+medSummary+entHtml+
+      detailToggle+clin+thcNote+secNote+prefRecap+prefGuide+medSummary+entHtml+irHtml+
       '<p class="gx-hint" style="margin-top:12px">In the Periodic Table, use <b>⚙ Refine Inventory Match</b> (in the Associated Molecules panel) to remove any molecules — or whole categories — your dispensary doesn’t carry. The recommendation updates instantly.</p>'+
       '<button class="gx-cta" onclick="V4GX.seeScience()">🔬 Explore these in the Periodic Table →</button>'+
       '<button class="gx-cta ghost" onclick="V4GX.printRec()">🖨 Print this summary</button>'+
@@ -8734,6 +8798,7 @@ document.addEventListener('keydown', function(e) {
           '<div style="font-size:.7rem;color:#555 !important;margin:0 0 5px;font-style:italic">'+onote+'</div>'+
           otherMolIds.map(molCard).join('');}
       }
+if(typeof PT_individualResponse==='function')body+=PT_individualResponse();   // UX-43
       if(typeof PT_doPrint==='function')PT_doPrint('Guided Match — Recommendation Summary','Prepared for: '+esc(condLabel),body,{phi:(st.meds||[]).length>0});
     },
     persona:function(p){st.persona=p;st.intent=null;st.refineKey=null;st.seconds=[];
