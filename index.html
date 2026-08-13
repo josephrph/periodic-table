@@ -3605,31 +3605,68 @@ function toggleFilter() {
 // or its category (finding.group vs the condition's group, which may be a string or array).
 // Returns '' when there are no relevant findings. The global ⚠ filter and the Breast Cancer
 // banner keep their own dedicated copy in selectCondition() — this covers every other condition.
-function buildConditionSafetyHTML(cond) {
-  if (!cond || typeof ADVERSE_FINDINGS === 'undefined') return '';
+// ── ADVERSE FINDINGS — ONE PRESENTATION EVERYWHERE (UX-41) ───────────────────
+// Previously three different formats reached the #csWarn banner: a hardcoded prose block for the
+// ⚠ Adverse Findings filter, a second hardcoded block for Breast Cancer, and this data-driven
+// renderer for everything else — so cancer read as more prominent than, say, Men's Health. All
+// three now go through adverseFindingsFor() + buildConditionSafetyHTML(), so every condition gets
+// the same evidence-graded, cited treatment. No claim, wording, or citation was invented here:
+// both hardcoded blocks were already represented in ADVERSE_FINDINGS.
+function adverseFindingsFor(cond) {
+  if (!cond || typeof ADVERSE_FINDINGS === 'undefined') return [];
   function matchGroup(fg) {
     if (!fg) return false;
     var g = cond.group;
     return Array.isArray(g) ? g.indexOf(fg) >= 0 : g === fg;
   }
-  var rows = [];
+  var out = [];
   Object.keys(ADVERSE_FINDINGS).forEach(function(mol) {
     ADVERSE_FINDINGS[mol].forEach(function(f) {
-      if (f.footnote) return;
-      if (f.condition === cond.label || matchGroup(f.group)) {
-        var sym = (typeof M !== 'undefined' && M[mol]) ? (M[mol].symbol || mol) : mol;
-        var cite = '';
-        if (f.citations && f.citations.length && f.citations[0].pmid) {
-          var p = f.citations[0].pmid;
-          cite = ' <a href="https://pubmed.ncbi.nlm.nih.gov/' + p + '/" target="_blank" rel="noopener">PMID ' + p + '</a>';
-        }
-        rows.push('<div style="margin-top:5px"><strong>' + sym + ' &mdash; ' + f.title + '</strong> (Evidence ' + (f.evidence || '') + '): ' + f.summary + cite + '</div>');
+      var hit;
+      if (cond.isRisk) {
+        // The ⚠ filter is not a health topic — it selects molecules that carry safety signals,
+        // so its banner lists the findings of exactly those molecules, footnote-level included
+        // (labelled as such) since that is the evidence the filter exists to surface.
+        hit = !!(cond.molecules && cond.molecules[mol]);
+      } else {
+        hit = !f.footnote && (f.condition === cond.label || matchGroup(f.group));
       }
+      if (hit) out.push({mol: mol, f: f});
     });
   });
-  if (!rows.length) return '';
-  return '<strong>&#x26A0; Safety Considerations &mdash; ' + cond.label + ':</strong> Published research documents cannabis-related cautions relevant to this area:'
-    + rows.join('')
+  return out;
+}
+function buildConditionSafetyHTML(cond) {
+  var found = adverseFindingsFor(cond);
+  if (!found.length) return '';
+  // Merge one finding recorded against several molecules (e.g. the shared pediatric-leukemia
+  // footnote) into a single row naming every molecule involved, rather than repeating it.
+  var byKey = {}, order = [];
+  found.forEach(function(r) {
+    var key = r.f.title + '|' + (r.f.evidence || '');
+    if (!byKey[key]) { byKey[key] = {f: r.f, mols: []}; order.push(key); }
+    var sym = (typeof M !== 'undefined' && M[r.mol]) ? (M[r.mol].symbol || r.mol) : r.mol;
+    if (byKey[key].mols.indexOf(sym) < 0) byKey[key].mols.push(sym);
+  });
+  var rows = order.map(function(key) {
+    var e = byKey[key], f = e.f;
+    var cite = '';
+    if (f.citations && f.citations.length && f.citations[0].pmid) {
+      var p = f.citations[0].pmid;
+      cite = ' <a href="https://pubmed.ncbi.nlm.nih.gov/' + p + '/" target="_blank" rel="noopener">PMID ' + p + '</a>';
+    }
+    var grade = f.footnote
+      ? (f.evidence ? 'Evidence ' + f.evidence + ' &middot; footnote &mdash; ecological / preliminary'
+                    : 'Footnote &mdash; ecological / preliminary evidence')
+      : 'Evidence ' + (f.evidence || '&mdash;');
+    // Some titles already end in "(Footnote)" — the grade parenthetical now says so, don't repeat it.
+    var title = String(f.title || '').replace(/\s*\(Footnote\)\s*$/i, '');
+    return '<div style="margin-top:5px"><strong>' + e.mols.join(', ') + ' &mdash; ' + title + '</strong> ('
+      + grade + '): ' + f.summary + cite + '</div>';
+  }).join('');
+  var heading = cond.isRisk ? 'Molecules with Documented Safety Signals' : cond.label;
+  return '<strong>&#x26A0; Safety Considerations &mdash; ' + heading + ':</strong> Published research documents cannabis-related cautions relevant to this area:'
+    + rows
     + '<div style="margin-top:6px;font-style:italic">Educational only &mdash; these are associations or preclinical signals, not treatment claims. Always discuss with a licensed healthcare professional.</div>';
 }
 function selectCondition(condId, btn) {
@@ -3642,20 +3679,14 @@ function selectCondition(condId, btn) {
   if (btn) btn.classList.add('on');
   document.getElementById('fpClear').classList.add('on');
   applyConditionHighlighting(condId);
-  const isRisk = !!cond.isRisk;
+  // One presentation for every condition (UX-41). The former hardcoded blocks for the ⚠ filter
+  // and for Breast Cancer are gone — both are represented in ADVERSE_FINDINGS and now render
+  // through the same evidence-graded, cited banner as every other condition.
   const warn = document.getElementById('csWarn');
   if (warn) {
-    if (isRisk) {
-      warn.innerHTML = '<strong>⚠ Adverse Findings:</strong> The highlighted molecules have shown pro-tumor or immunosuppressive effects in specific cancer contexts. THC9 (Δ9-THC) enhanced breast cancer growth and metastasis by suppressing anti-tumor immunity (McKallip et al. 2005 — <a href="https://pubmed.ncbi.nlm.nih.gov/15749859/" target="_blank" rel="noopener">PMID 15749859</a>). CBC has been linked epidemiologically to increased pediatric acute lymphoid leukemia rates (Cook et al. 2021 — <a href="https://pubmed.ncbi.nlm.nih.gov/34479489/" target="_blank" rel="noopener">PMID 34479489</a>). These findings warrant caution and further clinical investigation.';
-      warn.style.display = 'block';
-    } else if (condId === 'breast-cancer') {
-      warn.innerHTML = '<strong>⚠ THC9 Caution (Breast Cancer):</strong> Δ9-THC is highlighted in red — preclinical evidence suggests it may enhance tumor growth and suppress anti-tumor immunity in some breast cancer subtypes (McKallip et al. 2005 — <a href="https://pubmed.ncbi.nlm.nih.gov/15749859/" target="_blank" rel="noopener">PMID 15749859</a>). All other highlighted molecules have demonstrated anti-cancer activity. Consult an oncologist before use.';
-      warn.style.display = 'block';
-    } else {
-      var _safety = buildConditionSafetyHTML(cond);
-      if (_safety) { warn.innerHTML = _safety; warn.style.display = 'block'; }
-      else { warn.style.display = 'none'; }
-    }
+    var _safety = buildConditionSafetyHTML(cond);
+    if (_safety) { warn.innerHTML = _safety; warn.style.display = 'block'; }
+    else { warn.style.display = 'none'; }
   }
   updateResetBtn();
   const condSel = document.getElementById('condSelect');
@@ -3670,6 +3701,14 @@ function applyConditionHighlighting(condId) {
   const cond = CONDITIONS.find(function(c) { return c.id === condId; });
   if (!cond) return;
   const isRisk = !!cond.isRisk;
+  // Molecules carrying a documented (non-footnote) adverse finding for THIS condition. Previously
+  // only breast-cancer THC9 was flagged on the grid, by a hardcoded id check — which is the other
+  // half of why cancer read as more prominent than any other condition. Same rule everywhere now
+  // (UX-41); the source is the same ADVERSE_FINDINGS data that drives the banner.
+  var advMols = {};
+  if (!isRisk) {
+    adverseFindingsFor(cond).forEach(function(r) { if (!r.f.footnote) advMols[r.mol] = true; });
+  }
   document.querySelectorAll('.mol-tile').forEach(function(tile) {
     const id = tile.dataset.id;
     const weight = cond.molecules[id];
@@ -3705,8 +3744,8 @@ function applyConditionHighlighting(condId) {
       else if (weight >= 5) tile.classList.add('cond-secondary');
       else tile.classList.add('cond-tertiary');
     }
-    // Breast-cancer THC9 adverse override
-    if (condId === 'breast-cancer' && id === 'THC9') {
+    // Adverse-finding override — applies to every condition, not just breast cancer (UX-41)
+    if (advMols[id]) {
       tile.classList.remove('cond-primary','cond-secondary','cond-tertiary');
       tile.classList.add('cond-warning');
     }
