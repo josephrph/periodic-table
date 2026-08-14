@@ -939,7 +939,7 @@ body.is-mobile-view.is-touch-device #imDoneBtn{right:10px;bottom:calc(56px + env
         </g>
       </svg>
       <h1 class="wg-h1">Understand cannabis by its <em>molecules</em> —<br>not its strain names.</h1>
-      <p class="wg-sub">An educational resource from Acannability covering <strong>64 cannabis plant molecules</strong> — cannabinoids, terpenes, and flavonoids — and what published research reports about each, across <strong>49 health topics</strong>.</p>
+      <p class="wg-sub">An educational resource from Acannability covering <strong>64 cannabis plant molecules</strong> — cannabinoids, terpenes, and flavonoids — and what published research reports about each, across <strong>50 health topics</strong>.</p>
     </div>
     <div class="wg-body">
       <p class="wg-lead">Strain names are inconsistent from grower to grower. Molecules aren’t. V2 organizes the published science around the compounds themselves, so you can see what researchers have actually studied — and how strong that evidence is.</p>
@@ -1198,7 +1198,7 @@ body.is-mobile-view.is-touch-device #imDoneBtn{right:10px;bottom:calc(56px + env
             <div class="faq-content" style="font-size:.82rem">
               <p>Demo Mode is a <strong>staff-only presentation mode</strong> for trade-show booths, dispensary demos, and training — not part of the everyday patient experience. It runs on a clearly labeled <strong>fictional</strong> dispensary ("Acannability Cannabis Dispensary Demo — not a licensed store") with sample inventory, so presenters can show the full platform end-to-end without touching any real store data.</p>
               <p>It walks through a simulated journey — condition → molecules → medication check → inventory refine → a simulated point-of-sale "in-stock" product match → a sample Certificate of Analysis (COA) — plus booth dashboards showing the business case and simulated anonymous research demographics. A banner is always visible so no one mistakes it for a live store.</p>
-              <p>Demo Mode is turned off in licensed dispensary builds. Regular patients never see products — the standard experience always ends at the research-based molecule recommendation and the Periodic Table.</p>
+              <p>Demo Mode is turned off in licensed dispensary builds, and the products shown inside it are simulated sample data, not a real menu. Today the standard experience ends at the research-based molecule recommendation and the Periodic Table. As V2 is integrated with participating dispensaries, that experience is intended to continue into real inventory matching — showing which products actually on the shelf carry the molecules the research associates with your selected condition.</p>
             </div>
           </details>
 
@@ -1247,7 +1247,7 @@ body.is-mobile-view.is-touch-device #imDoneBtn{right:10px;bottom:calc(56px + env
           <details class="faq-item">
             <summary><span class="faq-q" style="font-size:.95rem">How were the boxes selected?</span><span class="faq-icon" style="width:22px;height:22px;font-size:1.1rem">+</span></summary>
             <div class="faq-content" style="font-size:.82rem">
-              <p>Boxes were selected as molecules having known or suspected medicinal value based on Acannability’s review of published research. The selection process was led by Acannability Advisor Mr. Joseph Friedman, RPh, MBA, a Medical Cannabis Pharmacist and Pharmacology Expert. V2 expanded the table from 51 to 65 entries as scientific literature has matured to support additional compounds.</p>
+              <p>Boxes were selected as molecules having known or suspected medicinal value based on Acannability’s review of published research. The selection process was led by Acannability Advisor Mr. Joseph Friedman, RPh, MBA, a Medical Cannabis Pharmacist and Pharmacology Expert. V2 expanded the table from 51 to 64 entries as scientific literature has matured to support additional compounds.</p>
             </div>
           </details>
 
@@ -1847,6 +1847,16 @@ body.is-mobile-view .grid-scroll{display:none}
    mobile view hides, leaving ~420px of sideways scroll on a 375px phone. Categories remain reachable
    on mobile through the molecule list's own category headers and the tab bar, so hide both panels. */
 body.is-mobile-view .side-panel{display:none}
+/* UX-59: .main-area is a flex ROW, and it stayed a row in mobile view — so the mobile-only
+   children (#mobileToolbar, #mmlChips, #mmlTableHint) laid out as narrow SIDE-BY-SIDE columns
+   next to the grid instead of stacking above it. On a 390px phone they took 220px, leaving
+   .grid-scroll just 169px to show a 1165px-wide chart: one tile visible at a time, which is
+   why Full Table View was close to unusable. Stacking reclaims the full width (169 -> 390px,
+   1 tile across -> 3). */
+body.is-mobile-view .main-area{flex-direction:column}
+body.is-mobile-view .main-area > #mobileToolbar,
+body.is-mobile-view .main-area > #mmlChips,
+body.is-mobile-view .main-area > #mmlTableHint{width:100%;flex:0 0 auto}
 body.is-mobile-view.mobile-table-view .grid-scroll{display:block;overflow:auto;max-width:100vw}
 body.is-mobile-view.mobile-table-view .mml-table-hint{display:block;font-size:.62rem;color:var(--dim);text-align:center;padding:6px 12px 10px}
 
@@ -2162,7 +2172,7 @@ body.is-mobile-view .panel-body{touch-action:pan-y}
     <div class="faq-content">
       <p>Demo Mode is a <strong>staff-only presentation mode</strong> for trade-show booths, dispensary demos, and training — not part of the everyday patient experience. It runs on a clearly labeled <strong>fictional</strong> dispensary ("Acannability Cannabis Dispensary Demo — not a licensed store") with sample inventory, so presenters can show the full platform end-to-end without touching any real store data.</p>
       <p>It walks through a simulated journey — condition → molecules → medication check → inventory refine → a simulated point-of-sale "in-stock" product match → a sample Certificate of Analysis (COA) — plus booth dashboards showing the business case and simulated anonymous research demographics. A banner is always visible so no one mistakes it for a live store, and everything is clearly marked "sample" or "simulated."</p>
-      <p>Demo Mode is turned off in licensed dispensary builds. Regular patients never see products — the standard experience always ends at the research-based molecule recommendation and the Periodic Table.</p>
+      <p>Demo Mode is turned off in licensed dispensary builds, and the products shown inside it are simulated sample data, not a real menu. Today the standard experience ends at the research-based molecule recommendation and the Periodic Table. As V2 is integrated with participating dispensaries, that experience is intended to continue into real inventory matching — showing which products actually on the shelf carry the molecules the research associates with your selected condition.</p>
     </div>
   </details>
 
@@ -2189,7 +2199,7 @@ body.is-mobile-view .panel-body{touch-action:pan-y}
     <summary><span class="faq-q">How were the boxes selected?</span><span class="faq-icon">+</span></summary>
     <div class="faq-content">
       <p>The boxes shown were selected as molecules having known or suspected medicinal value based on Acannability’s review of published research. The selection process was led by Acannability Advisor Mr. Joseph Friedman, RPh, MBA, a Medical Cannabis Pharmacist and Pharmacology Expert. Mr. Friedman was the founding member at Professional Dispensaries of Illinois Medical LLC, a medical cannabis dispensary owned and operated by pharmacists, nurses, and cannabis experts. He is an expert in the scientific, legal, social, political, and financial challenges facing U.S. entrants to the burgeoning medical cannabis industry. Mr. Friedman has contributed to several published articles in local and national publications and continually advocates for pharmacists’ involvement in the medical cannabis industry.</p>
-      <p>V2 expanded the table from 51 to 65 entries, adding 14 newly characterized or emerging molecules—particularly from the Rare &amp; Novel cannabinoid category—as scientific literature has matured to support their inclusion.</p>
+      <p>V2 expanded the table from 51 to 64 entries, adding 13 newly characterized or emerging molecules—particularly from the Rare &amp; Novel cannabinoid category—as scientific literature has matured to support their inclusion.</p>
     </div>
   </details>
 
@@ -2221,7 +2231,7 @@ body.is-mobile-view .panel-body{touch-action:pan-y}
   <details class="faq-item">
     <summary><span class="faq-q">How were the atomic masses calculated?</span><span class="faq-icon">+</span></summary>
     <div class="faq-content">
-      <p>The atomic masses shown in the Cannabis Periodic Table of Molecules™ chart were determined by public references or the chemical formula. In the case of the latter, each element’s molecular mass was identified and totaled. For example, for water (H&amp;sub2;O), two hydrogen atoms with mass ≈1 each and one oxygen atom with mass ≈16 total 18 for the molecule. After identifying or calculating the atomic masses of all the molecules, the table was constructed to reflect an objective structure, similar to the traditional periodic table of elements.</p>
+      <p>The atomic masses shown in the Cannabis Periodic Table of Molecules™ chart were determined by public references or the chemical formula. In the case of the latter, each element’s molecular mass was identified and totaled. For example, for water (H<sub>2</sub>O), two hydrogen atoms with mass ≈1 each and one oxygen atom with mass ≈16 total 18 for the molecule. After identifying or calculating the atomic masses of all the molecules, the table was constructed to reflect an objective structure, similar to the traditional periodic table of elements.</p>
     </div>
   </details>
 
@@ -2255,7 +2265,7 @@ body.is-mobile-view .panel-body{touch-action:pan-y}
     <div class="faq-content">
       <p>V2 expanded the therapeutic conditions filter from 30 to 50 health conditions, organized across eight clinical groups — Prostate Cancer is cross-listed under both Cancer Sub-types and Men's Health, plus a dedicated ⚠ Adverse Findings safety filter:</p>
       <p><u>Pain &amp; Inflammation (6 conditions):</u> Analgesic/Pain, Neuropathic Pain, Arthritis/Joint Pain, Muscle Spasm/Spasticity, Anti-Inflammatory, and Skin Health/Acne.</p>
-      <p><u>Neurological (9 conditions):</u> Epilepsy/Seizures, Sleep &amp; Insomnia, Multiple Sclerosis, Neuroprotection, Alzheimer's Disease, Parkinson's Disease, Neurodegenerative disease, Autism Spectrum Disorder (ASD), and Glaucoma / Ocular Pressure.</p>
+      <p><u>Neurological (10 conditions):</u> Epilepsy/Seizures, Sleep &amp; Insomnia, Multiple Sclerosis, Neuroprotection, Alzheimer's Disease, Parkinson's Disease, Neurodegenerative disease, Autism Spectrum Disorder (ASD), Glaucoma / Ocular Pressure, and Essential Tremor.</p>
       <p><u>Mental Health (5 conditions):</u> Anxiety, Anti-depressant, PTSD/Trauma, Stress/Cortisol, and Psychosis/Schizophrenia.</p>
       <p><u>Cancer &amp; Immune (5 conditions):</u> Cancer/Anti-Tumor, Antiviral/Immune, Antibacterial, Antifungal, and Antioxidant.</p>
       <p><u>Metabolic &amp; Digestive (8 conditions):</u> Antiemetic/Nausea, Appetite Regulation, Diabetes/Blood Sugar, IBD/Crohn's/Colitis, Liver/Hepatoprotective, Cardiovascular Health, Hyperlipidemia, and Bone Health/Osteoporosis.</p>
@@ -2762,6 +2772,16 @@ body.is-mobile-view .demo-ribbon{bottom:calc(64px + env(safe-area-inset-bottom))
 /* Phase 3 — clinician detail-level + demo insights dashboard */
 #gxOverlay .gx-detail{display:inline-flex;gap:2px;background:var(--surface2,#eef3ee);border:1px solid var(--border,#ccc);border-radius:999px;padding:2px;margin:12px 0 0}
 #gxOverlay .gx-detail button{font-family:inherit;font-size:.72rem;font-weight:700;border:none;background:transparent;color:var(--dim,#777);padding:5px 13px;border-radius:999px;cursor:pointer}
+/* UX-59: this pair was 106x22 with 10px text — half Apple's 44px minimum, so on an iPhone a
+   tap landed 6px off and silently did nothing. The toggle itself always worked; it just could
+   not reliably be hit, which read as "Research detail is not functioning". */
+@media(max-width:620px){
+  /* must carry the #gxOverlay prefix: the base rule is #gxOverlay .gx-detail button, which
+     outranks a bare .gx-detail button, so without it only min-height (unset in the base) applied
+     and the text stayed at 10px. */
+  #gxOverlay .gx-detail button{min-height:44px;font-size:.8rem;padding:8px 14px}
+  #gxOverlay .gx-detail{gap:6px}
+}
 #gxOverlay .gx-detail button.on{background:var(--accent,#2E7D57);color:#fff;cursor:default}
 #gxOverlay .gx-detail button:not(.on):hover{background:rgba(46,125,87,.12);color:var(--accent,#2E7D57)}
 #gxOverlay .gx-clin{margin-top:10px;border:1px solid var(--border,#ccc);border-radius:12px;overflow:hidden}
