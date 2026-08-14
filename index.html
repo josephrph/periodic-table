@@ -234,6 +234,10 @@ body.is-mobile-view.is-touch-device #imDoneBtnInner{padding:10px 18px;min-height
 @media(max-width:620px){
   #imDoneBtn{right:10px;bottom:calc(56px + env(safe-area-inset-bottom) + 10px)}
   #imDoneBtnInner{padding:10px 15px;font-size:.78rem;min-height:42px}
+  /* Same declarations repeated at the higher specificity of the is-touch-device rule above.
+     Without this that rule (0,2,1 + element) outranks the plain #id selector here and a real
+     phone lost the 42px touch target, dropping back to the 38px tablet height. */
+  body.is-mobile-view.is-touch-device #imDoneBtnInner{padding:10px 15px;font-size:.78rem;min-height:42px}
   .imd-long{display:none}
   .imd-short{display:inline}
 }
@@ -1341,7 +1345,7 @@ body.is-mobile-view.is-touch-device #imDoneBtn{right:10px;bottom:calc(56px + env
               <p><u>Evidence filter</u> (bar below Health Conditions) narrows highlights by A/B/C/D grade.</p>
               <p><u>Reset button</u> (end of Evidence bar) clears all active filters at once.</p>
               <p><u>Getting around.</u> The desktop header holds two search bars plus 🧭 Guided Match, Show Health Conditions, ⬢ Entourage Effect, 💊 Drug Interactions, and ↩ New Session. On phones, a bottom tab bar gives Guided · Molecules · Conditions · Interactions · Entourage · Info. Move into the Guided Match anytime with the 🧭 button or Guided tab, and return with <strong>Full table ✕</strong>.</p>
-              <p><u>Shared or kiosk device.</u> On a dispensary kiosk, use ↩ New Session (or "I'm Done") to reset to the disclaimer for the next visitor; an inactivity timer also resets the session automatically after a short idle period. <u>On your own phone or computer</u> there is no automatic reset — nothing is kept once you close the tab, and you can clear a session yourself at any time with <em>End session &amp; clear my answers</em> at the bottom of the page. On phones, swipe down to dismiss a molecule sheet and swipe left/right to move between molecules.</p>
+              <p><u>Shared or kiosk device.</u> Use ↩ New Session (or "I'm Done") to reset to the disclaimer for the next visitor; an inactivity timer also resets the session automatically after a short idle period. On phones, swipe down to dismiss a molecule sheet and swipe left/right to move between molecules.</p>
             </div>
           </details>
 
@@ -2293,7 +2297,7 @@ body.is-mobile-view .panel-body{touch-action:pan-y}
       <p><u>Refine Inventory Match</u> (in the Associated Molecules panel) lets dispensaries or patients exclude molecules not in current inventory, so recommendations reflect only what’s available.</p>
       <p><u>Entourage Effect</u> (top button) visualizes synergistic molecule combinations for a selected condition.</p>
       <p><u>Getting around.</u> The desktop header holds two search bars plus 🧭 Guided Match, Show Health Conditions, ⬢ Entourage Effect, 💊 Drug Interactions, and ↩ New Session. On phones, a bottom tab bar gives Guided · Molecules · Conditions · Interactions · Entourage · Info. Move into the Guided Match anytime with the 🧭 button or Guided tab, and return to the grid with <strong>Full table ✕</strong> or <strong>Explore these in the Periodic Table →</strong>.</p>
-      <p><u>Shared or kiosk device.</u> On a dispensary kiosk, use ↩ New Session (or "I'm Done") to reset to the disclaimer for the next visitor; an inactivity timer also resets the session automatically after a short idle period. <u>On your own phone or computer</u> there is no automatic reset — nothing is kept once you close the tab, and you can clear a session yourself at any time with <em>End session &amp; clear my answers</em> at the bottom of the page. On phones, swipe down to dismiss a molecule sheet and swipe left/right to move between molecules.</p>
+      <p><u>Shared or kiosk device.</u> Use ↩ New Session (or "I'm Done") to reset to the disclaimer for the next visitor; an inactivity timer also resets the session automatically after a short idle period. On phones, swipe down to dismiss a molecule sheet and swipe left/right to move between molecules.</p>
       <p>The table is optimised for desktop viewing. On smaller screens, the grid scrolls horizontally.</p>
     </div>
   </details>
@@ -2428,13 +2432,6 @@ body.is-mobile-view .panel-body{touch-action:pan-y}
     <button type="button" class="fb-staff-link" onclick="Feedback.openLogin()" title="Acannability staff only">Staff review</button>
     <span style="color:var(--mute);margin:0 9px">·</span>
     <button type="button" class="fb-foot-link" onclick="try{ResearchData.openInfo()}catch(e){}">📊 Research data &amp; privacy</button>
-    <!-- UX-57: personal-device equivalent of the kiosk "I'm Done" pill. Same action, but as an
-         ordinary footer item rather than a button floating over the table. Shown only when NOT
-         in kiosk mode, where the pill already covers it. -->
-    <span id="ftrEndSessionSep" style="color:var(--mute);margin:0 9px;display:none">·</span>
-    <button type="button" class="fb-foot-link" id="ftrEndSession" style="display:none" onclick="newSession()">↩ End session &amp; clear my answers</button>
-    <!-- staff-facing confirmation that a kiosk is actually configured as one -->
-    <div id="kioskModeNote" style="display:none;margin-top:9px;font-size:.58rem;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)">🔒 Kiosk mode — session resets automatically after a short idle period</div>
   </div>
 </footer>
 
@@ -2855,37 +2852,6 @@ var _inactivityTimer    = null;
 var _countdownInterval  = null;
 var _warningActive      = false;
 var _countdownDeadline  = 0;     // UX-55: wall-clock end of the countdown
-// ── UX-57: kiosk vs personal-device session handling ──────────────────────────
-// Owner decision 2026-08-13: the idle reset exists to stop one visitor's screen being read
-// by the next one. That risk is real on a shared dispensary kiosk and absent on someone's
-// own phone, where an auto-reset only destroys their answers mid-read. So the strict
-// behaviour is now opt-in per deployment and PERSONAL is the default.
-//   ?kiosk=1  turns it on and remembers it on that device (?kiosk=0 clears it)
-//   ?loc=...  also implies kiosk — that parameter is only ever set on a real dispensary
-//             deployment, so it closes the gap where a kiosk is set up without ?kiosk=1
-var KIOSK_MODE = (function() {
-  try {
-    var q = location.search || '';
-    var m = q.match(/[?&]kiosk=([^&]*)/);
-    if (m) {
-      var on = m[1] !== '0' && m[1].toLowerCase() !== 'false';
-      // Store '0' rather than deleting: an explicit ?kiosk=0 has to beat the ?loc= fallback
-      // below, otherwise a device that once submitted feedback could never be handed back
-      // to personal use.
-      try { localStorage.setItem('acann_kiosk', on ? '1' : '0'); } catch (e) {}
-      return on;
-    }
-    var stored = localStorage.getItem('acann_kiosk');
-    if (stored === '1') return true;
-    if (stored === '0') return false;               // explicitly opted out on this device
-    if (/[?&]loc=[A-Za-z0-9_-]{1,40}/.test(q)) {
-      try { localStorage.setItem('acann_kiosk', '1'); } catch (e) {}
-      return true;
-    }
-    return !!localStorage.getItem('acann_fb_loc');   // a device already registered as a kiosk
-  } catch (e) { return false; }
-})();
-function isKioskMode() { return KIOSK_MODE; }
 // ── END TIMER CONSTANTS ────────────────────────────────────────────────────────
 // ── MOLECULE DATA ──────────────────────────────────────────────
 const M = {
@@ -6682,7 +6648,6 @@ function getMolDrugInteractions(molId) {
 // Timer variables are declared at the top of this script (INACTIVITY_MS, COUNTDOWN_SECS, etc.)
 
 function resetInactivityTimer() {
-  if (!KIOSK_MODE) return;   // UX-57: personal devices never auto-reset
   if (!sessionStorage.getItem('eg_accepted')) return;
   // UX-56 self-heal: _warningActive gates every re-arm, so if it is ever left true while the
   // warning is NOT actually on screen, the session stops warning and stops resetting for good.
@@ -6765,10 +6730,7 @@ function imDone() {
 }
 function showImDoneBtn() {
   var btn = document.getElementById('imDoneBtn');
-  if (!btn) return;
-  // UX-57: on a personal device this floats over the table for no benefit — the equivalent
-  // action lives quietly in the footer instead (#ftrEndSession).
-  btn.style.display = KIOSK_MODE ? 'flex' : 'none';
+  if (btn) btn.style.display = 'flex';
 }
 function hideImDoneBtn() {
   var btn = document.getElementById('imDoneBtn');
@@ -6829,20 +6791,6 @@ function resetToEntryGate() {
 }
 
 // Start tracking activity — any interaction resets the idle timer
-// UX-57: show the session controls that belong to this deployment's mode.
-(function initSessionModeControls() {
-  var sep  = document.getElementById('ftrEndSessionSep');
-  var btn  = document.getElementById('ftrEndSession');
-  var note = document.getElementById('kioskModeNote');
-  if (sep)  sep.style.display  = KIOSK_MODE ? 'none' : 'inline';
-  if (btn)  btn.style.display  = KIOSK_MODE ? 'none' : 'inline';
-  if (note) note.style.display = KIOSK_MODE ? 'block' : 'none';
-  // The header "New Session" button is worded for staff use between visitors; on a personal
-  // device the footer control says the same thing in the user's own terms, so drop the duplicate.
-  var hdrNew = document.getElementById('newSessionBtn');
-  if (hdrNew && !KIOSK_MODE) hdrNew.style.display = 'none';
-})();
-
 (function initInactivityTracking() {
   ['mousemove','mousedown','keydown','touchstart','scroll','click'].forEach(function(evt) {
     document.addEventListener(evt, resetInactivityTimer, { passive: true });
