@@ -217,9 +217,16 @@ body.is-mobile-view .iw-msg{display:none}
    (the only free corner — demo-ribbon owns bottom-left, inactivityWarn and dj-toast own centre),
    with the attention-seeking pulse removed. Session behaviour is unchanged. */
 #imDoneBtn{position:fixed;bottom:20px;right:16px;left:auto;transform:none;z-index:7000;display:none;flex-direction:column;align-items:flex-end}
-#imDoneBtnInner{padding:10px 18px;min-height:38px;background:#2D6B1A;border:none;border-radius:22px;color:#fff;font-size:.76rem;font-weight:700;letter-spacing:.03em;cursor:pointer;box-shadow:0 2px 10px rgba(45,107,26,.4),0 1px 4px rgba(0,0,0,.18);transition:background .15s,transform .12s,box-shadow .15s;line-height:1.3;text-align:center}
+#imDoneBtnInner{padding:18px 48px;min-height:0;background:#2D6B1A;border:none;border-radius:50px;color:#fff;font-size:1.05rem;font-weight:800;letter-spacing:.04em;cursor:pointer;box-shadow:0 2px 10px rgba(45,107,26,.4),0 1px 4px rgba(0,0,0,.18);transition:background .15s,transform .12s,box-shadow .15s;line-height:1.3;text-align:center}
 #imDoneBtnInner:hover{background:#245A14;transform:scale(1.04);box-shadow:0 4px 16px rgba(45,107,26,.5)}
 .imd-short{display:none}
+/* UX-55 (owner, desktop review): UX-52 shrank this button for phones, but it put the
+   compact padding/font on the BASE rule, so desktop shrank with it. The base rule above is
+   back to the original desktop pill (18px 48px, 1.05rem, 50px radius); the compact treatment
+   now lives here, scoped to the mobile view. The bottom-RIGHT dock is deliberately kept on
+   desktop rather than reverting to the original bottom-CENTRE: centre is where
+   #inactivityWarn sits (bottom:22px, translateX(-50%)), and the two overlapped there. */
+body.is-mobile-view #imDoneBtnInner{padding:10px 18px;min-height:38px;border-radius:22px;font-size:.76rem;font-weight:700;letter-spacing:.03em}
 /* phones: shorter label, and lifted clear of the mobile tab bar so it never overlays the table */
 @media(max-width:620px){
   #imDoneBtn{right:10px;bottom:calc(56px + env(safe-area-inset-bottom) + 10px)}
@@ -2837,6 +2844,7 @@ var COUNTDOWN_SECS  = 30;             // seconds before forced reset
 var _inactivityTimer    = null;
 var _countdownInterval  = null;
 var _warningActive      = false;
+var _countdownDeadline  = 0;     // UX-55: wall-clock end of the countdown
 // ── END TIMER CONSTANTS ────────────────────────────────────────────────────────
 // ── MOLECULE DATA ──────────────────────────────────────────────
 const M = {
@@ -6651,12 +6659,18 @@ function showInactivityWarning() {
   // Use explicit fallback in case COUNTDOWN_SECS is somehow undefined or NaN
   var secs = (typeof COUNTDOWN_SECS === 'number' && !isNaN(COUNTDOWN_SECS) && COUNTDOWN_SECS > 0)
     ? COUNTDOWN_SECS : 30;
-  var remaining = secs;
-  countEl.textContent = remaining;
+  // UX-55: drive the countdown off a wall-clock deadline rather than by counting ticks.
+  // A tick-counting interval assumes every tick arrives ~1s apart, which is exactly what a
+  // browser stops guaranteeing once the tab is backgrounded or the phone screen locks: the
+  // ticks are throttled, then coalesced and replayed in a burst on return. Counting them
+  // would blow through all 30 in a fraction of a second, so the user would land back on the
+  // opening screen having seen no warning at all. Reading the clock instead means a burst of
+  // late ticks can only ever redraw the same correct number.
+  _countdownDeadline = Date.now() + secs * 1000;
+  countEl.textContent = secs;
   warn.style.display = 'flex';
   _countdownInterval = setInterval(function() {
-    remaining--;
-    // Guard against NaN in case of any edge case
+    var remaining = Math.ceil((_countdownDeadline - Date.now()) / 1000);
     if (typeof remaining !== 'number' || isNaN(remaining)) remaining = 0;
     countEl.textContent = Math.max(0, remaining);
     if (remaining <= 0) {
@@ -6664,7 +6678,7 @@ function showInactivityWarning() {
       _countdownInterval = null;
       resetToEntryGate();
     }
-  }, 1000);
+  }, 250);
 }
 
 function dismissInactivityWarning() {
@@ -6763,6 +6777,18 @@ function resetToEntryGate() {
 (function initInactivityTracking() {
   ['mousemove','mousedown','keydown','touchstart','scroll','click'].forEach(function(evt) {
     document.addEventListener(evt, resetInactivityTimer, { passive: true });
+  });
+  // UX-55: browsers suspend or heavily throttle timers while a tab is backgrounded or a phone
+  // is locked, then fire whatever is pending the moment the page comes back. Without this, a
+  // user who switched apps for a few minutes returned to find the session already resetting —
+  // the 2.5-minute timeout fired on the same frame they came back, with no usable warning.
+  // Someone who has just returned is present and looking at the screen, so give them a clean
+  // idle period rather than punishing them for time spent away.
+  document.addEventListener('visibilitychange', function() {
+    if (document.hidden) return;
+    if (!sessionStorage.getItem('eg_accepted')) return;
+    if (_warningActive) dismissInactivityWarning();   // clears the warning AND re-arms
+    else resetInactivityTimer();
   });
   // Only start timer if entry gate is already accepted (e.g. returning session)
   if (sessionStorage.getItem('eg_accepted')) resetInactivityTimer();
