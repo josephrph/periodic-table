@@ -2429,7 +2429,7 @@ body.is-mobile-view .panel-body{touch-action:pan-y}
   <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:24px;flex-wrap:wrap">
     <div>
       <div style="font-family:Georgia,serif;font-size:.95rem;color:var(--accent);letter-spacing:.06em">Acannability<sup style="font-size:.5rem;font-family:system-ui,sans-serif">™</sup> © 2026</div>
-      <div style="font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);margin-top:2px">V2 · The Periodic Table of Cannabis Plant Molecules</div>
+      <div style="font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);margin-top:2px">V2 · The Periodic Table of Cannabis Plant Molecules&trade;</div>
     </div>
     <div style="flex:1;min-width:280px;max-width:700px;font-size:.62rem;color:var(--mute);line-height:1.6">
       <strong style="color:var(--dim);font-size:.62rem;letter-spacing:.06em;text-transform:uppercase">Disclaimer</strong><br>
@@ -6844,8 +6844,13 @@ window.V2FACTS = (function() {
   function byGroup() {
     var g = {};
     conds().forEach(function(c) {
-      String(c.group || '').split(',').forEach(function(k) {
-        k = k.trim(); if (!k) return;
+      // c.group is USUALLY a string, but a cross-listed condition carries an array
+      // (prostate-cancer is ['cancer-sub','mens']). Handle both explicitly rather than
+      // leaning on Array->String coercion, which is easy to lose in a port or refactor.
+      var raw = c.group;
+      var keys = Array.isArray(raw) ? raw : String(raw || '').split(',');
+      keys.forEach(function(k) {
+        k = String(k).trim(); if (!k) return;
         (g[k] = g[k] || []).push(c.label);
       });
     });
