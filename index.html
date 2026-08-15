@@ -2110,6 +2110,44 @@ body.is-mobile-view .panel{
 body.is-mobile-view .panel-drag-handle{touch-action:none}
 body.is-mobile-view .panel-body{touch-action:pan-y}
 
+/* ── MOB-15: make the molecule sheet obvious to scroll and close ──────────────
+   Measured on a 390x844 phone: the sheet was 717px tall but only .panel-body
+   scrolled, and that band was 335px — 47% of the sheet — holding 3036px of content.
+   So 89% of a molecule's information sat outside a strip less than half the sheet,
+   while 166px of header, 89px of action buttons and 112px of pinned legal footer
+   took the rest. Touch the header or the footer and nothing scrolls, which is what
+   made finger placement feel like guesswork.
+
+   Fix: the WHOLE sheet scrolls as one document, so a finger anywhere works. The
+   header stays pinned so the molecule's identity and the close button never leave,
+   and the secondary buttons and legal footer now scroll with the content instead of
+   permanently occupying the screen. Reading area goes from 335px to ~600px. */
+body.is-mobile-view .panel{overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y}
+body.is-mobile-view .panel > #panelHdr{position:sticky;top:0;z-index:3;background:var(--surface2);
+  padding:6px 14px 10px;box-shadow:0 1px 0 var(--border)}
+body.is-mobile-view .panel > #panelBody{flex:0 0 auto;overflow:visible;max-height:none}
+body.is-mobile-view .panel > #panelPdf,
+body.is-mobile-view .panel > .panel-foot{flex:0 0 auto}
+/* the grab bar sits above the sticky header and stays put */
+body.is-mobile-view .panel-drag-handle{position:sticky;top:0;z-index:4;background:var(--surface2);
+  width:100%;height:auto;padding:12px 0 10px;margin:0;border-radius:16px 16px 0 0}
+body.is-mobile-view .panel-drag-handle::before{content:'';display:block;width:40px;height:4px;
+  border-radius:2px;background:var(--border);margin:0 auto}
+/* 44px minimum for the close control — it was 32px */
+body.is-mobile-view .panel-close{min-width:44px;min-height:44px;width:44px;height:44px;
+  font-size:1rem;top:6px;right:8px}
+/* a soft fade at the foot of the sheet so it reads as "more below" */
+body.is-mobile-view .panel.open::after{content:'';position:absolute;left:0;right:0;bottom:0;height:26px;
+  background:linear-gradient(to top,var(--surface),transparent);pointer-events:none;z-index:2}
+/* Once scrolling starts, the pinned header drops to just identity + close, freeing ~60px
+   for content. Same condense-on-scroll pattern as the main page header (MOB-07). */
+body.is-mobile-view .panel.panel-condensed > #panelHdr{padding-bottom:4px}
+body.is-mobile-view .panel.panel-condensed .panel-meta,
+body.is-mobile-view .panel.panel-condensed .panel-rc-row{display:none}
+body.is-mobile-view .panel.panel-condensed .panel-sym{font-size:1.05rem}
+@media (prefers-reduced-motion:reduce){body.is-mobile-view .panel{scroll-behavior:auto}}
+
+
 </style>
 
 <section id="faq-section">
@@ -8360,6 +8398,34 @@ document.addEventListener('keydown', function(e) {
 // below it. #panel / closePanel() / the .panel.open CSS transition are
 // all untouched — this only toggles a temporary inline transform/
 // transition on top of them during an active drag.
+// ── MOB-15: condense the molecule sheet's pinned header once the reader scrolls.
+// The header carries identity, the close button and two shortcuts — 162px of a 716px
+// sheet. Keeping all of it pinned while reading 3000px of content is a poor trade, so the
+// meta row and receptor chips fold away after the first flick and return at the top.
+(function initPanelHeaderCondense() {
+  var panel = document.getElementById('panel');
+  if (!panel) return;
+  var ticking = false;
+  function apply() {
+    ticking = false;
+    if (!document.body.classList.contains('is-mobile-view')) {
+      panel.classList.remove('panel-condensed');
+      return;
+    }
+    var y = panel.scrollTop;
+    if (y > 40) panel.classList.add('panel-condensed');
+    else if (y < 12) panel.classList.remove('panel-condensed');
+  }
+  function schedule() {
+    if (ticking) return;
+    ticking = true;
+    if (window.requestAnimationFrame) window.requestAnimationFrame(apply);
+    setTimeout(apply, 120);   // rAF can be starved in a backgrounded tab (see MOB-07)
+  }
+  panel.addEventListener('scroll', schedule, {passive: true});
+  window.__v3PanelCondense = {apply: apply};
+})();
+
 (function initV3SwipeDismiss() {
   var handle = document.querySelector('.panel-drag-handle');
   var panel = document.getElementById('panel');
