@@ -1625,7 +1625,7 @@ body.is-mobile-view.is-touch-device #imDoneBtn{right:10px;bottom:calc(56px + env
        activeCond / activeEv / activeRec state, populated and kept in sync by JS -->
   <div id="mmlChips" class="mml-chips"></div>
   <div id="mobileMolList" class="mobile-mol-list"></div>
-  <div id="mmlTableHint" class="mml-table-hint">Pinch to zoom &middot; pan to explore the full chart</div>
+  <div id="mmlTableHint" class="mml-table-hint"><span id="mtvLabel">Whole table &mdash; tap any molecule</span><span class="mtv-zoom"><button type="button" id="mtvFit" class="mtv-btn on" onclick="V2TableView.fit()">Fit</button><button type="button" id="mtvFull" class="mtv-btn" onclick="V2TableView.actual()">Full size</button></span></div>
 
   <!-- GRID -->
   <div class="grid-scroll">
@@ -1858,7 +1858,23 @@ body.is-mobile-view .main-area > #mobileToolbar,
 body.is-mobile-view .main-area > #mmlChips,
 body.is-mobile-view .main-area > #mmlTableHint{width:100%;flex:0 0 auto}
 body.is-mobile-view.mobile-table-view .grid-scroll{display:block;overflow:auto;max-width:100vw}
-body.is-mobile-view.mobile-table-view .mml-table-hint{display:block;font-size:.62rem;color:var(--dim);text-align:center;padding:6px 12px 10px}
+body.is-mobile-view.mobile-table-view .mml-table-hint{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:.62rem;color:var(--dim);padding:6px 12px 8px;flex-wrap:wrap}
+/* ── MOB-14: real zoom for the mobile Full Table View ─────────────────────────
+   The old hint promised "pinch to zoom · pan to explore", but pinch was NATIVE browser
+   zoom, and a browser will not zoom out below the layout width. The grid is 1125px wide
+   inside a 390px viewport, so there was no gesture that could ever show the whole table —
+   the instruction asked for something the page could not do. The grid is now scaled as a
+   unit with a transform, defaulting to a scale that fits the screen. */
+.mtv-zoom{display:inline-flex;gap:0;border:1px solid var(--border);border-radius:999px;overflow:hidden;flex-shrink:0}
+.mtv-btn{font-family:inherit;font-size:.62rem;font-weight:700;letter-spacing:.04em;border:none;background:transparent;color:var(--dim);padding:7px 13px;min-height:34px;cursor:pointer}
+.mtv-btn.on{background:var(--accent);color:#fff}
+#mtvLabel{text-align:left;flex:1;min-width:0}
+/* transform-origin keeps the scaled grid pinned to the top-left of its scroller so the
+   container height we compute in JS matches what is actually drawn. */
+body.is-mobile-view.mobile-table-view #ptGrid{transform-origin:top left;will-change:transform}
+body.is-mobile-view.mobile-table-view .grid-scroll{padding:10px 12px 14px}
+body.is-mobile-view.mobile-table-view.mtv-fit .grid-scroll{overflow-x:hidden}
+
 
 .mml-toolbar-label{font-size:.68rem;color:var(--dim);flex:1;line-height:1.3}
 .mml-view-toggle{font-size:.68rem;font-weight:700;padding:8px 12px;border:1px solid var(--accent);border-radius:8px;background:var(--surface);color:var(--accent);min-height:40px;white-space:nowrap;cursor:pointer}
@@ -6938,6 +6954,110 @@ window.V2FACTS = (function() {
 })();
 try { V2FACTS.apply(); } catch (e) {}
 
+// ── MOB-14: mobile Full Table View — real zoom, and actually bringing it into view ──
+// Two separate faults were reported together:
+//
+//   1. Tapping "Table view" appeared to do nothing. With a condition selected, the filter
+//      panel (405px) and the Associated Molecules recommendation (590px) sit above the
+//      table, so the grid began ~1425px down an 844px screen. Zero tiles were on screen;
+//      the user saw the hint text and then blank space.
+//   2. "Pinch to zoom" was native browser zoom, which cannot zoom out past the layout
+//      width. A 1125px grid inside a 390px viewport could never be shown whole, so the
+//      instruction described something impossible.
+//
+// The grid is now scaled as a single unit and defaults to fitting the screen, and entering
+// table view scrolls the table to the top of the viewport.
+window.V2TableView = (function() {
+  var FIT_CLASS = 'mtv-fit';
+  function grid()   { return document.getElementById('ptGrid'); }
+  function scroller(){ return document.querySelector('.grid-scroll'); }
+  function isMobileTable() {
+    return document.body.classList.contains('is-mobile-view')
+        && document.body.classList.contains('mobile-table-view');
+  }
+  // natural (unscaled) size, measured once per call with the transform removed
+  function natural(g) {
+    var prev = g.style.transform;
+    g.style.transform = 'none';
+    var w = g.offsetWidth, h = g.offsetHeight;
+    g.style.transform = prev;
+    return {w: w, h: h};
+  }
+  function apply(scale, isFit) {
+    var g = grid(), sc = scroller();
+    if (!g || !sc) return;
+    var nat = natural(g);
+    if (scale <= 0 || !isFinite(scale)) scale = 1;
+    g.style.transform = scale === 1 ? '' : 'scale(' + scale + ')';
+    // A transform does not change layout box, so the scroller would keep reserving the
+    // full unscaled height and leave a large dead gap below the table. Set it explicitly —
+    // and add the vertical padding back, because .grid-scroll is border-box, so a height of
+    // just the scaled grid swallows its own padding and clips the bottom row of acids.
+    var scs = getComputedStyle(sc);
+    var padY = (parseFloat(scs.paddingTop) || 0) + (parseFloat(scs.paddingBottom) || 0);
+    sc.style.height = scale === 1 ? '' : Math.ceil(nat.h * scale + padY) + 'px';
+    document.body.classList.toggle(FIT_CLASS, !!isFit);
+    var fitBtn = document.getElementById('mtvFit');
+    var fullBtn = document.getElementById('mtvFull');
+    if (fitBtn)  fitBtn.classList.toggle('on', !!isFit);
+    if (fullBtn) fullBtn.classList.toggle('on', !isFit);
+    var label = document.getElementById('mtvLabel');
+    if (label) {
+      label.innerHTML = isFit
+        ? 'Whole table &mdash; tap any molecule'
+        : 'Full size &mdash; swipe sideways to see more';
+    }
+  }
+  function fitScale() {
+    var g = grid(), sc = scroller();
+    if (!g || !sc) return 1;
+    var cs = getComputedStyle(sc);
+    var avail = sc.clientWidth - parseFloat(cs.paddingLeft || 0) - parseFloat(cs.paddingRight || 0);
+    var nat = natural(g);
+    if (!nat.w || !avail) return 1;
+    return Math.min(1, avail / nat.w);
+  }
+  function fit()    { if (isMobileTable()) apply(fitScale(), true); }
+  function actual() { if (isMobileTable()) apply(1, false); }
+  function clear()  {
+    var g = grid(), sc = scroller();
+    if (g) g.style.transform = '';
+    if (sc) sc.style.height = '';
+    document.body.classList.remove(FIT_CLASS);
+  }
+  // Entering table view must actually show the table. Without this the grid can sit well
+  // over a screen below the fold and the tap reads as a no-op.
+  function reveal() {
+    var sc = scroller();
+    if (!sc) return;
+    var hint = document.getElementById('mmlTableHint');
+    var target = (hint && hint.offsetParent !== null) ? hint : sc;
+    var hdr = document.querySelector('header.hdr');
+    var offset = (hdr ? hdr.getBoundingClientRect().height : 0) + 8;
+    var y = Math.max(0, target.getBoundingClientRect().top + window.pageYOffset - offset);
+    // Smooth scrolling is feature-detected, not assumed. Safari before 15.4 ignores the
+    // options object ENTIRELY and silently does nothing — no throw, so a try/catch cannot
+    // see it, and the table would stay off-screen exactly as reported. The verify-and-force
+    // step below covers that and any other silent no-op.
+    var smooth = 'scrollBehavior' in document.documentElement.style;
+    if (smooth) { window.scrollTo({top: y, behavior: 'smooth'}); }
+    else { window.scrollTo(0, y); }
+    setTimeout(function() {
+      if (Math.abs(window.pageYOffset - y) > 4) window.scrollTo(0, y);
+    }, smooth ? 420 : 0);
+  }
+  function enter() { fit(); reveal(); }
+  var t = null;
+  window.addEventListener('resize', function() {
+    clearTimeout(t);
+    t = setTimeout(function() {
+      if (!isMobileTable()) { clear(); return; }
+      if (document.body.classList.contains(FIT_CLASS)) fit();
+    }, 180);
+  }, {passive: true});
+  return {fit: fit, actual: actual, enter: enter, clear: clear, fitScale: fitScale};
+})();
+
 // Start tracking activity — any interaction resets the idle timer
 (function initInactivityTracking() {
   ['mousemove','mousedown','keydown','touchstart','scroll','click'].forEach(function(evt) {
@@ -7969,6 +8089,12 @@ document.addEventListener('keydown', function(e) {
     var isTable = document.body.classList.toggle('mobile-table-view');
     var btn = document.getElementById('mmlViewToggle');
     if (btn) btn.textContent = isTable ? 'List view' : 'Table view';
+    // MOB-14: fit the table to the screen and scroll it into view, else the tap looks
+    // like a no-op because the grid sits below the filter and recommendation panels.
+    try {
+      if (isTable) window.V2TableView.enter();
+      else window.V2TableView.clear();
+    } catch (e) {}
   }
 
   render();
