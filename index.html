@@ -1619,6 +1619,9 @@ body.is-mobile-view.is-touch-device #imDoneBtn{right:10px;bottom:calc(56px + env
   <!-- MOBILE MOLECULE BROWSER (Phase 2) — hidden on desktop, populated by JS -->
   <div id="mobileToolbar" class="mobile-toolbar">
     <span class="mml-toolbar-label">Browse by category, or view the full chart</span>
+    <!-- UX-65: mobile hides the whole category sidebar, so the Adverse Findings safety filter
+         had no entry point at all on a phone. Same function as the desktop control. -->
+    <button type="button" class="mml-adv-toggle" id="mmlAdvToggle" onclick="filterCategory('adverse')" title="Show only molecules with documented adverse findings">&#x26A0; Adverse only</button>
     <button type="button" class="mml-view-toggle" id="mmlViewToggle" onclick="window.__v3MobileList.toggleView()">Table view</button>
   </div>
   <!-- MOBILE FILTER CHIPS (Phase 4) — read-only reflection of the existing
@@ -1656,7 +1659,12 @@ body.is-mobile-view.is-touch-device #imDoneBtn{right:10px;bottom:calc(56px + env
     <button class="cat-btn" data-cat="acid" onclick="filterCategory(&#39;acid&#39;)">
       <div class="leg-sw2" style="background:#B5304A"></div><div class="leg-lbl2">Acidic Cannabinoids</div>
     </button>
-    <button class="cat-btn" data-cat="adverse" onclick="filterCategory(&#39;adverse&#39;)" title="Show only molecules with documented adverse/risk findings">
+    <!-- UX-65: this is a SAFETY FILTER, not a sixth molecule class — V2's own FAQ describes it
+         as "a dedicated Adverse Findings safety filter", and filterCategory() special-cases it
+         (it dims molecules WITHOUT findings, the inverse of how a category behaves). It sat
+         unlabelled among the five real classes, which is why it read as one of them. -->
+    <div class="cat-filter-lbl">Safety filter</div>
+    <button class="cat-btn cat-btn-safety" data-cat="adverse" onclick="filterCategory(&#39;adverse&#39;)" title="Show only molecules with documented adverse/risk findings">
       <div class="leg-sw2" style="background:#CC2200"></div><div class="leg-lbl2">&#x26A0; Adverse Findings</div>
     </button>
     <div class="cat-adv-disclaimer" id="catAdvDisclaimer">
@@ -2824,6 +2832,20 @@ body.is-mobile-view .demo-ribbon{bottom:calc(64px + env(safe-area-inset-bottom))
   @keyframes gxPulse{0%,100%{opacity:.35}50%{opacity:1}}
 }
 /* Phase 3 — clinician detail-level + demo insights dashboard */
+/* ── UX-65 ────────────────────────────────────────────────────────────────── */
+.cat-filter-lbl{font-size:.55rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--mute);margin:10px 0 5px;padding-top:9px;border-top:1px solid var(--border)}
+.cat-btn-safety .leg-lbl2{font-weight:700}
+#gxOverlay .v2p-here{display:inline-block;font-size:.6rem;font-weight:700;letter-spacing:.05em;
+  text-transform:uppercase;color:var(--accent);border:1px solid var(--accent);border-radius:999px;
+  padding:1px 7px;margin-left:7px;vertical-align:1px}
+#gxOverlay .v2p-sub{font-size:.6rem;font-weight:700;letter-spacing:.11em;text-transform:uppercase;
+  color:var(--mute);margin:14px 0 8px;padding-top:10px;border-top:1px solid var(--border)}
+.mml-adv-toggle{display:none}
+body.is-mobile-view .mml-adv-toggle{display:inline-block;font-family:inherit;font-size:.68rem;
+  font-weight:700;letter-spacing:.02em;padding:10px 13px;min-height:44px;border-radius:8px;
+  border:1px solid var(--border);background:var(--surface);color:var(--dim);cursor:pointer}
+body.is-mobile-view .mml-adv-toggle.on{background:#CC2200;border-color:#CC2200;color:#fff}
 /* ── UX-64: consumer plain-language rows ─────────────────────────────────────── */
 #gxOverlay .v2p-wrap{margin-top:10px}
 #gxOverlay .v2p-why{font-size:.84rem;line-height:1.55;color:var(--text);margin:0 0 12px}
@@ -3123,13 +3145,29 @@ window.V2PLAIN = (function() {
   }
   // Only the classes actually in THIS recommendation get explained — explaining flavonoids on
   // a screen with no flavonoid teaches a word the screen never uses.
+  // UX-65: all five classes are explained, not just the ones in this recommendation.
+  // The original design showed only what was on screen, on the reasoning that defining
+  // flavonoids where none appear teaches an unused word. The owner asked for all five, and
+  // he is right for a reason I had underweighted: this screen hands off to the Periodic
+  // Table, which carries all five categories, so the reader meets flavonoids and acidic
+  // cannabinoids moments later. Relevance is preserved by ordering — the classes in THIS
+  // recommendation come first and are marked; the rest follow under their own sub-heading.
   function classPanel(ids) {
-    var cs = classesPresent(ids);
-    if (!cs.length) return '';
+    var present = classesPresent(ids);
+    var order = ['phytocannabinoid','rare','terpene','flavonoid','acid'];
+    var rest = order.filter(function(c) { return present.indexOf(c) < 0; });
+    function para(c, here) {
+      return '<p class="v2p-cls"><b>' + CLASS_TITLE[c] + '</b>' +
+        (here ? '<span class="v2p-here">in this recommendation</span>' : '') +
+        ' &mdash; ' + CLASS_BLURB[c] + '</p>';
+    }
+    var html = present.map(function(c) { return para(c, true); }).join('');
+    if (rest.length) {
+      html += '<div class="v2p-sub">Also in the Periodic Table</div>' +
+        rest.map(function(c) { return para(c, false); }).join('');
+    }
     return '<details class="gx-ent v2p-classes"><summary>What do these molecule types mean?</summary>' +
-      '<div class="gx-ent-body">' + cs.map(function(c) {
-        return '<p class="v2p-cls"><b>' + CLASS_TITLE[c] + '</b> &mdash; ' + CLASS_BLURB[c] + '</p>';
-      }).join('') + '</div></details>';
+      '<div class="gx-ent-body">' + html + '</div></details>';
   }
   function row(id, condLabel) {
     var m = (typeof M !== 'undefined') ? M[id] : null;
@@ -4492,6 +4530,10 @@ function filterCategory(cat) {
   document.querySelectorAll('.cat-btn, .cat-all-btn').forEach(function(b) {
     b.classList.toggle('cat-active', b.dataset.cat === (activeCat || 'all'));
   });
+  // UX-65: mirror the state onto the mobile toolbar button, which is the phone's only route
+  // to this filter now that the category sidebar is hidden there.
+  var mAdv = document.getElementById('mmlAdvToggle');
+  if (mAdv) mAdv.classList.toggle('on', activeCat === 'adverse');
   document.querySelectorAll('.mol-tile').forEach(function(tile) {
     if (activeCat === 'adverse') {
       tile.classList.toggle('cat-dim', !molHasAdverse(tile.dataset.id));
