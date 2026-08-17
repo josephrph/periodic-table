@@ -2824,6 +2824,25 @@ body.is-mobile-view .demo-ribbon{bottom:calc(64px + env(safe-area-inset-bottom))
   @keyframes gxPulse{0%,100%{opacity:.35}50%{opacity:1}}
 }
 /* Phase 3 — clinician detail-level + demo insights dashboard */
+/* ── UX-64: consumer plain-language rows ─────────────────────────────────────── */
+#gxOverlay .v2p-wrap{margin-top:10px}
+#gxOverlay .v2p-why{font-size:.84rem;line-height:1.55;color:var(--text);margin:0 0 12px}
+#gxOverlay .v2p-row{padding:10px 0;border-bottom:1px solid var(--border)}
+#gxOverlay .v2p-row:last-of-type{border-bottom:none}
+#gxOverlay .v2p-nm{font-weight:700;font-size:.93rem;line-height:1.35;color:var(--text)}
+#gxOverlay .v2p-cat{display:block;font-weight:400;font-size:.72rem;color:var(--dim);margin-top:1px}
+#gxOverlay .v2p-eff{display:block;font-size:.83rem;line-height:1.5;color:var(--text);margin-top:5px}
+#gxOverlay .v2p-eff.v2p-none{color:var(--dim);font-style:italic}
+#gxOverlay .v2p-ev{display:inline-block;font-size:.68rem;font-weight:700;letter-spacing:.02em;
+  color:var(--dim);margin-top:5px;padding:2px 8px;border:1px solid var(--border);border-radius:999px}
+#gxOverlay .v2p-classes{margin-top:14px}
+#gxOverlay .v2p-cls{font-size:.83rem;line-height:1.6;margin:0 0 10px}
+#gxOverlay .v2p-cls:last-child{margin-bottom:0}
+#gxOverlay .v2p-cls a{color:var(--accent);text-decoration:underline}
+@media(max-width:620px){
+  #gxOverlay .v2p-nm{font-size:.9rem}
+  #gxOverlay .v2p-eff{font-size:.85rem}
+}
 #gxOverlay .gx-detail{display:inline-flex;gap:2px;background:var(--surface2,#eef3ee);border:1px solid var(--border,#ccc);border-radius:999px;padding:2px;margin:12px 0 0}
 #gxOverlay .gx-detail button{font-family:inherit;font-size:.72rem;font-weight:700;border:none;background:transparent;color:var(--dim,#777);padding:5px 13px;border-radius:999px;cursor:pointer}
 /* UX-59: this pair was 106x22 with 10px text — half Apple's 44px minimum, so on an iPhone a
@@ -2928,6 +2947,212 @@ var _warningActive      = false;
 var _countdownDeadline  = 0;     // UX-55: wall-clock end of the countdown
 // ── END TIMER CONSTANTS ────────────────────────────────────────────────────────
 // ── MOLECULE DATA ──────────────────────────────────────────────
+// ── UX-64: CONSUMER PLAIN-LANGUAGE LAYER ─────────────────────────────────────
+// A consumer focus group found the Guided Match recommendation too technical. The screen
+// already had a "Plain language / Research detail" toggle — but it only ever REMOVED the
+// receptor/evidence block. The molecule chips rendered identically in both modes, so
+// "Plain language" delivered less information rather than clearer information, and names
+// like Terpinolene and Tetrahydrocannabiphorol went untranslated either way.
+//
+// This module supplies the plain half: what each molecule class is, what research
+// associates with each molecule, and what its evidence grade means — all generated from
+// the existing data, so it works for any of the 50 conditions and any molecule mix.
+// Class copy approved by the owner (RPh) 2026-08-17.
+window.V2PLAIN = (function() {
+  var CLASS_TITLE = {
+    phytocannabinoid: 'Phytocannabinoids',
+    terpene:          'Terpenes',
+    flavonoid:        'Flavonoids',
+    rare:             'Rare &amp; Emerging Cannabinoids',
+    acid:             'Acidic Cannabinoids'
+  };
+  var CLASS_BLURB = {
+    phytocannabinoid: 'Natural compounds found in the cannabis plant, such as THC, CBD, and CBN. ' +
+      'They interact with the body&rsquo;s endocannabinoid system and have the strongest body of published research.',
+    terpene: 'Natural compounds that give cannabis its aroma. They are also found in many other plants ' +
+      'and may influence how cannabinoids work.',
+    flavonoid: 'Natural plant compounds found in cannabis and many fruits and vegetables. They are ' +
+      'primarily studied for their antioxidant and anti-inflammatory properties.',
+    rare: 'Less common cannabinoids that are still being researched. Early findings are promising, but ' +
+      'the evidence is far more limited than for THC or CBD.',
+    // The one sentence in V2 most likely to be quoted out of context, so it carries its
+    // source inline: van Breemen et al., J Nat Prod 2022 (PMID 35007072), which V2 already cites.
+    acid: 'The natural forms made by the living cannabis plant, such as THCA and CBDA. Heat converts them: ' +
+      'THCA becomes intoxicating THC, while CBDA becomes non-intoxicating CBD. The acidic forms are studied ' +
+      'in their own right &mdash; laboratory work has looked at CBDA and CBGA for antiviral activity, ' +
+      'including cell-based studies on the COVID-19 virus ' +
+      '(<a href="https://pubmed.ncbi.nlm.nih.gov/35007072/" target="_blank" rel="noopener">PubMed 35007072</a>). ' +
+      'This is ongoing research, not an established treatment.'
+  };
+  // short form for the molecule row
+  var CLASS_ROW = {
+    phytocannabinoid: 'plant cannabinoid',
+    terpene:          'terpene, an aroma compound',
+    flavonoid:        'flavonoid, a plant compound',
+    rare:             'rare, emerging cannabinoid',
+    acid:             'raw, unheated cannabinoid'
+  };
+  var EV_PLAIN = {
+    A: 'Studied in people, in clinical trials',
+    B: 'Observed in patient studies',
+    C: 'Studied in laboratory and animal research',
+    D: 'Early research &mdash; very limited so far'
+  };
+  // Owner decisions 2026-08-17: (1) the whole anti-tumour family becomes "studied in cancer
+  // research" rather than anything implying efficacy — extended here to NAMED cancers for the
+  // same reason; (3) Anti-Covid-19 is suppressed on the consumer screen, where a bare chip
+  // would read as a claim (the framed version lives in the acid class blurb instead);
+  // (4) mechanism labels that are not benefits are omitted rather than translated.
+  var SUPPRESS = {
+    'Unknown Potential': 1, 'Unknown Potential / CBD-Enhanced': 1,
+    'Unknown Potential / THC-Enhanced': 1, 'Unknown Potential / May hold unique promise': 1,
+    'Anti-Covid-19': 1,
+    'Blood-Brain Barrier Modulator': 1, 'Skin Penetration Enhancer': 1, 'Anti-Biofilm': 1
+  };
+  var CANCER = 'studied in cancer research';
+  var MAP = {
+    'Analgesic':'pain relief', 'Antinociceptive':'pain relief', 'Anti-Hyperalgesia':'heightened pain sensitivity',
+    'Sedative':'sedation', 'Sleep Aid/Sedation':'sleep and sedation', 'Insomnia':'sleep',
+    'Anxiety':'anxiety', 'Anti-Anxiety':'anxiety', 'Anxiolytic':'anxiety',
+    'Antidepressant':'mood',
+    'Neuroprotection':'protecting nerve cells', 'Neuroprotective':'protecting nerve cells',
+    'CNS Protection':'protecting nerve cells',
+    'Anti-Seizure':'seizures', 'Anticonvulsant':'seizures', 'Epilepsy/Seizures':'seizures',
+    'Anti-Inflammatory':'inflammation', 'Antioxidant':'antioxidant activity',
+    'Antiemetic':'nausea and vomiting',
+    'Antibacterial':'bacterial infection', 'Antifungal':'fungal infection',
+    'Antiviral':'viral infection', 'Anti-Parasitic':'parasitic infection',
+    'Immunomodulatory':'immune response', 'Anti-Allergy':'allergic response',
+    'Organ Transplant Anti-Rejection':'transplant rejection',
+    'Muscle Relaxant':'muscle relaxation', 'Bronchodilator':'opening the airways',
+    'Respiratory Health':'breathing and lung health',
+    'Gastro-Protective':'protecting the stomach lining',
+    'IBD':'inflammatory bowel conditions', "Crohn's Disease":'inflammatory bowel conditions',
+    'Appetite Stimulant':'appetite', 'Appetite Suppressant':'reduced appetite',
+    'Diabetes':'blood sugar', 'Hyperlipidemia':'cholesterol and blood fats',
+    'Cardiovascular':'heart and circulation', 'Cardiovascular Health':'heart and circulation',
+    'Cardioprotective':'heart protection', 'Anti-Hypertensive':'blood pressure',
+    'Glaucoma':'eye pressure', 'Memory Aid':'memory', 'Autism':'autism',
+    'Dysmenorrhea':'menstrual pain', 'Endometriosis':'endometriosis',
+    'Uterine Fibroids':'uterine fibroids', 'Menopause Symptoms':'menopause symptoms',
+    'Dry Skin':'dry skin', 'Skin Smoothing':'skin',
+    'Anti-Cancer':CANCER, 'Anti-Tumor':CANCER, 'Cancer/Anti-Tumor':CANCER,
+    'Cancer/Anti-Tumor Growth':CANCER, 'Cancer/Tumor Growth':CANCER,
+    'Breast Cancer':'studied in breast cancer research',
+    'Lung Cancer':'studied in lung cancer research',
+    'Colorectal Cancer':'studied in colorectal cancer research',
+    'Prostate Cancer':'studied in prostate cancer research',
+    'Ovarian Cancer':'studied in ovarian cancer research',
+    'Cervical Cancer':'studied in cervical cancer research',
+    'Pancreatic Cancer':'studied in pancreatic cancer research',
+    'Liver Cancer':'studied in liver cancer research',
+    'Leukemia':'studied in leukemia research',
+    'Melanoma':'studied in melanoma research',
+    'Glioblastoma':'studied in brain cancer research'
+  };
+  var STOP = {'and':1,'or':1,'the':1,'of':1,'a':1,'an':1,'with':1,'for':1,'in':1,'to':1};
+
+  function decode(t) {
+    return String(t || '').replace(/&[a-zA-Z]+\d?;/g, function(e) {
+      var m = {'&beta;':'β','&alpha;':'α','&Delta;':'Δ','&delta;':'δ',
+               '&gamma;':'γ','&amp;':'&','&mdash;':'—','&ndash;':'–',
+               '&rsquo;':'’','&times;':'×'};
+      return m[e] || e;
+    });
+  }
+  // "Cannabinol (CBN)" where the symbol is a genuine abbreviation; plain name otherwise
+  function displayName(m) {
+    var full = m.fullName || m.symbol || '';
+    var sym = m.symbol || '';
+    var ds = decode(sym), df = decode(full);
+    if (ds && ds !== df && /^[A-Z0-9Δαβ\-]{2,8}$/.test(ds)) return full + ' (' + sym + ')';
+    return full;
+  }
+  // Owner decision (6): lead with whatever matches the condition being viewed, so the reason
+  // this molecule is on screen reads first. Derived from the label rather than a hand-written
+  // map, so it holds for all 50 conditions.
+  function tokens(label) {
+    return String(label || '').toLowerCase().replace(/[^a-z0-9 ]/g, ' ').split(/\s+/)
+      .filter(function(w) { return w.length > 2 && !STOP[w]; });
+  }
+  function effects(m, condLabel, limit) {
+    var out = [], seen = {};
+    (m.indications || []).forEach(function(raw) {
+      if (SUPPRESS[raw]) return;
+      var plain = MAP[raw] || String(raw).toLowerCase();
+      if (seen[plain]) return;        // merged synonyms collapse to one phrase
+      seen[plain] = 1;
+      // keep the ORIGINAL label alongside the plain one. Matching on the plain phrase alone
+      // fails wherever translation renames the concept — Glaucoma becomes "eye pressure",
+      // Dysmenorrhea becomes "menstrual pain" — so the condition would never sort first.
+      out.push({plain: plain, raw: String(raw).toLowerCase()});
+    });
+    var toks = tokens(condLabel);
+    if (toks.length) {
+      out.forEach(function(e) {
+        e.score = 0;
+        toks.forEach(function(t) {
+          if (e.plain.indexOf(t) >= 0 || e.raw.indexOf(t) >= 0) e.score++;
+        });
+      });
+      out.sort(function(a, b) { return b.score - a.score; });
+    }
+    // At most one "studied in … cancer research" phrase per row. Without this, a molecule on a
+    // cancer screen reads "studied in breast cancer research · studied in cancer research ·
+    // studied in brain cancer research" — three near-identical phrases crowding out anything
+    // informative. The matched one survives because it has already sorted first.
+    var kept = [], usedCancer = false;
+    out.forEach(function(e) {
+      var isCancer = e.plain.indexOf('cancer research') >= 0;
+      if (isCancer) {
+        if (usedCancer) return;
+        usedCancer = true;
+      }
+      kept.push(e.plain);
+    });
+    return kept.slice(0, limit || 3);
+  }
+  function classesPresent(ids) {
+    var seen = {}, order = ['phytocannabinoid','rare','terpene','flavonoid','acid'], out = [];
+    (ids || []).forEach(function(id) {
+      var m = (typeof M !== 'undefined') ? M[id] : null;
+      if (m && m.category) seen[m.category] = 1;
+    });
+    order.forEach(function(c) { if (seen[c]) out.push(c); });
+    return out;
+  }
+  // Only the classes actually in THIS recommendation get explained — explaining flavonoids on
+  // a screen with no flavonoid teaches a word the screen never uses.
+  function classPanel(ids) {
+    var cs = classesPresent(ids);
+    if (!cs.length) return '';
+    return '<details class="gx-ent v2p-classes"><summary>What do these molecule types mean?</summary>' +
+      '<div class="gx-ent-body">' + cs.map(function(c) {
+        return '<p class="v2p-cls"><b>' + CLASS_TITLE[c] + '</b> &mdash; ' + CLASS_BLURB[c] + '</p>';
+      }).join('') + '</div></details>';
+  }
+  function row(id, condLabel) {
+    var m = (typeof M !== 'undefined') ? M[id] : null;
+    if (!m) return '';
+    var eff = effects(m, condLabel, 3);
+    var line = eff.length
+      ? '<span class="v2p-eff">Most studied for: ' + eff.join(' &middot; ') + '</span>'
+      : '<span class="v2p-eff v2p-none">Still being studied &mdash; too early to associate specific effects</span>';
+    return '<div class="v2p-row">' +
+      '<div class="v2p-nm">' + displayName(m) +
+        '<span class="v2p-cat">' + (CLASS_ROW[m.category] || '') + '</span></div>' +
+      line +
+      '<span class="v2p-ev">' + (EV_PLAIN[m.evidence] || '') + '</span>' +
+    '</div>';
+  }
+  function rows(ids, condLabel) {
+    return (ids || []).map(function(id) { return row(id, condLabel); }).join('');
+  }
+  return {rows: rows, row: row, classPanel: classPanel, effects: effects,
+          classesPresent: classesPresent, displayName: displayName,
+          CLASS_BLURB: CLASS_BLURB, EV_PLAIN: EV_PLAIN, MAP: MAP, SUPPRESS: SUPPRESS};
+})();
+
 // ── UX-63: SINGLE-SOURCE TERMINOLOGY ─────────────────────────────────────────
 // Tier 3 of the self-maintenance plan. Five separate category-label maps had grown up in
 // this file, and they disagreed on wording the user can see. The 'acid' category alone was
@@ -2993,7 +3218,7 @@ const M = {
   CBGL:{symbol:'CBGL',fullName:'Cannabigerol Monomethyl Ether',category:'phytocannabinoid',mass:'328.5',evidence:'D',receptors:['CB2'],indications:['Unknown Potential'],description:'A rare monomethyl ether of CBG found in some cannabis varieties, CBGL shares the CBG carbon skeleton with a methyl modification that may alter receptor binding kinetics. CBGL is included in a 2025 in vitro study of minor cannabinoids\' modulatory effects on neuronal hypersensitivity; however, dedicated pharmacological research on this compound remains minimal.',pdf:'https://pmc.ncbi.nlm.nih.gov/articles/PMC12661962/'},
   THCA:{symbol:'THCA',fullName:'Tetrahydrocannabinolic Acid',category:'acid',mass:'358.5',evidence:'B',receptors:['CB1','CB2'],indications:['Anti-Inflammatory','Antiemetic','Neuroprotection','Pancreatic Cancer','Breast Cancer','Endometriosis'],description:'The non-psychoactive precursor to THC found in raw cannabis, THCA decarboxylates to THC upon heat. It shows strong anti-inflammatory activity through PPAR-&gamma; modulation and COX-1 inhibition, with emerging human observational data for nausea management. Research has shown THCA reduces liver fibrosis and inflammation in mouse models, and a 2013 study by Rock et al. demonstrated antiemetic properties in preclinical nausea models.',pdf:'https://drive.google.com/file/d/1J5wCfz8UmlEq93j8U_YYYuuzDBaHxPQQ/view?usp=sharing'},
   THCVA:{symbol:'THCVA',fullName:'Tetrahydrocannabivarinic Acid',category:'acid',mass:'286.4',evidence:'D',receptors:['CB1','PPAR'],indications:[],description:'The acidic precursor to THCV found in raw cannabis, THCVA has not been independently characterized in peer-reviewed pharmacological studies. Proposed activities such as COX-1/2 inhibition, PPAR-&gamma; modulation, and appetite suppression are theoretical extrapolations inferred from structural homology to THCV and the general behavior of acidic cannabinoids. No human or animal studies have isolated and tested THCVA directly. No indications are listed pending direct experimental validation.',pdf:'https://drive.google.com/file/d/1Fjqm4wcaq8U7fyliNwlro89ThNyg5rvF/view?usp=sharing'},
-  CBGA:{symbol:'CBGA',fullName:'Cannabigerolic Acid',category:'acid',mass:'360.5',evidence:'B',receptors:['CB2','PPAR'],indications:['Anti-Inflammatory'],description:'The mother cannabinoid acid from which CBDA, THCA, and CBCA all derive via enzymatic action, CBGA is a potent PPAR-&alpha;/&gamma; agonist. Human observational data support roles in metabolic syndrome and lipid regulation; it also showed SARS-CoV-2 spike protein binding in vitro. Additional preclinical research has explored CBGA\'s potential in diabetes management, citing its role in glucose and lipid regulation.',pdf:'https://drive.google.com/file/d/1XRZtBns-mAKsT2fqqx9QOP-0tgwi8kAy/view?usp=sharing'},
+  CBGA:{symbol:'CBGA',fullName:'Cannabigerolic Acid',category:'acid',mass:'360.5',evidence:'B',receptors:['CB2','PPAR'],indications:['Anti-Inflammatory','Antiviral'],description:'The mother cannabinoid acid from which CBDA, THCA, and CBCA all derive via enzymatic action, CBGA is a potent PPAR-&alpha;/&gamma; agonist. Human observational data support roles in metabolic syndrome and lipid regulation; it also showed SARS-CoV-2 spike protein binding in vitro. Additional preclinical research has explored CBGA\'s potential in diabetes management, citing its role in glucose and lipid regulation.',pdf:'https://drive.google.com/file/d/1XRZtBns-mAKsT2fqqx9QOP-0tgwi8kAy/view?usp=sharing'},
   CBGVA:{symbol:'CBGVA',fullName:'Cannabigerovarinic Acid',category:'acid',mass:'346.5',evidence:'D',receptors:['CB2'],indications:['Anti-Seizure'],description:'The propyl-chain acid form of CBGV, CBGVA is a biosynthetic precursor to CBDVA and THCVA. Pharmacological characterization is in early stages; structural homology to CBGA suggests anti-inflammatory and possibly metabolic activity.',pdf:'https://pmc.ncbi.nlm.nih.gov/articles/PMC8669157/'},
   CBCA:{symbol:'CBCA',fullName:'Cannabichromenic Acid',category:'acid',mass:'358.5',evidence:'C',receptors:['CB2','TRP'],indications:['Antibacterial','Anti-Seizure'],description:'The acidic precursor to CBC, CBCA shows antimicrobial activity against Staphylococcus aureus and anticonvulsant properties in rodent models. TRP channel and CB2 interactions are proposed but require further mechanistic confirmation.',pdf:'https://pmc.ncbi.nlm.nih.gov/articles/PMC7460474/'},
   CBCVA:{symbol:'CBCVA',fullName:'Cannabichromevarinic Acid',category:'acid',mass:'344.5',evidence:'D',receptors:['CB2'],indications:[],description:'A minor acidic cannabinoid and propyl-chain homolog of CBCA, CBCVA decarboxylates to CBCV. Essentially unstudied in human or animal models; pharmacological properties are extrapolated from structural analogs.',pdf:'https://pmc.ncbi.nlm.nih.gov/articles/PMC8669157/'},
@@ -8977,6 +9202,23 @@ document.addEventListener('keydown', function(e) {
     var detailToggle='<div class="gx-detail"><button class="'+(detail==='plain'?'on':'')+'" onclick="V4GX.setDetail(\'plain\')">Plain language</button>'+
       '<button class="'+(detail==='clinical'?'on':'')+'" onclick="V4GX.setDetail(\'clinical\')">Research detail</button></div>';
     var clin='';
+    // UX-64: plain mode explains, rather than merely hiding the clinical block. Rows replace
+    // the bare chips (nothing is lost — the row leads with the same name) and a collapsed
+    // panel defines only the molecule classes this recommendation actually uses.
+    var plainBlock='';
+    if(detail!=='clinical'&&window.V2PLAIN){
+      try{
+        var pIds=primary.map(function(m){return m.id;});
+        var sIds=supporting.map(function(m){return m.id;});
+        plainBlock='<div class="v2p-wrap">'+
+          '<p class="v2p-why"><b>Why these molecules:</b> these are the molecules with the most '+
+          'published research for '+esc(condLabel)+', strongest evidence first.</p>'+
+          (pIds.length?'<div class="dj-lbl">Primary</div>'+V2PLAIN.rows(pIds,condLabel):'')+
+          (sIds.length?'<div class="dj-lbl" style="margin-top:10px">Supporting</div>'+V2PLAIN.rows(sIds,condLabel):'')+
+          V2PLAIN.classPanel(pIds.concat(sIds))+
+        '</div>';
+      }catch(e){plainBlock='';}
+    }
     if(detail==='clinical'){var showMols=primary.concat(supporting).slice(0,8);
       clin='<div class="gx-clin">'+showMols.map(function(m){
         var mm=(typeof M!=='undefined'&&M[m.id])?M[m.id]:null;
@@ -9066,9 +9308,13 @@ document.addEventListener('keydown', function(e) {
     stage('<h2 class="gx-q">What the research associates</h2>'+safetyNote+
       '<div class="gx-rec"><div class="kind">'+esc(condLabel)+'</div>'+
       '<div class="because">The molecules V2 associates with '+esc(condLabel)+', ranked by strength of evidence — the same set highlighted in the Periodic Table.</div>'+
-      '<div class="dj-lbl" style="margin-top:10px">Primary</div><div class="gx-chips">'+(primaryChips||'<span class="gx-chip">—</span>')+'</div>'+
-      (supporting.length?'<div class="dj-lbl" style="margin-top:12px">Supporting</div><div class="gx-chips">'+supportingChips+'</div>':'')+'</div>'+
-      detailToggle+clin+thcNote+secNote+prefRecap+prefGuide+medSummary+entHtml+irHtml+
+      (detail==='clinical'
+        ? '<div class="dj-lbl" style="margin-top:10px">Primary</div><div class="gx-chips">'+(primaryChips||'<span class="gx-chip">—</span>')+'</div>'+
+          (supporting.length?'<div class="dj-lbl" style="margin-top:12px">Supporting</div><div class="gx-chips">'+supportingChips+'</div>':'')
+        : plainBlock)+'</div>'+
+      detailToggle+clin+thcNote+secNote+
+      (detail==='clinical'?prefRecap+prefGuide:'')+medSummary+
+      (detail==='clinical'?entHtml+irHtml:'')+
       '<p class="gx-hint" style="margin-top:12px">In the Periodic Table, use <b>⚙ Refine Inventory Match</b> (in the Associated Molecules panel) to remove any molecules — or whole categories — your dispensary doesn’t carry. The recommendation updates instantly.</p>'+
       '<button class="gx-cta" onclick="V4GX.seeScience()">🔬 Explore these in the Periodic Table →</button>'+
       '<button class="gx-cta ghost" onclick="V4GX.printRec()">🖨 Print this summary</button>'+
@@ -9540,7 +9786,10 @@ if(typeof PT_individualResponse==='function')body+=PT_individualResponse();   //
       if(typeof PT_doPrint==='function')PT_doPrint('Guided Match — Recommendation Summary','Prepared for: '+esc(condLabel),body,{phi:(st.meds||[]).length>0});
     },
     persona:function(p){st.persona=p;st.intent=null;st.refineKey=null;st.seconds=[];
-      if(p==='cust'){st.safetyFlags=st.safetyFlags||[];go('intent',scIntent);}else if(p==='emp'){go('emp',scEmp);}else{this.close();}},
+      // UX-64: a consumer always lands on plain language, even if an earlier run in the same
+      // session (a staff member, say) left the toggle on Research detail. The Researcher
+      // persona never reaches this screen — it closes the overlay straight to the table.
+      if(p==='cust'){st.detail='plain';st.safetyFlags=st.safetyFlags||[];go('intent',scIntent);}else if(p==='emp'){go('emp',scEmp);}else{this.close();}},
     runGuide:function(){st.persona='cust';st.safetyFlags=st.safetyFlags||[];go('intent',scIntent);},
     safetyToggle:function(k,btn){st.safetyFlags=st.safetyFlags||[];var i=st.safetyFlags.indexOf(k);if(i>=0){st.safetyFlags.splice(i,1);if(btn)btn.classList.remove('sel');}else{st.safetyFlags.push(k);if(btn)btn.classList.add('sel');}},
     safetyNext:function(){go('meds',scMeds);},
