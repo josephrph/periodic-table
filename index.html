@@ -114,7 +114,12 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 /* ── ENTRY SEQUENCE (UX-40): welcome → full disclaimer → research opt-in ──
    Screen 1 is bright and consumer-facing; screens 2 and 3 keep the existing dark-overlay
    treatment. Exactly one is visible at a time (see showGateScreen()). */
-#welcomeGate{position:fixed;inset:0;z-index:9000;background:linear-gradient(160deg,#FBF7EF 0%,#F3EADA 55%,#E9DFC9 100%);display:none;align-items:flex-start;justify-content:center;padding:16px;overflow-y:auto}
+/* UX-68: the three gate screens must outrank every overlay. They were z-index 9000 — the
+   same as #gxOverlay, which sits ~2000 lines later in the DOM and therefore painted on top
+   of them. A session that expired inside Guided Match reset correctly but invisibly. 10500
+   clears the guided overlay (9000), demo ribbon (9999), toast (10000) and inactivity pill
+   (10001), so nothing left open can conceal the gate again. */
+#welcomeGate{position:fixed;inset:0;z-index:10500;background:linear-gradient(160deg,#FBF7EF 0%,#F3EADA 55%,#E9DFC9 100%);display:none;align-items:flex-start;justify-content:center;padding:16px;overflow-y:auto}
 #welcomeGateBox{background:#fff;border-radius:16px;max-width:680px;width:100%;box-shadow:0 24px 70px rgba(60,40,10,.22);overflow:hidden;margin:auto}
 .wg-hero{position:relative;background:linear-gradient(150deg,#F7F2E6 0%,#FFFDF8 100%);border-bottom:1px solid #EADFC8;padding:22px 26px 18px;text-align:center}
 .wg-hero-art{display:block;width:100%;max-width:340px;height:auto;margin:0 auto 6px}
@@ -143,7 +148,7 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 .wg-enter-btn:disabled{background:#B8B0A0;cursor:not-allowed}
 .wg-decline{background:none;border:none;color:#8A7A5A;font-size:.68rem;text-decoration:underline;cursor:pointer;padding:6px 4px}
 .wg-decline:hover{color:#CC2200}
-#researchGate{position:fixed;inset:0;z-index:9000;background:#0F1A0A;display:none;align-items:flex-start;justify-content:center;padding:16px;overflow-y:auto}
+#researchGate{position:fixed;inset:0;z-index:10500;background:#0F1A0A;display:none;align-items:flex-start;justify-content:center;padding:16px;overflow-y:auto}
 #researchGateBox{background:#fff;border-radius:12px;max-width:660px;width:100%;box-shadow:0 24px 80px rgba(0,0,0,.7);overflow:hidden;margin:auto}
 .rg-skip-btn{padding:10px 18px;background:none;border:2px solid #999;border-radius:7px;color:#666;font-size:.74rem;font-weight:700;cursor:pointer;transition:border-color .15s,color .15s}
 .rg-skip-btn:hover{border-color:#5A7A1A;color:#5A7A1A}
@@ -154,7 +159,7 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
   .wg-ftr{padding:12px 16px;justify-content:center}
   .wg-enter-btn{width:100%}
 }
-#entryGate{position:fixed;inset:0;z-index:9000;background:#0F1A0A;display:flex;align-items:flex-start;justify-content:center;padding:16px;overflow-y:auto}
+#entryGate{position:fixed;inset:0;z-index:10500;background:#0F1A0A;display:flex;align-items:flex-start;justify-content:center;padding:16px;overflow-y:auto}
 #entryGateBox{background:#fff;border-radius:12px;max-width:660px;width:100%;box-shadow:0 24px 80px rgba(0,0,0,.7);overflow:hidden;margin:auto}
 .eg-hdr{background:#1C0A00;padding:14px 22px;display:flex;align-items:center;gap:14px}
 .eg-hdr-logo{height:38px;width:auto;object-fit:contain}
@@ -7170,6 +7175,19 @@ function resetToEntryGate() {
   try { closePanel(); } catch(e) {}
   try { closeWelcome(); } catch(e) {}
   try { hideEntourage(); } catch(e) {}
+  // UX-68: the Guided Match overlay was NOT closed here, and #gxOverlay shares z-index 9000
+  // with the gate screens while sitting ~2000 lines later in the DOM — so at equal z-index it
+  // painted ON TOP of the gate. A session expiring inside Guided Match therefore reset
+  // correctly but invisibly: the user kept seeing the guided screen and reported that nothing
+  // had happened, until a click closed the overlay and revealed the gate already underneath.
+  try { if (window.V4GX && V4GX.close) V4GX.close(); } catch(e) {}
+  // Any other full-screen surface that could occlude the gate the same way.
+  ['rdInfoOv','fullDiscOv','ent-ov','fbLoginOv','demoLoginOv','refCardOv'].forEach(function(id) {
+    try {
+      var el = document.getElementById(id);
+      if (el) { el.classList.remove('open'); el.style.display = 'none'; }
+    } catch(e) {}
+  });
   // Clear the in-progress feedback DRAFT + sign staff out (stored suggestions are KEPT for review)
   try { if (window.Feedback) Feedback.clearDraft(); } catch(e) {}
   try { if (window.ResearchData) ResearchData.resetGateFields(); } catch(e) {} // FEED-05: clear opt-in inputs for next kiosk user
