@@ -7033,6 +7033,9 @@ function resetInactivityTimer() {
       if (_countdownInterval) { clearInterval(_countdownInterval); _countdownInterval = null; }
     }
   }
+  // UX-67: if the deadline already passed while timers were throttled or frozen, the very
+  // next event to reach us must end the session rather than fall through the early return.
+  if (enforceInactivityDeadline()) return;
   if (_warningActive) return;
   clearTimeout(_inactivityTimer);
   // Failsafe: hardcode 150000 (2.5min, matching INACTIVITY_MS) if it's somehow invalid
@@ -7070,6 +7073,26 @@ function showInactivityWarning() {
       resetToEntryGate();
     }
   }, 250);
+}
+
+// ── UX-67: expiry must not depend on a timer firing ──────────────────────────
+// The countdown was enforced ONLY by its setInterval. Browsers are allowed to throttle
+// background timers to once a minute and, under Chrome's tab-freezing or macOS App Nap, to
+// stop running them altogether. When that happens the deadline passes with no code running,
+// the countdown appears frozen, and the reset only lands when the user touches the page —
+// which wakes the tab and flushes the pending callback. That is precisely the reported bug.
+//
+// The deadline is now enforced by every path that gets to run code: the interval, any
+// activity event, returning to the tab, and regaining window focus. A frozen timer can
+// therefore delay the reset only until the page is next allowed to execute anything at all.
+function inactivityDeadlinePassed() {
+  return !!(_warningActive && _countdownDeadline && Date.now() >= _countdownDeadline);
+}
+function enforceInactivityDeadline() {
+  if (!inactivityDeadlinePassed()) return false;
+  if (_countdownInterval) { clearInterval(_countdownInterval); _countdownInterval = null; }
+  resetToEntryGate();
+  return true;
 }
 
 function dismissInactivityWarning() {
@@ -7377,8 +7400,18 @@ window.V2TableView = (function() {
   document.addEventListener('visibilitychange', function() {
     if (document.hidden) return;
     if (!sessionStorage.getItem('eg_accepted')) return;
-    if (_warningActive) dismissInactivityWarning();   // clears the warning AND re-arms
+    // UX-67: an EXPIRED countdown must end the session, not be forgiven. The previous version
+    // dismissed the warning unconditionally, so a kiosk session whose countdown ran out while
+    // the tab was hidden was handed back to whoever returned to the screen.
+    if (enforceInactivityDeadline()) return;
+    if (_warningActive) dismissInactivityWarning();   // still counting down — genuinely present
     else resetInactivityTimer();
+  });
+  // Regaining focus is a separate signal from visibility: an unfocused-but-visible window can
+  // still have its timers throttled, and it fires focus without firing visibilitychange.
+  window.addEventListener('focus', function() {
+    if (!sessionStorage.getItem('eg_accepted')) return;
+    enforceInactivityDeadline();
   });
   // Only start timer if entry gate is already accepted (e.g. returning session)
   if (sessionStorage.getItem('eg_accepted')) resetInactivityTimer();
