@@ -9834,11 +9834,42 @@ document.addEventListener('keydown', function(e) {
       var mols=cond?Object.keys(cond.molecules).filter(function(id){return typeof M!=='undefined'&&M[id];}).map(function(id){return {id:id,w:cond.molecules[id]};}).sort(function(a,b){return b.w-a.w;}):[];
       var primary=mols.filter(function(m){return m.w>=8;}),supporting=mols.filter(function(m){return m.w<8;});
       if(!primary.length){primary=mols.slice(0,Math.min(4,mols.length));supporting=mols.slice(primary.length);}
-      function chips(arr){return arr.length?arr.map(function(m){return '<span class="pt-print-chip">'+molNm(m.id)+' <b>'+m.w+'</b></span>';}).join(''):'<span class="pt-print-chip">—</span>';}
+      // UX-69: the evidence score used to sit immediately after the molecule name — "THC 9",
+      // "THCA 8". In cannabinoid nomenclature a trailing number IS part of the name, so that
+      // reads as Δ9-THC, and the score was landing in exactly the position the real name part
+      // had been dropped from (GNAMES maps THC9 -> "THC"). A budtender holding this printout
+      // could reasonably misread the evidence score as the molecule. The score now lives in its
+      // own labelled column, and names are rendered consistently — the previous version mixed
+      // short forms with full chemical names in the same list, because molecules missing from
+      // GNAMES fell through to fullName ("Delta-8-Tetrahydrocannabinol 7").
+      function molCell(id){
+        var mm=(typeof M!=='undefined')?M[id]:null;
+        if(!mm) return esc(molNm(id));
+        var sym=mm.symbol||'', full=mm.fullName||'';
+        function plain(t){return String(t||'').replace(/&[a-zA-Z]+\d?;/g,'').replace(/[^a-z0-9]/gi,'').toLowerCase();}
+        // When the symbol and full name are the same word, prefer the FULL name as the label —
+        // it carries the precise form ("β-Myrcene" rather than "Myrcene") with no redundant
+        // second line. Where they genuinely differ, lead with the symbol a budtender scans for
+        // and put the chemical name beneath it.
+        if (!full) return '<b>'+sym+'</b>';
+        if (plain(full)===plain(sym)) return '<b>'+full+'</b>';
+        return '<b>'+(sym||full)+'</b><span class="pt-mol-full">'+full+'</span>';
+      }
+      function molRows(arr){
+        if(!arr.length) return '<tr><td>—</td><td class="pt-mol-score">—</td></tr>';
+        return arr.map(function(m){
+          return '<tr><td>'+molCell(m.id)+'</td><td class="pt-mol-score">'+m.w+'</td></tr>';
+        }).join('');
+      }
       var body='<div class="pt-print-sec"><h3>Associated molecules — '+esc(condLabel)+'</h3>'+
-        '<div style="font-size:.72rem;font-weight:700;margin-bottom:5px">Primary</div><div>'+chips(primary)+'</div>'+
-        (supporting.length?'<div style="font-size:.72rem;font-weight:700;margin:8px 0 5px">Supporting</div><div>'+chips(supporting)+'</div>':'')+
-        '<div style="font-size:.66rem;color:#555 !important;margin-top:6px">Number = strength of evidence for this condition (per the V2 evidence base).</div></div>';
+        '<table class="pt-mol-tbl"><thead><tr><th>Molecule</th><th class="pt-mol-score">Evidence score (1&ndash;10)</th></tr></thead><tbody>'+
+        '<tr class="pt-mol-grp"><td colspan="2">Primary</td></tr>'+molRows(primary)+
+        (supporting.length?'<tr class="pt-mol-grp"><td colspan="2">Supporting</td></tr>'+molRows(supporting):'')+
+        '</tbody></table>'+
+        '<div style="font-size:.66rem;color:#555 !important;margin-top:7px;line-height:1.5">'+
+        '<b>Evidence score (1&ndash;10)</b> indicates the relative strength of the published research '+
+        'supporting the association between the molecule and the selected health topic. '+
+        'It is not a dose, a potency, or a product recommendation.</div></div>';
       var prefBits=[];
       var ceilMap={none:'Non-intoxicating (avoid THC)',low:'A little THC is okay',any:'THC is fine'};
       if(st.ceiling&&ceilMap[st.ceiling])prefBits.push('THC preference — '+ceilMap[st.ceiling]);
@@ -10148,6 +10179,15 @@ function djToast(msg){try{var t=document.getElementById('djToastEl');if(!t){t=do
 #printRoot .pt-print-ctx{font-size:.82rem;color:#333 !important;margin-bottom:12px;font-style:italic}
 #printRoot .pt-print-sec{margin:0 0 14px;break-inside:avoid;page-break-inside:avoid}
 #printRoot .pt-print-sec h3{font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid #ccc;padding-bottom:3px;margin:0 0 7px}
+#printRoot .pt-mol-tbl{width:100%;border-collapse:collapse;margin:2px 0 0;font-size:.8rem}
+#printRoot .pt-mol-tbl th{text-align:left;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;
+  color:#555 !important;border-bottom:1px solid #999;padding:0 6px 3px 0;font-weight:700}
+#printRoot .pt-mol-tbl td{padding:4px 6px 4px 0;border-bottom:1px solid #ddd;vertical-align:top}
+#printRoot .pt-mol-tbl tr:last-child td{border-bottom:none}
+#printRoot .pt-mol-score{text-align:right;white-space:nowrap;width:9em;font-variant-numeric:tabular-nums}
+#printRoot .pt-mol-full{display:block;font-size:.68rem;color:#555 !important;font-weight:400}
+#printRoot .pt-mol-grp td{font-size:.66rem;letter-spacing:.07em;text-transform:uppercase;font-weight:700;
+  color:#333 !important;padding-top:8px;border-bottom:none}
 #printRoot .pt-print-chip{display:inline-block;border:1px solid #999;border-radius:4px;padding:2px 8px;margin:0 4px 5px 0;font-size:.8rem}
 #printRoot .pt-print-foot{margin-top:18px;border-top:1px solid #ccc;padding-top:8px;font-size:.64rem;color:#555 !important;line-height:1.55}
 #printRoot .pt-print-phi{margin-top:6px;font-size:.64rem;color:#6B1E2E !important;font-weight:700}
