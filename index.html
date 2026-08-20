@@ -2119,9 +2119,18 @@ body.is-mobile-view .panel{
    browser's default touch handling (which could otherwise fight with the
    JS-driven drag-to-dismiss above) is disabled there. panel-body still
    needs normal vertical scrolling for long content, so only horizontal
-   panning is ceded to the JS-driven swipe-between-molecules above. */
-body.is-mobile-view .panel-drag-handle{touch-action:none}
-body.is-mobile-view .panel-body{touch-action:pan-y}
+   panning is ceded to the JS-driven swipe-between-molecules above.
+
+   UX-71: every value here now names pinch-zoom explicitly. Bare 'pan-y' and
+   'none' withhold two-finger zoom as well as panning, which was never the
+   intent — and because the sheet covers ~85% of a phone screen (690px of 812)
+   plus a full-width 26px grab bar, there was almost nowhere left to place two
+   fingers. A reader who zoomed in could not pinch back out, so content sat off
+   the edge with no gesture to reach it. Every gesture this file drives is
+   single-finger, so allowing pinch-zoom costs nothing: the JS swipe and drag
+   still own one finger, the browser gets two. */
+body.is-mobile-view .panel-drag-handle{touch-action:pinch-zoom}
+body.is-mobile-view .panel-body{touch-action:pan-y pinch-zoom}
 
 /* ── MOB-15: make the molecule sheet obvious to scroll and close ──────────────
    Measured on a 390x844 phone: the sheet was 717px tall but only .panel-body
@@ -2135,7 +2144,7 @@ body.is-mobile-view .panel-body{touch-action:pan-y}
    header stays pinned so the molecule's identity and the close button never leave,
    and the secondary buttons and legal footer now scroll with the content instead of
    permanently occupying the screen. Reading area goes from 335px to ~600px. */
-body.is-mobile-view .panel{overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y}
+body.is-mobile-view .panel{overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y pinch-zoom}
 body.is-mobile-view .panel > #panelHdr{position:sticky;top:0;z-index:3;background:var(--surface2);
   padding:6px 14px 10px;box-shadow:0 1px 0 var(--border)}
 body.is-mobile-view .panel > #panelBody{flex:0 0 auto;overflow:visible;max-height:none}
