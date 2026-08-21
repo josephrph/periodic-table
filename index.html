@@ -1301,11 +1301,11 @@ body.is-mobile-view.is-touch-device #imDoneBtn{right:10px;bottom:calc(56px + env
           <details class="faq-item">
             <summary><span class="faq-q" style="font-size:.95rem">What receptor systems are shown on each molecule tile?</span><span class="faq-icon" style="width:22px;height:22px;font-size:1.1rem">+</span></summary>
             <div class="faq-content" style="font-size:.82rem">
-              <p><u>CB1</u> — Central nervous system receptor; governs psychoactivity, analgesia, antiemetic effects. (16 molecules)</p>
-              <p><u>CB2</u> — Immune/peripheral receptor; anti-inflammatory, immunomodulatory, neuroprotective. (23 molecules)</p>
-              <p><u>TRP</u> — Pain/temperature ion channels (TRPV1, TRPA1); analgesic and anti-inflammatory. (19 molecules)</p>
-              <p><u>PPAR</u> — Nuclear receptors governing metabolism and inflammation; associated with anti-tumor and metabolic effects. (19 molecules)</p>
-              <p><u>5HT</u> — Serotonin receptors; anxiolytic, antidepressant, antipsychotic effects. (13 molecules)</p>
+              <p><u>CB1</u> — Central nervous system receptor; governs psychoactivity, analgesia, antiemetic effects. (<span data-v2fact="recCB1">17</span> molecules)</p>
+              <p><u>CB2</u> — Immune/peripheral receptor; anti-inflammatory, immunomodulatory, neuroprotective. (<span data-v2fact="recCB2">22</span> molecules)</p>
+              <p><u>TRP</u> — Pain/temperature ion channels (TRPV1, TRPA1); analgesic and anti-inflammatory. (<span data-v2fact="recTRP">19</span> molecules)</p>
+              <p><u>PPAR</u> — Nuclear receptors governing metabolism and inflammation; associated with anti-tumor and metabolic effects. (<span data-v2fact="recPPAR">19</span> molecules)</p>
+              <p><u>5HT</u> — Serotonin receptors; anxiolytic, antidepressant, antipsychotic effects. (<span data-v2fact="rec5HT">13</span> molecules)</p>
             </div>
           </details>
 
@@ -2327,11 +2327,11 @@ body.is-mobile-view .panel.panel-condensed .panel-sym{font-size:1.05rem}
     <summary><span class="faq-q">What receptor systems are shown on each molecule tile?</span><span class="faq-icon">+</span></summary>
     <div class="faq-content">
       <p>V2 identifies which of five major receptor systems each molecule is known to engage. These receptor interactions are central to understanding how each compound produces its physiological effects:</p>
-      <p><u>CB1 (Cannabinoid Receptor 1)</u> — Present primarily in the central nervous system. CB1 activation is responsible for the psychoactive effects of THC, as well as analgesia, appetite stimulation, and antiemetic properties. 16 molecules in the table engage CB1.</p>
-      <p><u>CB2 (Cannabinoid Receptor 2)</u> — Found predominantly in immune tissues and peripheral organs. CB2 activation is associated with anti-inflammatory, immunomodulatory, and neuroprotective effects, typically without psychoactivity. 23 molecules engage CB2.</p>
-      <p><u>TRP (Transient Receptor Potential Channels)</u> — Including TRPV1 and TRPA1, these ion channels are involved in pain signaling, temperature sensation, and inflammation. Several terpenes and cannabinoids modulate TRP channels to produce analgesic and anti-inflammatory effects. 19 molecules engage TRP channels.</p>
-      <p><u>PPAR (Peroxisome Proliferator-Activated Receptors)</u> — Nuclear receptors involved in metabolism, inflammation regulation, and cell growth. PPAR activation by certain cannabinoids and flavonoids has been associated with anti-tumor, anti-diabetic, and cardiovascular effects. 19 molecules engage PPAR receptors.</p>
-      <p><u>5HT (Serotonin Receptors)</u> — Particularly 5HT1A, serotonin receptor modulation is associated with anxiolytic, antidepressant, and antipsychotic effects. CBD is among the most studied molecules for 5HT activity. 13 molecules engage serotonin receptors.</p>
+      <p><u>CB1 (Cannabinoid Receptor 1)</u> — Present primarily in the central nervous system. CB1 activation is responsible for the psychoactive effects of THC, as well as analgesia, appetite stimulation, and antiemetic properties. <span data-v2fact="recCB1">17</span> molecules in the table engage CB1.</p>
+      <p><u>CB2 (Cannabinoid Receptor 2)</u> — Found predominantly in immune tissues and peripheral organs. CB2 activation is associated with anti-inflammatory, immunomodulatory, and neuroprotective effects, typically without psychoactivity. <span data-v2fact="recCB2">22</span> molecules engage CB2.</p>
+      <p><u>TRP (Transient Receptor Potential Channels)</u> — Including TRPV1 and TRPA1, these ion channels are involved in pain signaling, temperature sensation, and inflammation. Several terpenes and cannabinoids modulate TRP channels to produce analgesic and anti-inflammatory effects. <span data-v2fact="recTRP">19</span> molecules engage TRP channels.</p>
+      <p><u>PPAR (Peroxisome Proliferator-Activated Receptors)</u> — Nuclear receptors involved in metabolism, inflammation regulation, and cell growth. PPAR activation by certain cannabinoids and flavonoids has been associated with anti-tumor, anti-diabetic, and cardiovascular effects. <span data-v2fact="recPPAR">19</span> molecules engage PPAR receptors.</p>
+      <p><u>5HT (Serotonin Receptors)</u> — Particularly 5HT1A, serotonin receptor modulation is associated with anxiolytic, antidepressant, and antipsychotic effects. CBD is among the most studied molecules for 5HT activity. <span data-v2fact="rec5HT">13</span> molecules engage serotonin receptors.</p>
       <p>Receptor data is based on published pharmacological literature. A single molecule may engage multiple receptor systems simultaneously.</p>
     </div>
   </details>
@@ -7275,6 +7275,12 @@ window.V2FACTS = (function() {
   function catCount(cat) {
     return molIds().filter(function(k) { return M[k] && M[k].category === cat; }).length;
   }
+  // UX-74: the receptor tallies in the FAQ were typed in by hand and had drifted — the page
+  // claimed CB1 16 / CB2 23 while the data held 17 and 22. Derived now, like every other count.
+  function recCount(rc) {
+    return molIds().filter(function(k) {
+      return M[k] && M[k].receptors && M[k].receptors.indexOf(rc) >= 0; }).length;
+  }
   function conds() {
     if (typeof CONDITIONS === 'undefined' || !CONDITIONS) return [];
     return CONDITIONS.filter(function(c) { return FILTER_ROWS.indexOf(c.id) < 0; });
@@ -7302,6 +7308,11 @@ window.V2FACTS = (function() {
     cancerSubtypes: function() { return (byGroup()['cancer-sub'] || []).length; },
     v1Entries:      function() { return V1_ENTRY_COUNT; },
     addedSinceV1:   function() { return molIds().length - V1_ENTRY_COUNT; },
+    recCB1:         function() { return recCount('CB1'); },
+    recCB2:         function() { return recCount('CB2'); },
+    recTRP:         function() { return recCount('TRP'); },
+    recPPAR:        function() { return recCount('PPAR'); },
+    rec5HT:         function() { return recCount('5HT'); },
     groupCount:     function(g) { return (byGroup()[g] || []).length; }
   };
   // The eight condition-group paragraphs, generated from CONDITIONS itself. `style` mirrors
