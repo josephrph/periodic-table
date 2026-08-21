@@ -1153,7 +1153,7 @@ body.is-mobile-view.is-touch-device #imDoneBtn{right:10px;bottom:calc(56px + env
               <p><u>Associated Molecules Panel</u> — When a health condition is selected, a panel appears showing which molecules are associated, organized by category (phytocannabinoids, terpenes, flavonoids). The panel always mirrors the highlighted tiles on the grid exactly.</p>
               <p><u>Receptor System + Health Condition Combined Filtering</u> — Select a receptor system (CB1, CB2, TRP, etc.) and a health condition together. Only molecules that match both filters are highlighted. Switching between receptor systems or conditions performs a complete automatic reset — no manual clearing required.</p>
               <p><u>Refine Inventory Match</u> — Available in both Health Conditions and Entourage Effect panels. Exclude specific molecule classes or individual molecules your dispensary doesn't carry so recommendations reflect only your actual inventory.</p>
-              <p><u>Adverse Findings Category</u> — A new top-level sidebar category surfaces molecules with documented safety signals from peer-reviewed literature. Each flagged molecule displays a ⚠ tile badge and a full Adverse Findings accordion in its detail panel with evidence-graded citations and PubMed links.</p>
+              <p><u>Adverse Findings Category</u> — A new top-level sidebar category surfaces molecules with documented safety or efficacy findings from peer-reviewed literature. Each flagged molecule displays a ⚠ tile badge and a full Adverse Findings accordion in its detail panel with evidence-graded citations and PubMed links.</p>
               <p><u>Prominent Disclaimer System</u> — A bold "Not Medical Advice" ribbon is permanently visible above the grid. A full 7-section disclaimer modal (accessible from any panel) covers educational purpose, evidence grade limitations, adverse findings gaps, and professional consultation requirements. The Welcome screen now requires an informed-consent checkbox before entry.</p>
               <p><u>Molecule Category Search Reset</u> — The molecule category search dropdown now includes a one-click reset option at the top of the list.</p>
               <p><u>Women's Health Conditions</u> — New conditions added: Endometriosis, Uterine Fibroids, Dysmenorrhea, and Menopause/Perimenopause Symptoms.</p>
@@ -1328,7 +1328,7 @@ body.is-mobile-view.is-touch-device #imDoneBtn{right:10px;bottom:calc(56px + env
             <summary><span class="faq-q" style="font-size:.95rem">How is cancer sub-type research organized?</span><span class="faq-icon" style="width:22px;height:22px;font-size:1.1rem">+</span></summary>
             <div class="faq-content" style="font-size:.82rem">
               <p>V2 adds molecule-level citations for 11 specific cancer subtypes. Selecting any cancer sub-type from the conditions filter bar highlights all molecules with relevant published evidence. The References tab in each molecule tile provides specific citations; the Article PDF button gives direct access to primary research.</p>
-              <p>The Adverse Findings filter also surfaces known safety signals, ensuring balanced presentation. All citations are from peer-reviewed literature and are strictly educational — not treatment recommendations.</p>
+              <p>The Adverse Findings filter also surfaces known safety or efficacy findings, ensuring balanced presentation. All citations are from peer-reviewed literature and are strictly educational — not treatment recommendations.</p>
             </div>
           </details>
 
@@ -1343,7 +1343,7 @@ body.is-mobile-view.is-touch-device #imDoneBtn{right:10px;bottom:calc(56px + env
             <summary><span class="faq-q" style="font-size:.95rem">How do I use the interactive features?</span><span class="faq-icon" style="width:22px;height:22px;font-size:1.1rem">+</span></summary>
             <div class="faq-content" style="font-size:.82rem">
               <p><u>Click any molecule tile</u> to open the full molecular profile with evidence tabs, citations, and adverse findings if applicable.</p>
-              <p><u>Category filter</u> (right panel) narrows the table to one molecular group. The ⚠ Adverse Findings category shows only molecules with documented safety signals.</p>
+              <p><u>Category filter</u> (right panel) narrows the table to one molecular group. The ⚠ Adverse Findings category shows only molecules with documented safety or efficacy findings.</p>
               <p><u>Health Conditions</u> (top button) opens the condition selector. Selecting a condition highlights tiles by evidence strength and displays the Associated Molecules panel above the grid.</p>
               <p><u>Receptor System filter</u> (bar below Health Conditions) can be combined with a health condition — only molecules matching both will be highlighted.</p>
               <p><u>Entourage Effect</u> (top button) visualizes synergistic molecule combinations for a selected condition.</p>
@@ -1395,7 +1395,7 @@ body.is-mobile-view.is-touch-device #imDoneBtn{right:10px;bottom:calc(56px + env
           <details class="faq-item">
             <summary><span class="faq-q" style="font-size:.95rem">What are Adverse Findings, and how are they different from therapeutic findings?</span><span class="faq-icon" style="width:22px;height:22px;font-size:1.1rem">+</span></summary>
             <div class="faq-content" style="font-size:.82rem">
-              <p>Adverse Findings are documented safety signals, risk associations, or known side effects from peer-reviewed scientific literature. They are graded on the same A–D evidence scale used for therapeutic findings, so users can assess their strength. <strong>Every health topic presents them the same way</strong> — one evidence-graded, cited format across the whole resource, so no condition looks more or less serious than the evidence warrants. Any molecule with a documented finding for the topic you selected is also highlighted in red on the grid.</p>
+              <p>Adverse Findings are documented safety signals, risk associations, known side effects, or trials that found no benefit, from peer-reviewed scientific literature. They are graded on the same A–D evidence scale used for therapeutic findings, so users can assess their strength. <strong>Every health topic presents them the same way</strong> — one evidence-graded, cited format across the whole resource, so no condition looks more or less serious than the evidence warrants. Any molecule with a documented finding for the topic you selected is also highlighted in red on the grid.</p>
               <p>Molecules with documented adverse findings display a red ⚠ badge on their tile. Clicking the tile shows an Adverse Findings section in the detail panel with a plain-language summary and direct PubMed citation links.</p>
               <p><strong>Important:</strong> The absence of a ⚠ badge does not mean a molecule is safe — most cannabis molecules have not yet been sufficiently studied for adverse effects. As new research emerges, additional molecules will be flagged. This platform is for educational use only; always consult a licensed healthcare professional.</p>
               <p>Some citations with weak study designs (e.g., ecological studies) appear as footnotes rather than full adverse entries, per Acannability editorial policy.</p>
@@ -2199,7 +2199,7 @@ body.is-mobile-view .panel.panel-condensed .panel-sym{font-size:1.05rem}
       <p><u>Associated Molecules Panel.</u> When a health condition is selected, a panel appears between the Health Conditions section and the Receptor Systems bar, showing associated molecules organised by category (phytocannabinoids, terpenes, flavonoids, etc.). The panel always mirrors the highlighted tiles on the grid exactly, including when a Receptor System filter is also active.</p>
       <p><u>Receptor System + Health Condition Combined Filtering.</u> Select a receptor system (CB1, CB2, TRP, etc.) together with a health condition. Only molecules matching both filters are highlighted. Switching between selections performs a complete automatic reset — no manual clearing required. A × Reset button also clears all filters at once.</p>
       <p><u>Refine Inventory Match.</u> Available in both Health Conditions and Entourage Effect panels, this feature allows dispensary staff or patients to exclude specific molecule classes or individual molecules not currently in the dispensary’s inventory. Recommendations instantly recalculate to reflect only what is available.</p>
-      <p><u>Adverse Findings Category.</u> A new top-level sidebar category surfaces molecules with documented safety signals from peer-reviewed literature. Each flagged molecule displays a ⚠ tile badge and a full Adverse Findings section in its detail panel with evidence-graded citations and direct PubMed links. The absence of a ⚠ badge does not mean a molecule is safe — it means adverse effects have not yet been sufficiently studied.</p>
+      <p><u>Adverse Findings Category.</u> A new top-level sidebar category surfaces molecules with documented safety or efficacy findings from peer-reviewed literature. Each flagged molecule displays a ⚠ tile badge and a full Adverse Findings section in its detail panel with evidence-graded citations and direct PubMed links. The absence of a ⚠ badge does not mean a molecule is safe — it means adverse effects have not yet been sufficiently studied.</p>
       <p><u>Prominent Disclaimer System.</u> A “Not Medical Advice” ribbon is permanently visible above the grid. A full seven-section disclaimer modal covers educational purpose, evidence grade limitations, adverse findings gaps, and professional consultation requirements. The Welcome screen now requires an informed-consent checkbox before entry.</p>
       <p><u>Women’s Health Conditions.</u> Four new conditions added: Endometriosis, Uterine Fibroids, Dysmenorrhea, and Menopause/Perimenopause Symptoms.</p>
       <p><u>New Citations.</u> Sex-differentiated pharmacokinetics data added for CBD (Moazen-Zadeh 2024 meta-regression on sex-dependent absorption) and CBG (Piotrowska 2018 CB2 cardiac receptor sex/age distribution). CBG now maps to the Cardiovascular Health condition.</p>
@@ -2358,7 +2358,7 @@ body.is-mobile-view .panel.panel-condensed .panel-sym{font-size:1.05rem}
       <p>V2 introduces molecule-level citations for 11 specific cancer subtypes, representing one of the most significant expansions from earlier versions. For each cancer type, the table identifies which of the <span data-v2fact="molecules">64</span> molecules have published preclinical or clinical evidence of anti-tumor activity, along with a relevance score reflecting the depth and quality of that research.</p>
       <p>The 11 cancer subtypes covered are: <strong>Glioblastoma, Breast Cancer, Lung Cancer, Colorectal Cancer, Leukemia, Prostate Cancer, Melanoma, Pancreatic Cancer, Liver Cancer (HCC), Ovarian Cancer,</strong> and <strong>Cervical Cancer</strong>.</p>
       <p>To explore cancer-specific research, select any cancer sub-type from the conditions filter bar. The table will highlight all molecules with relevant published evidence. Clicking any highlighted molecule tile opens the full molecular profile, where the References tab provides specific citations and the linked Article PDF gives direct access to primary research.</p>
-      <p>Importantly, the <strong>Adverse Findings</strong> filter surfaces published safety signals and known risks—ensuring that cancer-related research is presented in full clinical context, not just benefit data.</p>
+      <p>Importantly, the <strong>Adverse Findings</strong> filter surfaces published safety or efficacy findings and known risks—ensuring that cancer-related research is presented in full clinical context, not just benefit data.</p>
       <p>All cancer research citations in V2 are drawn from peer-reviewed scientific literature. This information is strictly educational and does not constitute medical advice or treatment recommendations.</p>
     </div>
   </details>
@@ -2377,7 +2377,7 @@ body.is-mobile-view .panel.panel-condensed .panel-sym{font-size:1.05rem}
     <div class="faq-content">
       <p><u>Click any molecule tile</u> to open that molecule’s full detail panel. The panel displays the molecule’s symbol, full name, molecular mass, evidence rating, and receptor targets.</p>
       <p><u>Detail panel tabs</u> organize information into therapeutic findings, Adverse/Safety findings, and peer-reviewed References with direct PubMed links.</p>
-      <p><u>Category filter</u> (right sidebar) narrows the table to a single molecular category. The ⚠ Adverse Findings category shows only molecules with documented safety signals.</p>
+      <p><u>Category filter</u> (right sidebar) narrows the table to a single molecular category. The ⚠ Adverse Findings category shows only molecules with documented safety or efficacy findings.</p>
       <p><u>Health Conditions</u> (top button) opens the condition selector. Selecting a condition highlights tiles by evidence strength and shows the Associated Molecules panel above the Receptor Systems bar.</p>
       <p><u>Receptor System filter</u> (below Health Conditions) can be combined with a condition — only molecules matching both will be highlighted. Use × Reset to clear all filters at once.</p>
       <p><u>Refine Inventory Match</u> (in the Associated Molecules panel) lets dispensaries or patients exclude molecules not in current inventory, so recommendations reflect only what’s available.</p>
@@ -2444,7 +2444,7 @@ body.is-mobile-view .panel.panel-condensed .panel-sym{font-size:1.05rem}
   <details class="faq-item">
     <summary><span class="faq-q">What are Adverse Findings, and how are they different from therapeutic findings?</span><span class="faq-icon">+</span></summary>
     <div class="faq-content">
-      <p>Adverse Findings are documented safety signals, risk associations, or known side effects from peer-reviewed scientific literature. They are graded on the same A–D evidence scale used for therapeutic findings, so users can assess their scientific strength. <strong>Every health topic presents them the same way</strong> — one evidence-graded, cited format across the whole resource, so no condition looks more or less serious than the evidence warrants. Any molecule with a documented finding for the topic you selected is also highlighted in red on the grid.</p>
+      <p>Adverse Findings are documented safety signals, risk associations, known side effects, or trials that found no benefit, from peer-reviewed scientific literature. They are graded on the same A–D evidence scale used for therapeutic findings, so users can assess their scientific strength. <strong>Every health topic presents them the same way</strong> — one evidence-graded, cited format across the whole resource, so no condition looks more or less serious than the evidence warrants. Any molecule with a documented finding for the topic you selected is also highlighted in red on the grid.</p>
       <p>Molecules with documented adverse findings display a red ⚠ badge on their tile. Clicking the tile shows an Adverse Findings section in the detail panel with a plain-language summary and direct PubMed citation links.</p>
       <p><strong>Important:</strong> The absence of a ⚠ badge does not mean a molecule is safe — most cannabis molecules have not yet been sufficiently studied for adverse effects. As new research emerges, additional molecules will be flagged. Some citations with weak study designs (e.g., ecological studies) appear as footnotes rather than full adverse entries, per Acannability editorial policy.</p>
     </div>
@@ -3531,7 +3531,7 @@ function getMolFindings(id) {
 }
 // Category disclaimer: shown in the sidebar when Adverse Findings filter is active
 // and in the panel for molecules that have no full adverse findings of their own
-const ADVERSE_CATEGORY_DISCLAIMER = 'The <strong>&#x26A0; Adverse Findings</strong> category currently highlights molecules for which documented safety signals have been identified in peer-reviewed literature. <strong>The absence of this tag does not imply safety</strong> — the majority of cannabis plant molecules have not yet been sufficiently studied for adverse effects. As new research emerges, additional molecules will be added to this category. This platform is for educational purposes only; always consult a licensed healthcare professional before making any clinical decisions.';
+const ADVERSE_CATEGORY_DISCLAIMER = 'The <strong>&#x26A0; Adverse Findings</strong> category currently highlights molecules for which documented safety or efficacy findings have been identified in peer-reviewed literature. <strong>The absence of this tag does not imply safety</strong> — the majority of cannabis plant molecules have not yet been sufficiently studied for adverse effects. As new research emerges, additional molecules will be added to this category. This platform is for educational purposes only; always consult a licensed healthcare professional before making any clinical decisions.';
 
 // ── INDIVIDUAL RESPONSE / BIOAVAILABILITY (UX-43) ────────────────────────────
 // Owner request 2026-08-13: state plainly that an identical product at an identical dose can
@@ -4166,7 +4166,7 @@ function buildConditionsBar() {
     div.innerHTML = '<div class="cg-lbl" style="display:flex;align-items:center;flex-wrap:wrap;gap:0">' + grp.label + dots + '</div>'
       + '<div class="cg-chips">' + groupConds.map(function(c) {
           var cls = 'cc' + (c.isRisk ? ' risk-btn' : '');
-          var adv = condHasAdverse(c) ? ' <span class="cc-adv" title="Documented safety cautions — select to view" style="color:#c17d2a">&#x26A0;</span>' : '';
+          var adv = condHasAdverse(c) ? ' <span class="cc-adv" title="Documented safety or efficacy findings — select to view" style="color:#c17d2a">&#x26A0;</span>' : '';
           return '<button class="' + cls + '" data-cid="' + c.id + '" onclick="selectCondition(\'' + c.id + '\',this)">' + c.label + adv + '</button>';
         }).join('') + '</div>';
     container.appendChild(div);
@@ -4284,7 +4284,7 @@ function toggleFilter() {
   btn.textContent = on ? 'Hide Health Conditions' : 'Show Health Conditions';
   btn.classList.toggle('active', on);
 }
-// Build a data-driven "Safety Considerations" banner for a selected condition:
+// Build a data-driven "Safety or Efficacy Findings" banner for a selected condition:
 // aggregates ADVERSE_FINDINGS matching either the condition's label (finding.condition)
 // or its category (finding.group vs the condition's group, which may be a string or array).
 // Returns '' when there are no relevant findings. The global ⚠ filter and the Breast Cancer
@@ -4308,7 +4308,7 @@ function adverseFindingsFor(cond) {
     ADVERSE_FINDINGS[mol].forEach(function(f) {
       var hit;
       if (cond.isRisk) {
-        // The ⚠ filter is not a health topic — it selects molecules that carry safety signals,
+        // The ⚠ filter is not a health topic — it selects molecules that carry safety or efficacy findings,
         // so its banner lists the findings of exactly those molecules, footnote-level included
         // (labelled as such) since that is the evidence the filter exists to surface.
         hit = !!(cond.molecules && cond.molecules[mol]);
@@ -4348,8 +4348,8 @@ function buildConditionSafetyHTML(cond) {
     return '<div style="margin-top:5px"><strong>' + e.mols.join(', ') + ' &mdash; ' + title + '</strong> ('
       + grade + '): ' + f.summary + cite + '</div>';
   }).join('');
-  var heading = cond.isRisk ? 'Molecules with Documented Safety Signals' : cond.label;
-  return '<strong>&#x26A0; Safety Considerations &mdash; ' + heading + ':</strong> Published research documents cannabis-related cautions relevant to this area:'
+  var heading = cond.isRisk ? 'all flagged molecules' : cond.label;
+  return '<strong>&#x26A0; Safety or Efficacy Findings &mdash; ' + heading + ':</strong> Published research documents cannabis-related cautions, or trials that found no benefit, relevant to this area:'
     + rows
     + '<div style="margin-top:6px;font-style:italic">Educational only &mdash; these are associations or preclinical signals, not treatment claims. Always discuss with a licensed healthcare professional.</div>';
 }
@@ -6878,7 +6878,7 @@ function printRecoReport() {
   // The condition's safety banner, exactly as rendered on screen (per-category Adverse Findings).
   var warnEl = document.getElementById('csWarn');
   if (warnEl && warnEl.style.display !== 'none' && warnEl.innerHTML) {
-    body += PT_sec('Safety Considerations', '<div class="pt-print-body">' + warnEl.innerHTML + '</div>');
+    body += PT_sec('Safety or Efficacy Findings', '<div class="pt-print-body">' + warnEl.innerHTML + '</div>');
   }
 
   // Active refinements — so a printed match is reproducible later.
@@ -10176,7 +10176,7 @@ function djToast(msg){try{var t=document.getElementById('djToastEl');if(!t){t=do
       <div class="disc-section">
         <div class="disc-section-title">4. Adverse Findings Are Incomplete</div>
         <div class="disc-section-body">
-          The Adverse Findings feature surfaces documented safety signals from the peer-reviewed literature. It is <strong>not a comprehensive safety profile</strong> for any molecule. Long-term safety data, drug interaction profiles, population-specific risks (pediatric, geriatric, pregnant, immunocompromised), and dose-dependent effects are largely absent from this database and from the broader scientific literature at this time.
+          The Adverse Findings feature surfaces documented safety or efficacy findings from the peer-reviewed literature. It is <strong>not a comprehensive safety profile</strong> for any molecule. Long-term safety data, drug interaction profiles, population-specific risks (pediatric, geriatric, pregnant, immunocompromised), and dose-dependent effects are largely absent from this database and from the broader scientific literature at this time.
         </div>
       </div>
 
