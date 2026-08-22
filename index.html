@@ -4724,7 +4724,10 @@ function openPanel(id, tileEl) {
   // molecule-level search — it always returns results.
   const tagsHtml = mol.indications.map(function(i) {
     if (i.indexOf('Unknown') !== -1) {
-      var q = encodeURIComponent('"' + molTerm + '"[ti]');
+      // UX-76: [tiab] (title OR abstract), not [ti]. Requiring the compound in the title
+      // returned nothing for rare cannabinoids — measured across all 64 molecules, 22% of
+      // these indication searches were dead links; [tiab] cuts that to 7%.
+      var q = encodeURIComponent('"' + molTerm + '"[tiab]');
       return '<a class="ind-tag" href="https://pubmed.ncbi.nlm.nih.gov/?term=' + q + '&sort=relevance" target="_blank" rel="noopener">' + i + '</a>';
     }
     // UX-50: filled vs hollow dot shows whether V2 holds an indexed citation for THIS pairing.
@@ -4749,7 +4752,10 @@ function openPanel(id, tileEl) {
   };
   const indSections = mol.indications.filter(function(i) { return i.indexOf('Unknown') === -1; }).map(function(i) {
     var it = INDICATION_TERMS[i];
-    var q = it ? encodeURIComponent('"' + molTerm + '"[ti] AND (' + it + ')') : encodeURIComponent('"' + molTerm + '"[ti]');
+    // UX-76: see note above — [tiab] so the compound may appear in the abstract. THCP +
+    // Analgesic was the reported case: "tetrahydrocannabiphorol"[ti] AND (analgesic OR pain)
+    // returns 0, the same query with [tiab] returns a real paper.
+    var q = it ? encodeURIComponent('"' + molTerm + '"[tiab] AND (' + it + ')') : encodeURIComponent('"' + molTerm + '"[tiab]');
     var relCites = findRelevantCites(id, i);
     var qBroad = encodeURIComponent(molTerm);
     var citesHtml = relCites.length
@@ -4953,7 +4959,7 @@ function closePanel() {
 
 function toggleAcc(el) { el.classList.toggle('open'); }
 // ── INDICATION TAGS → V2'S OWN EVIDENCE (UX-48) ──────────────────────────────
-// The tags used to fire a live PubMed search of the form "molecule"[ti] AND (indication terms).
+// The tags used to fire a live PubMed search of the form "molecule"[tiab] AND (indication terms).
 // An audit of all 331 tags found 57 returned ZERO results — and on 31 of those V2 already held a
 // curated citation that the failed search was hiding. So a tag now opens that indication's own
 // section, which shows either the citation or the existing "Citation Not Yet Indexed" explanation.
