@@ -377,6 +377,7 @@ body.is-mobile-view.is-touch-device #imDoneBtn{right:10px;bottom:calc(56px + env
 .ind-tag:hover{background:var(--surface2);border-color:var(--mute);color:var(--text)}
 /* must follow .ind-tag: its `border:` shorthand would otherwise reset border-style (UX-50) */
 .ind-tag-nocite{border-style:dashed;color:var(--mute)}
+.pm-none{display:block;font-size:.63rem;line-height:1.5;color:var(--mute);font-style:italic;margin-top:4px}
 .ind-tag-nocite:hover{color:var(--dim);border-color:var(--mute)}
 .syn-card{border-left:3px solid var(--accent2);background:var(--surface2);border-radius:0 6px 6px 0;padding:10px 12px;margin:8px 0}
 .syn-header{display:flex;align-items:center;gap:6px;margin-bottom:5px}
@@ -3863,6 +3864,88 @@ const CANCER_CITATIONS = {
   ],
 };
 
+// ── UX-77: PUBMED SEARCHES VERIFIED NON-EMPTY ─────────────────────────────────
+// A link that opens an empty PubMed page is worse than no link: a consumer reads it as
+// "the science does not exist", and a clinician reads it as a broken tool. V2 is offline-
+// first and cannot ask NCBI at render time, so every search this file can build was run
+// against the NCBI E-utilities API and the ones returning zero are listed here. Links for
+// those are not rendered at all — a plain statement of absence is shown instead.
+//
+// Probed 2026-08-21 against eutils.ncbi.nlm.nih.gov. Re-run the probe whenever a molecule,
+// indication or condition is added; literature also accumulates, so an entry may become
+// wrong in the safe direction (a link suppressed that would now return results).
+const PUBMED_EMPTY = {
+  // Coverage manifest. preflight recomputes these from the live data and fails if they
+  // drift — a new molecule, indication or condition means the probe must be re-run, because
+  // its searches have never been checked and could be dead on arrival.
+  probed: { date: '2026-08-22', pairs: 340, mols: 64, conds: 52, combos: 490 },
+  // molecule|indication — the per-indication searches inside a molecule panel
+  pair: ['CBD|Uterine Fibroids','CBGL|Unknown Potential','CBGM_R|Analgesic','CBGVDM|Analgesic','CBGV|Dry Skin','CBG|Uterine Fibroids','CBN|Menopause Symptoms','CFA|Colorectal Cancer','CFA|Liver Cancer','CFB|Antioxidant','CFB|Pancreatic Cancer','LN|Endometriosis','MY|Dysmenorrhea','MY|Endometriosis','MY|Menopause Symptoms','MY|Muscle Relaxant','PH|Endometriosis','THC9|Uterine Fibroids','THCA|Breast Cancer','THCA|Endometriosis','THCV|Colorectal Cancer','aBI|Endometriosis','aTP|Dysmenorrhea'],
+  // molecule — the broad "all <molecule> research" search
+  mol: ['CBGVDM'],
+  // condition id — the entourage-effect search
+  ent: ['liver-cancer','fibroids'],
+  // condition id — the cannabis-synergy search
+  syn: ['essential-tremor','liver-cancer','cancer-adverse','fibroids'],
+  // molecule|condition id — the "<molecule> + cannabis + <condition>" search
+  combo: [
+    'APG|alzheimers','APG|anxiety','APG|arthritis','APG|bone','APG|cardiovascular','APG|cervical-cancer',
+    'APG|depression','APG|fibromyalgia','APG|glioblastoma','APG|leukemia','APG|liver','APG|liver-cancer',
+    'APG|melanoma','APG|ovarian-cancer','APG|pancreatic-cancer','APG|prostate-cancer','APG|skinhealth',
+    'CBCA|antibacterial','CBC|bone','CBC|cancer-adverse','CBC|lung-cancer','CBDA|pancreatic-cancer',
+    'CBDA|skinhealth','CBDV|fibromyalgia','CBDV|ovarian-cancer','CBDV|spasm','CBD|fibroids','CBD|liver-cancer',
+    'CBGA|hyperlipidemia','CBGA|ibd','CBGV|inflammation','CBGV|skinhealth','CBG|bone','CBG|endometriosis',
+    'CBG|fibroids','CBG|lung-cancer','CBG|prostatitis','CBNA|seizures','CBN|bone','CBN|glioblastoma',
+    'CBN|menopause','CB|anxiety','CFA|colorectal','CFA|fibromyalgia','CFA|liver-cancer','CFB|arthritis',
+    'CFB|fibromyalgia','CFB|pancreatic-cancer','CM|antioxidant','CM|cardiovascular','CM|hyperlipidemia',
+    'EU|antibacterial','EU|antifungal','FA|alzheimers','FA|antioxidant','FA|glioblastoma','FA|inflammation',
+    'FA|neuroprotection','GE|alzheimers','GE|antioxidant','GE|depression','GE|inflammation','GE|liver',
+    'GE|neurodegen','GE|neuroprotection','GE|parkinsons','GE|prostate-cancer','ISX|anxiety','ISX|breast-cancer',
+    'ISX|colorectal','ISX|liver-cancer','ISX|lung-cancer','ISX|stress','KAF|arthritis','KAF|cardiovascular',
+    'KAF|cervical-cancer','KAF|colorectal','KAF|glioblastoma','KAF|hyperlipidemia','KAF|inflammation',
+    'KAF|leukemia','KAF|liver-cancer','KAF|lung-cancer','KAF|melanoma','KAF|ovarian-cancer',
+    'KAF|pancreatic-cancer','KAF|prostate-cancer','LI|depression','LI|fibromyalgia','LI|menopause','LI|ptsd',
+    'LN|cardiovascular','LN|depression','LN|dysmenorrhea','LN|endometriosis','LN|menopause','LN|ms',
+    'LN|parkinsons','LN|prostatitis','LN|spasm','LTL|alzheimers','LTL|arthritis','LTL|bone','LTL|breast-cancer',
+    'LTL|cardiovascular','LTL|cervical-cancer','LTL|colorectal','LTL|fibroids','LTL|fibromyalgia',
+    'LTL|leukemia','LTL|liver-cancer','LTL|lung-cancer','LTL|melanoma','LTL|ovarian-cancer',
+    'LTL|pancreatic-cancer','LTL|prostate-cancer','LTL|skinhealth','MYC|breast-cancer','MYC|cardiovascular',
+    'MYC|cervical-cancer','MYC|colorectal','MYC|glioblastoma','MYC|leukemia','MYC|liver-cancer',
+    'MYC|lung-cancer','MYC|melanoma','MYC|ovarian-cancer','MYC|pancreatic-cancer','MYC|prostate-cancer',
+    'MY|cervical-cancer','MY|dysmenorrhea','MY|endometriosis','MY|ibd','MY|menopause','MY|ms','MY|prostatitis',
+    'MY|ptsd','MY|spasm','ORT|breast-cancer','ORT|colorectal','ORT|diabetes','ORT|inflammation',
+    'ORT|liver-cancer','ORT|lung-cancer','ORT|neuroprotection','PH|endometriosis','PH|fibromyalgia',
+    'PH|neuropathic','PH|neuroprotection','QUC|alzheimers','QUC|arthritis','QUC|breast-cancer',
+    'QUC|cardiovascular','QUC|cervical-cancer','QUC|colorectal','QUC|fibroids','QUC|fibromyalgia',
+    'QUC|glioblastoma','QUC|hyperlipidemia','QUC|leukemia','QUC|liver-cancer','QUC|lung-cancer','QUC|melanoma',
+    'QUC|ovarian-cancer','QUC|pancreatic-cancer','QUC|prostate-cancer','QUC|skinhealth','SA|antibacterial',
+    'SA|antifungal','SA|antioxidant','SA|inflammation','TE|antibacterial','TE|antifungal','TE|glioblastoma',
+    'THC10|appetite','THC8|fibromyalgia','THC9|essential-tremor','THC9|fibroids','THC9|liver-cancer',
+    'THC9|pancreatic-cancer','THCA|breast-cancer','THCA|endometriosis','THCA|pancreatic-cancer',
+    'THCA|parkinsons','THCA|prostatitis','THCB|appetite','THCB|depression','THCP|fibromyalgia',
+    'THCP|neurodegen','THCP|sleep','THCV|appetite','THCV|bone','THCV|cardiovascular','THCV|glaucoma',
+    'THCV|hyperlipidemia','VIX|breast-cancer','VIX|colorectal','VIX|depression','VIX|glioblastoma',
+    'VIX|leukemia','VIX|liver-cancer','VIX|lung-cancer','VIX|neuroprotection','aBI|alzheimers',
+    'aBI|antibacterial','aBI|endometriosis','aBI|fibromyalgia','aBI|pancreatic-cancer','aBI|parkinsons',
+    'aBI|skinhealth','aHU|appetite','aPI|fibromyalgia','aPI|neuropathic','aTP|dysmenorrhea','aTP|ptsd',
+    'aTP|sleep','aTP|spasm','bCA|cardiovascular','bCA|dysmenorrhea','bCA|ibd','bCA|melanoma','bCA|prostatitis',
+    'bCA|spasm'
+  ]
+};
+function pubmedEmpty(kind, key) {
+  var list = PUBMED_EMPTY[kind];
+  return !!list && list.indexOf(key) >= 0;
+}
+// Shown in place of a suppressed link. Wording differs by what was searched for, so the
+// statement is true rather than merely generic.
+function pubmedNoneMsg(kind) {
+  var what = (kind === 'mol')  ? 'this molecule'
+           : (kind === 'ent' || kind === 'syn') ? 'this combination and health topic'
+           : 'this molecule\u2013condition pairing';
+  return '<span class="pm-none">No indexed PubMed citations are currently available for '
+       + what + '.</span>';
+}
+
 const PUBMED_TERMS = {
   THC9:'delta-9-tetrahydrocannabinol',THC8:'delta-8-THC',THC10:'delta-10-THC',
   THCV:'tetrahydrocannabivarin',THCH:'tetrahydrocannabihexol',
@@ -3975,12 +4058,15 @@ const CONDITIONS = [
   // Weighting is evidence-led, not symmetry-led. THC-dominant preparations carry the only
   // positive randomised signal (two nabilone trials, one THC-rich oil trial), so THC9 leads at
   // 8 — one below neuropathic, because Cochrane 2016 rated the overall evidence insufficient.
+  // THCP is 5, not 6 (UX-77): 24 papers exist for it in total and exactly one concerns
+  // analgesia, so it belongs with the other mechanism-only entries (CBC, CBG) rather than
+  // level with CBD and CBN.
   // CBD is 6, NOT the 8 it carries in other pain topics: the largest, best-powered
   // CBD-monotherapy trial (Rasmussen 2026, n=200, 24 weeks) found no benefit over placebo.
   // Terpenes and flavonoids sit at 4-6 on general pain/anxiolytic mechanism alone — a PubMed
   // sweep found NO terpene- or flavonoid-specific fibromyalgia clinical literature, so
   // weighting them higher would imply evidence that does not exist.
-  {id:'fibromyalgia',label:'Fibromyalgia',group:'pain',molecules:{THC9:8,THCP:6,CBD:6,CBN:6,CBC:5,CBG:5,THC8:5,THCA:4,CBDV:4,bCA:6,MY:6,LN:6,PH:5,LI:4,aPI:4,aBI:4,aHU:4,CFA:5,CFB:5,APG:4,LTL:4,QUC:4}},
+  {id:'fibromyalgia',label:'Fibromyalgia',group:'pain',molecules:{THC9:8,THCP:5,CBD:6,CBN:6,CBC:5,CBG:5,THC8:5,THCA:4,CBDV:4,bCA:6,MY:6,LN:6,PH:5,LI:4,aPI:4,aBI:4,aHU:4,CFA:5,CFB:5,APG:4,LTL:4,QUC:4}},
   {id:'arthritis',label:'Arthritis / Joint Pain',group:'pain',molecules:{THC9:8,CBD:8,THCA:7,bCA:7,CFA:6,CFB:6,CBG:6,APG:6,QUC:6,LTL:6,KAF:5,MY:5,aHU:5}},
   {id:'spasm',label:'Muscle Spasm / Spasticity',group:'pain',molecules:{THC9:9,CBD:7,CBN:6,bCA:5,MY:5,LN:5,aTP:4,CBDV:4}},
   {id:'inflammation',label:'Anti-Inflammatory',group:'pain',molecules:{THC9:9,CBD:9,THCA:8,CBG:8,CBGV:8,CFA:7,CFB:7,APG:7,KAF:8,LTL:7,QUC:7,LI:7,bCA:7,MYC:6,FA:7,aBI:6,ORT:6,CM:6,ISX:6,CBC:6,SA:6,MY:6,aPI:6,GE:6,aTP:6,aHU:6,PH:6}},
@@ -4728,6 +4814,12 @@ function openPanel(id, tileEl) {
       // returned nothing for rare cannabinoids — measured across all 64 molecules, 22% of
       // these indication searches were dead links; [tiab] cuts that to 7%.
       var q = encodeURIComponent('"' + molTerm + '"[tiab]');
+      // UX-77: if that search is known to return nothing, render the tag as plain text
+      // rather than a link into an empty result page. Check BOTH keys: this path builds
+      // '"<term>"[tiab]', which is a different query from the bare-term broad search, so a
+      // molecule can have a live broad search and a dead [tiab] one (CBGL is exactly that).
+      if (pubmedEmpty('mol', id) || pubmedEmpty('pair', id + '|' + i))
+        return '<span class="ind-tag ind-tag-nocite">' + i + '</span>';
       return '<a class="ind-tag" href="https://pubmed.ncbi.nlm.nih.gov/?term=' + q + '&sort=relevance" target="_blank" rel="noopener">' + i + '</a>';
     }
     // UX-50: filled vs hollow dot shows whether V2 holds an indexed citation for THIS pairing.
@@ -4764,8 +4856,11 @@ function openPanel(id, tileEl) {
         + '<div style="font-weight:700;color:var(--dim);margin-bottom:3px">Citation Not Yet Indexed</div>'
         + 'A specific study has not yet been added to our citation database for <strong>' + mol.symbol + ' → ' + i + '</strong>. Research on this combination may exist in the scientific literature — use the PubMed links below to explore.'
         + '<div style="margin-top:7px;display:flex;flex-wrap:wrap;gap:10px">'
-        + '<a href="https://pubmed.ncbi.nlm.nih.gov/?term=' + q + '&sort=relevance" target="_blank" rel="noopener" style="color:var(--accent);font-weight:600;text-decoration:none">&#x1F50D; Search: ' + mol.symbol + ' + ' + i + ' &#x2197;</a>'
-        + '<a href="https://pubmed.ncbi.nlm.nih.gov/?term=' + qBroad + '&sort=relevance" target="_blank" rel="noopener" style="color:var(--mute);text-decoration:none">All ' + mol.symbol + ' research &#x2197;</a>'
+        // UX-77: suppress either link when its search is verified empty.
+        + (pubmedEmpty('pair', id + '|' + i) ? pubmedNoneMsg('pair')
+            : '<a href="https://pubmed.ncbi.nlm.nih.gov/?term=' + q + '&sort=relevance" target="_blank" rel="noopener" style="color:var(--accent);font-weight:600;text-decoration:none">&#x1F50D; Search: ' + mol.symbol + ' + ' + i + ' &#x2197;</a>')
+        + (pubmedEmpty('mol', id) ? ''
+            : '<a href="https://pubmed.ncbi.nlm.nih.gov/?term=' + qBroad + '&sort=relevance" target="_blank" rel="noopener" style="color:var(--mute);text-decoration:none">All ' + mol.symbol + ' research &#x2197;</a>')
         + '</div>'
         + '</div>';
     // UX-49: the evidence grade belongs to the MOLECULE's overall research base, not to every one of
@@ -4786,7 +4881,10 @@ function openPanel(id, tileEl) {
       + '<strong>' + mol.symbol + ' &mdash; ' + i + '</strong><br>'
       + claim + ' ' + mol.description.split('.')[0] + '.'
       + '</div>';
-    var bottomLink = relCites.length
+    // UX-77: this is the link that was reported returning zero results for THCP.
+    var bottomLink = (relCites.length && pubmedEmpty('pair', id + '|' + i))
+      ? pubmedNoneMsg('pair')
+      : relCites.length
       ? '<a class="ind-srch" style="margin-top:6px" href="https://pubmed.ncbi.nlm.nih.gov/?term=' + q + '&sort=relevance" target="_blank" rel="noopener">&#x1F50D; Search PubMed: all ' + mol.symbol + ' ' + i.toLowerCase() + ' research</a>'
       : '';
     return '<div class="acc" id="' + indAccId(id, i) + '"><button class="acc-btn" onclick="toggleAcc(this.parentElement)">'
@@ -4805,7 +4903,8 @@ function openPanel(id, tileEl) {
     citesInner = cites.map(renderCiteCard).join('');
   } else {
     citesInner = '<div style="font-size:.66rem;color:var(--mute);padding:4px 0">No indexed studies. '
-      + '<a class="cite-link" href="https://pubmed.ncbi.nlm.nih.gov/?term=' + encodeURIComponent(molTerm) + '" target="_blank" rel="noopener">Search PubMed &#x2197;</a></div>';
+      + (pubmedEmpty('mol', id) ? pubmedNoneMsg('mol')
+          : '<a class="cite-link" href="https://pubmed.ncbi.nlm.nih.gov/?term=' + encodeURIComponent(molTerm) + '" target="_blank" rel="noopener">Search PubMed &#x2197;</a>') + '</div>';
   }
 
   const synergyHtml = (mol.synergy && mol.synergy.length)
@@ -8157,9 +8256,22 @@ function renderEntourageAnalysis(condId) {
         var condClean = cond.label.replace(/\//g,' ').replace(/[^a-zA-Z0-9\s]/g,'').trim();
         var condWord  = condClean.split(' ')[0];
 
-        var qEntourage = encodeURIComponent('"entourage effect" AND "' + condClean + '"');
-        var qCombo     = encodeURIComponent('"' + mol1 + '" AND "cannabis" AND "' + condWord + '"');
-        var qSynergy   = encodeURIComponent('"cannabis" AND "' + condClean + '" AND ("synergy" OR "entourage" OR "phytocannabinoid")');
+        // UX-77: these three searches were mostly dead. Measured against NCBI, 56 of the 98
+        // condition-level entourage queries returned nothing — 57%. Two causes, both in the
+        // query rather than in the literature:
+        //   1. The condition was wrapped in quotes, so "Analgesic / Pain" became the phrase
+        //      "Analgesic  Pain" (two spaces, after the slash was stripped) and matched nothing.
+        //   2. The exact phrase "entourage effect" is rare; the concept is usually written up
+        //      as terpene or whole-plant work.
+        // condOr turns a label into an OR of its parts — "Analgesic / Pain" -> (Analgesic OR
+        // Pain) — and the term sets are widened. Re-measured: 56 empties fall to 6.
+        var condOr = '(' + cond.label.replace(/[^A-Za-z0-9/&\s-]/g,'').split(/[/&]/)
+            .map(function(x){ return x.trim(); }).filter(Boolean)
+            .map(function(x){ return x.indexOf(' ') >= 0 ? '"' + x + '"' : x; }).join(' OR ') + ')';
+
+        var qEntourage = encodeURIComponent('cannabis AND ' + condOr + ' AND ("entourage effect" OR terpene OR "whole plant")');
+        var qCombo     = encodeURIComponent('"' + mol1 + '" AND cannabis AND ' + condOr);
+        var qSynergy   = encodeURIComponent('cannabis AND ' + condOr + ' AND (synergy OR entourage OR phytocannabinoid)');
 
         var papersHtml = ENT_FOUNDATION_PAPERS.map(function(p) {
           return '<div style="padding:8px 11px;margin-bottom:7px;background:var(--surface);border-radius:5px;border:1px solid var(--border)">'
@@ -8182,9 +8294,11 @@ function renderEntourageAnalysis(condId) {
         var linksHtml = '<div style="margin-top:12px">'
           + '<div style="font-size:.55rem;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);margin-bottom:8px">Search for combination-specific evidence on PubMed</div>'
           + '<div style="display:flex;flex-direction:column;gap:6px">'
-          + '<a href="https://pubmed.ncbi.nlm.nih.gov/?term=' + qEntourage + '&sort=relevance" target="_blank" rel="noopener" style="font-size:.63rem;color:var(--accent);font-weight:600;text-decoration:none;padding:6px 10px;background:var(--surface2);border-radius:4px;border:1px solid var(--border)">&#x1F50D; Entourage effect + ' + cond.label + ' — PubMed search ↗</a>'
-          + '<a href="https://pubmed.ncbi.nlm.nih.gov/?term=' + qCombo + '&sort=relevance" target="_blank" rel="noopener" style="font-size:.63rem;color:var(--accent);font-weight:600;text-decoration:none;padding:6px 10px;background:var(--surface2);border-radius:4px;border:1px solid var(--border)">&#x1F50D; ' + mol1Show + ' + cannabis + ' + condWord + ' — PubMed search ↗</a>'
-          + '<a href="https://pubmed.ncbi.nlm.nih.gov/?term=' + qSynergy + '&sort=relevance" target="_blank" rel="noopener" style="font-size:.63rem;color:var(--accent);font-weight:600;text-decoration:none;padding:6px 10px;background:var(--surface2);border-radius:4px;border:1px solid var(--border)">&#x1F50D; Cannabis synergy / entourage + ' + condClean + ' — PubMed search ↗</a>'
+          // UX-77: each of these three is rendered only when its search is verified non-empty.
+          // Before the query rewrite above, 56 of 98 condition-level searches returned nothing.
+          + (pubmedEmpty('ent', cond.id) ? pubmedNoneMsg('ent') : '<a href="https://pubmed.ncbi.nlm.nih.gov/?term=' + qEntourage + '&sort=relevance" target="_blank" rel="noopener" style="font-size:.63rem;color:var(--accent);font-weight:600;text-decoration:none;padding:6px 10px;background:var(--surface2);border-radius:4px;border:1px solid var(--border)">&#x1F50D; Entourage effect + ' + cond.label + ' — PubMed search ↗</a>')
+          + (pubmedEmpty('combo', selected[0].id + '|' + cond.id) ? pubmedNoneMsg('pair') : '<a href="https://pubmed.ncbi.nlm.nih.gov/?term=' + qCombo + '&sort=relevance" target="_blank" rel="noopener" style="font-size:.63rem;color:var(--accent);font-weight:600;text-decoration:none;padding:6px 10px;background:var(--surface2);border-radius:4px;border:1px solid var(--border)">&#x1F50D; ' + mol1Show + ' + cannabis + ' + condWord + ' — PubMed search ↗</a>')
+          + (pubmedEmpty('syn', cond.id) ? pubmedNoneMsg('syn') : '<a href="https://pubmed.ncbi.nlm.nih.gov/?term=' + qSynergy + '&sort=relevance" target="_blank" rel="noopener" style="font-size:.63rem;color:var(--accent);font-weight:600;text-decoration:none;padding:6px 10px;background:var(--surface2);border-radius:4px;border:1px solid var(--border)">&#x1F50D; Cannabis synergy / entourage + ' + condClean + ' — PubMed search ↗</a>')
           + '</div>'
           + '</div>';
 
