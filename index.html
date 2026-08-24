@@ -2731,7 +2731,40 @@ body.is-mobile-view .panel.panel-condensed .panel-sym{font-size:1.05rem}
 .demo-ribbon .dr-sub{font-weight:600;font-size:9.5px;opacity:.92;text-transform:uppercase;letter-spacing:.05em;margin-top:1px}
 .demo-ribbon .dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#7CFFB0;margin-right:5px;vertical-align:middle;box-shadow:0 0 0 3px rgba(124,255,176,.28)}
 /* On mobile, sit the banner ABOVE the fixed tab bar (~56px) so it never covers nav tap targets */
-body.is-mobile-view .demo-ribbon{bottom:calc(64px + env(safe-area-inset-bottom));left:8px;right:8px;max-width:none}
+body.is-mobile-view .demo-ribbon{bottom:calc(64px + env(safe-area-inset-bottom));left:8px;right:auto;max-width:none}
+/* UX-78: the rule above used to set right:8px and max-width:none, which stretched the desktop's
+   tidy 290px corner pill edge to edge. Measured on a 375x812 phone it became 359x83px — 96% of
+   the width and 10% of the viewport height — and it overlaid live content. The banner is not the
+   Exit button's fault: Exit is 46x24px, while the two text lines took 65 of the 83px. On a phone
+   the long name and note are replaced by one short line, and Menu is dropped because the demo hub
+   already offers "Back to demo menu". Result is a ~34px pill instead of an 83px bar. */
+.demo-ribbon .dr-short{display:none}
+/* UX-79: the one-line statement of what Guided Match produces. Sits between the question and the
+   options, so it is read before the first tap. */
+.gx-purpose{font-size:.82rem;line-height:1.55;color:var(--text);background:var(--surface2);
+  border-left:3px solid var(--accent);border-radius:0 7px 7px 0;padding:9px 12px;margin:2px 0 10px}
+.gx-purpose strong{font-weight:700}
+/* UX-79: express path affordance — deliberately quieter than the topic options above it, so the
+   guided route stays the default and this reads as the shortcut it is. */
+.gx-express{display:block;width:100%;margin-top:10px;padding:10px 12px;text-align:left;cursor:pointer;
+  background:transparent;border:1px dashed var(--border);border-radius:9px;color:var(--accent);
+  font-size:.82rem;font-weight:700}
+.gx-express:hover{background:var(--surface2);border-color:var(--accent)}
+.gx-express small{display:block;font-weight:500;font-size:.7rem;color:var(--mute);margin-top:2px}
+.gx-express-note{font-size:.75rem;line-height:1.5;color:var(--text);background:var(--surface2);
+  border-left:3px solid #C17D2A;border-radius:0 7px 7px 0;padding:9px 11px;margin:0 0 10px}
+.gx-express-run{display:inline-block;margin-top:6px;padding:5px 10px;cursor:pointer;
+  background:var(--accent);color:#fff;border:none;border-radius:6px;font-size:.72rem;font-weight:700}
+#gxDots .gx-stepno{font-size:.62rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--mute);margin-left:8px;align-self:center;white-space:nowrap}
+body.is-mobile-view .demo-ribbon{gap:7px;padding:6px 9px;border-radius:10px;
+  font:700 10.5px/1.2 system-ui,-apple-system,sans-serif}
+body.is-mobile-view .demo-ribbon .dr-txt,
+body.is-mobile-view .demo-ribbon .dr-menu,
+body.is-mobile-view .demo-ribbon img{display:none}
+body.is-mobile-view .demo-ribbon .dr-short{display:block;white-space:nowrap;
+  text-transform:uppercase;letter-spacing:.05em;font-weight:700}
+body.is-mobile-view .demo-ribbon .dr-exit{padding:5px 8px;font-size:9.5px}
 /* Demo banner Exit button (only interactive part of the otherwise pass-through banner) */
 .demo-ribbon .dr-txt{min-width:0;flex:1}
 .demo-ribbon .dr-menu,.demo-ribbon .dr-exit{pointer-events:auto;flex:0 0 auto;background:rgba(255,255,255,.16);color:#fff;
@@ -9321,7 +9354,18 @@ document.addEventListener('keydown', function(e) {
   var SECOND=[{k:'sleep',ic:'😴',label:'Trouble sleeping too',cond:['sleep']},
     {k:'stress',ic:'💭',label:'Stress / anxiety',cond:['stress']},{k:'pain',ic:'🌿',label:'Some pain too',cond:['pain']},
     {k:'nausea',ic:'🤢',label:'Nausea too',cond:['nausea-relief']},{k:'appetite',ic:'🍽️',label:'Low appetite too',cond:['appetite-stim']}];
-  var FUNNEL=['intent','refine','experience','thc','timeofday','onset','route','second','safety','meds','rec']; // safety check now sits with the medications/drug-interaction step (educational checkpoint, not an entry gate); flow ends at the recommendation, then hands off to the Periodic Table (no faux products)
+  // UX-79: two funnels. Measured one variable at a time against the live build, four screens
+    // changed NOTHING in the standard consumer flow — experience, timeofday, onset and route each
+    // produced a byte-identical recommendation whichever option was chosen. They exist to feed
+    // PRODUCT matching, which only runs in Demo Mode. Asking a consumer four questions that cannot
+    // affect their answer is what made the flow feel purposeless ("I wasn't sure what the end goal
+    // was"). They stay in the demo funnel, where they do real work.
+    // Kept in both: 'thc' (adds the non-intoxicating caveat) and 'second' (adds the
+    // "you also mentioned" cross-link) — both verified to change the output.
+    var FUNNEL_STD=['intent','refine','thc','second','safety','meds','rec'];
+    var FUNNEL_DEMO=['intent','refine','experience','thc','timeofday','onset','route','second','safety','meds','rec'];
+    function funnel(){return demoMode()?FUNNEL_DEMO:FUNNEL_STD;}
+    var FUNNEL=FUNNEL_DEMO; // safety check now sits with the medications/drug-interaction step (educational checkpoint, not an entry gate); flow ends at the recommendation, then hands off to the Periodic Table (no faux products)
   // ONB-11: route-of-administration preference. ROUTE_META = display; ROUTE_MAP = clinical route -> inventory
   // product-form (type) values. Empty array = no filter ('any', or transdermal which the sample stock lacks).
   var ROUTE_META={
@@ -9339,8 +9383,16 @@ document.addEventListener('keydown', function(e) {
   function stage(html){el('gxStage').innerHTML=html;window.scrollTo(0,0);}
   function chrome(screen){
     el('gxBack').disabled=hist.length<=1;
-    var idx=FUNNEL.indexOf(screen),d=el('gxDots');
-    if(st.persona==='cust'&&idx>=0){d.style.display='flex';d.innerHTML='';for(var i=0;i<FUNNEL.length;i++)d.innerHTML+='<i class="'+(i<=idx?'on':'')+'"></i>';}
+    // UX-79: the dots showed position but never the length, so there was no way to tell how much
+    // was left. A count answers that in three words.
+    var F=funnel(), idx=F.indexOf(screen), d=el('gxDots');
+    if(st.persona==='cust'&&idx>=0){
+      d.style.display='flex'; d.innerHTML='';
+      for(var i=0;i<F.length;i++) d.innerHTML+='<i class="'+(i<=idx?'on':'')+'"></i>';
+      d.innerHTML+='<span class="gx-stepno">Step '+(idx+1)+' of '+F.length+'</span>';
+      d.setAttribute('role','status');
+      d.setAttribute('aria-label','Step '+(idx+1)+' of '+F.length);
+    }
     else d.style.display='none';
   }
   function go(screen,render){hist.push(screen);render();chrome(screen);}
@@ -9357,15 +9409,29 @@ document.addEventListener('keydown', function(e) {
     // demo itself, so the Guided Experience stays clean). Real users on licensed builds never see it.
     var demoLink=(window.V4DEMO&&window.V4DEMO.allow&&!window.V4DEMO.active)?
       '<button class="gx-demo-link" onclick="showDemoLogin()" aria-label="Demo Mode — Acannability staff sign-in">🔒 Demo Mode</button>':'';
-    stage('<h2 class="gx-q">Who’s using the table today?</h2><p class="gx-hint">Tap the one that fits you.</p>'+
+    // UX-79: say what the process produces. A tester went through the whole funnel and reported he
+    // "wasn't sure what the end goal was" — the app never told him. One sentence fixes that, and it
+    // names both outputs: the molecule list and the medication check.
+    stage('<h2 class="gx-q">Who’s using the table today?</h2>'+
+    '<p class="gx-purpose">Answer a few short questions and you&rsquo;ll see <strong>the molecules published '+
+    'research has linked to your health topic</strong> &mdash; checked against any medications you take. '+
+    'You can print it or take it to a dispensary.</p>'+
+    '<p class="gx-hint">Tap the one that fits you.</p>'+
     optBtn("V4GX.persona('cust')",'🌱','I’m a Consumer','Help me find what fits — guide me')+
     optBtn("V4GX.persona('emp')",'🏪','I work here','Product Specialist (Budtender) tools & quick lookup')+
     optBtn("V4GX.persona('pro')",'🔬','I’m a Researcher','Straight to the full table')+demoLink);}
   function scIntent(){stage('<h2 class="gx-q">Why are you here today?</h2><p class="gx-hint">There’s no wrong answer.</p>'+
     ORDER.map(function(k){var r=REASONS[k];return optBtn("V4GX.intent('"+k+"')",r.ic,r.label,'');}).join(''));}
   function scRefine(){var r=REASONS[st.intent];var note=r.note?'<p class="gx-note">'+r.note+'</p>':'';
+    // UX-79: express path. Ivy Hall's feedback was that customers "want to get in and get out",
+    // so offer the destination directly from the topic screen. It skips only the optional screens
+    // (preferences, safety checklist, medication list) — never the science — and the recommendation
+    // says plainly that the medication check was not run, with one tap to run it.
     stage('<h2 class="gx-q">'+r.rq+'</h2><p class="gx-hint">Pick the closest.</p>'+note+
-    r.opts.map(function(o){return optBtn("V4GX.refine('"+o.k+"')",o.ic,o.label,'');}).join(''));}
+    r.opts.map(function(o){return optBtn("V4GX.refine('"+o.k+"')",o.ic,o.label,'');}).join('')+
+    '<button class="gx-express" onclick="V4GX.express()">'+
+    '&#x23E9; Skip the questions &mdash; show me the molecules'+
+    '<small>You can still run the medication check afterwards</small></button>');}
   function scThc(){var hint=(st.intent==='appetite'||st.intent==='cancer')?'For appetite and nausea, a little THC is often what helps most — pick what feels right.':'This helps us keep you comfortable.';
     stage('<h2 class="gx-q">How do you feel about feeling “high”?</h2><p class="gx-hint">'+hint+'</p>'+
     optBtn("V4GX.thc('none')",'🚫','I’d rather avoid it','Non-intoxicating options',st.ceiling==='none',true)+
@@ -9617,7 +9683,13 @@ document.addEventListener('keydown', function(e) {
     // see, so it belongs here, but it should not push the recommendation off the page.
     var irHtml='<details class="gx-ent"><summary>&#x2696; Why the same product affects people differently</summary>'
       +'<div class="gx-ent-body">'+buildIndividualResponseHTML()+'</div></details>';
-    stage('<h2 class="gx-q">Research-Linked Molecules for Your Health Topic</h2>'+safetyNote+
+    // UX-79: never let the express path hide the fact that the medication screen was skipped.
+    var expressNote=st.expressed
+      ? '<div class="gx-express-note">You skipped the optional questions, so <strong>your medications '
+        + 'have not been checked</strong> against these molecules. '
+        + '<button class="gx-express-run" onclick="V4GX.toMeds()">Run the medication check</button></div>'
+      : '';
+    stage('<h2 class="gx-q">Research-Linked Molecules for Your Health Topic</h2>'+safetyNote+expressNote+
       '<div class="gx-rec"><div class="kind">'+esc(condLabel)+'</div>'+
       '<div class="because">'+
         // NOTE: currently unreachable by design — the only evidenceNegative topic (Essential
@@ -10158,10 +10230,17 @@ if(typeof PT_individualResponse==='function')body+=PT_individualResponse();   //
     intent:function(k){st.intent=k;st.refineKey=null;st.seconds=[];
       if(REASONS[k].learn){this.close();try{if(typeof showWelcome==='function')showWelcome();}catch(e){}return;}
       go('refine',scRefine);},
-    refine:function(k){st.refineKey=k;go('experience',scExperience);},
-    thc:function(v){st.ceiling=v;go('timeofday',scTimeOfDay);},
+    refine:function(k){st.refineKey=k;
+      // UX-79: standard flow goes straight to the THC question; the demo funnel keeps 'experience'.
+      if(demoMode())go('experience',scExperience);else go('thc',scThc);},
+    thc:function(v){st.ceiling=v;
+      // UX-79: timeofday/onset/route only inform product matching, so only Demo Mode asks them.
+      if(demoMode())go('timeofday',scTimeOfDay);else go('second',scSecond);},
     second:function(k,btn){st.seconds=st.seconds||[];var i=st.seconds.indexOf(k);if(i>=0){st.seconds.splice(i,1);btn.classList.remove('sel');}else{st.seconds.push(k);btn.classList.add('sel');}},
     toRec:function(){st.excluded={};go('rec',scRec);},
+    // UX-79: jump straight to the recommendation. refineKey is left unset, so currentCondIds()
+    // resolves to the intent's default condition — the same one the table would highlight.
+    express:function(){st.expressed=true;st.excluded={};go('rec',scRec);},
     toProducts:function(){go('products',demoMode()?scPosQuery:scProducts);},
     handoff:function(){go('handoff',scHandoff);},
     insights:function(){go('insights',scInsights);},
@@ -10235,6 +10314,11 @@ window.showDemoLogin=showDemoLogin;window.hideDemoLogin=hideDemoLogin;window.sub
     d.innerHTML=(logo?'<img src="'+esc(logo)+'" alt="">':'')+
       '<div class="dr-txt"><div class="dr-name"><span class="dot"></span>'+esc(d0.name)+'</div>'+
       '<div class="dr-sub">'+esc(d0.note)+'</div></div>'+
+          /* UX-78: a phone-sized label. The full name and note are 2 and 3 lines on a
+             375px screen, which made the banner 83px tall and 96% of the width. This short
+             line carries the same compliance statement in one line; the container's
+             aria-label still reads the full text to assistive tech. */
+          '<div class="dr-short"><span class="dot"></span>Demo &mdash; not a licensed store</div>'+
       '<button class="dr-menu" onclick="if(window.V4GX)V4GX.demoHub()" aria-label="Open the demo presentation menu">▶ Menu</button>'+
       '<button class="dr-exit" onclick="window.V4DEMO.exit()" aria-label="Exit Demo Mode and return to the standard platform">Exit</button>';
     (document.body||document.documentElement).appendChild(d);if(document.body)document.body.classList.add('demo-mode');};
