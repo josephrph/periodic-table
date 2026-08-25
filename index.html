@@ -4276,7 +4276,27 @@ const CONDITIONS = [
   {id:'tourette',label:'Tourette Syndrome',group:'neuro',molecules:{THC9:8,CBD:6,THCP:5,THC8:5,LN:5,CBN:4,CBG:4,CBC:4,THCA:4,THCV:4,bCA:4,MY:4,LI:4,APG:4,LTL:4}},
   {id:'ms',label:'Multiple Sclerosis',group:'neuro',molecules:{THC9:9,CBD:8,CBN:5,MY:5,LN:4,bCA:5,CBDV:4}},
   {id:'neuroprotection',label:'Neuroprotection',group:'neuro',molecules:{CBD:8,CBG:8,THCA:8,LTL:7,LN:7,VIX:6,FA:6,aBI:6,PH:6,ORT:6,CBCVA:6,GE:5}},
-  {id:'alzheimers',label:"Alzheimer's Disease",group:'neuro',molecules:{CBD:8,CBG:8,THC9:7,LTL:7,LN:6,FA:5,GE:5,aBI:6,THCA:5,APG:5,QUC:5}},
+  // Alzheimer's Disease — weights re-graded 2026-08-24 (UX-93, Gate 5) to match the evidence.
+  // BEFORE: CBD:8, CBG:8, THC9:7, LTL:7, aBI:6. That ordering was backwards. CBG carried the
+  // joint-highest weight in V2 for this condition on THIRTEEN PubMed papers and ZERO human
+  // trials, while THC9 — the only molecule here with any human randomised evidence (15 trials)
+  // — sat below it. CBD had 247 papers but its 5 "trials" are all combination products, never
+  // CBD alone. LTL (185 papers) and aBI (10 papers) have no human data at all.
+  // Where the human evidence actually is: AGITATION, not the disease. Twelve of the sixteen RCTs
+  // in dementia concern agitation or behavioural symptoms. Dronabinol (Rosenberg 2026) and
+  // nabilone (Herrmann 2019) were positive for agitation; BOTH van den Elsen trials of oral THC
+  // for neuropsychiatric symptoms were NEGATIVE; and the Cochrane review concludes that where
+  // benefits exist "the effects may be too small to be clinically meaningful". Nothing supports
+  // cannabinoids slowing or modifying the disease itself.
+  // On the amyloid story specifically (owner question, 2026-08-24): the THC/amyloid work is real
+  // but entirely preclinical — Eubanks 2006 (cell-free inhibition of AChE-induced Abeta
+  // aggregation), Currais 2016 (removal of INTRAneuronal Abeta in nerve cells), Wang 2022
+  // (low-dose THC in APP/PS1 mice). There is no human study of THC and amyloid. And amyloid
+  // reduction is not a proxy for benefit: lecanemab clears amyloid for a 0.45-point CDR-SB
+  // difference with ARIA-E in 12.6%, and the Lesne 2006 Nature paper that anchored the toxic
+  // oligomer hypothesis was RETRACTED in 2024. Preclinical amyloid effects therefore cannot
+  // justify a weight of 8.
+  {id:'alzheimers',label:"Alzheimer's Disease",group:'neuro',molecules:{THC9:7,CBD:5,LTL:5,LN:6,FA:5,GE:5,CBG:4,aBI:4,THCA:5,APG:5,QUC:5}},
   {id:'parkinsons',label:"Parkinson's Disease",group:'neuro',molecules:{CBD:8,CBG:7,THC9:5,GE:6,LN:5,aBI:5,THCA:5}},
   {id:'neurodegen',label:'Neurodegenerative',group:'neuro',molecules:{CBD:8,CBG:8,CBN:7,THCP:7,LTL:7,THCA:6,GE:5,LN:5}},
   {id:'autism',label:'Autism Spectrum (ASD)',group:'neuro',molecules:{CBD:7,CBDV:7}},
