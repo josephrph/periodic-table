@@ -4658,16 +4658,39 @@ function handleMolSelect(molId) {
 }
 
 // ── ALPHABETIZED (A–Z) CONDITION DROPDOWN — replaces free-text condition search ──
+// Gate 5 (UX-92): six Illinois qualifying conditions are things V2 already covers, but under a
+// different clinical name. A patient holding a card that says "Causalgia" or "Reflex Sympathetic
+// Dystrophy" searched this list and found NOTHING, because the dropdown is a native <select>
+// whose type-ahead only matches visible option text. These aliases are pure navigation: they add
+// no condition, no molecule and no weight — each one simply resolves to the V2 condition that
+// covers it, and the arrow makes the mapping explicit rather than silently redirecting.
+var COND_ALIASES = [
+  {alias:'Arachnoiditis / Spinal Cord Disease',    target:'neuropathic'},
+  {alias:'Cachexia / Wasting Syndrome',            target:'appetite'},
+  {alias:'Causalgia',                              target:'neuropathic'},
+  {alias:'Complex Regional Pain Syndrome (CRPS)',  target:'neuropathic'},
+  {alias:'Reflex Sympathetic Dystrophy (RSD)',     target:'neuropathic'},
+  {alias:'Residual Limb / Phantom Limb Pain',      target:'neuropathic'}
+];
 function buildCondSelect() {
   const sel = document.getElementById('condSelect');
   if (!sel) return;
-  const sorted = CONDITIONS.slice().sort(function(a, b) {
-    return a.label.localeCompare(b.label, undefined, {sensitivity:'base'});
+  const items = CONDITIONS.map(function(c) {
+    return {sortKey: c.label, id: c.id, text: c.label};
   });
-  sorted.forEach(function(c) {
+  COND_ALIASES.forEach(function(a) {
+    const parent = CONDITIONS.filter(function(c) { return c.id === a.target; })[0];
+    // fail quietly rather than rendering an option that goes nowhere if a target id is ever renamed
+    if (!parent) return;
+    items.push({sortKey: a.alias, id: a.target, text: a.alias + ' \u2192 ' + parent.label});
+  });
+  items.sort(function(a, b) {
+    return a.sortKey.localeCompare(b.sortKey, undefined, {sensitivity:'base'});
+  });
+  items.forEach(function(it) {
     const opt = document.createElement('option');
-    opt.value = c.id;
-    opt.textContent = c.label;
+    opt.value = it.id;
+    opt.textContent = it.text;
     sel.appendChild(opt);
   });
 }
