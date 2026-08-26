@@ -6019,7 +6019,7 @@ var DDI_DATA = [
    effect:'High risk of tumor lysis syndrome (especially at initiation) and additive myelosuppression. Fatal TLS has been reported when the venetoclax ramp-up was skipped.',
    monitor:'Use venetoclax ramp-up dosing with TLS prophylaxis (hydration, uric-acid-lowering therapy) and monitor TLS labs and CBC closely per protocol. This is expected therapy, not a reason to stop treatment.',
    pmid:'32786187'},
-  {id:'ezet_statin',drugs:['ezetimibe','statins'],sev:'minor',ev:'B',
+  {id:'ezet_statin',drugs:['ezetimibe','statins','rosuvastatin','pravastatin'],groups:[['ezetimibe'],['statins','rosuvastatin','pravastatin']],sev:'minor',ev:'B',
    label:'Ezetimibe + Statins',
    mech:'Ezetimibe and statins are frequently combined on purpose to lower cholesterol; ezetimibe does not meaningfully change statin blood levels.',
    effect:'Generally safe and intended. A small additive risk of muscle symptoms and liver-enzyme elevation exists, as with any statin.',
@@ -6278,8 +6278,25 @@ var DDI_DATA = [
    label:'Clarithromycin (Biaxin) + Simvastatin / Lovastatin',
    mech:'Clarithromycin is a potent CYP3A4 inhibitor. Simvastatin and lovastatin are almost entirely CYP3A4-metabolized. When clarithromycin is added, statin plasma concentrations can increase 10-fold or more.',
    effect:'Major rhabdomyolysis risk — severe muscle breakdown causing kidney failure. Multiple fatal case reports. FDA has issued specific warnings about this combination.',
-   monitor:'Suspend simvastatin or lovastatin during clarithromycin treatment. Resume statin 14 days after completing antibiotic. Use azithromycin as alternative if statin continuation is required. Pravastatin or rosuvastatin can be continued safely.',
+   monitor:'Suspend simvastatin or lovastatin during clarithromycin treatment. Resume the statin 14 days after completing the antibiotic. Azithromycin is an alternative if a statin must be continued. Pravastatin and rosuvastatin are far less affected because neither depends on CYP3A4 \u2014 but rosuvastatin is not entirely unaffected, so see the separate Clarithromycin + Rosuvastatin / Pravastatin entry rather than assuming no interaction.',
    pmid:'11197581'},
+  // DRUG-09: the non-CYP3A4 statins are NOT interaction-free, and until now V2 said nothing about
+  // them here because both pairs matched only the 'statins' record. Clarithromycin inhibits
+  // OATP1B1, which is how both rosuvastatin and pravastatin reach the liver.
+  {id:'clari_rosuva_prava',drugs:['clarithromycin','rosuvastatin','pravastatin'],
+   groups:[['clarithromycin'],['rosuvastatin','pravastatin']],sev:'moderate',ev:'A',
+   label:'Clarithromycin (Biaxin) + Rosuvastatin / Pravastatin',
+   mech:'Neither rosuvastatin nor pravastatin is metabolized by CYP3A4, so this is not the 10-fold interaction seen with simvastatin and lovastatin. Clarithromycin does, however, inhibit the OATP1B1 transporter that carries both statins into the liver, which raises their blood levels roughly two-fold. A systematic review comparing clarithromycin against individual statins found the effect real but far smaller than for the CYP3A4-dependent statins.',
+   effect:'Moderately increased statin exposure, and with it a higher risk of muscle symptoms. Serious harm is uncommon but documented: a 2026 case report describes acute liver injury and delayed rhabdomyolysis on rosuvastatin with clarithromycin.',
+   monitor:'A short antibiotic course usually needs no change, but ask a pharmacist — some prescribers reduce the statin dose or pause it for the course, particularly at higher statin doses or in older patients. Report new muscle pain, weakness or dark urine promptly. Azithromycin does not inhibit OATP1B1 and is often preferred.',
+   pmid:'31628882'},
+  {id:'cyclo_rosuva_prava',drugs:['cyclosporine','rosuvastatin','pravastatin'],
+   groups:[['cyclosporine'],['rosuvastatin','pravastatin']],sev:'major',ev:'A',
+   label:'Cyclosporine + Rosuvastatin / Pravastatin',
+   mech:'Cyclosporine strongly inhibits both OATP1B1 and BCRP, the two transporters that clear these statins. In heart transplant recipients on a cyclosporine-based regimen, rosuvastatin exposure was about 7-fold higher than in healthy volunteers. Pravastatin is affected by the same mechanism.',
+   effect:'Substantially increased statin exposure with a materially higher risk of myopathy and rhabdomyolysis. This is the interaction that sets the maximum statin dose in transplant patients.',
+   monitor:'Managed by the transplant or specialist team, not adjusted independently. Product labelling limits rosuvastatin to a low daily dose with cyclosporine. Never start, stop or change either drug without that team, and report muscle pain, weakness or dark urine urgently.',
+   pmid:'15289793'},
   {id:'brex_cyp3a4inh',drugs:['brexpiprazole','cyp3a4inh'],sev:'moderate',ev:'B',
    label:'Brexpiprazole + CYP3A4 inhibitors',
    mech:'Brexpiprazole is a CYP3A4 (and CYP2D6) substrate. Strong or moderate CYP3A4 inhibitors (azole antifungals, clarithromycin/erythromycin, diltiazem, verapamil, and others) reduce its clearance and raise blood levels.',
@@ -6306,13 +6323,13 @@ var DDI_DATA = [
    pmid:''},
   {id:'clopidogrel_ppi',drugs:['clopidogrel','omeprazole'],sev:'moderate',ev:'B',label:'Clopidogrel + Omeprazole / Esomeprazole (PPI)',mech:'Omeprazole and esomeprazole inhibit CYP2C19, the enzyme that converts clopidogrel into its active antiplatelet metabolite, so they can blunt the clopidogrel effect.',effect:'Reduced antiplatelet activity and, in some analyses, more cardiovascular events. The effect is strongest for omeprazole/esomeprazole and minimal for pantoprazole.',monitor:'When a PPI is needed with clopidogrel, pantoprazole is generally preferred. Do not stop either drug without prescriber advice.',pmid:'28056809'},
   {id:'lithium_thiazide',drugs:['lithium','hydrochlorothiazide'],sev:'moderate',ev:'B',label:'Lithium + Thiazide Diuretics',mech:'Thiazides increase sodium loss, prompting the kidney to reabsorb more lithium in its place, which raises lithium plasma levels (often by 25 to 40 percent).',effect:'Elevated lithium levels and toxicity risk (tremor, confusion, GI upset, and in severe cases arrhythmia or kidney injury).',monitor:'Check lithium levels within a week or two of starting or changing a thiazide; the lithium dose often needs reduction.',pmid:'8521679'},
-  {id:'lithium_acearb',drugs:['lithium','lisinopril','arb'],sev:'moderate',ev:'B',label:'Lithium + ACE Inhibitors / ARBs',mech:'ACE inhibitors and ARBs reduce renal lithium clearance, raising lithium plasma concentrations.',effect:'Increased lithium levels and toxicity risk, especially in older adults or with reduced kidney function or dehydration.',monitor:'Monitor lithium levels after starting or adjusting an ACE inhibitor or ARB; report tremor, confusion, or GI symptoms.',pmid:'8521679'},
-  {id:'ssri_nsaid',drugs:['ssri','ibuprofen','aspirin'],sev:'moderate',ev:'B',label:'SSRIs / SNRIs + NSAIDs / Aspirin',mech:'SSRIs deplete platelet serotonin and impair platelet aggregation; NSAIDs and aspirin add COX-1 inhibition and direct GI mucosal injury, so bleeding risk is additive.',effect:'Increased risk of upper gastrointestinal bleeding — the combination raises risk several-fold compared with either agent alone.',monitor:'Use the lowest effective NSAID dose for the shortest time and consider a proton pump inhibitor for GI protection. Watch for black stools or unusual bleeding.',pmid:'17919277'},
+  {id:'lithium_acearb',drugs:['lithium','lisinopril','arb'],groups:[['lithium'],['lisinopril','arb']],sev:'moderate',ev:'B',label:'Lithium + ACE Inhibitors / ARBs',mech:'ACE inhibitors and ARBs reduce renal lithium clearance, raising lithium plasma concentrations.',effect:'Increased lithium levels and toxicity risk, especially in older adults or with reduced kidney function or dehydration.',monitor:'Monitor lithium levels after starting or adjusting an ACE inhibitor or ARB; report tremor, confusion, or GI symptoms.',pmid:'8521679'},
+  {id:'ssri_nsaid',drugs:['ssri','ibuprofen','aspirin'],groups:[['ssri'],['ibuprofen','aspirin']],sev:'moderate',ev:'B',label:'SSRIs / SNRIs + NSAIDs / Aspirin',mech:'SSRIs deplete platelet serotonin and impair platelet aggregation; NSAIDs and aspirin add COX-1 inhibition and direct GI mucosal injury, so bleeding risk is additive.',effect:'Increased risk of upper gastrointestinal bleeding — the combination raises risk several-fold compared with either agent alone.',monitor:'Use the lowest effective NSAID dose for the shortest time and consider a proton pump inhibitor for GI protection. Watch for black stools or unusual bleeding.',pmid:'17919277'},
   {id:'warfarin_amiodarone',drugs:['warfarin','amiodarone'],sev:'major',ev:'A',label:'Warfarin + Amiodarone',mech:'Amiodarone inhibits CYP2C9, the main enzyme clearing warfarin, reducing its metabolism and raising INR. The effect develops over days to weeks and is prolonged by the very long half-life of amiodarone.',effect:'Elevated INR and serious bleeding risk; warfarin requirements typically fall by 30 to 50 percent.',monitor:'Reduce the warfarin dose and check INR frequently when starting or stopping amiodarone; the interaction can persist for weeks after amiodarone is stopped.',pmid:'11796427'},
   {id:'statin_amiodarone',drugs:['statins','amiodarone'],sev:'moderate',ev:'B',label:'Simvastatin / Lovastatin + Amiodarone',mech:'Amiodarone inhibits CYP3A4, which clears simvastatin and lovastatin, raising statin levels and muscle-toxicity risk.',effect:'Increased risk of myopathy and rhabdomyolysis. Labeling limits simvastatin to 20 mg daily when used with amiodarone.',monitor:'Keep simvastatin at or below 20 mg with amiodarone, or use a statin less dependent on CYP3A4 (pravastatin, rosuvastatin); report muscle pain or weakness.',pmid:'15069169'},
   {id:'digoxin_amiodarone',drugs:['digoxin','amiodarone'],sev:'major',ev:'B',label:'Digoxin + Amiodarone',mech:'Amiodarone inhibits P-glycoprotein, reducing digoxin elimination and raising digoxin blood levels, often roughly doubling them.',effect:'Digoxin toxicity (nausea, visual changes, confusion, dangerous heart rhythms); digoxin has a narrow therapeutic index.',monitor:'Reduce the digoxin dose (commonly by half) when starting amiodarone and monitor digoxin levels and heart rhythm.',pmid:'12499648'},
-  {id:'colchicine_cyp3a4inh',drugs:['colchicine','clarithromycin','azoles'],sev:'major',ev:'A',label:'Colchicine + Clarithromycin / Azole Antifungals (CYP3A4 / P-gp inhibitors)',mech:'Strong CYP3A4 and P-glycoprotein inhibitors block the elimination of colchicine, which has a narrow therapeutic index, allowing it to accumulate to toxic levels.',effect:'Severe, sometimes fatal colchicine toxicity (GI symptoms, muscle and nerve injury, bone-marrow suppression, multi-organ failure), particularly with kidney or liver impairment.',monitor:'Avoid the combination when possible; if unavoidable, the colchicine dose must be reduced or held per labeling. Report GI or muscle symptoms urgently.',pmid:'16007523'},
-  {id:'triple_whammy',drugs:['lisinopril','arb','ibuprofen','hydrochlorothiazide'],sev:'major',ev:'B',label:'ACE Inhibitor / ARB + Diuretic + NSAID (Triple Whammy)',mech:'Together these three impair the ability of the kidney to regulate its own blood flow: the NSAID constricts the inflow arteriole, the ACE inhibitor or ARB dilates the outflow arteriole, and the diuretic lowers circulating volume.',effect:'Increased risk of acute kidney injury, especially in older adults, with dehydration, or with pre-existing kidney disease.',monitor:'Avoid routine NSAID use in patients on an ACE inhibitor/ARB plus a diuretic; prefer acetaminophen. Stay hydrated and check kidney function if the combination is unavoidable.',pmid:'23299844'}
+  {id:'colchicine_cyp3a4inh',drugs:['colchicine','clarithromycin','azoles'],groups:[['colchicine'],['clarithromycin','azoles']],sev:'major',ev:'A',label:'Colchicine + Clarithromycin / Azole Antifungals (CYP3A4 / P-gp inhibitors)',mech:'Strong CYP3A4 and P-glycoprotein inhibitors block the elimination of colchicine, which has a narrow therapeutic index, allowing it to accumulate to toxic levels.',effect:'Severe, sometimes fatal colchicine toxicity (GI symptoms, muscle and nerve injury, bone-marrow suppression, multi-organ failure), particularly with kidney or liver impairment.',monitor:'Avoid the combination when possible; if unavoidable, the colchicine dose must be reduced or held per labeling. Report GI or muscle symptoms urgently.',pmid:'16007523'},
+  {id:'triple_whammy',drugs:['lisinopril','arb','ibuprofen','hydrochlorothiazide'],groups:[['lisinopril','arb'],['hydrochlorothiazide'],['ibuprofen']],sev:'major',ev:'B',label:'ACE Inhibitor / ARB + Diuretic + NSAID (Triple Whammy)',mech:'Together these three impair the ability of the kidney to regulate its own blood flow: the NSAID constricts the inflow arteriole, the ACE inhibitor or ARB dilates the outflow arteriole, and the diuretic lowers circulating volume.',effect:'Increased risk of acute kidney injury, especially in older adults, with dehydration, or with pre-existing kidney disease.',monitor:'Avoid routine NSAID use in patients on an ACE inhibitor/ARB plus a diuretic; prefer acetaminophen. Stay hydrated and check kidney function if the combination is unavoidable.',pmid:'23299844'}
 ];
 
 // Build DDI lookup: drug ID → array of DDI_DATA indices involving that drug
@@ -6434,12 +6451,32 @@ function checkAllInteractions() {
   if (activeCond) renderFpRecommendation(activeCond);
 }
 
+// DRUG-09: matching used to test ONLY drugs[0] and drugs[1], so every element past the second was
+// dead. Four entries were affected and the failures were not cosmetic:
+//   colchicine_cyp3a4inh ['colchicine','clarithromycin','azoles'] — colchicine + an azole
+//       antifungal raised NO flag, despite the card's own label naming azoles. That combination
+//       can cause colchicine toxicity.
+//   ssri_nsaid ['ssri','ibuprofen','aspirin'] — SSRI + aspirin raised no flag.
+//   lithium_acearb ['lithium','lisinopril','arb'] — lithium + an ARB raised no flag.
+//   triple_whammy ['lisinopril','arb','ibuprofen','hydrochlorothiazide'] — worst of the four,
+//       because it FIRED ON THE WRONG PAIR: an ACE inhibitor plus an ARB produced a card headed
+//       "Triple Whammy" describing a diuretic and an NSAID the patient was not taking, while the
+//       actual three-drug combination it exists to catch never fired at all.
+// `groups` fixes all four with one mechanism: at least one member of EVERY group must be present.
+// `drugs` is retained as the flat union because DDI_INDEX and the display fallback still read it,
+// so all 62 existing entries keep working untouched.
 function findDdiInteractions(medIds) {
   var hits = [], seen = {};
   DDI_DATA.forEach(function(ddi) {
-    var has0 = medIds.indexOf(ddi.drugs[0]) !== -1;
-    var has1 = medIds.indexOf(ddi.drugs[1]) !== -1;
-    if (has0 && has1 && !seen[ddi.id]) { seen[ddi.id] = true; hits.push(ddi); }
+    var ok;
+    if (ddi.groups) {
+      ok = ddi.groups.every(function(g) {
+        return g.some(function(id) { return medIds.indexOf(id) !== -1; });
+      });
+    } else {
+      ok = medIds.indexOf(ddi.drugs[0]) !== -1 && medIds.indexOf(ddi.drugs[1]) !== -1;
+    }
+    if (ok && !seen[ddi.id]) { seen[ddi.id] = true; hits.push(ddi); }
   });
   return hits.sort(function(a,b) { var o={major:0,moderate:1,minor:2}; return (o[a.sev]||3)-(o[b.sev]||3); });
 }
@@ -6816,8 +6853,22 @@ var DI_DATA = [
    mols:['CBD','THC9'],sev:'minor',ev:'C',
    mech:'Rosuvastatin is <strong>not</strong> primarily metabolized by CYP3A4, so the better-known CBD–statin interaction that affects simvastatin, atorvastatin and lovastatin does not apply to it in the same way. Rosuvastatin is cleared largely unchanged and is instead carried by the transporter proteins BCRP (ABCG2) and OATP1B1. An in vitro screen of three commercial cannabis products found potent inhibition of ABCG2 (IC50 4.5 µM for CBD, 0.20 µM for &Delta;9-THC) and only modest inhibition of OATP1B1 at high concentrations, with no inhibition of P-glycoprotein. Whether that changes rosuvastatin levels in people has not been tested — the study\'s authors specifically call for in vivo work.',
    effect:'In theory, reduced transporter activity could raise rosuvastatin exposure, and higher statin exposure is associated with muscle symptoms. This has not been demonstrated in people: no clinical case of a cannabis–rosuvastatin interaction has been published.',
-   monitor:'No routine change is indicated on the strength of current evidence. Report unexplained muscle pain, weakness or dark urine to a pharmacist or prescriber, as with any statin. If you were moved to rosuvastatin specifically to avoid the CYP3A4 statin interaction, that reasoning still holds. Rosuvastatin also has its own drug–drug considerations unrelated to cannabis — notably certain antibiotics and cyclosporine, which act on the same OATP1B1 transporter — so confirm your full medication list with a pharmacist.',
+   monitor:'No routine change is indicated on the strength of current evidence. Report unexplained muscle pain, weakness or dark urine to a pharmacist or prescriber, as with any statin. If you were moved to rosuvastatin specifically to avoid the CYP3A4 statin interaction, that reasoning still holds. Rosuvastatin also has its own drug–drug considerations unrelated to cannabis — notably certain antibiotics and cyclosporine, which act on the same OATP1B1 transporter — and V2 now screens for those in My Medication List.',
    pmid:'33998860'},
+  // DRUG-08: Pravastatin, the other statin the statins entry above recommends as a safer
+  // alternative and which was equally unsearchable. Its own record for the same reason as
+  // rosuvastatin — the CYP3A4 mechanism does not apply — but the pharmacology is NOT identical to
+  // rosuvastatin's and the two are not merged: pravastatin is cleared largely by sulfation, is an
+  // OATP1B1 substrate, and is not a meaningful BCRP substrate. Since the cannabis signal in
+  // Anderson 2022 was POTENT at BCRP and only MODEST at OATP1B1, pravastatin is the statin least
+  // exposed to any cannabis interaction of the three groups V2 now covers — which is worth saying
+  // plainly rather than leaving a reader to assume all statins behave alike.
+  {id:'pravastatin',drug:'Pravastatin',brands:['Pravachol'],cls:'HMG-CoA Reductase Inhibitor (Rx)',cat:'rx',
+   mols:['CBD','THC9'],sev:'minor',ev:'D',
+   mech:'Pravastatin is not metabolized by CYP3A4 — Jacobson\'s comparative study found it the least affected of the common statins when given with CYP450 inhibitors — so the CBD–statin interaction that affects simvastatin, atorvastatin and lovastatin does not apply to it. Pravastatin is cleared largely by sulfation and is taken into the liver by the OATP1B1 transporter. An in vitro screen of commercial cannabis products inhibited OATP1B1 only <strong>modestly, and only at high concentrations</strong>, while the potent effect was on BCRP — a transporter pravastatin barely uses. There is no human study of cannabis with pravastatin.',
+   effect:'No clinically meaningful interaction is expected on current evidence, and none has been reported. Of the statins V2 covers, pravastatin has the least mechanistic overlap with cannabis.',
+   monitor:'No change is indicated. Report unexplained muscle pain, weakness or dark urine as you would with any statin. Never stop or change a statin on the basis of this tool — talk to your prescriber or pharmacist.',
+   pmid:'15518608'},
   // ═══ PSYCHIATRIC / NEUROLOGICAL ═══
   {id:'gabapentin',drug:'Gabapentin / Pregabalin',brands:['Neurontin','Horizant','Gralise','Lyrica','Lyrica CR'],cls:'Anticonvulsant / Neuropathic Pain',cat:'rx',
    mols:['CBD','THC9','CBN'],sev:'major',ev:'B',
@@ -7048,7 +7099,7 @@ var DI_DATA = [
   {"id":"valacyclovir","drug":"Valacyclovir","brands":["Valtrex","Valacyclovir"],"cls":"Antiviral (nucleoside analog prodrug)","group":"Antiviral","cat":"rx","mols":["CBD","THC9"],"sev":"minor","ev":"D","mech":"Valacyclovir is rapidly converted to acyclovir and cleared renally with negligible CYP450 involvement, so a clinically significant pharmacokinetic interaction with cannabinoids is not expected.","effect":"Minimal interaction expected.","monitor":"Maintain good hydration and monitor renal function as clinically indicated. No cannabis-specific monitoring required.","pmid":""},
   {"id":"azacitidine","drug":"Azacitidine","brands":["Vidaza","Onureg","Azacitidine"],"cls":"Hypomethylating Agent (cytotoxic chemotherapy)","group":"Oncology","cat":"rx","mols":["CBD","THC9"],"sev":"minor","ev":"D","mech":"Azacitidine is cleared by cytidine deaminase and spontaneous hydrolysis, not CYP450, and in vitro is neither a CYP inhibitor nor inducer, so a pharmacokinetic interaction with cannabinoids is not expected.","effect":"No meaningful pharmacokinetic interaction expected. Any additive effect on blood counts or immune function is theoretical and unstudied.","monitor":"Follow the chemotherapy protocol (CBC with differential, hepatic and renal function). Note the separate azacitidine + venetoclax tumor-lysis consideration.","pmid":""},
   {"id":"mirtazapine","drug":"Mirtazapine","brands":["Remeron","Remeron SolTab","Mirtazapine"],"cls":"Tetracyclic Antidepressant (NaSSA)","group":"Psychiatric","cat":"rx","mols":["THC9","CBD"],"sev":"moderate","ev":"C","mech":"Mirtazapine is metabolized by CYP3A4, CYP2D6, and CYP1A2 and is strongly sedating (antihistaminergic). CBD can inhibit these enzymes and raise mirtazapine levels; combined with THC, additive CNS depression is likely. Both are mildly serotonergic and can affect QT.","effect":"Increased drowsiness, dizziness, and next-day grogginess, with possibly higher mirtazapine exposure; small additive serotonergic and QT effects.","monitor":"Watch sedation and fall risk (especially in older or debilitated oncology patients) and monitor mood; if combined with other QT or serotonergic drugs, watch for QT changes or serotonin-syndrome signs.","pmid":""},
-  {"id":"ezetimibe","drug":"Ezetimibe","brands":["Zetia","Ezetimibe"],"cls":"Cholesterol-Absorption Inhibitor","group":"Cardiovascular","cat":"rx","mols":["CBD","THC9"],"sev":"minor","ev":"D","mech":"Ezetimibe is cleared by glucuronidation (UGT1A1/1A3), not CYP450, so a clinically significant pharmacokinetic interaction with cannabinoids is not expected.","effect":"Minimal interaction expected.","monitor":"When taken with a statin, monitor liver enzymes and ask about muscle pain; otherwise no cannabis-specific monitoring required.","pmid":""},
+  {"id":"ezetimibe","drug":"Ezetimibe","brands":["Zetia","Ezetrol","Ezetimibe"],"cls":"Cholesterol-Absorption Inhibitor","group":"Cardiovascular","cat":"rx","mols":["CBD","THC9"],"sev":"minor","ev":"D","mech":"Ezetimibe is cleared by glucuronidation (UGT1A1/1A3), not CYP450, so a clinically significant pharmacokinetic interaction with cannabinoids is not expected.","effect":"Minimal interaction expected.","monitor":"When taken with a statin, monitor liver enzymes and ask about muscle pain; otherwise no cannabis-specific monitoring required.","pmid":""},
   {"id":"acalabrutinib","drug":"Acalabrutinib","brands":["Calquence"],"cls":"BTK inhibitor","cat":"rx","mols":["CBD","THC9"],"sev":"moderate","ev":"D","mech":"Acalabrutinib is primarily metabolized by CYP3A4; labeling recommends dose reduction with strong CYP3A4 inhibitors.","effect":"Theoretical Only - based on shared CYP3A4 metabolism, no direct cannabinoid-specific study identified. Increased exposure could raise bleeding and infection risk.","monitor":"Monitor for bleeding and infection; consider dose adjustment with sustained cannabinoid use.","pmid":"N/A - theoretical"},
   {"id":"cytarabine","drug":"Cytarabine","brands":["Cytosar-U","DepoCyt"],"cls":"Antimetabolite (nucleoside analog)","cat":"rx","mols":["CBD"],"sev":"minor","ev":"D","mech":"Cytarabine is deaminated by cytidine deaminase in liver, plasma, and tissues to inactive ara-U; not a significant CYP450 substrate.","effect":"No pharmacokinetic interaction expected via CYP pathways.","monitor":"Standard monitoring for myelosuppression and neurotoxicity (high-dose regimens).","pmid":"N/A - theoretical"},
   {"id":"daunorubicin","drug":"Daunorubicin","brands":["Cerubidine"],"cls":"Anthracycline","cat":"rx","mols":["CBD"],"sev":"moderate","ev":"D","mech":"Daunorubicin is primarily reduced by cytoplasmic aldo-keto reductases/carbonyl reductase to daunorubicinol and is a P-glycoprotein substrate; CYP450 involvement is minor. CBD is a documented P-gp inhibitor at higher concentrations.","effect":"Theoretical Only - based on shared P-gp transport, no direct cannabinoid-specific study identified. P-gp inhibition by CBD could increase intracellular/systemic daunorubicin exposure, raising cardiotoxicity and myelosuppression risk.","monitor":"Monitor cardiac function (echocardiogram/ejection fraction, cumulative dose tracking) and CBC.","pmid":"N/A - theoretical"},
@@ -7174,6 +7225,7 @@ var DI_ALIASES = {
   'amrix':'cyclobenzaprine',
   'atacand':'arb',
   'atenolol':'betablockers',
+  'vytorin':'statins',                 // ezetimibe + simvastatin — simvastatin half is the CYP3A4 risk
   'atorvastatin':'statins',
   'avanafil':'sildenafil',
   'avapro':'arb',
