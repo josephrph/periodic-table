@@ -2752,6 +2752,23 @@ body.is-mobile-view .demo-ribbon{bottom:calc(64px + env(safe-area-inset-bottom))
   font-size:.82rem;font-weight:700}
 .gx-express:hover{background:var(--surface2);border-color:var(--accent)}
 .gx-express small{display:block;font-weight:500;font-size:.7rem;color:var(--mute);margin-top:2px}
+/* UX-103: browse/search all health conditions. The entry link borrows .gx-express's shape on
+   purpose — both are "step off the guided path" affordances, so they should read as siblings. */
+.gx-browse-link{display:block;width:100%;margin-top:14px;padding:10px 12px;text-align:left;cursor:pointer;
+  background:transparent;border:1px dashed var(--border);border-radius:9px;color:var(--accent);
+  font-family:inherit;font-size:.82rem;font-weight:700}
+.gx-browse-link:hover{background:var(--surface2);border-color:var(--accent)}
+.gx-browse-link small{display:block;font-weight:500;font-size:.7rem;color:var(--mute);margin-top:2px}
+/* Deliberately far denser than .gx-opt: this list is 58 conditions plus aliases, so the 16px-padded
+   option rows used elsewhere in the funnel would turn it into minutes of scrolling. Still a 40px+
+   touch target. */
+#gxOverlay .gx-condrow{display:block;width:100%;text-align:left;font-family:inherit;font-size:.83rem;
+  padding:11px 13px;margin-bottom:5px;cursor:pointer;color:var(--text,#1a1a1a);
+  background:var(--surface,#fff);border:1px solid var(--border,#ccc);border-radius:9px;line-height:1.35}
+#gxOverlay .gx-condrow:hover,#gxOverlay .gx-condrow:focus-visible{border-color:var(--accent,#2E7D57);background:var(--surface2,#eef3ee)}
+/* Aliases are navigation, not conditions of their own — quieter, and the arrow shows the mapping. */
+#gxOverlay .gx-condrow.alias{color:var(--dim,#777);font-size:.78rem;border-style:dashed}
+#gxOverlay .gx-cond-warn{color:#A03000;font-weight:700}
 .gx-express-note{font-size:.75rem;line-height:1.5;color:var(--text);background:var(--surface2);
   border-left:3px solid #C17D2A;border-radius:0 7px 7px 0;padding:9px 11px;margin:0 0 10px}
 .gx-express-run{display:inline-block;margin-top:6px;padding:5px 10px;cursor:pointer;
@@ -10007,8 +10024,101 @@ document.addEventListener('keydown', function(e) {
     optBtn("V4GX.persona('cust')",'🌱','I’m a Consumer','Help me find what fits — guide me')+
     optBtn("V4GX.persona('emp')",'🏪','I work here','Product Specialist (Budtender) tools & quick lookup')+
     optBtn("V4GX.persona('pro')",'🔬','I’m a Researcher','Straight to the full table')+demoLink);}
-  function scIntent(){stage('<h2 class="gx-q">Why are you here today?</h2><p class="gx-hint">There’s no wrong answer.</p>'+
-    ORDER.map(function(k){var r=REASONS[k];return optBtn("V4GX.intent('"+k+"')",r.ic,r.label,'');}).join(''));}
+  function scIntent(){
+    // UX-103: the ten reasons cover why MOST people are here, but a diagnosis is not a reason —
+    // and V2 holds 58 conditions, most of which this screen cannot ask about without becoming a
+    // wall of options. Fibromyalgia was the case that proved it: it HAS been in the funnel since
+    // UX-72, one level down under Pain, and the owner still could not find it. So the escape hatch
+    // is offered here, on the screen where someone who came in with a named diagnosis first
+    // realises none of the ten answers is theirs.
+    var nConds=(typeof CONDITIONS!=='undefined')?CONDITIONS.filter(function(c){return !c.isRisk;}).length:0;
+    stage('<h2 class="gx-q">Why are you here today?</h2><p class="gx-hint">There’s no wrong answer.</p>'+
+    ORDER.map(function(k){var r=REASONS[k];return optBtn("V4GX.intent('"+k+"')",r.ic,r.label,'');}).join('')+
+    '<button class="gx-browse-link" onclick="V4GX.condBrowse()">'+
+    '&#x1F50D; Looking for a specific condition?'+
+    '<small>Search or browse all '+nConds+' health conditions by name</small></button>');}
+
+  // ── UX-103: BROWSE / SEARCH ALL HEALTH CONDITIONS ──────────────────────────────
+  // Approved in principle long before it was built. The funnel asks "why are you here today?" and
+  // answers in symptoms, which is right for most visitors and useless for someone holding a
+  // diagnosis — there was no way to reach Tourette Syndrome, HIV/AIDS, Spinal Cord Injury,
+  // Traumatic Brain Injury, Sickle Cell Disease or Essential Tremor from Guided Match at all,
+  // because each was deliberately kept out of the intent map.
+  // Searches condition names AND the COND_ALIASES table, so the clinical name on someone's card
+  // resolves the way it does in the A-Z dropdown — "causalgia", "cirrhosis", "MASLD", "RSD".
+  // Picking one sets st.directCond and drops into the STANDARD funnel at the THC question, so the
+  // remaining steps (THC preference, anything-else, safety check, medication check) all still run.
+  var condQ='';
+  function condBrowseItems(){
+    var items=[];
+    if(typeof CONDITIONS==='undefined')return items;
+    CONDITIONS.forEach(function(c){
+      if(c.isRisk)return;                                   // the ⚠ filter chip is not a condition
+      items.push({id:c.id,text:c.label,sort:c.label,group:c.group,alias:false,cond:c});
+    });
+    if(typeof COND_ALIASES!=='undefined')COND_ALIASES.forEach(function(a){
+      var p=CONDITIONS.filter(function(c){return c.id===a.target;})[0];
+      if(!p)return;                                         // fail quietly if a target is renamed
+      items.push({id:p.id,text:a.alias+' → '+p.label,sort:a.alias,group:p.group,alias:true,cond:p});
+    });
+    return items;
+  }
+  // Apostrophe-insensitive, because the three best-known conditions in the list all carry one.
+  // Measured before this was added: "alzheimers", "parkinsons" and "crohns" each returned ZERO
+  // results, while "alzheimer's" worked — the spelling most people type was the one that failed.
+  function condNorm(s){return String(s||'').toLowerCase().replace(/[’']/g,'').trim();}
+  function renderCondList(){
+    var host=el('gxCondList'); if(!host)return;
+    var q=condNorm(condQ);
+    var items=condBrowseItems();
+    var groups=(typeof COND_GROUPS!=='undefined')?COND_GROUPS:[];
+    var html='', shown=0;
+    groups.forEach(function(g){
+      var rows=items.filter(function(it){
+        var inG=Array.isArray(it.group)?it.group.indexOf(g.id)>=0:it.group===g.id;
+        if(!inG)return false;
+        // Matches the row text ONLY, deliberately not the group heading. Matching the heading too
+        // looked helpful and tested badly: "cancer" returned Antibacterial, Antifungal and
+        // Antioxidant because all three sit under "Cancer & Immune". Searching what you can read
+        // in the row is predictable; searching an invisible parent label is not.
+        return !q || condNorm(it.text).indexOf(q)>=0;
+      }).sort(function(a,b){return a.sort.localeCompare(b.sort,undefined,{sensitivity:'base'});});
+      if(!rows.length)return;
+      shown+=rows.length;
+      html+='<div class="dj-lbl" style="margin-top:12px">'+esc(g.label.replace('↳ ',''))+'</div>';
+      rows.forEach(function(it){
+        // ⚠ mirrors the marker the Periodic Table's own condition chips carry, and is derived the
+        // same way rather than listed by hand.
+        var warn='';
+        try{ if(!it.alias && typeof condHasAdverse==='function' && condHasAdverse(it.cond)) warn=' <span class="gx-cond-warn" title="Documented safety or efficacy findings">&#9888;</span>'; }catch(e){}
+        html+='<button class="gx-condrow'+(it.alias?' alias':'')+'" onclick="V4GX.pickCond(\''+it.id+'\')">'
+          +esc(it.text)+warn+'</button>';
+      });
+    });
+    if(!shown){
+      // UX-101 said the zero-results state is where a missing-condition submission belongs. This is
+      // that state — and unlike the A-Z dropdown, here we know exactly what the visitor typed, so
+      // the suggestion form is prefilled with it.
+      var typed=(condQ||'').trim();
+      html='<div class="gx-empty">'
+        +'<p style="margin:0 0 4px"><b>No match for &ldquo;'+esc(typed)+'&rdquo;.</b></p>'
+        +'<p class="gx-hint" style="margin:0 0 12px">V2 only covers conditions with published cannabis research behind them, so some are genuinely not here yet. Try a shorter word, or tell us what to add.</p>'
+        +'<button class="gx-cta" onclick="V4GX.suggestCond()">&#128172; Tell us it&rsquo;s missing &rarr;</button>'
+        +'</div>';
+    }
+    host.innerHTML=html;
+  }
+  function scCondBrowse(){
+    var n=condBrowseItems().filter(function(it){return !it.alias;}).length;
+    stage('<h2 class="gx-q">Find your condition</h2>'
+      +'<p class="gx-hint">All '+n+' health conditions V2 covers, with the other clinical names for them. Type a few letters &mdash; or scroll the list.</p>'
+      +'<input id="gxCondSearch" class="gx-search" type="search" autocomplete="off" '
+      +'placeholder="e.g. fibromyalgia, cirrhosis, causalgia, migraine" '
+      +'value="'+esc(condQ)+'" oninput="V4GX.condSearch(this.value)" aria-label="Search health conditions">'
+      +'<div id="gxCondList"></div>');
+    renderCondList();
+    try{var s=el('gxCondSearch'); if(s&&!/Mobi|Android/i.test(navigator.userAgent))s.focus();}catch(e){}
+  }
   function scRefine(){var r=REASONS[st.intent];var note=r.note?'<p class="gx-note">'+r.note+'</p>':'';
     // UX-79: express path. Ivy Hall's feedback was that customers "want to get in and get out",
     // so offer the destination directly from the topic screen. It skips only the optional screens
@@ -10103,6 +10213,11 @@ document.addEventListener('keydown', function(e) {
       (hasMeds?'':'<button class="gx-cta ghost" onclick="V4GX.toRec()">Skip — I take no medications</button>'));
   }
   function currentCondIds(){
+    // UX-103: a condition chosen from the Browse screen bypasses the intent→refine map entirely.
+    // This one line is what lets the browse screen reuse the WHOLE existing funnel: scRec already
+    // renders from currentCondIds()[0] by looking the id up in CONDITIONS, so any of the 58
+    // conditions works with no change to scRec, recForConditions() or the matcher.
+    if(st.directCond)return [st.directCond];
     if(st.intent==='learn')return ['sleep'];
     var im=G().intentMap[st.intent]; if(!im)return ['sleep'];
     var base=(st.refineKey&&im.refine&&im.refine[st.refineKey])?im.refine[st.refineKey]:im.cond;
@@ -10685,7 +10800,7 @@ document.addEventListener('keydown', function(e) {
 
   // ---- public API ----
   window.V4GX={
-    start:function(){st={persona:null,seconds:[],excluded:{},detail:'plain',safetyFlags:[],experience:null,timeOfDay:null,onset:null,route:'any',meds:[]};hist=['persona'];el('gxOverlay').style.display='flex';scPersona();chrome('persona');},
+    start:function(){st={persona:null,seconds:[],excluded:{},detail:'plain',safetyFlags:[],experience:null,timeOfDay:null,onset:null,route:'any',meds:[],directCond:null};hist=['persona'];condQ='';el('gxOverlay').style.display='flex';scPersona();chrome('persona');},
     demoHub:function(){if(!demoMode())return;st={dj:true,persona:null,djConds:[],excluded:{},meds:[],ceiling:'any',djProduct:null,route:'any'};hist=['demoHub'];el('gxOverlay').style.display='flex';scDemoHub();chrome('demoHub');},
     demoGuided:function(){if(!demoMode())return;if(!hist.length)hist=['demoHub'];go('demoGuidedIntro',scDemoGuidedIntro);},
     djRun:function(){st.dj=true;st.djConds=[];st.excluded={};st.meds=[];st.djProduct=null;st.ceiling='any';st.route='any';if(!hist.length)hist=['demoHub'];go('djConds',scDJConds);},
@@ -10704,7 +10819,7 @@ document.addEventListener('keydown', function(e) {
     djSelect:function(sku){var p=G().match(djActiveRec()).shown.filter(function(x){return x.sku===sku;})[0];st.djProduct=p||null;go('djDone',scDJDone);},
     djBack:function(){this.back();},
     close:function(){el('gxOverlay').style.display='none';},
-    back:function(){if(hist.length>1){hist.pop();var scr=hist[hist.length-1];({persona:scPersona,safety:scSafety,intent:scIntent,refine:scRefine,experience:scExperience,thc:scThc,timeofday:scTimeOfDay,onset:scOnset,route:scRoute,second:scSecond,meds:scMeds,rec:scRec,products:scProducts,handoff:scHandoff,insights:scInsights,researchInsights:scResearchInsights,emp:scEmp,import:scImport,importResult:scImportResult,browse:scBrowse,demoHub:scDemoHub,demoGuidedIntro:scDemoGuidedIntro,djConds:scDJConds,djMol:scDJMol,djMeds:scDJMeds,djRefine:scDJRefine,djProducts:scDJPos,djDone:scDJDone}[scr])();chrome(scr);}},
+    back:function(){if(hist.length>1){hist.pop();var scr=hist[hist.length-1];({persona:scPersona,safety:scSafety,intent:scIntent,refine:scRefine,condBrowse:scCondBrowse,experience:scExperience,thc:scThc,timeofday:scTimeOfDay,onset:scOnset,route:scRoute,second:scSecond,meds:scMeds,rec:scRec,products:scProducts,handoff:scHandoff,insights:scInsights,researchInsights:scResearchInsights,emp:scEmp,import:scImport,importResult:scImportResult,browse:scBrowse,demoHub:scDemoHub,demoGuidedIntro:scDemoGuidedIntro,djConds:scDJConds,djMol:scDJMol,djMeds:scDJMeds,djRefine:scDJRefine,djProducts:scDJPos,djDone:scDJDone}[scr])();chrome(scr);}},
     restart:function(){this.start();},
     rdShare:function(){try{if(window.ResearchData)ResearchData.submitGuided();}catch(e){}scRec();},
     rdSkip:function(){try{if(window.ResearchData)ResearchData.dismissGuided();}catch(e){}scRec();},
@@ -10805,7 +10920,7 @@ document.addEventListener('keydown', function(e) {
 if(typeof PT_individualResponse==='function')body+=PT_individualResponse();   // UX-43
       if(typeof PT_doPrint==='function')PT_doPrint('Guided Match — Recommendation Summary','Prepared for: '+esc(condLabel),body,{phi:(st.meds||[]).length>0});
     },
-    persona:function(p){st.persona=p;st.intent=null;st.refineKey=null;st.seconds=[];
+    persona:function(p){st.persona=p;st.intent=null;st.refineKey=null;st.seconds=[];st.directCond=null;
       // UX-64: a consumer always lands on plain language, even if an earlier run in the same
       // session (a staff member, say) left the toggle on Research detail. The Researcher
       // persona never reaches this screen — it closes the overlay straight to the table.
@@ -10818,9 +10933,21 @@ if(typeof PT_individualResponse==='function')body+=PT_individualResponse();   //
     onset:function(v){st.onset=v;go('route',scRoute);},
     route:function(v){st.route=v;go('second',scSecond);},
     djSetRoute:function(v){st.route=v;scDJRefine();},
-    intent:function(k){st.intent=k;st.refineKey=null;st.seconds=[];
+    intent:function(k){st.intent=k;st.refineKey=null;st.seconds=[];st.directCond=null;
       if(REASONS[k].learn){this.close();try{if(typeof showWelcome==='function')showWelcome();}catch(e){}return;}
       go('refine',scRefine);},
+    // ── UX-103 browse/search all conditions ──
+    condBrowse:function(){condQ='';go('condBrowse',scCondBrowse);},
+    condSearch:function(v){condQ=v;renderCondList();},
+    // Picking a condition here REPLACES the intent→refine answer rather than supplementing it, so
+    // st.intent is cleared: leaving a stale intent would let currentCondIds() disagree with what
+    // the visitor just chose the moment they pressed Back.
+    pickCond:function(id){
+      if(typeof CONDITIONS!=='undefined' && !CONDITIONS.some(function(c){return c.id===id;}))return;
+      st.directCond=id;st.intent=null;st.refineKey=null;st.seconds=[];
+      if(demoMode())go('experience',scExperience);else go('thc',scThc);},
+    suggestCond:function(){
+      try{ if(window.Feedback) Feedback.fromContext('missing_condition','Guided Match — browse conditions',(condQ||'').trim()); }catch(e){}},
     refine:function(k){st.refineKey=k;
       // UX-79: standard flow goes straight to the THC question; the demo funnel keeps 'experience'.
       if(demoMode())go('experience',scExperience);else go('thc',scThc);},
