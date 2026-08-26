@@ -6297,6 +6297,30 @@ var DDI_DATA = [
    effect:'Substantially increased statin exposure with a materially higher risk of myopathy and rhabdomyolysis. This is the interaction that sets the maximum statin dose in transplant patients.',
    monitor:'Managed by the transplant or specialist team, not adjusted independently. Product labelling limits rosuvastatin to a low daily dose with cyclosporine. Never start, stop or change either drug without that team, and report muscle pain, weakness or dark urine urgently.',
    pmid:'15289793'},
+  // DRUG-10: gemfibrozil + a statin is one of the best-known myopathy interactions in medicine and
+  // V2 had NO pair for it — DDI_DATA contained nothing referencing the 'fibrates' record at all.
+  // (An earlier note in this session claimed gemfibrozil had no drug record; that was wrong. It is
+  // present as id 'fibrates', drug "Gemfibrozil / Fenofibrate". The gap was the pair.)
+  // The record covers BOTH fibrates under one id, so the copy has to separate them: the risk is
+  // overwhelmingly gemfibrozil's, and treating fenofibrate as equally dangerous would push people
+  // off a combination that is normally acceptable.
+  {id:'fibrate_statin',drugs:['fibrates','statins','rosuvastatin','pravastatin'],
+   groups:[['fibrates'],['statins','rosuvastatin','pravastatin']],sev:'major',ev:'A',
+   label:'Gemfibrozil / Fenofibrate + Statins',
+   mech:'<strong>The two fibrates are not equivalent here.</strong> Gemfibrozil blocks the glucuronidation and OATP1B1 uptake that statins depend on, raising statin blood levels and adding its own independent muscle toxicity — the combination that drove the withdrawal of cerivastatin. Fenofibrate does not inhibit those pathways meaningfully and carries a far lower risk. For rosuvastatin the effect is quantified: a randomised crossover study found gemfibrozil raised rosuvastatin exposure about 1.9-fold, which is why product labelling caps the rosuvastatin dose when the two are combined.',
+   effect:'Substantially increased risk of myopathy and rhabdomyolysis with gemfibrozil plus any statin — muscle pain and weakness that can progress to muscle breakdown and kidney injury. With fenofibrate the added risk is small.',
+   monitor:'Gemfibrozil plus a statin is generally avoided; where lipid control needs both drug classes, fenofibrate is the usual choice. If gemfibrozil and a statin are prescribed together this should be a deliberate decision with a capped statin dose — rosuvastatin in particular. Report muscle pain, weakness, tenderness or dark urine promptly and do not wait for a scheduled appointment.',
+   pmid:'15116058'},
+  // DRUG-10: dual blockade of the renin-angiotensin system. This pair previously existed only by
+  // ACCIDENT — the triple_whammy card fired on ACE + ARB and displayed the wrong mechanism. Fixing
+  // that matcher bug removed the accidental warning, so the real interaction needs its own card
+  // rather than being left uncovered.
+  {id:'ace_arb',drugs:['lisinopril','arb'],sev:'major',ev:'A',
+   label:'ACE Inhibitor + ARB (Dual RAS Blockade)',
+   mech:'An ACE inhibitor and an angiotensin receptor blocker act on the same hormone system at two points. Blocking it twice does not double the benefit, but it does compound the consequences: reduced pressure in the kidney\'s filtering units, higher potassium, and lower blood pressure.',
+   effect:'A meta-analysis of randomised trials found dual blockade gave <strong>no reduction in all-cause or cardiovascular mortality</strong> while increasing hyperkalaemia by 55%, hypotension by 66%, kidney failure by 41% and withdrawal for adverse events by 27%. Its authors concluded the risk-to-benefit ratio argues against dual therapy. The ONTARGET trial reached the same conclusion.',
+   monitor:'Rarely appropriate, and specialist territory when it is used — most often a nephrologist managing proteinuria. Do not assume the combination is intended: two prescribers each adding a blood-pressure medicine is a common route to it. Flag it to a pharmacist or prescriber for review, and have potassium and kidney function checked. Do not stop either medicine on your own.',
+   pmid:'23358488'},
   {id:'brex_cyp3a4inh',drugs:['brexpiprazole','cyp3a4inh'],sev:'moderate',ev:'B',
    label:'Brexpiprazole + CYP3A4 inhibitors',
    mech:'Brexpiprazole is a CYP3A4 (and CYP2D6) substrate. Strong or moderate CYP3A4 inhibitors (azole antifungals, clarithromycin/erythromycin, diltiazem, verapamil, and others) reduce its clearance and raise blood levels.',
