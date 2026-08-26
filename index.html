@@ -5434,6 +5434,42 @@ function openPanel(id, tileEl) {
     C:'is supported by preclinical (animal / in vitro) research.',
     D:'is based on emerging or theoretical evidence.'
   };
+  // ── UX-102: THE LEAD SENTENCE DESCRIBES THE EVIDENCE ACTUALLY SHOWN ─────────────
+  // UX-49 scoped this sentence honestly for pairings with NO citation. Pairings WITH one kept
+  // deriving it from evSummary[mol.evidence] — the MOLECULE's grade — so it could contradict the
+  // citation card rendered directly beneath it. Measured across all 361 molecule-indication pairs
+  // the panel can render, only 109 agreed with their own evidence:
+  //     175 OVERSTATED  · 23 understated · 54 review-only · 109 matched
+  // Overstating is the serious direction and it was 7.6x more common. Δ9-THC is grade A, so
+  // "is supported by human clinical trial data" appeared above a MOUSE STUDY for Colorectal,
+  // Melanoma, Pancreatic, Liver and Ovarian Cancer — a false clinical claim about cancer, on the
+  // flagship molecule. CBD carried 16 such pairings, CBG 18, luteolin 15.
+  // The reported case (quercetin, grade B, showing an RCT for Chronic Liver Disease) is the same
+  // defect running the other way and is fixed by the same change.
+  // This does NOT reintroduce what UX-49 removed. There is still no per-indication grade letter or
+  // badge; the A-D grade remains the molecule's and is shown in the profile row and on the tile.
+  // All that changes is that this sentence now reports what the reader can see.
+  const CITE_RANK = {RCT:6, Meta:6, Clin:5, Reg:5, Obs:4, Rev:3, Pre:2};
+  const citeSummary = {
+    RCT : {txt:'is supported by randomised controlled trial data.',            tone:'A'},
+    Meta: {txt:'is supported by a systematic review or meta-analysis.',        tone:'A'},
+    Clin: {txt:'is supported by human clinical trial data.',                   tone:'A'},
+    Reg : {txt:'is supported by a regulatory assessment of human data.',       tone:'A'},
+    Obs : {txt:'is supported by observational human studies.',                 tone:'B'},
+    // Deliberately no tone: a review may summarise anything from a Cochrane base to a single
+    // preclinical paper, so colouring it would assert a level V2 cannot stand behind.
+    Rev : {txt:'is described in review articles rather than by a primary study in our citation database.', tone:null},
+    Pre : {txt:'is supported by preclinical (animal / in vitro) research.',    tone:'C'}
+  };
+  function strongestCiteType(list) {
+    var best = null;
+    for (var k = 0; k < list.length; k++) {
+      var t = list[k] && list[k].type;
+      if (!t || !citeSummary[t]) continue;                 // untyped or unknown type: ignore
+      if (!best || CITE_RANK[t] > CITE_RANK[best]) best = t;
+    }
+    return best;
+  }
   const indSections = mol.indications.filter(function(i) { return i.indexOf('Unknown') === -1; }).map(function(i) {
     var it = INDICATION_TERMS[i];
     // UX-76: see note above — [tiab] so the compound may appear in the abstract. THCP +
@@ -5463,9 +5499,18 @@ function openPanel(id, tileEl) {
     // colour, which was itself implying grade-level support for the pairing.
     var evGradeLabel = {A:'A &mdash; clinical, human trials', B:'B &mdash; observational studies',
                         C:'C &mdash; preclinical, animal / in vitro', D:'D &mdash; emerging / theoretical'};
-    var stripe = relCites.length ? evColor[mol.evidence] : 'var(--mute)';
+    // UX-102: derive both the sentence and the stripe from the strongest citation THIS pairing
+    // actually shows. evSummary/evColor remain the fallback for the case where a citation exists
+    // but carries no usable type (none today — kept so a future untyped entry degrades quietly
+    // rather than rendering "undefined").
+    var strongType = relCites.length ? strongestCiteType(relCites) : null;
+    var cSum = strongType ? citeSummary[strongType] : null;
+    var stripe = !relCites.length ? 'var(--mute)'
+      : cSum ? (cSum.tone ? evColor[cSum.tone] : 'var(--mute)')
+      : evColor[mol.evidence];
     var claim = relCites.length
-      ? 'This indication for <strong>' + i + '</strong> ' + evSummary[mol.evidence]
+      ? 'This indication for <strong>' + i + '</strong> '
+        + (cSum ? cSum.txt : evSummary[mol.evidence])
       : mol.symbol + '&rsquo;s evidence grade of <strong>' + evGradeLabel[mol.evidence]
         + '</strong> describes its overall research base, <strong>not this specific pairing</strong> '
         + '&mdash; see the note below on indexed citations.';
