@@ -6800,6 +6800,24 @@ var DI_DATA = [
    effect:'Elevated statin plasma levels increase the risk of myopathy (muscle pain/weakness) and, in severe cases, rhabdomyolysis (muscle breakdown with potential kidney injury).',
    monitor:'Monitor for unexplained muscle pain, weakness, or dark urine. Consider statin dose reduction when initiating CBD therapy. Pravastatin or rosuvastatin may be safer alternatives for patients using CBD regularly.',
    pmid:''},
+  // DRUG-07: Rosuvastatin gets its OWN record rather than an alias onto the entry above, and the
+  // reason is clinical, not clerical. The statins entry describes a CYP3A4-mediated interaction —
+  // and rosuvastatin is the statin that mechanism does NOT apply to. Aliasing "Crestor" onto it
+  // would have shown a moderate CYP3A4 warning for the one statin the same card recommends as a
+  // safer alternative, which is self-contradictory.
+  // The real gap was searchability, not content: V2 has named rosuvastatin and Crestor in prose
+  // since the statins entry was written, but neither string was in any `drug`, `brands` or alias
+  // field — so a patient on Crestor searched, found nothing, and would reasonably conclude V2 did
+  // not cover their statin, when in fact V2 has a specific and reassuring answer for them.
+  // Severity is minor and evidence C deliberately: the mechanism is in-vitro transporter
+  // inhibition, the study's own authors call for in vivo work, and a PubMed search for cannabis
+  // and rosuvastatin returns no clinical literature at all.
+  {id:'rosuvastatin',drug:'Rosuvastatin',brands:['Crestor','Ezallor Sprinkle','Roszet'],cls:'HMG-CoA Reductase Inhibitor (Rx)',cat:'rx',
+   mols:['CBD','THC9'],sev:'minor',ev:'C',
+   mech:'Rosuvastatin is <strong>not</strong> primarily metabolized by CYP3A4, so the better-known CBD–statin interaction that affects simvastatin, atorvastatin and lovastatin does not apply to it in the same way. Rosuvastatin is cleared largely unchanged and is instead carried by the transporter proteins BCRP (ABCG2) and OATP1B1. An in vitro screen of three commercial cannabis products found potent inhibition of ABCG2 (IC50 4.5 µM for CBD, 0.20 µM for &Delta;9-THC) and only modest inhibition of OATP1B1 at high concentrations, with no inhibition of P-glycoprotein. Whether that changes rosuvastatin levels in people has not been tested — the study\'s authors specifically call for in vivo work.',
+   effect:'In theory, reduced transporter activity could raise rosuvastatin exposure, and higher statin exposure is associated with muscle symptoms. This has not been demonstrated in people: no clinical case of a cannabis–rosuvastatin interaction has been published.',
+   monitor:'No routine change is indicated on the strength of current evidence. Report unexplained muscle pain, weakness or dark urine to a pharmacist or prescriber, as with any statin. If you were moved to rosuvastatin specifically to avoid the CYP3A4 statin interaction, that reasoning still holds. Rosuvastatin also has its own drug–drug considerations unrelated to cannabis — notably certain antibiotics and cyclosporine, which act on the same OATP1B1 transporter — so confirm your full medication list with a pharmacist.',
+   pmid:'33998860'},
   // ═══ PSYCHIATRIC / NEUROLOGICAL ═══
   {id:'gabapentin',drug:'Gabapentin / Pregabalin',brands:['Neurontin','Horizant','Gralise','Lyrica','Lyrica CR'],cls:'Anticonvulsant / Neuropathic Pain',cat:'rx',
    mols:['CBD','THC9','CBN'],sev:'major',ev:'B',
