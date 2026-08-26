@@ -825,6 +825,11 @@ body.is-mobile-view.is-touch-device #imDoneBtn{right:10px;bottom:calc(56px + env
       </div>
       <button id="diClearBtn" onclick="clearDiSearch()" style="display:none;padding:9px 22px;background:#CC2200;border:none;border-radius:24px;color:#fff;font-size:.72rem;font-weight:800;letter-spacing:.04em;cursor:pointer;white-space:nowrap;transition:background .15s;box-shadow:0 2px 8px rgba(204,34,0,.3)">✕&nbsp; Clear</button>
     </div>
+    <!-- UX-104: the "can't find it" route existed only INSIDE the autocomplete's zero-results
+         state, so it was invisible until someone had already failed to find their medication —
+         and someone who mistypes a drug name sees suggestions, not the offer. Standing offer,
+         placed under the box where the question actually occurs to people. -->
+    <button type="button" class="di-missing-link" onclick="Feedback.fromContext('missing_med','Drug Interaction Checker — single medication',((document.getElementById('diSearchInput')||{}).value)||'')">💬 Can’t find your medication? <span>Tell us what to add →</span></button>
     <div class="di-legend">
       <span style="font-size:.62rem;font-weight:700;color:var(--dim)">Severity:</span>
       <span class="di-sev-badge di-sev-major">🔴 Major</span>
@@ -853,6 +858,8 @@ body.is-mobile-view.is-touch-device #imDoneBtn{right:10px;bottom:calc(56px + env
       </div>
       <div id="medSuggestions" class="med-suggestions" style="display:none"></div>
     </div>
+    <!-- UX-104: same standing offer in My Medication List mode. -->
+    <button type="button" class="di-missing-link" onclick="Feedback.fromContext('missing_med','Drug Interaction Checker — my medication list',((document.getElementById('medAddInput')||{}).value)||'')">💬 Can’t find your medication? <span>Tell us what to add →</span></button>
     <div id="medAiSection" style="display:none;margin-top:8px;padding:10px 12px;background:#F5F5F5;border:1.5px solid var(--border);border-radius:8px">
       <div style="font-size:.68rem;font-weight:700;color:var(--text);margin-bottom:6px">💡 Not in local database</div>
       <div style="font-size:.66rem;color:var(--dim);line-height:1.65;margin-bottom:10px">
@@ -2769,6 +2776,19 @@ body.is-mobile-view .demo-ribbon{bottom:calc(64px + env(safe-area-inset-bottom))
 /* Aliases are navigation, not conditions of their own — quieter, and the arrow shows the mapping. */
 #gxOverlay .gx-condrow.alias{color:var(--dim,#777);font-size:.78rem;border-style:dashed}
 #gxOverlay .gx-cond-warn{color:#A03000;font-weight:700}
+/* UX-104: the standing "can't find it" offers. Quiet enough not to compete with the search box,
+   present enough to be seen BEFORE someone fails — which was the whole defect. */
+.di-missing-link{display:block;width:100%;margin:2px 0 10px;padding:8px 11px;text-align:left;cursor:pointer;
+  font-family:inherit;font-size:.7rem;font-weight:700;color:var(--accent);
+  background:transparent;border:1px dashed var(--border);border-radius:8px}
+.di-missing-link:hover{background:var(--surface2);border-color:var(--accent)}
+.di-missing-link span{font-weight:600;color:var(--mute)}
+#gxOverlay .gx-missing-link{display:block;width:100%;margin:-2px 0 10px;padding:9px 12px;text-align:left;cursor:pointer;
+  font-family:inherit;font-size:.76rem;font-weight:700;color:var(--accent,#2E7D57);
+  background:transparent;border:1px dashed var(--border,#ccc);border-radius:9px}
+#gxOverlay .gx-missing-link:hover{background:var(--surface2,#eef3ee);border-color:var(--accent,#2E7D57)}
+#gxOverlay .gx-missing-link small{display:block;font-weight:500;font-size:.66rem;color:var(--mute,#999);margin-top:2px}
+#gxOverlay .dj-sug.missing{color:var(--accent,#2E7D57);font-weight:700;cursor:pointer}
 .gx-express-note{font-size:.75rem;line-height:1.5;color:var(--text);background:var(--surface2);
   border-left:3px solid #C17D2A;border-radius:0 7px 7px 0;padding:9px 11px;margin:0 0 10px}
 .gx-express-run{display:inline-block;margin-top:6px;padding:5px 10px;cursor:pointer;
@@ -10206,7 +10226,7 @@ document.addEventListener('keydown', function(e) {
     stage('<h2 class="gx-q">Your medications <span style="font-weight:600;color:var(--dim);font-size:.62em">optional</span></h2>'+
       '<p class="gx-hint">Add any prescriptions or OTC medicines — V2 screens them against each other <b>and</b> against the molecules research links to your topic. This stays private on your device.</p>'+
       '<div class="dj-medquick"><div class="dj-lbl">Tap common medications</div><div class="dj-chips">'+chips+'</div></div>'+
-      '<div class="dj-medsearch"><input class="gx-search" type="search" autocomplete="off" placeholder="…or search any medication (e.g. Xanax, Tylenol, metformin)" oninput="V4GX.djSearchMed(this.value)"><div id="djMedSug" class="dj-sugbox" style="display:none"></div></div>'+
+      '<div class="dj-medsearch"><input id="djMedInput" class="gx-search" type="search" autocomplete="off" placeholder="…or search any medication (e.g. Xanax, Tylenol, metformin)" oninput="V4GX.djSearchMed(this.value)"><div id="djMedSug" class="dj-sugbox" style="display:none"></div></div><button type="button" class="gx-missing-link" onclick="V4GX.suggestMed()">&#128172; Can&rsquo;t find your medication?<small>Tell us what to add &mdash; a reviewer checks every suggestion</small></button>'+
       (list?'<div class="dj-medlist"><span class="dj-lbl" style="margin:0 4px 0 0">Your list:</span>'+list+'</div>':'')+
       '<div id="djMedResults" class="dj-medresults">'+djMedResults(stdRecMolIds())+'</div>'+
       '<button class="gx-cta" onclick="V4GX.toRec()">'+(hasMeds?'See the research →':'Continue →')+'</button>'+
@@ -10589,7 +10609,13 @@ document.addEventListener('keydown', function(e) {
   var DJ_MEDS=['clobazam','omeprazole','warfarin','ibuprofen','gabapentin','acetaminophen'];
   var DJ_GUIDED_MOL={'appetite-stim':{THC9:9,CBG:6,MY:5,CBN:4},'nausea-relief':{THC9:9,CBD:6,LI:5}};
 
-  function djLabelFor(cid){var c=DJ_CONDS.filter(function(x){return x.id===cid;})[0];return c?c.label:cid;}
+  // UX-105: falls back to the real CONDITIONS label, not the raw id. Once the browse screen can
+  // add any of the 58 conditions to a demo journey, DJ_CONDS is no longer the whole universe, and
+  // the old fallback would have printed "oud" or "essential-tremor" on the booth screen.
+  function djLabelFor(cid){
+    var c=DJ_CONDS.filter(function(x){return x.id===cid;})[0]; if(c)return c.label;
+    var k=(typeof CONDITIONS!=='undefined')?CONDITIONS.filter(function(x){return x.id===cid;})[0]:null;
+    return k?k.label:cid;}
   function djStepBar(active){var h='<div class="dj-steps">';for(var i=0;i<DJ_STEPS.length;i++){h+='<span class="dj-step'+(i===active?' on':(i<active?' done':''))+'">'+(i+1)+'</span>';}return h+'</div>';}
   function djRec(){var conds=(st.djConds&&st.djConds.length)?st.djConds:['seizures'];return G().recForConditions(conds,st.ceiling||'any',[]);}
   function djActiveRec(){var rec=djRec();var mols=rec.molecules.filter(function(m){return !(st.excluded&&st.excluded[m.molId]);});
@@ -10639,6 +10665,12 @@ document.addEventListener('keydown', function(e) {
   function scDJConds(){var sel=st.djConds||[];
     stage(djStepBar(0)+'<h2 class="gx-q">Why are you here today?</h2><p class="gx-hint">Select one or more — a patient can have more than one concern (try <b>Seizures + Anxiety</b>).</p>'+
       DJ_CONDS.map(function(c){var on=sel.indexOf(c.id)>=0;return optBtn("V4GX.djToggleCond('"+c.id+"')",c.ic,c.label,'',on,true);}).join('')+
+      // UX-105: Demo Mode gets the same two doors as the patient-facing flow, so a budtender can
+      // demonstrate the full 58-condition lookup and the missing-condition route on the booth
+      // screen. The demo's own fictional dispensary and inventory are untouched — this adds a
+      // lookup, not any product data.
+      '<button class="gx-browse-link" onclick="V4GX.condBrowse()">&#x1F50D; Or look up any of V2&rsquo;s health conditions by name'+
+      '<small>The full list, including other clinical names &mdash; and a way to flag one that is missing</small></button>'+
       '<button class="gx-cta" onclick="V4GX.djToRec()"'+(sel.length?'':' disabled')+'>See the research associations →</button>');
   }
   function scDJMol(){var g=djClinicalGroups();
@@ -10694,7 +10726,15 @@ document.addEventListener('keydown', function(e) {
     var already=(st.meds||[]).map(function(m){return m.id;});var matched={};
     if(typeof DI_INDEX!=='undefined')Object.keys(DI_INDEX).forEach(function(key){if(key.indexOf(q)>=0)DI_INDEX[key].forEach(function(i){matched[i]=1;});});
     var list=Object.keys(matched).map(function(i){return DI_DATA[i];}).filter(function(d){return d&&already.indexOf(d.id)<0;}).slice(0,6);
-    if(!list.length){box.style.display='block';box.innerHTML='<div class="dj-sug none">No match in the demo dataset</div>';return;}
+    if(!list.length){
+      // UX-104: this function serves BOTH the standard patient funnel (scMeds) and the Demo Mode
+      // journey (scDJMeds). It said "No match in the demo dataset" unconditionally, so a real
+      // patient on a real kiosk was told V2's drug database was a demo — and was then offered
+      // nothing at all. Two defects in one line: wrong audience, and a dead end.
+      box.style.display='block';
+      box.innerHTML='<div class="dj-sug none">'+(demoMode()?'No match in this demonstration dataset':'Not in V2&rsquo;s medication database yet')+'</div>'
+        +'<div class="dj-sug missing" onmousedown="V4GX.suggestMed()">&#128172; Can&rsquo;t find it? Tell us what to add &rarr;</div>';
+      return;}
     box.innerHTML=list.map(function(d){return '<div class="dj-sug" onmousedown="V4GX.djAddMed(\''+d.id+'\')"><span class="'+(d.cat==='otc'?'otc':'rx')+'">'+(d.cat==='otc'?'OTC':'Rx')+'</span>'+esc(medLabel(d))+'</div>';}).join('');
     box.style.display='block';}
   function scDJMeds(){
@@ -10705,7 +10745,7 @@ document.addEventListener('keydown', function(e) {
     stage(djStepBar(2)+'<h2 class="gx-q">Medication safety check</h2>'+
       '<p class="gx-hint">Add the patient\'s prescriptions and OTC medicines. V2 screens them against each other <b>and</b> against the cannabis molecules research links to the selected health topic.</p>'+
       '<div class="dj-medquick"><div class="dj-lbl">Tap common medications</div><div class="dj-chips">'+chips+'</div></div>'+
-      '<div class="dj-medsearch"><input class="gx-search" type="search" autocomplete="off" placeholder="…or search any medication (e.g. Xanax, Tylenol, metformin)" oninput="V4GX.djSearchMed(this.value)"><div id="djMedSug" class="dj-sugbox" style="display:none"></div></div>'+
+      '<div class="dj-medsearch"><input id="djMedInput" class="gx-search" type="search" autocomplete="off" placeholder="…or search any medication (e.g. Xanax, Tylenol, metformin)" oninput="V4GX.djSearchMed(this.value)"><div id="djMedSug" class="dj-sugbox" style="display:none"></div></div><button type="button" class="gx-missing-link" onclick="V4GX.suggestMed()">&#128172; Can&rsquo;t find your medication?<small>Tell us what to add &mdash; a reviewer checks every suggestion</small></button>'+
       (list?'<div class="dj-medlist"><span class="dj-lbl" style="margin:0 4px 0 0">Patient\'s list:</span>'+list+'</div>':'')+
       '<div id="djMedResults" class="dj-medresults">'+djMedResults()+'</div>'+
       '<button class="gx-cta" onclick="V4GX.djToRefine()">Refine to what\'s in stock →</button>');
@@ -10935,7 +10975,20 @@ if(typeof PT_individualResponse==='function')body+=PT_individualResponse();   //
     djSetRoute:function(v){st.route=v;scDJRefine();},
     intent:function(k){st.intent=k;st.refineKey=null;st.seconds=[];st.directCond=null;
       if(REASONS[k].learn){this.close();try{if(typeof showWelcome==='function')showWelcome();}catch(e){}return;}
+      // UX-105: "Something Else" is where someone lands when none of the nine real reasons is
+      // theirs — which is exactly the moment to offer the full condition list rather than three
+      // more vague options. Its old sub-options (General wellness, A little energy, A mood lift)
+      // resolved to Antioxidant, Appetite Regulation and Anti-depressant; all three are in the
+      // browse list by name, so nothing is lost. INTENT.other and REASONS.other are left intact
+      // as the fallback currentCondIds() would use if directCond were somehow unset.
+      if(k==='other'){this.condBrowse();return;}
       go('refine',scRefine);},
+    // UX-104: one place builds the medication suggestion, so the context label always says which
+    // screen it came from and Demo Mode submissions are identifiable in the review queue.
+    suggestMed:function(){
+      var v='';try{v=((el('djMedInput')||{}).value||'').trim();}catch(e){}
+      var where=demoMode()?'Demo Mode — medication step':'Guided Match — medication step';
+      try{ if(window.Feedback) Feedback.fromContext('missing_med',where,v); }catch(e){}},
     // ── UX-103 browse/search all conditions ──
     condBrowse:function(){condQ='';go('condBrowse',scCondBrowse);},
     condSearch:function(v){condQ=v;renderCondList();},
@@ -10944,10 +10997,19 @@ if(typeof PT_individualResponse==='function')body+=PT_individualResponse();   //
     // the visitor just chose the moment they pressed Back.
     pickCond:function(id){
       if(typeof CONDITIONS!=='undefined' && !CONDITIONS.some(function(c){return c.id===id;}))return;
+      // UX-105: inside the Demo Mode JOURNEY the browse screen acts as a condition picker for the
+      // journey's own multi-select rather than a doorway out of it. Jumping to scExperience here
+      // would abandon the djConds → djMol → djMeds → djProducts narrative mid-demonstration.
+      if(st.dj){
+        st.djConds=st.djConds||[];
+        if(st.djConds.indexOf(id)<0)st.djConds.push(id);
+        hist.pop();                       // drop condBrowse so Back returns to the picker cleanly
+        go('djConds',scDJConds);return;}
       st.directCond=id;st.intent=null;st.refineKey=null;st.seconds=[];
       if(demoMode())go('experience',scExperience);else go('thc',scThc);},
     suggestCond:function(){
-      try{ if(window.Feedback) Feedback.fromContext('missing_condition','Guided Match — browse conditions',(condQ||'').trim()); }catch(e){}},
+      var where=demoMode()?'Demo Mode — browse conditions':'Guided Match — browse conditions';
+      try{ if(window.Feedback) Feedback.fromContext('missing_condition',where,(condQ||'').trim()); }catch(e){}},
     refine:function(k){st.refineKey=k;
       // UX-79: standard flow goes straight to the THC question; the demo funnel keeps 'experience'.
       if(demoMode())go('experience',scExperience);else go('thc',scThc);},
@@ -11319,6 +11381,11 @@ function djToast(msg){try{var t=document.getElementById('djToastEl');if(!t){t=do
   .fb-tri-lbl{display:inline-flex;align-items:center;gap:5px;font-size:.6rem;color:var(--mute,#999)}
   .fb-tri-sel{font-size:.66rem;padding:3px 6px;border:1.5px solid var(--border,#ddd);border-radius:5px;background:var(--surface,#fff);color:var(--text,#222)}
   .fb-tri-note{flex:1 1 170px;min-width:130px;font-size:.68rem;padding:4px 7px;border:1.5px solid var(--border,#ddd);border-radius:5px;background:var(--surface,#fff);color:var(--text,#222)}
+  /* UX-106 reviewer edit + demo flag */
+  .fb-tri-edit{flex:1 1 200px;min-width:150px;font-size:.74rem;font-weight:600;padding:5px 8px;border:1.5px solid var(--border,#ddd);border-radius:5px;background:var(--surface,#fff);color:var(--text,#222)}
+  .fb-tri-edit:focus{border-color:var(--accent,#2E7D57);outline:none}
+  .fb-demo-tag{font-size:.55rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;padding:2px 6px;border-radius:10px;background:#EFEAF6;color:#4A3070;vertical-align:middle}
+  .fb-privacy-fine{display:inline-block;margin-top:5px;opacity:.85}
   .fb-empty{padding:26px;text-align:center;color:var(--mute,#999);font-size:.8rem;font-style:italic}
   /* Reuse demo-login look for the staff sign-in via fb-adm-login classes */
   .fb-login-ov{position:fixed;inset:0;z-index:9350;background:rgba(15,10,8,.72);display:none;align-items:center;justify-content:center;padding:20px}
@@ -11343,7 +11410,15 @@ function djToast(msg){try{var t=document.getElementById('djToastEl');if(!t){t=do
     <input id="fbItem" class="fb-input" type="text" maxlength="120" autocomplete="off" placeholder="e.g. a medication, condition, or product name">
     <label class="fb-label" for="fbComment">Anything else to add? <span class="fb-opt">(optional)</span></label>
     <textarea id="fbComment" class="fb-textarea" maxlength="500" rows="3" placeholder="Optional details or comments"></textarea>
-    <div class="fb-privacy">&#128274; Please <b>don't</b> include your name or personal health details &mdash; just tell us what to add. Suggestions are anonymous and stored only for staff to review.</div>
+    <!-- UX-106: three statements the owner asked for, in the order that matters. The PHI line is
+         first because it is the one that protects the visitor; the spelling line is last because
+         it is the one that gets the form finished — hesitation over spelling is the commonest
+         reason someone abandons a box like this, and a reviewer can now correct the text before
+         it goes anywhere, so the promise is one V2 can actually keep. -->
+    <div class="fb-privacy">&#128274; <b>Do not enter any personal health information.</b> No names, dates of birth, phone numbers or details about you or anyone else &mdash; and nothing about your own diagnosis or treatment.<br>
+      <b>Enter only the name</b> of the medication or health condition.<br>
+      <b>Spelling does not need to be perfect.</b> Our reviewers will recognise and verify what you meant before anything is added to V2.<br>
+      <span class="fb-privacy-fine">Suggestions are anonymous, are stored for staff review only, and nothing you submit appears in V2 until a reviewer has checked it.</span></div>
     <div id="fbErr" class="fb-err" role="alert" hidden></div>
     <div class="fb-actions">
       <button type="button" class="fb-btn ghost" onclick="Feedback.close()">Cancel</button>
@@ -11386,6 +11461,9 @@ function djToast(msg){try{var t=document.getElementById('djToastEl');if(!t){t=do
         <div class="fb-adm-sub">Suggestions submitted by visitors on this kiosk</div>
       </div>
       <div class="fb-adm-actions">
+        <!-- UX-106: the primary action for the owner's stated workflow — the shortlist of what to
+             add to V2, deduplicated and ranked by how often it was asked for. Opens in Excel. -->
+        <button class="fb-btn" onclick="Feedback.exportApproved()">&#8681; Approved shortlist</button>
         <button class="fb-btn ghost" onclick="Feedback.exportCSV()">&#8681; Export CSV</button>
         <button class="fb-btn ghost" onclick="Feedback.exportJSON()">&#8681; JSON</button>
         <button class="fb-btn ghost" onclick="Feedback.closeAdmin()">Close</button>
@@ -11608,6 +11686,10 @@ window.Feedback = (function(){
       app_version: APP_VERSION,                // FEED-02: build id
       status: 'new',                            // UX-101: triage state — see STATUSES
       review_note: '',                          // UX-101: reviewer's own note, never patient text
+      // UX-106: submissions raised while demonstrating are real submissions to the same queue —
+      // staff should see everything — but a reviewer must be able to tell a booth demo from a
+      // patient at a kiosk before deciding to add a condition to V2. Flagged, not segregated.
+      demo: !!(window.V4DEMO && window.V4DEMO.active),
       synced: false                            // FEED-02: outbox flag (ignored when sync off)
     });
     save(arr);
@@ -11708,9 +11790,18 @@ window.Feedback = (function(){
       return '<div class="fb-row">'
         +'<span class="fb-row-badge">'+esc(c.admin)+'</span>'
         +'<div class="fb-row-main">'
-        +'<div class="fb-row-item">'+esc(e.item)+'</div>'
+        +'<div class="fb-row-item">'+esc(e.item)+(e.demo?' <span class="fb-demo-tag">demo</span>':'')+'</div>'
         +(e.comment?'<div class="fb-row-comment">'+esc(e.comment)+'</div>':'')
         +'<div class="fb-row-meta"><b>'+esc(when)+'</b>'+(e.context?' &middot; from: '+esc(e.context):'')+'</div>'
+        // UX-106: the reviewer must be able to CORRECT the text. The form now tells visitors that
+        // spelling does not matter, which is only an honest promise if someone downstream can turn
+        // "gabapenten" into "Gabapentin" before it reaches an export or a build decision.
+        +'<div class="fb-triage">'
+        +'<label class="fb-tri-lbl">Corrected name'
+        +'<input class="fb-tri-edit" type="text" maxlength="120" value="'+esc(e.item)+'"'
+        +' onchange="Feedback.setItem(\''+esc(e.id)+'\',this.value)" aria-label="Corrected medication or condition name">'
+        +'</label>'
+        +'</div>'
         +'<div class="fb-triage">'
         +'<span class="fb-st fb-st-'+esc(st)+'">'+esc(statusOf(st).label)+'</span>'
         +'<label class="fb-tri-lbl">Status'
@@ -11738,6 +11829,19 @@ window.Feedback = (function(){
   }
   function setStatus(id, s){ if(!_authed)return; if(!statusIs(s))return; patch(id,{status:s}); renderAdmin(); }
   function setNote(id, v){ if(!_authed)return; patch(id,{review_note:String(v||'').slice(0,200)}); }
+  // UX-106: keeps the visitor's original wording in item_original the first time it is corrected,
+  // so an edit can never quietly destroy what was actually submitted.
+  function setItem(id, v){
+    if(!_authed)return;
+    v=String(v||'').trim().slice(0,120); if(!v)return;
+    var arr=load();
+    for(var i=0;i<arr.length;i++){
+      if(arr[i]&&arr[i].id===id){
+        if(arr[i].item_original===undefined && arr[i].item!==v) arr[i].item_original=arr[i].item;
+        arr[i].item=v; save(arr); renderAdmin(); return;
+      }
+    }
+  }
 
   /* ---- export ---- */
   function download(name, mime, text){
@@ -11756,12 +11860,41 @@ window.Feedback = (function(){
     var arr=load();
     // UX-101: status and reviewer note travel with the export, so triage done on the kiosk is not
     // lost the moment the queue is pulled into a spreadsheet.
-    var head=['timestamp','category','item','comment','context','status','review_note'];
+    // UX-106: also carries the visitor's original wording where a reviewer corrected it, and a
+    // demo flag so booth submissions can be filtered out in Excel.
+    var head=['timestamp','category','item','item_as_submitted','comment','context','status','review_note','from_demo'];
     function q(v){v=String(v==null?'':v); return '"'+v.replace(/"/g,'""')+'"';}
     var lines=[head.join(',')];
-    arr.forEach(function(e){lines.push([q(e.ts),q(catOf(e.cat).admin),q(e.item),q(e.comment),q(e.context),
-      q(statusOf(e.status||'new').label),q(e.review_note)].join(','));});
+    arr.forEach(function(e){lines.push([q(e.ts),q(catOf(e.cat).admin),q(e.item),
+      q(e.item_original===undefined?'':e.item_original),q(e.comment),q(e.context),
+      q(statusOf(e.status||'new').label),q(e.review_note),q(e.demo?'yes':'no')].join(','));});
     download('phytotable_feedback_'+stamp()+'.csv','text/csv','﻿'+lines.join('\r\n'));
+  }
+  /* UX-106: the owner's actual review workflow is "periodically decide what to add to V2", and for
+     that the useful artefact is not the whole queue but the shortlist that survived triage. This
+     is that shortlist — accepted items only, deduplicated by category+name (the same medication
+     gets suggested by many people), with a count so the most-requested rise to the top. Opens
+     directly in Excel. */
+  function exportApproved(){
+    var arr=load().filter(function(e){return (e.status||'new')==='accepted';});
+    if(!arr.length){alert('Nothing is marked "Accepted — research it" yet. Triage some submissions first.');return;}
+    var byKey={};
+    arr.forEach(function(e){
+      var name=String(e.item||'').trim();
+      var k=e.cat+'|'+name.toLowerCase();
+      if(!byKey[k])byKey[k]={cat:e.cat,item:name,n:0,notes:[],demo:0,first:e.ts,last:e.ts};
+      var r=byKey[k]; r.n++;
+      if(e.review_note)r.notes.push(e.review_note);
+      if(e.demo)r.demo++;
+      if(e.ts<r.first)r.first=e.ts; if(e.ts>r.last)r.last=e.ts;
+    });
+    var rows=Object.keys(byKey).map(function(k){return byKey[k];})
+      .sort(function(a,b){return b.n-a.n || a.item.localeCompare(b.item);});
+    function q(v){v=String(v==null?'':v); return '"'+v.replace(/"/g,'""')+'"';}
+    var lines=['category,item,times_requested,from_demo_count,first_requested,last_requested,reviewer_notes'];
+    rows.forEach(function(r){lines.push([q(catOf(r.cat).admin),q(r.item),q(r.n),q(r.demo),
+      q(r.first),q(r.last),q(r.notes.join(' | '))].join(','));});
+    download('v2_approved_for_review_'+stamp()+'.csv','text/csv','﻿'+lines.join('\r\n'));
   }
   function clearAll(){
     if(!confirm('Delete ALL patient suggestions stored on this device? This cannot be undone. Export first if you want a copy.'))return;
@@ -11792,6 +11925,7 @@ window.Feedback = (function(){
     openLogin:openLogin, closeLogin:closeLogin, login:login, signOut:signOut,
     openAdmin:openAdmin, closeAdmin:closeAdmin, setFilter:setFilter,
     setStatus:setStatus, setNote:setNote,      // UX-101: triage from the review console
+    setItem:setItem, exportApproved:exportApproved,   // UX-106: reviewer edit + shortlist export
     exportCSV:exportCSV, exportJSON:exportJSON, clearAll:clearAll,
     // FEED-02 (dev/testing): manual flush + introspection. No-ops unless syncReady().
     flush:flush, _syncReady:syncReady, _locationId:locationId
