@@ -1324,7 +1324,7 @@ body.is-mobile-view.is-touch-device #imDoneBtn{right:10px;bottom:calc(56px + env
               <p>V2 covers <span data-v2fact="conditions">59</span> health conditions across nine clinical groups (Prostate Cancer is cross-listed under both Cancer Sub-types and Men's Health):</p>
               <div data-v2fact="conditionGroups" data-v2fact-style="short"><p><u>Pain &amp; Inflammation (7):</u> Analgesic/Pain, Neuropathic Pain, Fibromyalgia, Arthritis/Joint Pain, Muscle Spasm/Spasticity, Anti-Inflammatory, Skin Health/Acne.</p>
               <p><u>Neurological (12):</u> Epilepsy/Seizures, Sleep &amp; Insomnia, Migraine/Headache, Tourette Syndrome, Multiple Sclerosis, Neuroprotection, Alzheimer's, Parkinson's, Neurodegenerative, Autism (ASD), Glaucoma, Essential Tremor.</p>
-              <p><u>Mental Health (6):</u> Anxiety, Anti-depressant, PTSD/Trauma, Stress/Cortisol, Psychosis/Schizophrenia, Opioid Use Disorder.</p>
+              <p><u>Mental Health (6):</u> Anxiety, Depression (Major Depressive Disorder), PTSD/Trauma, Stress/Cortisol, Psychosis/Schizophrenia, Opioid Use Disorder.</p>
               <p><u>Cancer &amp; Immune (5):</u> Cancer/Anti-Tumor, Antiviral/Immune, Antibacterial, Antifungal, Antioxidant.</p>
               <p><u>Gastrointestinal (4):</u> Antiemetic/Nausea, IBD/Crohn's/Colitis, Irritable Bowel Syndrome, Chronic Liver Disease/Cirrhosis.</p><p><u>Metabolic &amp; Cardiovascular (5):</u> Appetite Regulation, Diabetes/Blood Sugar, Cardiovascular, Hyperlipidemia, Bone Health.</p>
               <p><u>Women's Health (4):</u> Endometriosis/Pelvic Pain, Uterine Fibroids, Dysmenorrhea, Menopause/Perimenopause.</p>
@@ -1553,7 +1553,7 @@ body.is-mobile-view.is-touch-device #imDoneBtn{right:10px;bottom:calc(56px + env
     <div class="rc-bar-popup" style="border-top:3px solid var(--rc-sht)">
       <div class="rc-popup-role" style="color:var(--rc-sht)">Mood &amp; Anxiety</div>
       <div class="rc-popup-desc">Serotonin receptor modulation (5-HT1A, 5-HT3). Governs anxiety, depression, nausea, and emotional regulation.</div>
-      <div class="rc-popup-conds"><button class="rc-popup-cond" onclick="selectCondition(&#39;depression&#39;,null)">Anti-depressant</button><button class="rc-popup-cond" onclick="selectCondition(&#39;anxiety&#39;,null)">Anxiety</button><button class="rc-popup-cond" onclick="selectCondition(&#39;nausea&#39;,null)">Nausea</button><button class="rc-popup-cond" onclick="selectCondition(&#39;ptsd&#39;,null)">PTSD</button></div>
+      <div class="rc-popup-conds"><button class="rc-popup-cond" onclick="selectCondition(&#39;depression&#39;,null)">Depression</button><button class="rc-popup-cond" onclick="selectCondition(&#39;anxiety&#39;,null)">Anxiety</button><button class="rc-popup-cond" onclick="selectCondition(&#39;nausea&#39;,null)">Nausea</button><button class="rc-popup-cond" onclick="selectCondition(&#39;ptsd&#39;,null)">PTSD</button></div>
     </div>
   </div>
 
@@ -2352,7 +2352,7 @@ body.is-mobile-view .panel.panel-condensed .panel-sym{font-size:1.05rem}
       <p>V2 expanded the therapeutic conditions filter from 30 to <span data-v2fact="conditions">59</span> health conditions, organized across nine clinical groups — Prostate Cancer is cross-listed under both Cancer Sub-types and Men's Health:</p>
       <div data-v2fact="conditionGroups" data-v2fact-style="long"><p><u>Pain &amp; Inflammation (7 conditions):</u> Analgesic/Pain, Neuropathic Pain, Fibromyalgia, Arthritis/Joint Pain, Muscle Spasm/Spasticity, Anti-Inflammatory, and Skin Health/Acne.</p>
       <p><u>Neurological (12 conditions):</u> Epilepsy/Seizures, Sleep &amp; Insomnia, Migraine/Headache, Tourette Syndrome, Multiple Sclerosis, Neuroprotection, Alzheimer's Disease, Parkinson's Disease, Neurodegenerative disease, Autism Spectrum Disorder (ASD), Glaucoma / Ocular Pressure, and Essential Tremor.</p>
-      <p><u>Mental Health (6 conditions):</u> Anxiety, Anti-depressant, PTSD/Trauma, Stress/Cortisol, Psychosis/Schizophrenia, and Opioid Use Disorder.</p>
+      <p><u>Mental Health (6 conditions):</u> Anxiety, Depression (Major Depressive Disorder), PTSD/Trauma, Stress/Cortisol, Psychosis/Schizophrenia, and Opioid Use Disorder.</p>
       <p><u>Cancer &amp; Immune (5 conditions):</u> Cancer/Anti-Tumor, Antiviral/Immune, Antibacterial, Antifungal, and Antioxidant.</p>
       <p><u>Gastrointestinal (4 conditions):</u> Antiemetic/Nausea, IBD/Crohn's/Colitis, Irritable Bowel Syndrome, and Chronic Liver Disease/Cirrhosis.</p><p><u>Metabolic &amp; Cardiovascular (5 conditions):</u> Appetite Regulation, Diabetes/Blood Sugar, Cardiovascular Health, Hyperlipidemia, and Bone Health/Osteoporosis.</p>
       <p><u>Women's Health (4 conditions):</u> Endometriosis/Pelvic Pain, Uterine Fibroids, Dysmenorrhea/Menstrual Pain, and Menopause/Perimenopause Symptoms.</p>
@@ -3483,6 +3483,21 @@ const ADVERSE_FINDINGS = {
       ]
     },
     {
+      // UX-111. Depression is the condition people are likeliest to self-treat, and the two largest
+      // human datasets point the other way. Placed on CBD because CBD is what a visitor asking
+      // about depression will be pointed at, and the caution belongs where the attention is.
+      title: 'Depression — the Human Data Point the Other Way',
+      condition: 'Depression (Major Depressive Disorder)',
+      evidence: 'B',
+      summary: '<strong>There is no randomised trial evidence that cannabis or CBD treats depression.</strong> A systematic review of 54 randomised trials found an outright absence of RCT evidence for depression as a treatment target, and an earlier meta-analysis across mental-health indications found the evidence scarce and mostly of very low quality. What large human studies do show runs the other way: a meta-analysis linked adolescent cannabis use to higher odds of depression and suicidality in young adulthood, and Danish national registry data linked cannabis use disorder to later unipolar depression and bipolar disorder. These are observational findings and cannot prove cause, but they are the biggest datasets available and they do not support using cannabis to lift mood. The molecules listed for this topic sit at 4 and 5 because their support is preclinical and mechanistic — not because a trial showed benefit. If you are managing depression, please involve the clinician looking after it.',
+      citations: [
+        {type:'Meta', authors:'Gobbi G, et al.', year:'2019', title:'Association of Cannabis Use in Adolescence and Risk of Depression, Anxiety, and Suicidality in Young Adulthood: A Systematic Review and Meta-analysis', journal:'JAMA Psychiatry', vol:'76(4):426-434', pmid:'30758486'},
+        {type:'Obs', authors:'Jefsen OH, et al.', year:'2023', title:'Cannabis Use Disorder and Subsequent Risk of Psychotic and Nonpsychotic Unipolar Depression and Bipolar Disorder', journal:'JAMA Psychiatry', vol:'80(8):803-810', pmid:'37223912'},
+        {type:'Meta', authors:'Black N, et al.', year:'2019', title:'Cannabinoids for the treatment of mental disorders and symptoms of mental disorders: a systematic review and meta-analysis', journal:'Lancet Psychiatry', vol:'6(12):995-1010', pmid:'31672337'},
+        {type:'Meta', authors:'Wilson J, et al.', year:'2026', title:'The efficacy and safety of cannabinoids for the treatment of mental disorders and substance use disorders: a systematic review and meta-analysis', journal:'Lancet Psychiatry', vol:'13(4):304-315', pmid:'41856154'}
+      ]
+    },
+    {
       // UX-107. The single most consequential caution in V2, and the reason the Opioid Use
       // Disorder entry carries hasRisk. A dispensary visitor reading a page about cannabis and
       // opioid use disorder is exactly the person who might stop buprenorphine or methadone,
@@ -4179,6 +4194,19 @@ const OUD_CITATIONS = {
   ],
 };
 
+// ── MENTAL HEALTH CITATIONS (UX-111 / UX-112 / UX-113) ────────────────────────
+// Concatenated onto CITATIONS at init, same pattern as CANCER_/LIVER_/OUD_CITATIONS. All PMIDs
+// fetched from NCBI and screened for Retracted Publication / Expression of Concern (0 hits).
+// This block is deliberately shared across the Mental Health restructure so the depression,
+// cannabis-use-disorder and bipolar entries can cite the same syntheses without duplicating them.
+const MENTAL_CITATIONS = {
+  CBD:[
+    {type:'Meta',authors:'Black N, et al.',year:'2019',title:'Cannabinoids for the treatment of mental disorders and symptoms of mental disorders: a systematic review and meta-analysis',journal:'Lancet Psychiatry',vol:'6(12):995-1010',pmid:'31672337',indications:['Antidepressant'],finding:'neg',note:'The synthesis that framed this whole area: across mental-health indications the evidence for cannabinoids is scarce and mostly of very low quality. Read with Wilson 2026, which reached the same conclusion seven years later on a larger trial base.'},
+    {type:'Meta',authors:'Gobbi G, et al.',year:'2019',title:'Association of Cannabis Use in Adolescence and Risk of Depression, Anxiety, and Suicidality in Young Adulthood: A Systematic Review and Meta-analysis',journal:'JAMA Psychiatry',vol:'76(4):426-434',pmid:'30758486',indications:['Antidepressant'],finding:'neg',note:'POINTS THE OPPOSITE WAY TO THE POPULAR CLAIM. Adolescent cannabis use was associated with higher odds of depression and suicidality in young adulthood. Observational, and V2 reports it because depression is a condition people self-medicate.'},
+    {type:'Obs',authors:'Jefsen OH, et al.',year:'2023',title:'Cannabis Use Disorder and Subsequent Risk of Psychotic and Nonpsychotic Unipolar Depression and Bipolar Disorder',journal:'JAMA Psychiatry',vol:'80(8):803-810',pmid:'37223912',indications:['Antidepressant'],finding:'neg',note:'Danish national registry data linking cannabis use disorder to later unipolar depression and bipolar disorder. A registry association is not proof of cause, and it is the largest human dataset available here.'},
+  ],
+};
+
 // ── UX-77: PUBMED SEARCHES VERIFIED NON-EMPTY ─────────────────────────────────
 // A link that opens an empty PubMed page is worse than no link: a consumer reads it as
 // "the science does not exist", and a clinician reads it as a broken tool. V2 is offline-
@@ -4193,7 +4221,7 @@ const PUBMED_EMPTY = {
   // Coverage manifest. preflight recomputes these from the live data and fails if they
   // drift — a new molecule, indication or condition means the probe must be re-run, because
   // its searches have never been checked and could be dead on arrival.
-  probed: { date: '2026-08-26', pairs: 372, mols: 64, conds: 60, combos: 546 },
+  probed: { date: '2026-08-26', pairs: 372, mols: 64, conds: 60, combos: 545 },
   // molecule|indication — the per-indication searches inside a molecule panel
   pair: [
     'CBG|Uterine Fibroids',
@@ -4238,7 +4266,7 @@ const PUBMED_EMPTY = {
     'ISX|colorectal','ISX|liver-cancer','ISX|lung-cancer','ISX|stress','KAF|arthritis','KAF|cardiovascular',
     'KAF|cervical-cancer','KAF|colorectal','KAF|glioblastoma','KAF|hyperlipidemia','KAF|inflammation',
     'KAF|leukemia','KAF|liver-cancer','KAF|lung-cancer','KAF|melanoma','KAF|ovarian-cancer',
-    'KAF|pancreatic-cancer','KAF|prostate-cancer','LI|depression','LI|fibromyalgia','LI|migraine','LI|ptsd','LI|tourette','LN|cardiovascular','LN|depression','LN|dysmenorrhea',
+    'KAF|pancreatic-cancer','KAF|prostate-cancer','LI|fibromyalgia','LI|migraine','LI|ptsd','LI|tourette','LN|cardiovascular','LN|dysmenorrhea',
     'LN|ibs','LN|ms','LN|parkinsons','LN|prostatitis','LN|spasm',
     'LN|tourette','LTL|alzheimers','LTL|arthritis','LTL|bone','LTL|breast-cancer','LTL|cardiovascular',
     'LTL|cervical-cancer','LTL|colorectal','LTL|fibroids','LTL|fibromyalgia','LTL|ibs','LTL|leukemia',
@@ -4256,7 +4284,7 @@ const PUBMED_EMPTY = {
     'SA|antibacterial','SA|antifungal','SA|antioxidant','SA|inflammation','TE|antibacterial','TE|antifungal',
     'TE|glioblastoma','THC10|appetite','THC8|fibromyalgia','THC8|migraine','THC8|tourette',
     'THC9|essential-tremor','THC9|pancreatic-cancer','THCA|breast-cancer','THCA|pancreatic-cancer','THCA|parkinsons','THCA|prostatitis','THCA|tourette','THCB|appetite',
-    'THCB|depression','THCP|fibromyalgia','THCP|migraine','THCP|neurodegen','THCP|sleep','THCP|tourette',
+    'THCP|fibromyalgia','THCP|migraine','THCP|neurodegen','THCP|sleep','THCP|tourette',
     'THCV|appetite','THCV|bone','THCV|cardiovascular','THCV|hyperlipidemia','THCV|migraine',
     'VIX|breast-cancer','VIX|colorectal','VIX|depression','VIX|glioblastoma','VIX|leukemia','VIX|liver-cancer',
     'VIX|lung-cancer','VIX|neuroprotection','aBI|alzheimers','aBI|antibacterial','aBI|fibromyalgia','aBI|pancreatic-cancer','aBI|parkinsons','aBI|skinhealth','aHU|appetite',
@@ -4594,7 +4622,23 @@ const CONDITIONS = [
   // NOT in the Guided Match funnel, by design — same as Tourette, Essential Tremor, HIV/AIDS, SCI.
   {id:'tbi',label:'Traumatic Brain Injury / Post-Concussion',group:'neuro',hasRisk:true,evidenceNegative:true,molecules:{THC9:4,CBD:4,LTL:4,QUC:4}},
   {id:'anxiety',label:'Anxiety',group:'mental',molecules:{CBD:7,APG:7,LI:7,LN:6,bCA:6,aBI:6,ISX:6,aPI:4,CB:2}},
-  {id:'depression',label:'Anti-depressant',group:'mental',molecules:{CBD:7,APG:7,LI:7,VIX:6,bCA:6,GE:4,THCB:3,LN:5}},
+  // Depression — relabelled and re-graded (UX-111). The entry was called "Anti-depressant", a DRUG
+  // CLASS rather than a condition, so the one thing a visitor would type — "depression" — was not
+  // the name on the chip. Exactly the defect UX-100 fixed for "Liver / Hepatoprotective".
+  // RE-GRADED because the old weights asserted support that is not there. Wilson 2026 (Lancet
+  // Psychiatry, 54 RCTs) states plainly: "There was an absence of RCT evidence for the treatment of
+  // depression." Checked pair by pair, CBD's 7 rested on ONE review and APG's 7 on a single mouse
+  // study, while LI (7), VIX (6), LN (5) and THCB (3) carried no antidepressant indication and no
+  // citation at all. CBD and APG drop to 5 — the IBS/Sickle Cell tier, mechanism real and clinical
+  // translation unresolved — bCA to 5 on its cited preclinical work, and LI/VIX/LN to 4, the
+  // studied-but-not-supported floor. THCB is REMOVED: no indication, no citation, and its PubMed
+  // search is already in PUBMED_EMPTY.
+  // hasRisk because the honest reading here is not neutral. Two large syntheses point the other
+  // way: Gobbi 2019 (JAMA Psychiatry meta-analysis) links adolescent cannabis use to later
+  // depression and suicidality, and Jefsen 2023 (JAMA Psychiatry, Danish registry) links cannabis
+  // use disorder to subsequent unipolar depression. Depression is a condition people self-medicate,
+  // which makes stating that the more important, not less.
+  {id:'depression',label:'Depression (Major Depressive Disorder)',group:'mental',hasRisk:true,molecules:{CBD:5,APG:5,bCA:5,LI:4,VIX:4,GE:4,LN:4}},
   {id:'ptsd',label:'PTSD / Trauma',group:'mental',molecules:{THC9:8,CBD:7,CBN:6,MY:5,LN:5,LI:5,aTP:4}},
   {id:'stress',label:'Stress / Cortisol',group:'mental',molecules:{CBD:7,LI:7,LN:7,aTP:6,MY:5,APG:5,LTL:5,aPI:4,ISX:5}},
   {id:'psychosis',label:'Psychosis / Schizophrenia',group:'mental',molecules:{CBD:8,THCV:7,CBN:4}},
@@ -5013,7 +5057,11 @@ var COND_ALIASES = [
   {alias:'Opioid Addiction',                       target:'oud'},
   {alias:'Opioid Dependence',                      target:'oud'},
   {alias:'Heroin Use Disorder',                     target:'oud'},
-  {alias:'Narcotic Addiction',                     target:'oud'}
+  {alias:'Narcotic Addiction',                     target:'oud'},
+  // UX-111: 'MDD' is the abbreviation clinicians use and it is not a substring of the label.
+  {alias:'MDD',                                    target:'depression'},
+  {alias:'Clinical Depression',                    target:'depression'},
+  {alias:'Unipolar Depression',                    target:'depression'}
 ];
 function buildCondSelect() {
   const sel = document.getElementById('condSelect');
@@ -9280,6 +9328,10 @@ Object.keys(LIVER_CITATIONS).forEach(function(k) {
 // UX-107: and for Opioid Use Disorder.
 Object.keys(OUD_CITATIONS).forEach(function(k) {
   CITATIONS[k] = (CITATIONS[k] || []).concat(OUD_CITATIONS[k]);
+});
+// UX-111: and the Mental Health restructure block.
+Object.keys(MENTAL_CITATIONS).forEach(function(k) {
+  CITATIONS[k] = (CITATIONS[k] || []).concat(MENTAL_CITATIONS[k]);
 });
 buildGrid();
 // Perf fix #2: the logo image is now stored ONCE (on the header .hdr-logo-img).
