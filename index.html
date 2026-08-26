@@ -4905,8 +4905,29 @@ function buildCondSelect() {
     opt.textContent = it.text;
     sel.appendChild(opt);
   });
+  // UX-101: the "Unable to find it?" entry point for health conditions.
+  // FEED-01 has shipped a 'missing_condition' category and a staff review queue since the
+  // beginning, but NOTHING in the UI could ever file into it — the medication half of the same
+  // idea has been live at the bottom of the drug-search suggestions all along. This is the
+  // matching half, and it belongs here because this list IS the place a condition search fails:
+  // a native <select> has no empty-result state, so someone who scrolls it without finding their
+  // diagnosis simply gives up with no way to tell anyone.
+  // Deliberately the LAST option, after every condition and alias, so it is what you reach when
+  // the list has genuinely run out rather than a shortcut past reading it.
+  const miss = document.createElement('option');
+  miss.value = '__missing__';
+  miss.textContent = '➕  Can’t find your condition? Tell us →';
+  sel.appendChild(miss);
 }
 function handleCondSelect(condId) {
+  // UX-101: sentinel, not a condition — hand off to the suggestion form and put the dropdown
+  // back to its placeholder so it never reads as though a condition were selected.
+  if (condId === '__missing__') {
+    const sel = document.getElementById('condSelect');
+    if (sel) sel.value = '';
+    try { if (window.Feedback) Feedback.fromContext('missing_condition', 'Health condition A–Z list', ''); } catch (e) {}
+    return;
+  }
   if (!condId) { clearCondition(); return; }
   const fp = document.getElementById('fp');
   if (fp && !fp.classList.contains('on')) toggleFilter();
@@ -11113,6 +11134,19 @@ function djToast(msg){try{var t=document.getElementById('djToastEl');if(!t){t=do
   .fb-row-comment{font-size:.74rem;color:var(--dim,#555);margin-top:2px;line-height:1.45;word-break:break-word}
   .fb-row-meta{font-size:.6rem;color:var(--mute,#999);margin-top:4px}
   .fb-row-meta b{color:var(--dim,#666)}
+  /* UX-101 triage controls. Staff-only surface, so it borrows the existing fb- palette rather
+     than introducing colours; the status pill is the only coloured element and it uses the
+     same greens/ambers/reds already carried by evidence grades and severity elsewhere. */
+  .fb-triage{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-top:8px;padding-top:8px;border-top:1px dashed var(--border,#ddd)}
+  .fb-st{font-size:.58rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:3px 8px;border-radius:12px;white-space:nowrap;background:var(--surface2,#eee);color:var(--dim,#444)}
+  .fb-st-new{background:#FDF1D6;color:#7A5200}
+  .fb-st-triaged{background:#E6EEF8;color:#1A4A8B}
+  .fb-st-accepted{background:#E3F1E4;color:#1E5B26}
+  .fb-st-duplicate{background:#EFEAF6;color:#4A3070}
+  .fb-st-rejected{background:#F7E3E1;color:#8B1000}
+  .fb-tri-lbl{display:inline-flex;align-items:center;gap:5px;font-size:.6rem;color:var(--mute,#999)}
+  .fb-tri-sel{font-size:.66rem;padding:3px 6px;border:1.5px solid var(--border,#ddd);border-radius:5px;background:var(--surface,#fff);color:var(--text,#222)}
+  .fb-tri-note{flex:1 1 170px;min-width:130px;font-size:.68rem;padding:4px 7px;border:1.5px solid var(--border,#ddd);border-radius:5px;background:var(--surface,#fff);color:var(--text,#222)}
   .fb-empty{padding:26px;text-align:center;color:var(--mute,#999);font-size:.8rem;font-style:italic}
   /* Reuse demo-login look for the staff sign-in via fb-adm-login classes */
   .fb-login-ov{position:fixed;inset:0;z-index:9350;background:rgba(15,10,8,.72);display:none;align-items:center;justify-content:center;padding:20px}
@@ -11224,6 +11258,20 @@ window.Feedback = (function(){
     {id:'general',           label:'General suggestion',      admin:'General suggestions'},
     {id:'bug',               label:'Bug / problem',           admin:'Bug reports'}
   ];
+  // UX-101: triage vocabulary for the review queue. 'accepted' deliberately means "worth
+  // researching", NOT "added to V2" — an accepted item still has to survive the same evidence
+  // review as everything already in the build. 'duplicate' is its own state because the single
+  // most common submission is something V2 already covers under a different clinical name, which
+  // is a finding about SEARCH rather than a gap in the data.
+  var STATUSES = [
+    {id:'new',       label:'Not triaged'},
+    {id:'triaged',   label:'Triaged'},
+    {id:'accepted',  label:'Accepted — research it'},
+    {id:'duplicate', label:'Already in V2'},
+    {id:'rejected',  label:'Rejected'}
+  ];
+  function statusOf(id){for(var i=0;i<STATUSES.length;i++){if(STATUSES[i].id===id)return STATUSES[i];}return STATUSES[0];}
+  function statusIs(id){for(var i=0;i<STATUSES.length;i++){if(STATUSES[i].id===id)return true;}return false;}
   var _sel = 'general';       // currently selected category in the capture form
   var _authed = false;        // staff session (in-memory only)
   var _filter = 'all';        // admin category filter
@@ -11331,12 +11379,51 @@ window.Feedback = (function(){
   }
   function close(){var ov=document.getElementById('fbOv'); if(ov)ov.classList.remove('open');}
 
+  /* UX-101: keep personal information OUT of the queue, and cap how much one visitor can file.
+     The form has always ASKED people not to include personal details; on a shared kiosk that is
+     not enough on its own. A visitor invited to describe a missing condition will sometimes type
+     a whole clinical history, and the review queue is read by staff and exported to CSV — so an
+     unfiltered free-text box is the one place V2 could accumulate identifiable health information,
+     against the same no-PII principle FEED-05 is built on.
+     Deliberately narrow: it blocks the shapes that are almost never part of a drug or condition
+     NAME and are almost always personal — an email address, a link, or a long run of digits
+     (phone, record number, date of birth). Doses and strengths stay usable: "Humira 40 mg",
+     "B12", "Ozempic 0.25" all pass, because none reaches seven digits. */
+  var PII = [
+    {re:/[^\s@]+@[^\s@]+\.[A-Za-z]{2,}/,                 msg:'Please remove the email address — suggestions are anonymous and nobody will reply to you here.'},
+    {re:/\b(?:https?:\/\/|www\.)\S+/i,                   msg:'Please remove the web link and just name the item you were looking for.'},
+    // The separator class must include "/" and ":". Caught in testing: "DOB 01/02/1974
+    // gastroparesis" sailed through a version that allowed only spaces, brackets, + and -,
+    // because a slash broke the run. Seven digits is the threshold that keeps doses usable —
+    // "Humira 40 mg", "B12", "Ozempic 0.25" and "COVID-19 2021" all stay under it.
+    {re:/(?:\d[\s().+\-\/:]*){7,}/,                      msg:'That looks like a phone number, date of birth or record number. Please remove it — just name the item you were looking for.'},
+    // A short-form date is the one high-value case the digit threshold cannot reach: "1/2/1974"
+    // is only six digits. Matched explicitly rather than by dropping the threshold to six, which
+    // would start catching legitimate strengths. Needs all three parts, so "insulin 70/30" passes.
+    {re:/\b\d{1,2}[\/.\-]\d{1,2}[\/.\-]\d{2,4}\b/,       msg:'That looks like a date of birth. Please remove it — just name the item you were looking for.'}
+  ];
+  var MAX_PER_SESSION = 3;   // reset by clearDraft() on every kiosk session reset
+  var _sessionCount = 0;
+
   function submit(ev){
     if(ev&&ev.preventDefault)ev.preventDefault();
     var item=(document.getElementById('fbItem').value||'').trim();
     var comment=(document.getElementById('fbComment').value||'').trim();
     var err=document.getElementById('fbErr');
     if(!item){if(err){err.textContent='Please enter what you’re looking for.';err.hidden=false;}return false;}
+    if(_sessionCount>=MAX_PER_SESSION){
+      if(err){err.textContent='Thanks — that’s '+MAX_PER_SESSION+' suggestions for this session, which is our limit. Please ask a member of staff if you have more.';err.hidden=false;}
+      return false;
+    }
+    var scan=item+' '+comment;
+    for(var pi=0;pi<PII.length;pi++){
+      if(PII[pi].re.test(scan)){
+        if(err){err.textContent=PII[pi].msg;err.hidden=false;}
+        return false;
+      }
+    }
+    if(err)err.hidden=true;
+    _sessionCount++;
     var arr=load();
     arr.push({
       id: 'fb_'+Date.now().toString(36)+Math.floor(Math.random()*1e6).toString(36),
@@ -11347,6 +11434,8 @@ window.Feedback = (function(){
       context: (window.Feedback._ctx||''),     // where in the app it was raised
       location_id: locationId(),               // FEED-02: which kiosk (no-op label when sync off)
       app_version: APP_VERSION,                // FEED-02: build id
+      status: 'new',                            // UX-101: triage state — see STATUSES
+      review_note: '',                          // UX-101: reviewer's own note, never patient text
       synced: false                            // FEED-02: outbox flag (ignored when sync off)
     });
     save(arr);
@@ -11371,6 +11460,7 @@ window.Feedback = (function(){
       var i=document.getElementById('fbItem'); if(i)i.value='';
       var c=document.getElementById('fbComment'); if(c)c.value='';
       _authed=false;
+      _sessionCount=0;                          // UX-101: new kiosk session, new allowance
     }catch(e){}
   }
 
@@ -11411,7 +11501,11 @@ window.Feedback = (function(){
     var arr=load().slice().sort(function(a,b){return (Date.parse(b.ts)||0)-(Date.parse(a.ts)||0);});
     // note line
     var note=document.getElementById('fbAdmNote');
-    if(note)note.innerHTML='&#9432; Phase 1 pilot &mdash; these '+arr.length+' suggestion'+(arr.length===1?'':'s')+' are stored <b>only in this kiosk’s browser</b>, not synced across locations. Entries auto-expire after '+PURGE_DAYS+' days. <b>Export regularly</b> so nothing is lost.';
+    // UX-101: says plainly that nothing here reaches V2 on its own. A submission is a REQUEST for
+    // research, not content — anything accepted still goes through the same evidence review every
+    // condition in V2 has had, which is why 'accepted' means "worth researching", not "added".
+    var nOpen=arr.filter(function(e){return (e.status||'new')==='new';}).length;
+    if(note)note.innerHTML='&#9432; Phase 1 pilot &mdash; these '+arr.length+' suggestion'+(arr.length===1?'':'s')+' ('+nOpen+' not yet triaged) are stored <b>only in this kiosk’s browser</b>, not synced across locations. Entries auto-expire after '+PURGE_DAYS+' days. <b>Export regularly</b> so nothing is lost.<br>Nothing submitted here appears in V2 by itself. Marking an item <b>Accepted</b> means it is worth researching &mdash; it still needs the same evidence review as every existing condition and medication.';
     // chips w/ counts
     var counts={all:arr.length};
     CATS.forEach(function(c){counts[c.id]=0;});
@@ -11432,15 +11526,46 @@ window.Feedback = (function(){
     list.innerHTML=rows.map(function(e){
       var c=catOf(e.cat);
       var when=''; try{when=new Date(e.ts).toLocaleString();}catch(x){when=e.ts||'';}
+      var st=e.status||'new';
+      // UX-101: the queue was a LOG — every row looked identical whether or not anyone had read
+      // it, so a reviewer had no way to pick up where they left off and no way to record why
+      // something was turned down. These two controls make it a worklist.
+      var opts=STATUSES.map(function(s){
+        return '<option value="'+s.id+'"'+(st===s.id?' selected':'')+'>'+esc(s.label)+'</option>';
+      }).join('');
       return '<div class="fb-row">'
         +'<span class="fb-row-badge">'+esc(c.admin)+'</span>'
         +'<div class="fb-row-main">'
         +'<div class="fb-row-item">'+esc(e.item)+'</div>'
         +(e.comment?'<div class="fb-row-comment">'+esc(e.comment)+'</div>':'')
         +'<div class="fb-row-meta"><b>'+esc(when)+'</b>'+(e.context?' &middot; from: '+esc(e.context):'')+'</div>'
+        +'<div class="fb-triage">'
+        +'<span class="fb-st fb-st-'+esc(st)+'">'+esc(statusOf(st).label)+'</span>'
+        +'<label class="fb-tri-lbl">Status'
+        +'<select class="fb-tri-sel" onchange="Feedback.setStatus(\''+esc(e.id)+'\',this.value)">'+opts+'</select>'
+        +'</label>'
+        +'<input class="fb-tri-note" type="text" maxlength="200" placeholder="Reviewer note (optional)" value="'+esc(e.review_note||'')+'"'
+        +' onchange="Feedback.setNote(\''+esc(e.id)+'\',this.value)">'
+        +'</div>'
         +'</div></div>';
     }).join('');
   }
+
+  /* UX-101: triage writes. Both re-save the whole array rather than mutating in place, matching
+     how every other write in this module works, and neither touches the visitor's own text. */
+  function patch(id, fields){
+    var arr=load(), hit=false;
+    for(var i=0;i<arr.length;i++){
+      if(arr[i] && arr[i].id===id){
+        Object.keys(fields).forEach(function(k){arr[i][k]=fields[k];});
+        hit=true; break;
+      }
+    }
+    if(hit)save(arr);
+    return hit;
+  }
+  function setStatus(id, s){ if(!_authed)return; if(!statusIs(s))return; patch(id,{status:s}); renderAdmin(); }
+  function setNote(id, v){ if(!_authed)return; patch(id,{review_note:String(v||'').slice(0,200)}); }
 
   /* ---- export ---- */
   function download(name, mime, text){
@@ -11457,10 +11582,13 @@ window.Feedback = (function(){
   function exportJSON(){download('phytotable_feedback_'+stamp()+'.json','application/json',JSON.stringify(load(),null,2));}
   function exportCSV(){
     var arr=load();
-    var head=['timestamp','category','item','comment','context'];
+    // UX-101: status and reviewer note travel with the export, so triage done on the kiosk is not
+    // lost the moment the queue is pulled into a spreadsheet.
+    var head=['timestamp','category','item','comment','context','status','review_note'];
     function q(v){v=String(v==null?'':v); return '"'+v.replace(/"/g,'""')+'"';}
     var lines=[head.join(',')];
-    arr.forEach(function(e){lines.push([q(e.ts),q(catOf(e.cat).admin),q(e.item),q(e.comment),q(e.context)].join(','));});
+    arr.forEach(function(e){lines.push([q(e.ts),q(catOf(e.cat).admin),q(e.item),q(e.comment),q(e.context),
+      q(statusOf(e.status||'new').label),q(e.review_note)].join(','));});
     download('phytotable_feedback_'+stamp()+'.csv','text/csv','﻿'+lines.join('\r\n'));
   }
   function clearAll(){
@@ -11491,6 +11619,7 @@ window.Feedback = (function(){
     open:open, close:close, submit:submit, pick:pick, fromContext:fromContext, clearDraft:clearDraft,
     openLogin:openLogin, closeLogin:closeLogin, login:login, signOut:signOut,
     openAdmin:openAdmin, closeAdmin:closeAdmin, setFilter:setFilter,
+    setStatus:setStatus, setNote:setNote,      // UX-101: triage from the review console
     exportCSV:exportCSV, exportJSON:exportJSON, clearAll:clearAll,
     // FEED-02 (dev/testing): manual flush + introspection. No-ops unless syncReady().
     flush:flush, _syncReady:syncReady, _locationId:locationId
