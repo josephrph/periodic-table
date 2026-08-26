@@ -3035,7 +3035,10 @@ window.V4DEMO=(function(){
        demo on a CLEAN url (no ?demo= needed). */
     enter:function(){try{sessionStorage.setItem('acann_demo_on','1');sessionStorage.setItem('acann_demo_hub','1');}catch(e){}try{location.reload();}catch(e){}},
     /* Leave the demo: clear the unlock and reload back into the standard V4 platform. */
-    exit:function(){try{sessionStorage.removeItem('acann_demo_on');}catch(e){}try{location.reload();}catch(e){}},
+    // UX-110: drop the session-scoped demonstration review queue on the way out. Without this it
+    // would survive the reload (sessionStorage is per-tab, not per-page) and reappear the next
+    // time someone signed into the console.
+    exit:function(){try{sessionStorage.removeItem('acann_demo_review_v1');}catch(e){}try{sessionStorage.removeItem('acann_demo_on');}catch(e){}try{location.reload();}catch(e){}},
     /* Prefix every persisted key in demo mode so demo data never mixes with live stock. */
     key:function(name){return active?('acann_demo_'+name):name;},
     dispensary:{
@@ -8136,6 +8139,11 @@ function resetToEntryGate() {
   });
   // Clear the in-progress feedback DRAFT + sign staff out (stored suggestions are KEPT for review)
   try { if (window.Feedback) Feedback.clearDraft(); } catch(e) {}
+  // UX-110: the session-scoped demonstration review queue dies with the session. This is the one
+  // funnel for all three ways a session ends — the "New Session" button, "I'm Done", and the
+  // 3-minute inactivity expiry — so clearing here covers every one of them. No-op outside Demo
+  // Mode, where real submissions are kept for staff review exactly as before.
+  try { if (window.Feedback && Feedback._sessionMode && Feedback._sessionMode()) Feedback.clearSessionQueue(); } catch(e) {}
   try { if (window.ResearchData) ResearchData.resetGateFields(); } catch(e) {} // FEED-05: clear opt-in inputs for next kiosk user
   // Re-copy the logo into all three entry screens in case it was cleared
   syncGateLogos();
@@ -11610,7 +11618,7 @@ function djToast(msg){try{var t=document.getElementById('djToastEl');if(!t){t=do
     <div class="fb-adm-tools" id="fbAdmChips"></div>
     <div class="fb-adm-list" id="fbAdmList"></div>
     <div class="fb-actions" style="justify-content:space-between;margin-top:14px">
-      <button class="fb-btn ghost" style="color:#B22" onclick="Feedback.clearAll()">Delete all on this device&hellip;</button>
+      <button id="fbAdmClear" class="fb-btn ghost" style="color:#B22" onclick="Feedback.clearAll()">Delete all on this device&hellip;</button>
       <button class="fb-btn ghost" onclick="Feedback.signOut()">Sign out</button>
     </div>
   </div>
@@ -11672,7 +11680,34 @@ window.Feedback = (function(){
   function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){
     return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
 
+  /* ── UX-110: SESSION-SCOPED DEMONSTRATION QUEUE ────────────────────────────────────
+     Purpose: show Acannability, dispensaries and investors the WHOLE workflow — a visitor
+     submits something missing, an authorised reviewer signs in, sees it, and approves, edits or
+     rejects it — without pretending anything is persisted and without a backend. When the demo
+     session ends the entries are gone.
+     Deliberately scoped to Demo Mode rather than applied everywhere, and the reason is not
+     stylistic: THE KIOSK RESETS ITSELF AFTER 3 MINUTES IDLE (2:30 warning + 30s countdown).
+     Session-scoping the live queue would therefore delete almost every real patient submission
+     before staff ever opened the console — destroying the demand signal that is the whole point
+     of FEED-01. Outside Demo Mode submissions persist exactly as before.
+     Storage is sessionStorage, not memory: it survives an accidental refresh mid-presentation but
+     dies with the tab, and is cleared explicitly on New Session, "I'm Done", the inactivity reset
+     and Exit Demo Mode. The review UI is the SAME code in both modes, which is the point the
+     owner made — when a real backend arrives only the storage changes. */
+  var SKEY = 'acann_demo_review_v1';
+  function sessionMode(){ try{ return !!(window.V4DEMO && window.V4DEMO.active); }catch(e){ return false; } }
+  function loadSession(){
+    var arr=[]; try{var s=sessionStorage.getItem(SKEY); if(s)arr=JSON.parse(s)||[];}catch(e){arr=[];}
+    return (arr instanceof Array)?arr:[];
+  }
+  function saveSession(arr){
+    if(arr.length>MAX)arr=arr.slice(arr.length-MAX);
+    try{sessionStorage.setItem(SKEY,JSON.stringify(arr));}catch(e){}
+  }
+  function clearSessionQueue(){ try{sessionStorage.removeItem(SKEY);}catch(e){} }
+
   function load(){
+    if(sessionMode())return loadSession();
     var arr=[]; try{var s=localStorage.getItem(KEY); if(s)arr=JSON.parse(s)||[];}catch(e){arr=[];}
     if(!(arr instanceof Array))arr=[];
     // auto-purge old entries — but never drop an entry that hasn't synced yet while
@@ -11688,6 +11723,7 @@ window.Feedback = (function(){
     return arr;
   }
   function save(arr){
+    if(sessionMode()){saveSession(arr);return;}
     if(arr.length>MAX)arr=arr.slice(arr.length-MAX);
     try{localStorage.setItem(KEY,JSON.stringify(arr));}catch(e){}
   }
@@ -11852,6 +11888,12 @@ window.Feedback = (function(){
       var c=document.getElementById('fbComment'); if(c)c.value='';
       _authed=false;
       _sessionCount=0;                          // UX-101: new kiosk session, new allowance
+      // UX-110 NOTE: the demonstration queue is deliberately NOT cleared here. This function's
+      // job is the in-progress draft, and its contract — stated above and relied on since FEED-01
+      // — is that STORED submissions survive it. An earlier attempt cleared the session queue from
+      // here and every new submission wiped the previous one, because clearDraft() also runs when
+      // the suggestion form is reopened. The session queue is cleared from resetToEntryGate()
+      // instead, which is the single funnel for "New Session", "I'm Done" and the idle expiry.
     }catch(e){}
   }
 
@@ -11896,7 +11938,21 @@ window.Feedback = (function(){
     // research, not content — anything accepted still goes through the same evidence review every
     // condition in V2 has had, which is why 'accepted' means "worth researching", not "added".
     var nOpen=arr.filter(function(e){return (e.status||'new')==='new';}).length;
-    if(note)note.innerHTML='&#9432; Phase 1 pilot &mdash; these '+arr.length+' suggestion'+(arr.length===1?'':'s')+' ('+nOpen+' not yet triaged) are stored <b>only in this kiosk’s browser</b>, not synced across locations. Entries auto-expire after '+PURGE_DAYS+' days. <b>Export regularly</b> so nothing is lost.<br>Nothing submitted here appears in V2 by itself. Marking an item <b>Accepted</b> means it is worth researching &mdash; it still needs the same evidence review as every existing condition and medication.';
+    // UX-110: say which mode this is, in the mode's own words. A demonstration that lets the
+    // audience believe data is being kept is not a demonstration, it is a misleading claim — and
+    // the production sentence is the one investors and dispensaries actually need to hear, because
+    // the workflow they are watching is the workflow that ships.
+    var modeNote = sessionMode()
+      ? '<b>&#9099; Demonstration queue &mdash; this session only.</b> '+(arr.length===1?'This 1 submission':'These '+arr.length+' submissions')+' ('+nOpen+' not yet triaged) exist'+(arr.length===1?'s':'')+' <b>only for the current session</b>. They are held in this browser tab and are <b>deleted automatically</b> when the session ends &mdash; "New Session", "I&rsquo;m Done", the inactivity reset, or Exit Demo Mode. <b>Nothing is stored permanently, and no server or database is involved.</b><br>This screen is the real reviewer workflow, not a mock-up: submit, review, edit, approve or reject. In production the same screens run against a secure server-side database with proper administrator accounts &mdash; <b>only the storage changes.</b>'
+      : '&#9432; Phase 1 pilot &mdash; these '+arr.length+' suggestion'+(arr.length===1?'':'s')+' ('+nOpen+' not yet triaged) are stored <b>only in this kiosk&rsquo;s browser</b>, not synced across locations. Entries auto-expire after '+PURGE_DAYS+' days. <b>Export regularly</b> so nothing is lost.';
+    if(note)note.innerHTML=modeNote+'<br>Nothing submitted here appears in V2 by itself. Marking an item <b>Accepted</b> means it is worth researching &mdash; it still needs the same evidence review as every existing condition and medication.';
+    // The console header and the destructive button both have to tell the truth about scope.
+    var sub=document.querySelector('.fb-adm-sub');
+    if(sub)sub.textContent=sessionMode()
+      ? 'Demonstration of the future review workflow — this session only'
+      : 'Suggestions submitted by visitors on this kiosk';
+    var del=document.getElementById('fbAdmClear');
+    if(del)del.textContent=sessionMode()?'Clear this demonstration queue…':'Delete all on this device…';
     // chips w/ counts
     var counts={all:arr.length};
     CATS.forEach(function(c){counts[c.id]=0;});
@@ -12034,6 +12090,12 @@ window.Feedback = (function(){
     download('v2_approved_for_review_'+stamp()+'.csv','text/csv','﻿'+lines.join('\r\n'));
   }
   function clearAll(){
+    // UX-110: in demonstration mode nothing is stored on the device, so the old warning would have
+    // been false; and the demo queue must be cleared from sessionStorage, not localStorage.
+    if(sessionMode()){
+      if(!confirm('Clear this demonstration queue? These entries exist only for the current session anyway, and would clear when the session ends.'))return;
+      clearSessionQueue(); renderAdmin(); return;
+    }
     if(!confirm('Delete ALL patient suggestions stored on this device? This cannot be undone. Export first if you want a copy.'))return;
     try{localStorage.removeItem(KEY);}catch(e){}
     renderAdmin();
@@ -12063,6 +12125,7 @@ window.Feedback = (function(){
     openAdmin:openAdmin, closeAdmin:closeAdmin, setFilter:setFilter,
     setStatus:setStatus, setNote:setNote,      // UX-101: triage from the review console
     setItem:setItem, exportApproved:exportApproved,   // UX-106: reviewer edit + shortlist export
+    clearSessionQueue:clearSessionQueue, _sessionMode:sessionMode,   // UX-110: demo queue
     exportCSV:exportCSV, exportJSON:exportJSON, clearAll:clearAll,
     // FEED-02 (dev/testing): manual flush + introspection. No-ops unless syncReady().
     flush:flush, _syncReady:syncReady, _locationId:locationId
