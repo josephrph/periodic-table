@@ -10342,7 +10342,7 @@ document.addEventListener('keydown', function(e) {
     other:{cond:['antioxidant'],refine:{well:['antioxidant'],energy:['appetite'],mood:['depression']}},
     seizure:{cond:['seizures'],refine:{freq:['seizures'],breakthrough:['seizures'],adjunct:['seizures'],unsure:['seizures']}},
     glaucoma:{cond:['glaucoma'],refine:{diagnosed:['glaucoma'],pressure:['glaucoma'],exploring:['glaucoma']}},
-    womens:{cond:['dysmenorrhea'],refine:{endo:['endometriosis'],fibroids:['fibroids'],menstrual:['dysmenorrhea'],menopause:['menopause']}}};
+    womens:{cond:['dysmenorrhea'],refine:{endo:['endometriosis'],fibroids:['fibroids'],menstrual:['dysmenorrhea'],menopause:['menopause'],pcos:['pcos']}}};
   // Guided-only molecule profiles for funnel intents that have no clean single science condition,
   // or where the science entry is intentionally bidirectional. Used ONLY for product matching in the
   // guided flow — CONDITIONS, M, and the science filter bar are untouched. 'appetite-stim' = stimulate
@@ -10472,7 +10472,14 @@ document.addEventListener('keydown', function(e) {
     womens:{ic:'🌸',label:'Women’s Health',rq:'Which area?',
       note:'Cannabis research in women’s health is mostly early-stage (observational or preclinical). This is educational information, not a treatment plan — please discuss options with your gynecologic or primary-care provider.',opts:[
       {k:'endo',ic:'🌷',label:'Endometriosis / Pelvic Pain'},{k:'fibroids',ic:'🌺',label:'Uterine Fibroids'},
-      {k:'menstrual',ic:'🩸',label:'Menstrual Pain / Cramps'},{k:'menopause',ic:'🌙',label:'Menopause / Perimenopause'}]},
+      {k:'menstrual',ic:'🩸',label:'Menstrual Pain / Cramps'},{k:'menopause',ic:'🌙',label:'Menopause / Perimenopause'},
+      // UX-115: PCOS was added to the Women's Health GROUP in UX-114 but not to this screen, because
+      // the refine options are a hand-maintained list rather than derived from the group. An audit
+      // of all ten groups found this the only such omission that matters: Women's Health is the one
+      // group whose refine screen lists CONDITIONS by name, so a missing member reads as an
+      // omission. Every other group's gaps are deliberate — that funnel asks "why are you here
+      // today?" in symptoms, and specific diagnoses are reached through Browse instead.
+      {k:'pcos',ic:'🌼',label:'PCOS / PMOS',sub:'Polycystic ovary syndrome &mdash; hormonal &amp; metabolic'}]},
     learn:{ic:'📚',label:'Explore the Research',learn:true}
   };
   var ORDER=['sleep','pain','anxiety','appetite','cancer','seizure','glaucoma','womens','relax','learn','other'];
@@ -10651,7 +10658,7 @@ document.addEventListener('keydown', function(e) {
     // (preferences, safety checklist, medication list) — never the science — and the recommendation
     // says plainly that the medication check was not run, with one tap to run it.
     stage('<h2 class="gx-q">'+r.rq+'</h2><p class="gx-hint">Pick the closest.</p>'+note+
-    r.opts.map(function(o){return optBtn("V4GX.refine('"+o.k+"')",o.ic,o.label,'');}).join('')+
+    r.opts.map(function(o){return optBtn("V4GX.refine('"+o.k+"')",o.ic,o.label,o.sub||'');}).join('')+
     '<button class="gx-express" onclick="V4GX.express()">'+
     '&#x23E9; Skip the questions &mdash; show me the molecules'+
     '<small>You can still run the medication check afterwards</small></button>');}
