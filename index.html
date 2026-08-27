@@ -8168,7 +8168,22 @@ function toggleDrugPanel() {
   var panel = document.getElementById('diPanel');
   var btn = document.getElementById('diBtn');
   panel.style.display = _diOpen ? 'block' : 'none';
-  if (btn) btn.style.background = _diOpen ? 'rgba(255,255,255,.25)' : '';
+  // UX-118: give this button the SAME active treatment as "Show / Hide Health Conditions", which
+  // is its real peer — both open an inline panel and leave the header visible, unlike Guided Match
+  // and Entourage Effect, which open full-screen overlays carrying their own close controls.
+  // It previously set a one-off inline background of rgba(255,255,255,.25), which washed the white
+  // label out against the gold button instead of reading as "active", and left the wording
+  // unchanged so there was nothing to tell you the panel was already open.
+  // Now: the .active class (transparent, accent text and border — the house convention) plus the
+  // label and tooltip flipping to the exit action. Purely presentational; the panel's own behaviour
+  // below is untouched, and every path that closes the panel already routes through this function
+  // (the header button, the panel's "Close Panel" control, and the mobile tab bar).
+  if (btn) {
+    btn.classList.toggle('active', _diOpen);
+    btn.textContent = _diOpen ? '\ud83d\udc8a Hide Drug Interactions' : '\ud83d\udc8a Drug Interactions';
+    btn.title = _diOpen ? 'Hide the drug interaction checker'
+                        : 'Check cannabis interactions with your medications';
+  }
   if (!_diOpen) {
     clearDrugHighlighting();
     _activeDrugId = null;
