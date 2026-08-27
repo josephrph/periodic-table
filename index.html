@@ -1179,7 +1179,7 @@ body.is-mobile-view.is-touch-device #imDoneBtn{right:10px;bottom:calc(56px + env
             <summary><span class="faq-q" style="font-size:.95rem">What is the Guided Match, and how does "Why are you here today?" work?</span><span class="faq-icon" style="width:22px;height:22px;font-size:1.1rem">+</span></summary>
             <div class="faq-content" style="font-size:.82rem">
               <p>The Guided Match is a step-by-step, plain-language guide that helps you find the cannabis molecules research links to your goal — no prior knowledge needed. Open it with the <strong>🧭 Guided Match</strong> button in the header (or the <strong>Guided</strong> tab on mobile); it also appears automatically the first time you enter.</p>
-              <p>It begins by asking who's using the table (Consumer · "I work here" for dispensary staff · Researcher, which goes straight to the full table). Consumers are then asked <strong>"Why are you here today?"</strong> with everyday options: Sleep, Pain Relief, Anxiety &amp; Stress, Appetite &amp; Nausea, Cancer Symptom Support, Seizures/Epilepsy, Eye Pressure/Glaucoma, Women's Health, Relaxation, Explore the Research, or Something Else.</p>
+              <p>It begins by asking who's using the table (Consumer · "I work here" for dispensary staff · Researcher, which goes straight to the full table). Consumers are then asked <strong>"Why are you here today?"</strong> with everyday options: Sleep, Pain Relief, Anxiety &amp; Stress, Appetite &amp; Nausea, Cancer Symptom Support, Seizures/Epilepsy, Eye Pressure/Glaucoma, Women's Health, Men's Health, Relaxation, Explore the Research, or Something Else.</p>
               <p>From there it asks a few short, optional questions to tailor results — the kind of relief you want, your experience level, how you feel about feeling "high" (THC comfort), time of day, how fast or long you want effects, preferred format, other concerns, a quick safety check, and any medications. It ends on <strong>"Research-Linked Molecules for Your Health Topic"</strong> — the same molecules the Periodic Table highlights for your topic, tiered into <strong>Primary</strong> and <strong>Supporting</strong> by strength of evidence — then hands you into the table to explore. Leave anytime via <strong>Full table ✕</strong> or <strong>Skip to full table</strong>.</p>
               <p>The Guided Match is educational: it shows research-supported molecules, not products or medical advice.</p>
             </div>
@@ -2225,7 +2225,7 @@ body.is-mobile-view .panel.panel-condensed .panel-sym{font-size:1.05rem}
     <summary><span class="faq-q">What is the Guided Match, and how does "Why are you here today?" work?</span><span class="faq-icon">+</span></summary>
     <div class="faq-content">
       <p>The Guided Match is a step-by-step, plain-language guide that helps you find the cannabis molecules research links to your goal — no prior knowledge needed. Open it with the <strong>🧭 Guided Match</strong> button in the header (or the <strong>Guided</strong> tab on mobile); it also appears automatically the first time you enter.</p>
-      <p>It begins by asking who's using the table (Consumer · "I work here" for dispensary staff · Researcher, which goes straight to the full table). Consumers are then asked <strong>"Why are you here today?"</strong> with everyday options: Sleep, Pain Relief, Anxiety &amp; Stress, Appetite &amp; Nausea, Cancer Symptom Support, Seizures/Epilepsy, Eye Pressure/Glaucoma, Women's Health, Relaxation, Explore the Research, or Something Else.</p>
+      <p>It begins by asking who's using the table (Consumer · "I work here" for dispensary staff · Researcher, which goes straight to the full table). Consumers are then asked <strong>"Why are you here today?"</strong> with everyday options: Sleep, Pain Relief, Anxiety &amp; Stress, Appetite &amp; Nausea, Cancer Symptom Support, Seizures/Epilepsy, Eye Pressure/Glaucoma, Women's Health, Men's Health, Relaxation, Explore the Research, or Something Else.</p>
       <p>From there it asks a few short, optional questions to tailor results — the kind of relief you want, your experience level, how you feel about feeling "high" (THC comfort), time of day, how fast or long you want effects, preferred format, other concerns, a quick safety check, and any medications. It ends on <strong>"Research-Linked Molecules for Your Health Topic"</strong> — the same molecules the Periodic Table highlights for your topic, tiered into <strong>Primary</strong> and <strong>Supporting</strong> by strength of evidence — then hands you into the table to explore. Leave anytime via <strong>Full table ✕</strong> or <strong>Skip to full table</strong>.</p>
       <p>The Guided Match is educational: it shows research-supported molecules, not products or medical advice.</p>
     </div>
@@ -10342,7 +10342,8 @@ document.addEventListener('keydown', function(e) {
     other:{cond:['antioxidant'],refine:{well:['antioxidant'],energy:['appetite'],mood:['depression']}},
     seizure:{cond:['seizures'],refine:{freq:['seizures'],breakthrough:['seizures'],adjunct:['seizures'],unsure:['seizures']}},
     glaucoma:{cond:['glaucoma'],refine:{diagnosed:['glaucoma'],pressure:['glaucoma'],exploring:['glaucoma']}},
-    womens:{cond:['dysmenorrhea'],refine:{endo:['endometriosis'],fibroids:['fibroids'],menstrual:['dysmenorrhea'],menopause:['menopause'],pcos:['pcos']}}};
+    womens:{cond:['dysmenorrhea'],refine:{endo:['endometriosis'],fibroids:['fibroids'],menstrual:['dysmenorrhea'],menopause:['menopause'],pcos:['pcos']}},
+    mens:{cond:['prostatitis'],refine:{prostatitis:['prostatitis'],prostate:['prostate-cancer']}}};
   // Guided-only molecule profiles for funnel intents that have no clean single science condition,
   // or where the science entry is intentionally bidirectional. Used ONLY for product matching in the
   // guided flow — CONDITIONS, M, and the science filter bar are untouched. 'appetite-stim' = stimulate
@@ -10480,9 +10481,21 @@ document.addEventListener('keydown', function(e) {
       // omission. Every other group's gaps are deliberate — that funnel asks "why are you here
       // today?" in symptoms, and specific diagnoses are reached through Browse instead.
       {k:'pcos',ic:'🌼',label:'PCOS / PMOS',sub:'Polycystic ovary syndrome &mdash; hormonal &amp; metabolic'}]},
+    // UX-116: Men's Health had NO guided path — both its conditions were reachable only from the
+    // table or Browse, which was asymmetric now that Women's Health lists all five of its members.
+    // The note is doing real work rather than boilerplate. V2's Men's Health group exists on an
+    // explicit editorial premise (DRUG-06/UX-33): most cannabis literature in men's health concerns
+    // HARM — erectile function, testosterone, fertility, testicular tumour risk — so benefits sit in
+    // the group and risks sit in ADVERSE_FINDINGS. Three such findings are tagged group:'mens', so
+    // they surface with EITHER choice below. Saying that up front means someone who came looking for
+    // exactly that information knows they will get it.
+    mens:{ic:'♂️',label:'Men’s Health',rq:'Which area?',
+      note:'Much of the cannabis research in men’s health concerns <b>risks rather than benefits</b> &mdash; effects on erectile function, testosterone and fertility, and one study of testicular tumour risk. V2 shows those alongside any potential benefit, and they appear with either option below. This is educational information, not a treatment plan &mdash; please discuss options with your urologist or primary-care provider.',opts:[
+      {k:'prostatitis',ic:'🔥',label:'Chronic Prostatitis / Pelvic Pain'},
+      {k:'prostate',ic:'🎗️',label:'Prostate Cancer',sub:'Comfort and symptom support alongside your oncology team &mdash; not a cancer treatment'}]},
     learn:{ic:'📚',label:'Explore the Research',learn:true}
   };
-  var ORDER=['sleep','pain','anxiety','appetite','cancer','seizure','glaucoma','womens','relax','learn','other'];
+  var ORDER=['sleep','pain','anxiety','appetite','cancer','seizure','glaucoma','womens','mens','relax','learn','other'];
   var SECOND=[{k:'sleep',ic:'😴',label:'Trouble sleeping too',cond:['sleep']},
     {k:'stress',ic:'💭',label:'Stress / anxiety',cond:['stress']},{k:'pain',ic:'🌿',label:'Some pain too',cond:['pain']},
     {k:'nausea',ic:'🤢',label:'Nausea too',cond:['nausea-relief']},{k:'appetite',ic:'🍽️',label:'Low appetite too',cond:['appetite-stim']}];
