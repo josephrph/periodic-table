@@ -9094,8 +9094,14 @@ function onDiSearch(query) {
     if (key.includes(q)) DI_INDEX[key].forEach(function(i) { matchedIndices.add(i); });
   });
   var results = Array.from(matchedIndices).map(function(i) { return DI_DATA[i]; });
-  var sevOrder = {major:0, moderate:1, minor:2};
-  results.sort(function(a,b) { return (sevOrder[a.sev]||3) - (sevOrder[b.sev]||3); });
+  // DRUG-19: ranks start at 1, NOT 0. The previous map was {major:0,...} read through
+  // `sevOrder[a.sev]||3`, and because `0||3` is 3, every MAJOR interaction scored the same as
+  // an unknown severity and sorted LAST — behind moderate and minor. The two other severity
+  // maps in this file (applyDrugHighlighting, and the by-molecule sort) already start at 1 for
+  // this reason; this one was the outlier. Keeping 0 out of the map removes the footgun rather
+  // than patching the guard, and stays ES5 (`??` is used nowhere in this build).
+  var sevOrder = {major:1, moderate:2, minor:3};
+  results.sort(function(a,b) { return (sevOrder[a.sev]||9) - (sevOrder[b.sev]||9); });
   // Update matched drug name for panel annotation
   _diMatchedDrug = results.length ? (results[0].drug.split('(')[0].trim().split('/')[0].trim()) : query;
   renderDrugResults(results, query);
