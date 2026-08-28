@@ -383,7 +383,27 @@ def check_pmids(src, online=False):
     """PMIDs must be plausible, and optionally must actually resolve at NCBI."""
     # BOTH quote styles: the curated citation objects use pmid:'...' while the JSON-shaped
     # DI_DATA records use "pmid":"...". Matching only the first undercounted by 15.
-    pmids = sorted(set(re.findall(r'"?pmid"?\s*:\s*[\'"](\d{5,8})[\'"]', src)))
+    # AUDIT-09: this used to be r'[\'"](\d{5,8})[\'"]', which requires the closing quote to sit
+    # immediately after the digits. That silently skipped EVERY multi-PMID field — 'pmid' values
+    # holding several ids separated by commas, which is how the drug tables cite more than one
+    # paper — and it also let 'N/A - theoretical' through without comment. Capture the whole field,
+    # then split it the way diPmidList() does in the app, so preflight verifies exactly the set of
+    # ids the page will turn into links.
+    raw_fields = re.findall(r'"?pmid"?\s*:\s*[\'"]([^\'"]*)[\'"]', src)
+    pmids, junk = set(), set()
+    for field in raw_fields:
+        for tok in re.split(r'[,;]', field):
+            tok = tok.strip()
+            if not tok:
+                continue
+            if re.fullmatch(r'\d{5,8}', tok):
+                pmids.add(tok)
+            else:
+                junk.add(field.strip())
+    pmids = sorted(pmids)
+    if junk:
+        note('citations: %d pmid field(s) carry non-PMID text and render no link (by design): %s'
+             % (len(junk), sorted(junk)[:2]))
     bad = [p for p in pmids if not (5 <= len(p) <= 8)]
     if bad:
         fail('citations', 'implausible PMIDs: %s' % bad[:12])
