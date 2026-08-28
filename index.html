@@ -6865,7 +6865,58 @@ var DDI_DATA = [
    mech:'Mycophenolate mofetil dissolves in an acid environment. Proton pump inhibitors raise gastric pH, which reduces how much of the prodrug dissolves and is absorbed, lowering mycophenolic acid exposure. This is a <strong>pH effect on dissolution, not a cytochrome P450 interaction</strong> — so unlike the clopidogrel–PPI interaction it applies across the PPI class, and changing to pantoprazole does not avoid it.',
    effect:'Reduced mycophenolic acid exposure, with the theoretical consequence of under-immunosuppression and increased rejection risk. A systematic review with meta-analysis and a controlled clinical trial in transplant recipients both found PPI co-medication lowers mycophenolic acid exposure. The enteric-coated formulation (mycophenolate sodium, Myfortic) releases past the stomach and is affected less than mycophenolate mofetil (CellCept).',
    monitor:'This needs the transplant team, not a substitution decided at the pharmacy counter. Options they may consider include the enteric-coated formulation, an H2 blocker such as famotidine instead of a PPI, or mycophenolic acid level monitoring. <strong>Do not stop either drug independently.</strong> Mention any over-the-counter PPI — omeprazole is sold without prescription and is easy to leave off a medication list.',
-   pmid:'35239287, 19481022'}
+   pmid:'35239287, 19481022'},
+
+  // ── DRUG-16: tranche C pairs ─────────────────────────────────────────────────
+  // Dofetilide's contraindication list is the single most actionable thing in tranche C, and two of
+  // its entries — cimetidine and hydrochlorothiazide — are drugs patients acquire casually.
+  // Cimetidine only became targetable when tranche A split it out of the famotidine record today.
+  {id:'dofetilide_contraindicated',drugs:['dofetilide','cimetidine','hydrochlorothiazide','bactrim','azoles','cyp3a4inh'],
+   groups:[['dofetilide'],['cimetidine','hydrochlorothiazide','bactrim','azoles','cyp3a4inh']],sev:'major',ev:'A',
+   label:'Dofetilide + Contraindicated Drugs (cimetidine, HCTZ, trimethoprim, ketoconazole, verapamil)',
+   mech:'Dofetilide is cleared renally by active tubular secretion through the cation transport system. Cimetidine, trimethoprim, ketoconazole, prochlorperazine, megestrol and dolutegravir all block that transporter and raise dofetilide concentrations. Verapamil raises peak dofetilide levels by a different route, and hydrochlorothiazide — alone or combined with triamterene — has been shown to raise dofetilide concentrations and prolong the QT interval further.',
+   effect:'Higher dofetilide exposure means more QT prolongation and a higher risk of <strong>torsades de pointes</strong>, the arrhythmia the drug is dose-titrated in hospital to avoid. <strong>The dofetilide labeling contraindicates every drug named here</strong> — this is not a caution to weigh but a combination to prevent.',
+   monitor:'Do not combine. Two of these are easy to acquire without a prescriber knowing: <strong>cimetidine (Tagamet) is sold over the counter</strong>, and hydrochlorothiazide is one of the commonest blood-pressure medicines. Anyone on dofetilide should check every new medicine, including over-the-counter purchases, against its contraindication list. Report palpitations or fainting immediately.',
+   pmid:''},
+
+  // The quinidine-digoxin interaction is one of the oldest and best characterised in cardiology.
+  {id:'quinidine_digoxin',drugs:['quinidine','digoxin'],sev:'major',ev:'A',
+   label:'Quinidine + Digoxin',
+   mech:'Quinidine inhibits P-glycoprotein, the transporter responsible for much of digoxin\'s renal and biliary elimination, and displaces digoxin from tissue binding sites. Adding quinidine to a stable digoxin dose characteristically <strong>roughly doubles the serum digoxin concentration</strong>. The interaction was described in the late 1970s and is one of the best characterised in cardiology.',
+   effect:'Digoxin toxicity — nausea, vomiting, visual disturbance with yellow-green haloes, confusion, and dangerous bradyarrhythmias or tachyarrhythmias — in a drug that already has one of the narrowest therapeutic indices in use. Both drugs also prolong the QT interval.',
+   monitor:'If both are genuinely needed, the digoxin dose is usually halved and levels checked, which is a prescriber decision rather than a patient one. Report nausea, vomiting, visual changes, confusion or palpitations promptly. Do not stop either drug independently.',
+   pmid:'7040261, 481475'},
+
+  // Sotalol's own labeling says to avoid concomitant QT-prolonging drugs. V2 holds several.
+  {id:'antiarrhythmic_qt',drugs:['sotalol','dofetilide','quinidine','procainamide','disopyramide','amiodarone','methadone','ondansetron','antipsychotics','chlorpromazine','ssri','tricyclics'],
+   groups:[['sotalol','dofetilide','quinidine','procainamide','disopyramide'],['amiodarone','methadone','ondansetron','antipsychotics','chlorpromazine','ssri','tricyclics']],
+   sev:'major',ev:'B',
+   label:'QT-Prolonging Antiarrhythmic + Another QT-Prolonging Drug',
+   mech:'Each of these antiarrhythmics prolongs the QT interval as part of how it works or as an unavoidable side effect. Adding a second QT-prolonging drug — another antiarrhythmic, methadone, ondansetron, an antipsychotic, a tricyclic or citalopram — lengthens the interval further, and the risk of torsades de pointes rises steeply rather than proportionally. <strong>Sotalol\'s labeling states plainly that concomitant use with other QT-prolonging drugs should be avoided.</strong>',
+   effect:'Torsades de pointes: a polymorphic ventricular tachycardia that can degenerate into ventricular fibrillation. Low potassium or magnesium, bradycardia, female sex, reduced kidney function and higher doses all compound it — so vomiting, diarrhoea or dehydration can turn a tolerated combination into a dangerous one without any change in medication.',
+   monitor:'This combination needs a prescriber decision with an ECG, not a pharmacy substitution. Where it is unavoidable, QT is measured and potassium and magnesium are kept in range. Report palpitations, dizziness or fainting urgently. Tell any prescriber about every QT-prolonging drug including ondansetron for nausea, which is often given short-term and forgotten.',
+   pmid:''},
+
+  // Propafenone's label warns specifically about CYP2D6 + CYP3A4 inhibition TOGETHER.
+  {id:'propafenone_cyp',drugs:['propafenone','quinidine','fluvoxamine','azoles','cyp3a4inh','clarithromycin'],
+   groups:[['propafenone'],['quinidine','fluvoxamine','azoles','cyp3a4inh','clarithromycin']],sev:'major',ev:'B',
+   label:'Propafenone + CYP2D6 / CYP3A4 Inhibitors',
+   mech:'Propafenone is cleared by CYP2D6, CYP3A4 and CYP1A2. Its labeling warns that <strong>inhibiting CYP3A4 at the same time as inhibiting CYP2D6 — or in a patient genetically deficient in CYP2D6 — can raise propafenone concentrations substantially and increase the risk of proarrhythmia</strong>, and advises avoiding that combination. Quinidine is a potent CYP2D6 inhibitor; fluvoxamine inhibits CYP1A2, CYP2C19 and CYP3A4; the azoles and the other CYP3A4 inhibitors cover the second pathway.',
+   effect:'Raised propafenone exposure, with proarrhythmia the labeled consequence — new or worsened arrhythmia, including life-threatening ventricular arrhythmia. About 6% of people lack CYP2D6 activity altogether and start from higher concentrations, so the same combination is not equally risky in everyone.',
+   monitor:'Avoid where possible; where unavoidable this needs prescriber oversight with ECG monitoring. Report palpitations, fainting, unusual breathlessness or a markedly slow pulse. Mention any antifungal or antibiotic course started while on propafenone, including short courses.',
+   pmid:''},
+
+  // DRUG-16: the antiarrhythmic_qt monitor text names low potassium as a torsades trigger, so the
+  // commonest real-world route to it should actually fire rather than only being described.
+  // Dofetilide is EXCLUDED here because dofetilide + hydrochlorothiazide is already contraindicated
+  // and fires its own pair — listing it twice would double-report the same combination.
+  {id:'antiarrhythmic_diuretic',drugs:['sotalol','quinidine','procainamide','disopyramide','hydrochlorothiazide'],
+   groups:[['sotalol','quinidine','procainamide','disopyramide'],['hydrochlorothiazide']],sev:'major',ev:'B',
+   label:'QT-Prolonging Antiarrhythmic + Thiazide Diuretic (potassium loss)',
+   mech:'Thiazide diuretics lower potassium and magnesium. Low potassium lengthens cardiac repolarisation on its own, so it adds to the QT prolongation these antiarrhythmics already cause — and it does so without any change in either drug\'s concentration. This is the commonest route by which a combination that has been tolerated for months suddenly becomes dangerous.',
+   effect:'Increased risk of <strong>torsades de pointes</strong>. The trigger is often an intercurrent illness rather than a prescription change: vomiting, diarrhoea, poor intake or hot weather deepen the potassium loss a diuretic is already causing. Sotalol\'s labeled torsades risk factors include reduced creatinine clearance and bradycardia, both of which dehydration worsens.',
+   monitor:'Potassium and magnesium are checked routinely on this combination and should be rechecked after any illness with vomiting or diarrhoea. Report palpitations, dizziness or fainting. Do not add over-the-counter potassium supplements without advice — the answer depends on kidney function. Cannabis-related nausea or vomiting is a reason to mention cannabis to the prescriber here, not a reason to stop the diuretic.',
+   pmid:''}
 ];
 
 // Build DDI lookup: drug ID → array of DDI_DATA indices involving that drug
@@ -7913,6 +7964,71 @@ var DI_DATA = [
    monitor:'No cannabis-specific monitoring is established. In transplantation, everolimus is dosed to a blood level — tell the team before starting or stopping cannabis so a level can be checked. In oncology it usually is not level-monitored, which makes disclosure more important rather than less. Report mouth sores, new or worsening breathlessness or cough, fever, or unusual bruising. Do not change the dose independently.',
    pmid:'14748618, 39601108'},
 
+  // ── DRUG-16 · TRANCHE C: the seven narrow-index antiarrhythmics ─────────────
+  // Owner-approved, and owner-directed as SEVEN INDIVIDUAL RECORDS rather than class records:
+  // "V2 should preserve drug-specific differences in metabolism, interactions, severity, evidence,
+  // and clinical considerations." The differences are real and large — two are CYP2D6 substrates,
+  // one is a potent CYP2D6 INHIBITOR, one is acetylated by NAT2, two are essentially unmetabolized,
+  // one is strongly anticholinergic, and only some carry mortality boxed warnings.
+  //
+  // ONE HUMAN FINDING GOVERNS THE WHOLE TRANCHE AND CUTS AGAINST THE OBVIOUS INFERENCE.
+  // Bansal 2023 (PMID 37313955) gave 18 healthy adults a CYP probe cocktail after a CBD-dominant
+  // cannabis brownie (640 mg CBD + 20 mg THC) in a randomised crossover. CBD inhibited
+  // CYP2C19 > CYP2C9 > CYP3A > CYP1A2 — raising probe AUC by 207%, 77%, 56% and 39% —
+  // but did NOT inhibit CYP2D6. The THC-only arm inhibited nothing.
+  // So the tempting line "CBD inhibits CYP2D6, therefore flecainide and propafenone levels rise"
+  // is NOT supported in humans, and none of these records says it. What IS supported is CYP3A
+  // inhibition, which is why propafenone and quinidine read differently from flecainide.
+
+  {id:'flecainide',drug:'Flecainide',brands:['Tambocor'],cls:'Class Ic Antiarrhythmic (narrow therapeutic index)',cat:'rx',
+   mols:['THC9','CBD'],sev:'major',ev:'C',
+   mech:'Flecainide is cleared by <strong>CYP2D6</strong> with 10&ndash;50% appearing unchanged in urine, so both liver and kidney matter. <strong>The obvious cannabis inference does not hold here.</strong> CBD inhibits CYP2D6 in the test tube, but in a randomised crossover study of 18 healthy adults given a CBD-dominant cannabis extract with a CYP probe cocktail, CBD inhibited CYP2C19, CYP2C9, CYP3A and CYP1A2 — <strong>but not CYP2D6</strong>. A meaningful CBD effect on flecainide clearance therefore should not be assumed. A minor CYP1A2 route exists, so smoked cannabis could nudge levels down rather than up.',
+   effect:'The concern here is <strong>pharmacodynamic, not metabolic</strong>. Flecainide carries a boxed warning: in the Cardiac Arrhythmia Suppression Trial, patients given flecainide or encainide after myocardial infarction had <strong>higher mortality than placebo</strong>, and it is contraindicated after recent MI and in structural heart disease. It slows conduction and widens PR, QRS and QT dose-dependently. &Delta;9-THC independently raises heart rate and can provoke arrhythmia, which is the event flecainide exists to prevent. <strong>No study has tested cannabis with flecainide</strong>, so this is a mechanistic concern about additive proarrhythmia, graded accordingly.',
+   monitor:'Report palpitations, a racing or irregular heartbeat, fainting, breathlessness or chest pain — and do not assume these are cannabis effects that will pass. Flecainide is monitored by ECG and sometimes by blood level; mention cannabis use so that context is on the record. Kidney function matters independently. Never adjust the dose or stop flecainide on your own.',
+   pmid:'1900101, 37313955'},
+
+  {id:'propafenone',drug:'Propafenone',brands:['Rythmol','Rythmol SR'],cls:'Class Ic Antiarrhythmic with beta-blocking activity (narrow therapeutic index)',cat:'rx',
+   mols:['CBD','THC9'],sev:'major',ev:'C',
+   mech:'Propafenone is metabolized by <strong>CYP2D6, CYP3A4 and CYP1A2</strong>, and its labeling carries an unusual instruction: <strong>avoid using it with a CYP2D6 inhibitor and a CYP3A4 inhibitor at the same time</strong>, because the combination can raise propafenone concentrations enough to cause proarrhythmia. About 6% of the population lacks CYP2D6 activity altogether and already runs high levels. Of the two enzymes the label names, <strong>human data support CBD inhibiting CYP3A but not CYP2D6</strong>: in a randomised crossover in 18 adults, a CBD-dominant extract raised the AUC of a CYP3A probe by 56% while leaving the CYP2D6 probe unchanged. Propafenone also has intrinsic beta-blocking activity.',
+   effect:'A plausible rise in propafenone exposure through the CYP3A route — <strong>one of the two pathways the label warns about, though not both</strong> — with proarrhythmia the consequence the warning exists for. Propafenone carries a boxed mortality warning as a Class Ic agent, is contraindicated in heart failure, and can cause agranulocytosis and worsen myasthenia gravis. Its beta-blocking activity adds bradycardia and orthostatic hypotension to &Delta;9-THC\'s cardiovascular effects. <strong>No study has tested cannabis with propafenone.</strong>',
+   monitor:'Tell the prescriber about CBD specifically, not just cannabis — the CYP3A concern is CBD\'s, and a THC-only product did not inhibit any CYP enzyme in the same study. Report palpitations, fainting, unusual breathlessness, or signs of infection such as fever or sore throat (agranulocytosis). ECG monitoring is routine after initiation and after dose changes; a cannabis change is worth mentioning at those visits.',
+   pmid:'37313955, 1900101'},
+
+  {id:'sotalol',drug:'Sotalol',brands:['Betapace','Betapace AF','Sotylize','Sorine'],cls:'Class III Antiarrhythmic + non-selective Beta-Blocker (narrow therapeutic index)',cat:'rx',
+   mols:['THC9','CBD'],sev:'major',ev:'C',
+   mech:'<strong>Sotalol is not metabolized at all.</strong> Its labeling states it is not metabolized and is not expected to inhibit or induce any CYP450 enzyme; it is excreted unchanged by the kidney and dosed by creatinine clearance. <strong>There is therefore no metabolic route for a cannabis interaction</strong> — and saying so plainly is more useful than hedging. What remains is entirely pharmacodynamic: sotalol prolongs the QT interval and blocks beta receptors, while &Delta;9-THC raises heart rate, can lower standing blood pressure, and has been associated with arrhythmia.',
+   effect:'Sotalol carries a boxed warning for <strong>life-threatening proarrhythmia</strong> and must be started or restarted in a facility with cardiac resuscitation and continuous ECG monitoring, because of torsades de pointes. Its labeled risk factors for torsades — reduced creatinine clearance, female sex, higher doses and a slow heart rate — say nothing about cannabis, and no study has examined the combination. The realistic concerns are additive bradycardia and orthostatic hypotension from the beta-blockade, and the fact that beta-blockade <strong>masks</strong> the tachycardia that would otherwise signal a cannabis effect.',
+   monitor:'Rise slowly from sitting or lying. Report dizziness, fainting, palpitations or a very slow pulse. Sotalol dosing depends on kidney function and on the measured QT interval, so any illness causing dehydration matters as much as any drug. <strong>Never stop sotalol abruptly</strong> — abrupt beta-blocker withdrawal can precipitate angina or arrhythmia.',
+   pmid:''},
+
+  {id:'dofetilide',drug:'Dofetilide',brands:['Tikosyn'],cls:'Class III Antiarrhythmic (narrow therapeutic index; restricted distribution)',cat:'rx',
+   mols:['THC9','CBD'],sev:'major',ev:'C',
+   mech:'Roughly <strong>80% of a dofetilide dose is excreted in urine, 80% of that unchanged</strong>, by glomerular filtration plus active tubular secretion through the renal cation transport system. CYP3A4 can metabolize it but has low affinity, and dofetilide inhibits no CYP enzyme. <strong>There is no meaningful metabolic route for a cannabis interaction.</strong> What matters instead is that dofetilide exists to prolong the QT interval — that is its therapeutic mechanism — so anything that adds to QT risk or destabilises heart rate is operating on an already narrow margin.',
+   effect:'No cannabis-specific interaction has been studied or is mechanistically expected on pharmacokinetic grounds. The pharmacodynamic concern is real but unquantified: &Delta;9-THC raises heart rate and can provoke arrhythmia in a patient whose entire treatment is aimed at rhythm stability, and whose dose was individually titrated against a measured QT interval in hospital. <strong>Dofetilide\'s dangerous interactions are with other drugs, not with cannabis</strong> — its labeling contraindicates verapamil, cimetidine, trimethoprim, ketoconazole, hydrochlorothiazide, prochlorperazine, megestrol and dolutegravir, and it is contraindicated below a creatinine clearance of 20 mL/min.',
+   monitor:'Dofetilide is dispensed through a restricted programme and started in hospital with continuous ECG monitoring for a reason. <strong>Every new medicine, including over-the-counter ones, needs checking against its contraindication list before it is taken</strong> — cimetidine and hydrochlorothiazide are both on that list and both are easy to acquire casually. Report palpitations, fainting or near-fainting immediately. Diarrhoea, vomiting or dehydration change potassium and magnesium and raise torsades risk independently of any drug.',
+   pmid:''},
+
+  {id:'quinidine',drug:'Quinidine',brands:['Nuedexta (with dextromethorphan)','Quinidex','Quinaglute'],cls:'Class Ia Antiarrhythmic; potent CYP2D6 inhibitor (narrow therapeutic index)',cat:'rx',
+   mols:['CBD','THC9'],sev:'major',ev:'C',
+   mech:'Quinidine is unusual in being both a <strong>CYP3A4 substrate</strong> and a <strong>potent CYP2D6 inhibitor</strong> — so it is affected by other drugs and strongly affects them. It also inhibits P-glycoprotein, which is why it raises digoxin concentrations. On the cannabis side the relevant route is CYP3A: in a randomised crossover in 18 adults, a CBD-dominant cannabis extract raised the AUC of a CYP3A probe drug by 56%, so a rise in quinidine exposure is mechanistically plausible. <strong>No study has tested cannabis with quinidine.</strong>',
+   effect:'Higher quinidine exposure would mean more QT prolongation and torsades de pointes, the toxicity that limits the drug. Quinidine separately causes cinchonism (tinnitus, hearing loss, blurred vision, confusion), immune-mediated thrombocytopenia, hepatitis, a lupus-like syndrome and anticholinergic effects. Because quinidine <strong>inhibits</strong> CYP2D6 it also raises the levels of many other medicines — the interaction list runs in both directions, which is unusual and easy to overlook.',
+   monitor:'Report ringing in the ears, hearing changes, blurred vision, confusion, palpitations or fainting — cinchonism is an early warning that levels are climbing. Unusual bruising or bleeding may signal thrombocytopenia and needs prompt review. Any patient on quinidine and digoxin together is in a well-known interaction; see that entry. Mention cannabis or CBD use so a level or ECG can be considered around any change.',
+   pmid:'7040261'},
+
+  {id:'procainamide',drug:'Procainamide',brands:['Pronestyl','Procanbid'],cls:'Class Ia Antiarrhythmic (narrow therapeutic index)',cat:'rx',
+   mols:['THC9','CBD'],sev:'major',ev:'C',
+   mech:'Procainamide is <strong>not a cytochrome P450 drug</strong>. It is acetylated by NAT2 to N-acetylprocainamide (NAPA), an active metabolite with Class III activity of its own — 16&ndash;21% of a dose in slow acetylators and 24&ndash;33% in fast acetylators — and both parent and metabolite are cleared renally, with a half-life of three to four hours that lengthens with reduced creatinine clearance and with age. <strong>No cannabis interaction is expected through metabolism</strong>; the overlap is pharmacodynamic.',
+   effect:'Procainamide carries a boxed warning on two counts: prolonged use commonly produces a <strong>positive antinuclear antibody test with or without a lupus-like syndrome</strong>, and it can cause serious blood disorders, particularly leukopenia or agranulocytosis, sometimes fatal, in about 0.5% of patients. It also prolongs QT and can cause torsades de pointes. &Delta;9-THC\'s effect on heart rate and rhythm adds to a proarrhythmic drug in a patient already selected for rhythm instability. <strong>No study has examined cannabis with procainamide.</strong>',
+   monitor:'Report fever, sore throat, mouth ulcers or any sign of infection promptly — these can be the first signs of agranulocytosis, and routine blood counts are part of normal monitoring. Joint pain, rash, chest pain on breathing or unexplained fever may signal the lupus-like syndrome. Palpitations or fainting need urgent review. Kidney function and age both lengthen clearance independently of anything else.',
+   pmid:'29870500'},
+
+  {id:'disopyramide',drug:'Disopyramide',brands:['Norpace','Norpace CR'],cls:'Class Ia Antiarrhythmic with strong anticholinergic activity (narrow therapeutic index)',cat:'rx',
+   mols:['THC9','CBD'],sev:'major',ev:'C',
+   mech:'Disopyramide differs from the other Class Ia agents in two ways that matter more than its metabolism. It is <strong>strongly anticholinergic</strong> — its labeling states it should not be used in patients with <strong>glaucoma</strong>, myasthenia gravis or urinary retention unless overriding measures are in place — and it is <strong>negatively inotropic</strong>, reducing cardiac output by roughly 10% and more in impaired hearts. It is cleared hepatically and renally, with the half-life lengthening from about 6.7 hours to 8&ndash;18 hours in renal impairment. Cannabis adds anticholinergic-type dryness and, through &Delta;9-THC, orthostatic hypotension.',
+   effect:'Two distinct overlaps. <strong>Anticholinergic:</strong> additive dry mouth, blurred vision, constipation and urinary hesitancy — and because disopyramide can raise intraocular pressure, this is one of the few drugs where V2\'s <strong>Glaucoma / Ocular Pressure</strong> topic and a medication record intersect directly. <strong>Haemodynamic:</strong> disopyramide can cause or worsen congestive heart failure and severe hypotension through its negative inotropic effect, and &Delta;9-THC lowers standing blood pressure. It also prolongs QT. <strong>No study has tested cannabis with disopyramide.</strong>',
+   monitor:'Anyone with glaucoma or raised eye pressure should raise disopyramide with both their ophthalmologist and their cardiologist — this is a specific labeled caution, not a general one. Report difficulty passing urine, worsening breathlessness, ankle swelling, weight gain, dizziness or fainting. Dry mouth is common and compounds with cannabis; it matters mainly because it drives people to sugary drinks and dental problems, not because it is dangerous in itself.',
+   pmid:''},
+
   // ── DRUG-11: four additions requested 2026-08-27 ──────────────────────────────
   // Rasonque (daraxonrasib) was FDA-approved on 26 August 2026 — the day before this was written.
   // No DailyMed SPL and no openFDA label record existed yet, so the label's own Section 7 could
@@ -8018,6 +8134,14 @@ var DI_ALIASES = {
   'dabigatran':'dabigatran','pradaxa':'dabigatran',
   'sirolimus':'sirolimus','rapamycin':'sirolimus','rapamune':'sirolimus',
   'everolimus':'everolimus','zortress':'everolimus','afinitor':'everolimus',
+  // DRUG-16 tranche C — seven narrow-index antiarrhythmics, individually
+  'flecainide':'flecainide','tambocor':'flecainide',
+  'propafenone':'propafenone','rythmol':'propafenone',
+  'sotalol':'sotalol','betapace':'sotalol','sotylize':'sotalol','sorine':'sotalol',
+  'dofetilide':'dofetilide','tikosyn':'dofetilide',
+  'quinidine':'quinidine','nuedexta':'quinidine','quinidex':'quinidine','quinaglute':'quinidine',
+  'procainamide':'procainamide','pronestyl':'procainamide','procanbid':'procainamide',
+  'disopyramide':'disopyramide','norpace':'disopyramide',
   'corgard':'betablockers',
   'cortef':'prednisone',
   'cortisone':'prednisone',
