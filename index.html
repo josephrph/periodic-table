@@ -6813,7 +6813,59 @@ var DDI_DATA = [
    mech:'Tizanidine is cleared almost entirely by CYP1A2. Fluvoxamine is the most potent CYP1A2 inhibitor in common clinical use — considerably stronger than ciprofloxacin — so tizanidine accumulates. <strong>The tizanidine labeling contraindicates this combination outright</strong>, and it is the reason fluvoxamine needs a record of its own rather than being treated as a generic SSRI.',
    effect:'Profound hypotension, bradycardia, sedation and syncope. In FDA Adverse Event Reporting System data, tizanidine reported with fluvoxamine carried a reporting odds ratio for hypotension of <strong>36.9 (95% CI 13.1–103.4)</strong> — the highest of any CYP1A2 inhibitor examined, above ciprofloxacin at 28.1. Falls and fractures are the practical consequence.',
    monitor:'Do not combine. This is a contraindication rather than a caution — it needs a different antidepressant or a different muscle relaxant, decided with the prescriber. If both have already been taken, treat dizziness, fainting, a slow pulse or profound drowsiness as urgent rather than waiting for a scheduled appointment.',
-   pmid:'35834155'}
+   pmid:'35834155'},
+
+  // ── DRUG-15: theophylline and dabigatran pairs ───────────────────────────────
+  // The first two are a direct payoff from tranche A: fluvoxamine and cimetidine only became
+  // targetable when they were split out of their class records earlier today.
+  {id:'theophylline_fluvoxamine',drugs:['theophylline','fluvoxamine'],sev:'major',ev:'A',
+   label:'Theophylline + Fluvoxamine (avoid)',
+   mech:'Theophylline is cleared predominantly by CYP1A2 and fluvoxamine is the most potent CYP1A2 inhibitor in common use. This was measured directly: in a randomised crossover study of 12 healthy volunteers, fluvoxamine reduced median total theophylline clearance from <strong>80 mL/min to 24 mL/min</strong> and lengthened its half-life from <strong>6.6 hours to 22 hours</strong>.',
+   effect:'A roughly three-fold fall in clearance of a drug with a narrow therapeutic index — toward nausea and vomiting, tremor, tachycardia, and at higher concentrations seizures and arrhythmia. Theophylline toxicity can present without warning symptoms, particularly in older patients.',
+   monitor:'Avoid the combination. Where fluvoxamine is unavoidable, the theophylline dose needs substantial reduction with level monitoring, decided by the prescriber — this is not a self-managed adjustment. Report nausea, vomiting, tremor or palpitations urgently.',
+   pmid:'9029748'},
+
+  {id:'theophylline_ciprofloxacin',drugs:['theophylline','ciprofloxacin'],sev:'major',ev:'A',
+   label:'Theophylline + Ciprofloxacin',
+   mech:'Ciprofloxacin inhibits CYP1A2, the enzyme that clears theophylline. The interaction was recognised early in ciprofloxacin\'s use and reported as a specific hazard.',
+   effect:'Raised theophylline concentrations with the same toxicity profile — nausea and vomiting, tremor, tachycardia, seizures and arrhythmia at higher levels. Cases of serious toxicity, including seizures, have been reported from this pairing.',
+   monitor:'Where possible use an antibiotic that does not inhibit CYP1A2. If ciprofloxacin is necessary, the theophylline dose is usually reduced and a level checked during the course. Report nausea, vomiting, tremor or palpitations promptly rather than waiting for the course to finish.',
+   pmid:'3132238, 2344769'},
+
+  {id:'theophylline_cimetidine',drugs:['theophylline','cimetidine'],sev:'moderate',ev:'B',
+   label:'Theophylline + Cimetidine',
+   mech:'Cimetidine inhibits CYP1A2 among several other cytochrome P450 enzymes, reducing theophylline clearance. Famotidine and the proton pump inhibitors do not share this property.',
+   effect:'A modest but real rise in theophylline concentrations, which matters because the therapeutic index is narrow. Cimetidine is sold over the counter, so this combination is often assembled by the patient rather than the prescriber and is easy to miss on a medication list.',
+   monitor:'Famotidine is the straightforward substitute and avoids this entirely. If cimetidine is continued, mention it explicitly — including if it was bought over the counter — so a theophylline level can be considered.',
+   pmid:'30422557'},
+
+  {id:'dabigatran_pgp',drugs:['dabigatran','amiodarone','clarithromycin','azoles','cyclosporine','cyp3a4inh'],
+   groups:[['dabigatran'],['amiodarone','clarithromycin','azoles','cyclosporine','cyp3a4inh']],sev:'major',ev:'B',
+   label:'Dabigatran + P-glycoprotein Inhibitors',
+   mech:'Dabigatran is not metabolized by cytochrome P450 at all — its absorption and elimination are governed by <strong>P-glycoprotein</strong>. Inhibitors of that transporter (amiodarone, clarithromycin, the azole antifungals, cyclosporine, verapamil, dronedarone, ketoconazole) therefore raise dabigatran exposure directly, with no alternative pathway to compensate.',
+   effect:'Increased dabigatran concentrations and increased bleeding risk. The effect is larger in reduced kidney function, because dabigatran is cleared renally and the two mechanisms compound. Dabigatran labeling restricts or contraindicates some of these combinations depending on renal function.',
+   monitor:'This combination needs prescriber review rather than patient management, and the answer often depends on kidney function. Report unusual bruising, prolonged bleeding from cuts, nosebleeds, black or tarry stools, or pink or brown urine. Do not stop dabigatran on your own — abrupt discontinuation raises stroke risk and carries a boxed warning.',
+   pmid:'35745692'},
+
+  {id:'dabigatran_nsaid',drugs:['dabigatran','ibuprofen','aspirin'],
+   groups:[['dabigatran'],['ibuprofen','aspirin']],sev:'major',ev:'B',
+   label:'Dabigatran + NSAIDs / Aspirin',
+   mech:'Two independent contributions to bleeding: dabigatran inhibits thrombin directly, while NSAIDs and aspirin impair platelet function and injure the gastrointestinal mucosa. Neither depends on the other, so the risks add.',
+   effect:'Substantially increased risk of gastrointestinal and other major bleeding. NSAIDs also reduce kidney perfusion, which raises dabigatran exposure further because the drug is renally cleared — so the interaction has a pharmacokinetic tail as well as a pharmacodynamic one.',
+   monitor:'Avoid regular NSAID use on dabigatran; acetaminophen is the usual alternative for pain. Low-dose aspirin is sometimes deliberately prescribed alongside an anticoagulant, and that should be a documented decision rather than an accident. Report black or tarry stools, vomiting blood, or unusual bruising urgently.',
+   pmid:'35745692'},
+
+  // DRUG-15: mycophenolate's commonest real-world drug-drug interaction, and it is NOT the
+  // clopidogrel/PPI mechanism — this one is pH-dependent DISSOLUTION, not CYP2C19, so it is
+  // class-wide across PPIs and switching to pantoprazole does NOT solve it. Graded A: a systematic
+  // review with meta-analysis plus a controlled clinical trial.
+  {id:'mycophenolate_ppi',drugs:['mycophenolate','omeprazole','pantoprazole'],
+   groups:[['mycophenolate'],['omeprazole','pantoprazole']],sev:'moderate',ev:'A',
+   label:'Mycophenolate + Proton Pump Inhibitors',
+   mech:'Mycophenolate mofetil dissolves in an acid environment. Proton pump inhibitors raise gastric pH, which reduces how much of the prodrug dissolves and is absorbed, lowering mycophenolic acid exposure. This is a <strong>pH effect on dissolution, not a cytochrome P450 interaction</strong> — so unlike the clopidogrel–PPI interaction it applies across the PPI class, and changing to pantoprazole does not avoid it.',
+   effect:'Reduced mycophenolic acid exposure, with the theoretical consequence of under-immunosuppression and increased rejection risk. A systematic review with meta-analysis and a controlled clinical trial in transplant recipients both found PPI co-medication lowers mycophenolic acid exposure. The enteric-coated formulation (mycophenolate sodium, Myfortic) releases past the stomach and is affected less than mycophenolate mofetil (CellCept).',
+   monitor:'This needs the transplant team, not a substitution decided at the pharmacy counter. Options they may consider include the enteric-coated formulation, an H2 blocker such as famotidine instead of a PPI, or mycophenolic acid level monitoring. <strong>Do not stop either drug independently.</strong> Mention any over-the-counter PPI — omeprazole is sold without prescription and is easy to leave off a medication list.',
+   pmid:'35239287, 19481022'}
 ];
 
 // Build DDI lookup: drug ID → array of DDI_DATA indices involving that drug
@@ -7122,12 +7174,16 @@ var DI_DATA = [
    effect:'Elevated ALT/AST, risk of drug-induced liver injury. More common in children and at high CBD doses.',
    monitor:'Monitor liver function tests regularly. Avoid high doses of both without hepatology involvement.',
    pmid:'28782097'},
+  // DRUG-15: was ev:'B' on a case report. A PHASE I CROSSOVER TRIAL has since quantified this
+  // interaction in humans, which makes it grade A — and one of the largest measured cannabinoid
+  // drug interactions anywhere in V2. Found while researching tranche B; upgraded here rather than
+  // left stale, because the severity was already major and the number changes the advice.
   {id:'tacrolimus',drug:'Tacrolimus',brands:['Prograf','Astagraf XL','Envarsus XR'],cls:'Calcineurin Inhibitor (Immunosuppressant)',cat:'rx',
-   mols:['CBD'],sev:'major',ev:'B',
-   mech:'CBD inhibits CYP3A4 and P-glycoprotein — both critical to tacrolimus metabolism and transport — significantly increasing tacrolimus blood levels.',
-   effect:'Tacrolimus toxicity: nephrotoxicity, neurotoxicity, and dangerously elevated trough levels.',
-   monitor:'Monitor tacrolimus trough levels closely. Dose adjustment is required.',
-   pmid:'31012522'},
+   mols:['CBD'],sev:'major',ev:'A',
+   mech:'CBD inhibits CYP3A4 and P-glycoprotein — both critical to tacrolimus metabolism and transport — raising tacrolimus blood levels. <strong>This has now been measured in a human trial rather than inferred.</strong> In an open-label, fixed-sequence crossover study, participants took a single 5 mg oral dose of tacrolimus, then CBD titrated to 5 mg/kg twice daily for 14 days to steady state, then a second tacrolimus dose.',
+   effect:'<strong>Tacrolimus peak concentration rose 4.2-fold and total exposure (AUC) rose 3.1-fold with CBD</strong> (both p &lt; 0.0001, 12 participants completing). Half-life did not change, which points to a first-pass effect in gut and liver rather than slower elimination. Clinically this means tacrolimus toxicity — kidney injury, tremor and other neurotoxicity, hypertension, hyperglycaemia — at a dose that was previously correct. A separate case report describes the same interaction alongside mycophenolate in a kidney transplant recipient.',
+   monitor:'The trial authors called for <strong>tacrolimus dose reduction and more frequent therapeutic drug monitoring in transplant patients using CBD</strong>. Treat any change in CBD — starting, stopping, or changing dose or product — as a reason to check a tacrolimus trough level, not as a minor variable. Do not start or stop CBD without telling the transplant team first. Report tremor, headache, reduced urine output, or new high blood pressure or blood sugar.',
+   pmid:'39601108, 39921332, 31012522'},
   {id:'cyclosporine',drug:'Cyclosporine',brands:['Neoral','Sandimmune','Gengraf'],cls:'Calcineurin Inhibitor (Immunosuppressant)',cat:'rx',
    mols:['CBD'],sev:'major',ev:'B',
    mech:'CBD inhibits CYP3A4 and P-glycoprotein, increasing cyclosporine plasma concentrations significantly.',
@@ -7793,6 +7849,70 @@ var DI_DATA = [
    monitor:'No cannabis-specific monitoring is indicated. The relevant cautions are the drug\'s own and are not about cannabis: it is <strong>not recommended with other potent immunosuppressants</strong>; evaluate for latent or active tuberculosis before starting; it may increase infection risk; malignancies including lymphoma were seen in trials; avoid live vaccines; and the label asks for <strong>liver enzymes at baseline and during treatment in anyone with known or suspected liver disease</strong> — worth flagging to the prescriber alongside any high-dose CBD, since CBD carries its own liver-enzyme signal. Rhabdomyolysis and marked CPK elevation are also labelled cautions, so new muscle pain should be reported rather than attributed to cannabis.',
    pmid:'35241426, 37981596'},
 
+  // ── DRUG-15 · TRANCHE B: the evidence tier ───────────────────────────────────
+  // Owner-approved tranche B. These were selected by MECHANISM AND EVIDENCE, not by prescribing
+  // volume — the correction the owner made to the first gap analysis. Two of the five carry human
+  // data on the cannabis side, which is more than most of V2's drug records can claim.
+
+  // Theophylline is the single best-evidenced cannabis drug interaction of anything V2 lacked, and
+  // it is NOT in the 300 most-prescribed US drugs — which is exactly why a volume-ranked screen
+  // could never have surfaced it. Jusko 1978 gave single oral doses to 7 chronic marihuana smokers,
+  // 7 who smoked both marihuana and tobacco, and 43 controls, and MEASURED the difference.
+  // Severity major because the therapeutic index is narrow in both directions: levels falling means
+  // loss of asthma control, levels rising means seizures and arrhythmia. Grade B rather than A
+  // because cannabis exposure was observed rather than assigned — it is a human PK cohort
+  // comparison, not a randomised trial of cannabis.
+  {id:'theophylline',drug:'Theophylline / Aminophylline',brands:['Theo-24','Theochron','Elixophyllin','Uniphyl','Norphyl','Truphylline'],
+   cls:'Methylxanthine Bronchodilator (narrow therapeutic index)',cat:'rx',
+   mols:['THC9','CBD'],sev:'major',ev:'B',
+   mech:'Theophylline is cleared predominantly by <strong>CYP1A2</strong>, and its therapeutic index is narrow — toxicity begins close to the effective range. <strong>Smoked cannabis induces CYP1A2</strong> through combustion products rather than through the cannabinoids themselves, so it speeds theophylline clearance. This has been measured in people: in a study of 7 chronic marihuana smokers, 7 who smoked both marihuana and tobacco, and 43 control subjects, mean total theophylline clearance rose from <strong>52 mL/kg/hr in non-smokers to 74 mL/kg/hr in those who smoked either substance alone, and 93 mL/kg/hr in those who smoked both</strong> — an additive effect. The authors concluded that concern over enhanced metabolism of other drugs is warranted in cannabis smokers. Oils, capsules and edibles do not induce CYP1A2.',
+   effect:'Regular cannabis SMOKING lowers theophylline levels and can cost asthma or COPD control. <strong>The more dangerous direction is stopping.</strong> When cannabis smoking stops, CYP1A2 activity returns to baseline over one to two weeks and theophylline levels climb on an unchanged dose — toward nausea and vomiting, tremor, tachycardia, and at higher levels seizures and arrhythmia, which can occur without warning symptoms in older patients. The same applies to any change in smoking pattern, including switching from smoking to edibles.',
+   monitor:'This is a drug where the route and the pattern of cannabis use both need to be on the record, not just the fact of use. <strong>Tell the prescriber before starting, changing or stopping cannabis</strong> — theophylline levels are routinely measured and a level should be checked around any change. Report nausea, vomiting, tremor, palpitations or agitation promptly rather than waiting. Never adjust the theophylline dose independently.',
+   pmid:'688731, 30422557'},
+
+  // Mycophenolate. The owner's gap analysis flagged this as the strongest single addition available,
+  // and it is the only tranche-B drug with a published HUMAN case report of a CBD interaction.
+  // Note the direction is genuinely uncertain and the record says so: CBD inhibits UGT1A9 (which
+  // CLEARS mycophenolic acid, so inhibition would RAISE exposure) but CBD also inhibits
+  // carboxylesterases (which ACTIVATE mycophenolate mofetil to mycophenolic acid, so inhibition
+  // would LOWER exposure). Both mechanisms are named in the Cuñetti case report itself.
+  {id:'mycophenolate',drug:'Mycophenolate Mofetil / Mycophenolic Acid',brands:['CellCept','Myfortic'],
+   cls:'Antimetabolite Immunosuppressant (UGT1A9-cleared)',cat:'rx',
+   mols:['CBD','THC9'],sev:'major',ev:'B',
+   mech:'Mycophenolate mofetil is a prodrug: carboxylesterases convert it to the active moiety, mycophenolic acid, which is then inactivated by glucuronidation — <strong>principally by UGT1A9</strong>. Cannabinoids act on both steps. CBD is the most potent known cannabinoid inhibitor of UGT1A9 (binding-corrected IC50 0.12 &micro;M) and is also reported to inhibit carboxylesterases in vitro. UGT1A9 and UGT2B7 genotype already predicts mycophenolic acid exposure between patients, so this pathway is rate-limiting in practice rather than in theory.',
+   effect:'<strong>A pharmacokinetic interaction between CBD, cyclosporine and mycophenolate mofetil has been reported in a kidney transplant recipient</strong> — a single published case, not a trial, but human evidence rather than mechanism alone. <strong>The direction is not predictable.</strong> Inhibiting UGT1A9 would raise mycophenolic acid exposure (toward myelosuppression, infection and gastrointestinal toxicity); inhibiting the carboxylesterases that activate the prodrug would lower it (toward under-immunosuppression and graft rejection). Either outcome is serious, and which dominates in a given patient is unknown.',
+   monitor:'This is not a combination to manage independently. <strong>Anyone on mycophenolate after a transplant should raise cannabis or CBD use with the transplant team before starting or stopping it</strong> — rejection and over-immunosuppression are both silent early. Mycophenolate is very often prescribed with tacrolimus or cyclosporine, and CBD has a separately documented interaction with both, so the regimen as a whole matters more than any single drug. Report fever, infection, unusual bruising, mouth ulcers or persistent diarrhoea.',
+   pmid:'38212169, 23131697'},
+
+  // Dabigatran — graded major/C to match apixaban and rivaroxaban exactly. It is the DOAC where the
+  // TRANSPORTER axis matters most, because unlike the factor Xa inhibitors it is not a CYP substrate
+  // at all. No human study of cannabis with dabigatran exists and the record says so plainly.
+  {id:'dabigatran',drug:'Dabigatran',brands:['Pradaxa'],cls:'Direct Thrombin Inhibitor (P-glycoprotein substrate)',cat:'rx',
+   mols:['CBD','THC9'],sev:'major',ev:'C',
+   mech:'Dabigatran etexilate is absorbed as a prodrug and is a <strong>P-glycoprotein (P-gp) substrate</strong>. Unlike apixaban and rivaroxaban it is <strong>not</strong> metabolized by cytochrome P450 at all, so its exposure is governed almost entirely by that transporter — which makes it the anticoagulant where a cannabinoid effect on P-gp would matter most and be least buffered by other pathways. Cannabinoids inhibit or compete for P-gp alongside CYP and UGT enzymes; a review specifically of cannabis with anticoagulants and antiplatelets sets out the concern for exactly this class.',
+   effect:'<strong>Theoretical and review-level only — no human study has tested cannabis with dabigatran.</strong> P-gp inhibition would raise dabigatran exposure and with it bleeding risk; the drug already carries a boxed warning for spinal haematoma with neuraxial anaesthesia and for thrombotic events on premature discontinuation. The population taking it — atrial fibrillation, venous thromboembolism, mechanical valve prophylaxis is contraindicated — has little tolerance for either direction. Note dabigatran has a specific reversal agent (idarucizumab), which the factor Xa inhibitors in V2 largely do not.',
+   monitor:'No cannabis-specific monitoring is established, and none should be inferred from mechanism alone. Report unusual bruising, prolonged bleeding, black or tarry stools, pink or brown urine, or unexplained fatigue. <strong>Do not stop dabigatran because of anything in this tool</strong> — abrupt discontinuation raises stroke risk and carries its own boxed warning. Dabigatran also needs dose review in reduced kidney function, independently of cannabis.',
+   pmid:'31724188, 35745692'},
+
+  // Sirolimus and everolimus, kept as SEPARATE records. They are close analogues, but the recurring
+  // defect this whole session has been fixing is exactly the habit of merging drugs into one record.
+  // Graded C — one tier BELOW tacrolimus and cyclosporine — because no study has tested CBD with
+  // either mTOR inhibitor. The neighbouring human evidence (a phase I trial in which CBD raised
+  // tacrolimus exposure 3.1-fold) is cited as context, NOT transferred as evidence for these drugs.
+  {id:'sirolimus',drug:'Sirolimus',brands:['Rapamune'],cls:'mTOR Inhibitor Immunosuppressant (narrow therapeutic index)',cat:'rx',
+   mols:['CBD','THC9'],sev:'major',ev:'C',
+   mech:'Sirolimus is a <strong>CYP3A4 and P-glycoprotein substrate</strong> with a narrow therapeutic index, dosed to a target blood concentration with routine therapeutic drug monitoring. CBD inhibits CYP3A4. The strength of that mechanism in a closely related drug is now known in humans: in a phase I crossover trial, CBD at 5 mg/kg twice daily raised single-dose tacrolimus Cmax 4.2-fold and AUC 3.1-fold, and the authors called for tacrolimus dose reduction and more frequent monitoring in transplant patients using CBD. Tacrolimus and sirolimus are not the same drug, but they share the pathway.',
+   effect:'<strong>No study has tested CBD or cannabis with sirolimus.</strong> Extrapolating from the tacrolimus trial, a clinically meaningful rise in sirolimus exposure is plausible — toward mouth ulcers, cytopenias, raised lipids, impaired wound healing, interstitial lung disease and infection. That is an extrapolation across drugs on a shared enzyme, not a measured effect, and it is graded accordingly. Sirolimus already carries boxed warnings for immunosuppression and, in liver and lung transplantation, for graft and airway complications.',
+   monitor:'Sirolimus is already monitored by blood level, which is the safeguard here. <strong>Tell the transplant team before starting or stopping cannabis or CBD so a level can be checked around the change</strong>, rather than discovering the shift at a routine visit. Report mouth sores, new breathlessness, poor wound healing, fever or unusual bruising. Never adjust the dose independently.',
+   pmid:'39601108'},
+
+  {id:'everolimus',drug:'Everolimus',brands:['Zortress','Afinitor','Afinitor Disperz'],cls:'mTOR Inhibitor (transplant and oncology; narrow therapeutic index)',cat:'rx',
+   mols:['CBD','THC9'],sev:'major',ev:'C',
+   mech:'Everolimus is a <strong>CYP3A4 and P-glycoprotein substrate</strong>, and its labeling already restricts concomitant strong and moderate CYP3A4 inhibitors with defined dose reductions — so the pathway is not merely theoretical for this drug, it is quantified for other inhibitors. CBD inhibits CYP3A4. Everolimus is used at lower doses in transplantation (Zortress) and higher doses in oncology (Afinitor), and the two settings differ in both monitoring and tolerance for an exposure change.',
+   effect:'<strong>No study has tested CBD or cannabis with everolimus.</strong> Given the labelled dose reductions for other CYP3A4 inhibitors, a rise in everolimus exposure with CBD is mechanistically plausible — toward stomatitis, non-infectious pneumonitis, hyperglycaemia, hyperlipidaemia, cytopenias and infection. The closest human evidence on this pathway is the phase I trial in which CBD raised tacrolimus exposure 3.1-fold; that is a different drug and is cited as context rather than as evidence for everolimus.',
+   monitor:'No cannabis-specific monitoring is established. In transplantation, everolimus is dosed to a blood level — tell the team before starting or stopping cannabis so a level can be checked. In oncology it usually is not level-monitored, which makes disclosure more important rather than less. Report mouth sores, new or worsening breathlessness or cough, fever, or unusual bruising. Do not change the dose independently.',
+   pmid:'14748618, 39601108'},
+
   // ── DRUG-11: four additions requested 2026-08-27 ──────────────────────────────
   // Rasonque (daraxonrasib) was FDA-approved on 26 August 2026 — the day before this was written.
   // No DailyMed SPL and no openFDA label record existed yet, so the label's own Section 7 could
@@ -7892,6 +8012,12 @@ var DI_ALIASES = {
   'codeine':'opioids',
   'contrave':'bupropion',
   'coreg':'carvedilol','sotyktu':'deucravacitinib','deucravacitinib':'deucravacitinib',
+  // DRUG-15 tranche B
+  'theophylline':'theophylline','aminophylline':'theophylline','theo-24':'theophylline','theochron':'theophylline','elixophyllin':'theophylline','uniphyl':'theophylline','truphylline':'theophylline',
+  'mycophenolate':'mycophenolate','mycophenolate mofetil':'mycophenolate','mycophenolic acid':'mycophenolate','cellcept':'mycophenolate','myfortic':'mycophenolate','mmf':'mycophenolate',
+  'dabigatran':'dabigatran','pradaxa':'dabigatran',
+  'sirolimus':'sirolimus','rapamycin':'sirolimus','rapamune':'sirolimus',
+  'everolimus':'everolimus','zortress':'everolimus','afinitor':'everolimus',
   'corgard':'betablockers',
   'cortef':'prednisone',
   'cortisone':'prednisone',
