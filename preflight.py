@@ -264,6 +264,50 @@ def check_v2fact_keys(src, data):
     note('V2FACTS: %d spans checked against live data %s' % (len(found), expected))
 
 
+def check_demo_guided_parity(src, data):
+    """UX-123: Demo Mode must not keep private copies of guided data.
+
+    Demo Mode and Guided Match are two flows over one dataset. Where they duplicated a table
+    instead of sharing it, they drifted — GUIDED_MOL was copied wholesale into DJ_GUIDED_MOL
+    because a closure boundary put the original out of reach, and the science-alias map was
+    written out five separate times. This asserts the de-duplication holds and that every
+    condition the demo offers is a real one.
+    """
+    body = strip_comments(src)
+
+    # 1. no second copy of the curated guided-molecule profiles
+    if 'DJ_GUIDED_MOL' in body:
+        fail('demo parity',
+             'DJ_GUIDED_MOL is back — the demo must read window.V4Guided.guidedMol, not its own copy')
+
+    # 2. exactly one literal of the science-alias map
+    n_alias = len(re.findall(r"'appetite-stim'\s*:\s*'appetite'", body))
+    if n_alias != 1:
+        fail('demo parity',
+             'the appetite/nausea science-alias map appears %d times; it must be declared once'
+             % n_alias)
+
+    # 3. every id the demo offers must resolve — a real condition, or one of the curated
+    #    guided-only profiles that the science layer aliases back to a real condition
+    m = re.search(r'var DJ_CONDS\s*=\s*\[(.*?)\];', body, re.S)
+    if not m:
+        fail('demo parity', 'DJ_CONDS not found')
+        return
+    dj_ids = re.findall(r"id:'([^']+)'", m.group(1))
+    real = {c.get('id') for c in data['CONDITIONS']}
+    curated = set(re.findall(r"'([a-z-]+)'\s*:\s*\{[A-Z]", 
+                             re.search(r'var GUIDED_MOL=\{(.*?)\};', body, re.S).group(1))) \
+              if re.search(r'var GUIDED_MOL=\{(.*?)\};', body, re.S) else set()
+    orphans = [i for i in dj_ids if i not in real and i not in curated]
+    if orphans:
+        fail('demo parity',
+             'Demo Mode offers condition id(s) that resolve to nothing: %s' % ', '.join(orphans))
+    note('demo parity: %d demo conditions all resolve (%d real, %d curated profiles); '
+         'no duplicated guided tables'
+         % (len(dj_ids), len([i for i in dj_ids if i in real]),
+            len([i for i in dj_ids if i in curated])))
+
+
 def check_entities(src):
     """No double-escaped entities, and no entity names the browser will not know.
 
@@ -806,6 +850,7 @@ def main():
 
     check_scripts_parse(src)
     check_v2fact_keys(src, data)
+    check_demo_guided_parity(src, data)
     check_entities(src)
     check_banned_terms(src)
     check_brand_lockups(src)

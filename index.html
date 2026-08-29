@@ -11518,12 +11518,19 @@ document.addEventListener('keydown', function(e) {
   window.V4Guided={CONFIG:CFG,inventory:INV,names:GNAMES,terps:TERPS,buildProfile:profile,
     match:match,recForConditions:recForConditions,intentMap:INTENT,
     setInventory:setInventory,restoreDemo:restoreDemo,parseInventoryCSV:parseInventoryCSV,
-    isImported:function(){return invImported;},sampleCount:function(){return DEMO_INV.length;}};
+    isImported:function(){return invImported;},sampleCount:function(){return DEMO_INV.length;},
+    // UX-123: exported so the UI controller can read the SAME curated profiles instead of keeping its
+    // own copy. GUIDED_MOL lives in this IIFE and was previously unreachable from the controller, which
+    // is the only reason DJ_GUIDED_MOL existed — two identical tables that could silently diverge.
+    guidedMol:GUIDED_MOL};
 })();
 
 
 /* ===== V4 Guided Finder — UI controller (additive). Uses window.V4Guided + selectCondition ===== */
 (function(){
+  // UX-123: the science layer's real condition ids for the two curated guided-only profiles. This map
+  // was written out five separate times; one copy now serves every call site so they cannot disagree.
+  var SCI_ALIAS={'appetite-stim':'appetite','nausea-relief':'nausea'};
   var REASONS={
     sleep:{ic:'😴',label:'Sleep',rq:"What's harder for you?",opts:[
       {k:'fall',ic:'🛏️',label:'Falling asleep'},{k:'stay',ic:'⏰',label:'Staying asleep'},{k:'both',ic:'🌗',label:'Both'}]},
@@ -11824,7 +11831,7 @@ document.addEventListener('keydown', function(e) {
   // ONB-13: optional medications / drug-interaction step in the STANDARD flow. Reuses the demo meds engine
   // (findDdiInteractions + buildCannabisHitsByMol + djMedResults + djRenderMedSearch), but screens against the
   // molecules THIS flow recommends (table-consistent set), and re-renders screen-aware via reRenderMeds().
-  function stdRecMolIds(){var condIds=currentCondIds();var SCI={'appetite-stim':'appetite','nausea-relief':'nausea'};var dc=SCI[condIds[0]]||condIds[0];
+  function stdRecMolIds(){var condIds=currentCondIds();var dc=SCI_ALIAS[condIds[0]]||condIds[0];
     var cond=(typeof CONDITIONS!=='undefined')?CONDITIONS.find(function(c){return c.id===dc;}):null;
     if(cond)return Object.keys(cond.molecules).filter(function(id){return typeof M!=='undefined'&&M[id];});
     return currentRec().molecules.map(function(m){return m.molId;});}
@@ -11894,7 +11901,6 @@ document.addEventListener('keydown', function(e) {
     // or shows products — that belongs ONLY to Demo Mode (scDJ*). recForConditions() is deliberately untouched
     // so Demo Mode's journey/matcher is unaffected.
     var condIds=currentCondIds();
-    var SCI_ALIAS={'appetite-stim':'appetite','nausea-relief':'nausea'};
     var dispCond=SCI_ALIAS[condIds[0]]||condIds[0]; // the exact condition seeScience() hands to the table
     var cond=(typeof CONDITIONS!=='undefined')?CONDITIONS.find(function(c){return c.id===dispCond;}):null;
     var condLabel=cond?cond.label:'your selection';
@@ -12229,7 +12235,9 @@ document.addEventListener('keydown', function(e) {
   // Quick-pick meds: real DI_DATA ids that all interact with CBD, plus real drug–drug pairs
   // (omeprazole+clobazam, warfarin+ibuprofen) so the check always shows something compelling.
   var DJ_MEDS=['clobazam','omeprazole','warfarin','ibuprofen','gabapentin','acetaminophen'];
-  var DJ_GUIDED_MOL={'appetite-stim':{THC9:9,CBG:6,MY:5,CBN:4},'nausea-relief':{THC9:9,CBD:6,LI:5}};
+  // UX-123: was a verbatim second copy of GUIDED_MOL. It now reads the exported original, so the
+  // curated appetite/nausea product profiles cannot drift between Guided Match and Demo Mode.
+  function guidedMol(){try{return (window.V4Guided&&window.V4Guided.guidedMol)||{};}catch(e){return {};}}
 
   // UX-105: falls back to the real CONDITIONS label, not the raw id. Once the browse screen can
   // add any of the 58 conditions to a demo journey, DJ_CONDS is no longer the whole universe, and
@@ -12246,7 +12254,7 @@ document.addEventListener('keydown', function(e) {
   function djClinicalGroups(){
     var conds=(st.djConds&&st.djConds.length)?st.djConds:['seizures'];var w={};
     conds.forEach(function(cid){
-      var mols=((typeof CONDITIONS!=='undefined'&&CONDITIONS.find(function(c){return c.id===cid;}))||{}).molecules||DJ_GUIDED_MOL[cid];
+      var mols=((typeof CONDITIONS!=='undefined'&&CONDITIONS.find(function(c){return c.id===cid;}))||{}).molecules||guidedMol()[cid];
       if(!mols)return;Object.keys(mols).forEach(function(mid){if(typeof M!=='undefined'&&!M[mid])return;w[mid]=Math.max(w[mid]||0,mols[mid]);});});
     var groups={cannabinoid:[],terpene:[],flavonoid:[]};
     Object.keys(w).sort(function(a,b){return w[b]-w[a];}).forEach(function(mid){
@@ -12493,7 +12501,7 @@ document.addEventListener('keydown', function(e) {
     rdSkip:function(){try{if(window.ResearchData)ResearchData.dismissGuided();}catch(e){}scRec();},
     // UX-06 print: clean, branded summary of the standard Guided Match recommendation.
     printRec:function(){
-      var condIds=currentCondIds();var SCI={'appetite-stim':'appetite','nausea-relief':'nausea'};var dc=SCI[condIds[0]]||condIds[0];
+      var condIds=currentCondIds();var dc=SCI_ALIAS[condIds[0]]||condIds[0];
       var cond=(typeof CONDITIONS!=='undefined')?CONDITIONS.find(function(c){return c.id===dc;}):null;
       var condLabel=cond?cond.label:'your selection';
       function molNm(id){return G().names[id]||((typeof M!=='undefined'&&M[id])?(M[id].fullName||M[id].symbol):id);}
@@ -12678,12 +12686,12 @@ if(typeof PT_individualResponse==='function')body+=PT_individualResponse();   //
     seeScience:function(){this.handoffTo(currentCondIds()[0]);},
     // Open the full Entourage Effect analysis scoped to this session's condition. The Guided overlay stays
     // open underneath (Entourage overlay is z-index 9100 > gxOverlay 9000), so closing it returns here.
-    entourage:function(){var ids=currentCondIds();var SCI_ALIAS={'appetite-stim':'appetite','nausea-relief':'nausea'};var c=SCI_ALIAS[ids[0]]||ids[0];try{if(typeof showEntourage==='function')showEntourage(c);}catch(e){}},
+    entourage:function(){var ids=currentCondIds();var c=SCI_ALIAS[ids[0]]||ids[0];try{if(typeof showEntourage==='function')showEntourage(c);}catch(e){}},
     seeAlso:function(c){this.handoffTo(c);},
     // GX-10: shared hand-off into the Periodic Table. Carries the guided THC preference through as Refine Inventory
     // Match exclusions — deterministic for the 3 intoxicants (Δ9-THC, Δ8-THC, THCP), and non-destructive to any
     // other molecules an operator excluded. "A little"/"any" clears these 3 so the choice is authoritative.
-    handoffTo:function(c){var SCI_ALIAS={'appetite-stim':'appetite','nausea-relief':'nausea'};c=SCI_ALIAS[c]||c;
+    handoffTo:function(c){c=SCI_ALIAS[c]||c;
       try{var THC_INTOX=['THC9','THC8','THCP'];
         if(window._excludedMols){
           if(st.ceiling==='none'){THC_INTOX.forEach(function(id){if(typeof M!=='undefined'&&M[id])window._excludedMols[id]=true;});}
