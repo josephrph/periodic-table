@@ -12293,8 +12293,19 @@ document.addEventListener('keydown', function(e) {
       '<button class="gx-cta ghost" onclick="V4GX.demoHub()">≡ Back to demo menu</button></div>');
   }
   function scDJConds(){var sel=st.djConds||[];
+    // UX-124: anything chosen through the browse door is in st.djConds but has no quick-pick chip,
+    // so it was driving the recommendation while being invisible on this screen — nothing showed it
+    // was selected and there was no way to remove it without restarting the demonstration. Those
+    // selections now get their own chip, labelled from CONDITIONS (the canonical name is right here:
+    // the reader just searched for it by that name) and wired to the same toggle, so they read and
+    // behave exactly like the twelve built-in ones.
+    var quick={}; DJ_CONDS.forEach(function(c){quick[c.id]=true;});
+    var extra=sel.filter(function(id){return !quick[id];}).map(function(id){
+      var c=(typeof CONDITIONS!=='undefined')?CONDITIONS.filter(function(x){return x.id===id;})[0]:null;
+      return optBtn("V4GX.djToggleCond('"+id+"')",'&#x1F50D;',esc(c?c.label:id),'added by name',true,true);}).join('');
     stage(djStepBar(0)+'<h2 class="gx-q">Why are you here today?</h2><p class="gx-hint">Select one or more — a patient can have more than one concern (try <b>Seizures + Anxiety</b>).</p>'+
       DJ_CONDS.map(function(c){var on=sel.indexOf(c.id)>=0;return optBtn("V4GX.djToggleCond('"+c.id+"')",c.ic,c.label,'',on,true);}).join('')+
+      extra+
       // UX-105: Demo Mode gets the same two doors as the patient-facing flow, so a budtender can
       // demonstrate the full 58-condition lookup and the missing-condition route on the booth
       // screen. The demo's own fictional dispensary and inventory are untouched — this adds a
