@@ -2815,6 +2815,14 @@ body.is-mobile-view .demo-ribbon img{display:none}
 body.is-mobile-view .demo-ribbon .dr-short{display:block;white-space:nowrap;
   text-transform:uppercase;letter-spacing:.05em;font-weight:700}
 body.is-mobile-view .demo-ribbon .dr-exit{padding:5px 8px;font-size:9.5px}
+/* UX-122: the demo ribbon is position:fixed, and nothing reserved room for it — so on the taller
+   demo screens the last control in the stage (Exit Demo Mode, Refine again) ended up underneath the
+   green ribbon. Both stayed clickable, because the ribbon container is pointer-events:none and only
+   its two buttons take pointer events, but visually it read as content being covered. Reserving the
+   space is the fix; the ribbon itself is not moved, so nothing that currently works changes position.
+   Mobile needs more clearance because there the ribbon is deliberately raised above the tab bar. */
+body.demo-mode #gxOverlay{padding-bottom:64px}
+body.demo-mode.is-mobile-view #gxOverlay{padding-bottom:116px}
 /* Demo banner Exit button (only interactive part of the otherwise pass-through banner) */
 .demo-ribbon .dr-txt{min-width:0;flex:1}
 .demo-ribbon .dr-menu,.demo-ribbon .dr-exit{pointer-events:auto;flex:0 0 auto;background:rgba(255,255,255,.16);color:#fff;
@@ -12408,7 +12416,12 @@ document.addEventListener('keydown', function(e) {
       '<div class="gx-filtered">'+res.excluded.length+' others filtered out (out of stock, or off-profile).</div>';}
     stage(djStepBar(4)+'<h2 class="gx-q">Best matches in stock</h2><div class="gx-posline"><span class="dot"></span>Connected · Demo-POS · live stock</div>'+
       '<div class="gx-cap" style="margin:-2px 0 10px">Live POS integration (simulated). On a licensed dispensary, V2 connects to your POS / seed-to-sale system to rank in-stock products in real time (INV-05).</div>'+html+
-      '<button class="gx-cta ghost" onclick="V4GX.djBack()">← Refine again</button>');
+      '<button class="gx-cta ghost" onclick="V4GX.djBack()">← Refine again</button>'+
+      // UX-122: the Exit control was on the hub and the Done screen but on none of the screens in
+      // between, so anyone who stopped the demonstration part-way had only the small ribbon button
+      // at the bottom of the viewport — and on mobile the ribbon's Menu is hidden entirely. This is
+      // in normal document flow at the end of the stage, so it cannot cover content at any width.
+      '<button class="gx-cta ghost" onclick="window.V4DEMO.exit()">Exit Demo Mode</button>');
   }
   // INV-06 demo: a sample Certificate of Analysis for the selected product. Shows what a live
   // POS/lab integration would surface; clearly labeled SAMPLE (demonstration data only).
