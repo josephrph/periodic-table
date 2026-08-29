@@ -223,6 +223,44 @@ def check_v2fact_keys(src, data):
     for style in re.findall(r'data-v2fact="conditionGroups"[^>]*data-v2fact-style="([^"]*)"', src):
         if style not in ('short', 'long'):
             fail('V2FACTS wiring', 'conditionGroups style "%s" is not short|long' % style)
+
+    # UX-120: the conditionGroups fallbacks were NOT checked. check_v2fact_keys validated every
+    # <span> fallback but these are <div>s, and only their style attribute was asserted — so while
+    # every scalar stayed correct, the two group listings silently drifted four conditions behind
+    # the data (Pain read 7 against 8, Neurological 12 against 14, Cancer & Immune 5 against 6;
+    # Sickle Cell Disease, Spinal Cord Injury, Traumatic Brain Injury and HIV/AIDS were all
+    # missing). Users never saw it because V2FACTS.apply() overwrites the container at load, but a
+    # stale literal in the build is exactly what Tier 1 exists to prevent. Membership and counts
+    # are asserted here, not markup, so wording and punctuation stay free to change.
+    import html as _html
+    label_of = {}
+    for c in conds:
+        for g in group_keys(c.get('group')):
+            label_of.setdefault(g, []).append(c.get('label'))
+    for m in re.finditer(r'<div data-v2fact="conditionGroups"[^>]*data-v2fact-style="(short|long)"[^>]*>([\s\S]*?)</div>', src):
+        style, body = m.group(1), m.group(2)
+        paras = re.findall(r'<u>([^<]*?)\s*\((\d+)[^)]*\):</u>([^<]*)', body)
+        if len(paras) != len(label_of):
+            fail('V2FACTS fallback',
+                 'conditionGroups[%s] lists %d groups but the data has %d'
+                 % (style, len(paras), len(label_of)))
+            continue
+        for gname, gcount, members in paras:
+            gname = _html.unescape(gname).strip()
+            listed = [x.strip() for x in _html.unescape(members).strip().rstrip('.').split(',') if x.strip()]
+            if int(gcount) != len(listed):
+                fail('V2FACTS fallback',
+                     'conditionGroups[%s] "%s" says (%s) but lists %d conditions'
+                     % (style, gname, gcount, len(listed)))
+            match = [g for g in label_of if len(label_of[g]) == int(gcount)
+                     and sorted(x.replace(' / ', '/') for x in label_of[g])
+                         == sorted(x.replace(' / ', '/') for x in listed)]
+            if not match:
+                want = [(g, len(label_of[g])) for g in label_of]
+                fail('V2FACTS fallback',
+                     'conditionGroups[%s] "%s (%s)" does not match any group in the data; '
+                     'data groups are %s' % (style, gname, gcount, want))
+    note('V2FACTS: conditionGroups fallbacks match the data (%d groups)' % len(label_of))
     note('V2FACTS: %d spans checked against live data %s' % (len(found), expected))
 
 
