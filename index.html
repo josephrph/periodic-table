@@ -11769,7 +11769,7 @@ document.addEventListener('keydown', function(e) {
     '&#x23E9; Skip the questions &mdash; show me the molecules'+
     '<small>You can still run the medication check afterwards</small></button>');}
   function scThc(){var hint=(st.intent==='appetite'||st.intent==='cancer')?'For appetite and nausea, a little THC is often what helps most — pick what feels right.':'This helps us keep you comfortable.';
-    stage('<h2 class="gx-q">How do you feel about feeling “high”?</h2><p class="gx-hint">'+hint+'</p>'+
+    stage((st.dj?djStepBar(2):'')+'<h2 class="gx-q">How do you feel about feeling “high”?</h2><p class="gx-hint">'+hint+'</p>'+
     optBtn("V4GX.thc('none')",'🚫','I’d rather avoid it','Non-intoxicating options',st.ceiling==='none',true)+
     optBtn("V4GX.thc('low')",'🌤️','A little is okay','Gentle, balanced options',st.ceiling==='low',true)+
     optBtn("V4GX.thc('any')",'🙂','I don’t mind it','All options on the table',st.ceiling==='any',true));}
@@ -11794,7 +11794,7 @@ document.addEventListener('keydown', function(e) {
   // A quick, private reproductive-safety touchpoint. Educational tool → no hard block; a flag surfaces a
   // prominent "check with your provider" note on the recommendation screen.
   function scSafety(){var f=st.safetyFlags||[];
-    stage('<h2 class="gx-q">A quick safety check</h2><p class="gx-hint">Published research suggests cannabis deserves extra caution in some situations. Tap any that apply — or skip. This is <b>educational</b>, stays private on your device, and won’t block you; it simply adds a note to review with a healthcare professional.</p>'+
+    stage((st.dj?djStepBar(2):'')+'<h2 class="gx-q">A quick safety check</h2><p class="gx-hint">Published research suggests cannabis deserves extra caution in some situations. Tap any that apply — or skip. This is <b>educational</b>, stays private on your device, and won’t block you; it simply adds a note to review with a healthcare professional.</p>'+
     optBtn("V4GX.safetyToggle('preg',this)",'🤰','Pregnant','',f.indexOf('preg')>=0,true)+
     optBtn("V4GX.safetyToggle('bf',this)",'🍼','Breastfeeding','',f.indexOf('bf')>=0,true)+
     optBtn("V4GX.safetyToggle('ttc',this)",'🌱','Trying to conceive','',f.indexOf('ttc')>=0,true)+
@@ -11806,7 +11806,7 @@ document.addEventListener('keydown', function(e) {
     '<button class="gx-cta" onclick="V4GX.safetyNext()">Continue →</button>'+
     '<button class="gx-cta ghost" onclick="V4GX.safetyNext()">None of these — skip</button>');}
   function scExperience(){var e=st.experience;
-    stage('<h2 class="gx-q">How much experience do you have with cannabis?</h2><p class="gx-hint">This helps us pace your options safely.</p>'+
+    stage((st.dj?djStepBar(2):'')+'<h2 class="gx-q">How much experience do you have with cannabis?</h2><p class="gx-hint">This helps us pace your options safely.</p>'+
     optBtn("V4GX.experience('new')",'🌱','New to it',"We'll start gentle — low and slow",e==='new',true)+
     optBtn("V4GX.experience('some')",'🌤️','Some experience','A little goes a long way',e==='some',true)+
     optBtn("V4GX.experience('exp')",'🌟','Experienced','Comfortable with the full range',e==='exp',true));}
@@ -12217,7 +12217,7 @@ document.addEventListener('keydown', function(e) {
   // engine + drug-interaction dataset; never leaves the overlay (no science/table
   // exits, no external links). Steps: 1 Conditions → 2 Molecules → 3 Medications
   // → 4 Refine → 5 Products → 6 Done.
-  var DJ_STEPS=['Conditions','Molecules','Medications','Refine','Products','Done'];
+  var DJ_STEPS=['Conditions','Molecules','Preferences','Medications','Refine','Products','Done'];
   var DJ_CONDS=[
     {id:'seizures',ic:'🧠',label:'Seizures / epilepsy'},
     {id:'anxiety',ic:'💭',label:'Anxiety / stress'},
@@ -12320,8 +12320,8 @@ document.addEventListener('keydown', function(e) {
     stage(djStepBar(1)+'<h2 class="gx-q">Research-Linked Molecules for Your Health Topic</h2>'+
       '<p class="gx-hint">For <b>'+esc(condNames)+'</b> — the molecular profile from V2\'s condition-to-molecule evidence base.</p>'+
       grp('🧪 Cannabinoids',g.cannabinoid)+grp('🌿 Terpenes',g.terpene)+grp('🌼 Flavonoids',g.flavonoid)+
-      '<div class="dj-note">Next, we\'ll check the patient\'s medications against these molecules — then narrow to what\'s in stock.</div>'+
-      '<button class="gx-cta" onclick="V4GX.djToMeds()">Check medications →</button>');
+      '<div class="dj-note">Next, a few questions about the patient — tolerance, experience and safety — then their medications, then what\'s in stock.</div>'+
+      '<button class="gx-cta" onclick="V4GX.djToPrefs()">Patient preferences →</button>');
   }
   function djMedResults(recIds){
     var meds=st.meds||[];
@@ -12384,7 +12384,7 @@ document.addEventListener('keydown', function(e) {
       var on=(st.meds||[]).some(function(m){return m.id===id;});
       return '<button class="dj-medchip'+(on?' on':'')+'" onclick="V4GX.djAddMed(\''+id+'\')"><span class="'+(d.cat==='otc'?'otc':'rx')+'">'+(d.cat==='otc'?'OTC':'Rx')+'</span>'+esc(medLabel(d))+(on?' ✓':'')+'</button>';}).join('');
     var list=(st.meds||[]).map(function(m){return '<span class="dj-medpill">'+esc(medLabel(m))+'<button onclick="V4GX.djRemoveMed(\''+m.id+'\')" aria-label="Remove">×</button></span>';}).join('');
-    stage(djStepBar(2)+'<h2 class="gx-q">Medication safety check</h2>'+
+    stage(djStepBar(3)+'<h2 class="gx-q">Medication safety check</h2>'+
       '<p class="gx-hint">Add the patient\'s prescriptions and OTC medicines. V2 screens them against each other <b>and</b> against the cannabis molecules research links to the selected health topic.</p>'+
       '<div class="dj-medquick"><div class="dj-lbl">Tap common medications</div><div class="dj-chips">'+chips+'</div></div>'+
       '<div class="dj-medsearch"><input id="djMedInput" class="gx-search" type="search" autocomplete="off" placeholder="…or search any medication (e.g. Xanax, Tylenol, metformin)" oninput="V4GX.djSearchMed(this.value)"><div id="djMedSug" class="dj-sugbox" style="display:none"></div></div><button type="button" class="gx-missing-link" onclick="V4GX.suggestMed()">&#128172; Can&rsquo;t find your medication?<small>Tell us what to add &mdash; a reviewer checks every suggestion</small></button>'+
@@ -12402,7 +12402,7 @@ document.addEventListener('keydown', function(e) {
       return '<button class="gx-catbtn" style="'+(on?'border-color:var(--accent);color:var(--accent);font-weight:700':'')+'" onclick="V4GX.djSetRoute(\''+k+'\')">'+ROUTE_META[k].ic+' '+ROUTE_META[k].label+'</button>';}).join('');
     var res=G().match(active);var n=res.shown.length;
     var rfNote=res.routeFallback?'<div class="gx-hint" style="margin-top:6px">No '+ROUTE_META[curRoute].label.toLowerCase()+' products are in stock — showing the closest alternatives.</div>':'';
-    stage(djStepBar(3)+'<h2 class="gx-q">Refine to match the shelf</h2>'+
+    stage(djStepBar(4)+'<h2 class="gx-q">Refine to match the shelf</h2>'+
       '<p class="gx-hint">Tap to remove any molecule, or a whole category, to match what the dispensary stocks. Matching uses the cannabinoids &amp; terpenes disclosed on product COAs.</p>'+
       '<div class="gx-refine"><div class="gx-chips">'+toggles+'</div>'+
       (catBtns?'<div class="gx-catrow">Remove a category: '+catBtns+'</div>':'')+
@@ -12412,7 +12412,7 @@ document.addEventListener('keydown', function(e) {
   }
   function scDJPos(){var active=djActiveRec();var n=G().match(active).shown.length;
     var total=G().inventory.length;var instock=G().inventory.filter(function(p){return p.count>0;}).length;
-    stage(djStepBar(4)+'<h2 class="gx-q">Checking the shelf…</h2>'+
+    stage(djStepBar(5)+'<h2 class="gx-q">Checking the shelf…</h2>'+
       '<div class="gx-pos"><div class="gx-pos-badge"><span class="dot pulse"></span>Connecting to Demo-POS</div>'+
         '<div class="gx-pos-step s1">Querying inventory — '+total+' SKUs</div>'+
         '<div class="gx-pos-step s2">Filtering to in-stock — '+instock+' available</div>'+
@@ -12433,7 +12433,7 @@ document.addEventListener('keydown', function(e) {
         '<button class="dj-select" onclick="V4GX.djSelect(\''+esc(p.sku)+'\')">Select this product →</button></div>'+
         '<div class="gx-fit"><div class="pct">'+p.fit+'%</div><div class="lbl">fit</div></div></div>';}).join('')+
       '<div class="gx-filtered">'+res.excluded.length+' others filtered out (out of stock, or off-profile).</div>';}
-    stage(djStepBar(4)+'<h2 class="gx-q">Best matches in stock</h2><div class="gx-posline"><span class="dot"></span>Connected · Demo-POS · live stock</div>'+
+    stage(djStepBar(5)+'<h2 class="gx-q">Best matches in stock</h2><div class="gx-posline"><span class="dot"></span>Connected · Demo-POS · live stock</div>'+
       '<div class="gx-cap" style="margin:-2px 0 10px">Live POS integration (simulated). On a licensed dispensary, V2 connects to your POS / seed-to-sale system to rank in-stock products in real time (INV-05).</div>'+html+
       '<button class="gx-cta ghost" onclick="V4GX.djBack()">← Refine again</button>'+
       // UX-122: the Exit control was on the hub and the Done screen but on none of the screens in
@@ -12473,7 +12473,7 @@ document.addEventListener('keydown', function(e) {
       '</div></details>';
   }
   function scDJDone(){var p=st.djProduct||G().match(djActiveRec()).shown[0];if(!p){scDJProducts();return;}
-    stage(djStepBar(5)+'<h2 class="gx-q">Product selected</h2>'+
+    stage(djStepBar(6)+'<h2 class="gx-q">Product selected</h2>'+
       '<div class="gx-handoff"><div class="gx-hpick"><div class="sw">'+p.icon+'</div><div><b>'+esc(p.name)+'</b>'+
         '<div class="meta">'+cap(p.type)+' · $'+p.price+' · '+p.fit+'% fit</div></div></div>'+
         '<div class="gx-checks"><span>✓ Clinical fit</span><span>✓ Meds screened</span><span>✓ In stock ('+p.count+')</span></div>'+
@@ -12494,6 +12494,13 @@ document.addEventListener('keydown', function(e) {
     djToggleCond:function(id){st.djConds=st.djConds||[];var i=st.djConds.indexOf(id);if(i>=0)st.djConds.splice(i,1);else st.djConds.push(id);scDJConds();},
     djToRec:function(){if(!(st.djConds&&st.djConds.length))return;st.excluded={};go('djMol',scDJMol);},
     djToMeds:function(){go('djMeds',scDJMeds);},
+    // UX-125: the demo journey never asked tolerance, experience or the safety check, so st.ceiling
+    // sat on the 'any' that djRun() assigns and the recommendation could not respond to a patient who
+    // wants to avoid intoxication — a question any dispensary asks first. These reuse the SAME
+    // scExperience / scThc / scSafety the patient-facing flow uses; only the routing is demo-aware.
+    // Route and comorbidities are deliberately NOT added: djRefine already offers preferred route,
+    // and the demo's multi-select condition picker already covers 'anything else going on'.
+    djToPrefs:function(){go('experience',scExperience);},
     djAddMed:function(id){st.meds=st.meds||[];if(!st.meds.some(function(m){return m.id===id;})){var e=(typeof DI_DATA!=='undefined')?DI_DATA.find(function(d){return d.id===id;}):null;if(e)st.meds.push(e);}reRenderMeds();},
     djRemoveMed:function(id){st.meds=(st.meds||[]).filter(function(m){return m.id!==id;});reRenderMeds();},
     toMeds:function(){go('meds',scMeds);},
@@ -12614,8 +12621,9 @@ if(typeof PT_individualResponse==='function')body+=PT_individualResponse();   //
       if(p==='cust'){st.detail='plain';st.safetyFlags=st.safetyFlags||[];go('intent',scIntent);}else if(p==='emp'){go('emp',scEmp);}else{this.close();}},
     runGuide:function(){st.persona='cust';st.safetyFlags=st.safetyFlags||[];go('intent',scIntent);},
     safetyToggle:function(k,btn){st.safetyFlags=st.safetyFlags||[];var i=st.safetyFlags.indexOf(k);if(i>=0){st.safetyFlags.splice(i,1);if(btn)btn.classList.remove('sel');}else{st.safetyFlags.push(k);if(btn)btn.classList.add('sel');}},
-    safetyNext:function(){go('meds',scMeds);},
+    safetyNext:function(){if(st.dj)return go('djMeds',scDJMeds);go('meds',scMeds);},
     experience:function(v){st.experience=v;if(v==='new'&&!st.ceiling)st.ceiling='low';go('thc',scThc);},
+    djSkipPrefs:function(){go('djMeds',scDJMeds);},
     timeOfDay:function(v){st.timeOfDay=v;go('onset',scOnset);},
     onset:function(v){st.onset=v;go('route',scRoute);},
     route:function(v){st.route=v;go('second',scSecond);},
@@ -12661,6 +12669,9 @@ if(typeof PT_individualResponse==='function')body+=PT_individualResponse();   //
       // UX-79: standard flow goes straight to the THC question; the demo funnel keeps 'experience'.
       if(demoMode())go('experience',scExperience);else go('thc',scThc);},
     thc:function(v){st.ceiling=v;
+      // UX-125: inside the demo JOURNEY the safety check is the next shared screen; timeofday/onset/
+      // route belong to the standard flow shown from the demo hub, and djRefine already asks route.
+      if(st.dj)return go('safety',scSafety);
       // UX-79: timeofday/onset/route only inform product matching, so only Demo Mode asks them.
       if(demoMode())go('timeofday',scTimeOfDay);else go('second',scSecond);},
     second:function(k,btn){st.seconds=st.seconds||[];var i=st.seconds.indexOf(k);if(i>=0){st.seconds.splice(i,1);btn.classList.remove('sel');}else{st.seconds.push(k);btn.classList.add('sel');}},
