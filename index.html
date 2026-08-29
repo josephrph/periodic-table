@@ -3784,7 +3784,8 @@ const ADVERSE_FINDINGS = {
       // American Glaucoma Society statement was already in CITATIONS.THC9 with an accurate note,
       // but it carried no `indications` tag — and findRelevantCites() returns tagged citations
       // OUTRIGHT, so the pairing showed only the positive Tomida RCT. The condition also carried
-      // hasRisk:true with a comment claiming that flagged it; hasRisk is read by no code at all.
+      // hasRisk:true with a comment claiming that flagged it; hasRisk is read by no code at
+      // runtime at all — it is an editorial marker, enforced by preflight since DRUG-24.
       // Nothing new was sourced here: both citations were already in the build.
       title: 'Glaucoma &mdash; The American Glaucoma Society Does Not Recommend Cannabis',
       condition: 'Glaucoma / Ocular Pressure',
@@ -3907,6 +3908,15 @@ const ADVERSE_FINDINGS = {
       summary: 'CBD is often assumed to be the cautious choice. For eye pressure specifically, the human evidence points the other way. In the same randomised, double-masked, placebo-controlled crossover study, sublingual <strong>20&nbsp;mg CBD did not reduce intraocular pressure at any time point</strong>, and <strong>40&nbsp;mg produced a transient <em>rise</em></strong> &mdash; from 23.2 to 25.9&nbsp;mmHg at 4 hours.<br><br>This is a six-patient pilot, so it is a small study rather than a definitive one. But it is the only randomised human test of CBD on intraocular pressure that V2 holds, and it found no benefit and a signal in the wrong direction. That is why CBD is not listed among the molecules for this condition. Anyone with glaucoma or raised eye pressure should discuss CBD with their ophthalmologist rather than assume it is neutral.',
       citations: [
         {type:'RCT', authors:'Tomida I, et al.', year:'2006', title:'Effect of sublingual application of cannabinoids on intraocular pressure: a pilot study', journal:'J Glaucoma', vol:'15(5):349-53', pmid:'16988594'}
+      ]
+    },
+    {
+      title: 'CBD Raises Δ-9-THC Blood Levels When the Two Are Swallowed Together',
+      condition: 'General / Multiple',
+      evidence: 'A',
+      summary: 'In a randomised crossover study in 18 healthy adults, a CBD-dominant cannabis brownie (640&nbsp;mg CBD with 20&nbsp;mg &Delta;9-THC) produced a <strong>161% higher &Delta;9-THC AUC</strong> than the same 20&nbsp;mg &Delta;9-THC dose eaten without CBD &mdash; consistent with CBD inhibiting the CYP2C9-mediated clearance of oral &Delta;9-THC. The practical consequence is that <strong>a high-CBD edible is not automatically a low-intoxication edible</strong>: the CBD raises exposure to whatever &Delta;9-THC is present alongside it, so the same labelled THC content can produce a materially stronger and longer effect. This was measured with <em>oral</em> products; it does not describe inhaled use, where &Delta;9-THC largely bypasses first-pass metabolism. In the same study the &Delta;9-THC-only arm inhibited none of the five enzymes tested.',
+      citations: [
+        {type:'RCT', authors:'Bansal S, Zamarripa CA, Spindle TR, Weerts EM, Thummel KE, Vandrey R, Paine MF, Unadkat JD.', year:'2023', title:'Evaluation of Cytochrome P450-Mediated Cannabinoid-Drug Interactions in Healthy Adult Participants', journal:'Clin Pharmacol Ther', vol:'114(3):693-703', pmid:'37313955'}
       ]
     },
     {
@@ -4840,8 +4850,10 @@ const CONDITIONS = [
   // Glaucoma — optic neuropathy. Cannabis-relevant angles: CB1-mediated IOP lowering + retinal/optic-nerve
   // neuroprotection. Scores reflect strength-of-evidence for an EFFECT, not endorsement (effect is short-lived
   // and specialty bodies advise against use). AUDIT-12: that caution is carried by the
-  // ADVERSE_FINDINGS entries above, NOT by hasRisk — hasRisk is written on 11 conditions and read
-  // by no code, so the earlier claim that it flagged this was wrong. CBD is intentionally omitted: human (Tomida
+  // ADVERSE_FINDINGS entries above, NOT by hasRisk — hasRisk is written on 14 conditions and read
+  // by no code at runtime, so the earlier claim that it flagged this was wrong. DRUG-24 kept the
+  // property rather than deleting it and made preflight enforce it instead: check_hasrisk_invariant
+  // now fails the build if any hasRisk:true condition has no adverse finding a reader would see. CBD is intentionally omitted: human (Tomida
   // 2006) + preclinical (Miller 2018) data show no IOP benefit and a possible IOP increase. THC9 strongest
   // (Hepler 1971; Merritt 1980; Tomida 2006; Miller 2018); THC8/CBN older/weaker; THCV/CBG preclinical only.
   {id:'glaucoma',label:'Glaucoma / Ocular Pressure',group:'neuro',hasRisk:true,molecules:{THC9:6,THC8:5,CBN:4,CBG:3}},
@@ -7088,13 +7100,76 @@ var DDI_DATA = [
    monitor:'Ask a pharmacist before using it regularly if you take an anticoagulant or antiplatelet. Occasional use is generally the lower-concern scenario; repeated or high-dose use is not. <strong>Do not assume black stool is the bismuth</strong> &mdash; if it happens with dizziness, weakness or abdominal pain, or continues after stopping, seek care. Ringing in the ears means stop.',
    pmid:''},
 
-  {id:'ropinirole_dopamine_antagonist',drugs:['ropinirole','antipsychotics','prochlorperazine'],
-   groups:[['ropinirole'],['antipsychotics','prochlorperazine']],sev:'moderate',ev:'A',
-   label:'Ropinirole + Dopamine Antagonists (antipsychotics, prochlorperazine)',
+  {id:'ropinirole_dopamine_antagonist',drugs:['ropinirole','metoclopramide','antipsychotics','prochlorperazine'],
+   groups:[['ropinirole'],['metoclopramide','antipsychotics','prochlorperazine']],sev:'moderate',ev:'A',
+   label:'Ropinirole + Dopamine Antagonists (metoclopramide, antipsychotics, prochlorperazine)',
    mech:'Ropinirole works by stimulating dopamine receptors; antipsychotics and the phenothiazine antiemetics such as prochlorperazine block them. The ropinirole label names this directly \u2014 dopamine antagonists <strong>may reduce the efficacy of ropinirole</strong>. The two are working against each other at the same receptor.',
    effect:'Loss of Parkinson\u2019s or restless-legs control, sometimes appearing days after an unrelated prescription. Dopamine blockers can also cause <strong>drug-induced parkinsonism</strong> in their own right, so symptoms may worsen from both directions at once and be mistaken for disease progression rather than a medication effect.',
    monitor:'Tell any prescriber treating nausea or a psychiatric condition that you take ropinirole, and ask whether an antiemetic that does not block dopamine would do \u2014 ondansetron is the usual alternative. Report worsening tremor, stiffness or slowness after any new medication. Do not stop ropinirole abruptly.',
-   pmid:''}
+   pmid:''},
+
+  {id:'levodopa_dopamine_antagonist',drugs:['carbidopa_levodopa','metoclopramide','antipsychotics','prochlorperazine','chlorpromazine'],
+   groups:[['carbidopa_levodopa'],['metoclopramide','antipsychotics','prochlorperazine','chlorpromazine']],
+   sev:'major',ev:'A',
+   label:'Carbidopa/Levodopa + Dopamine Antagonists (metoclopramide, antipsychotics, prochlorperazine)',
+   mech:'Levodopa works by raising dopamine at receptors in the brain. Metoclopramide, prochlorperazine and most antipsychotics work by <strong>blocking those same receptors</strong>. The two are therefore directly opposed at the identical target — this is not a metabolic interaction that might or might not matter, it is <strong>pharmacological antagonism</strong>, and it is one of the best-established interactions in neurology.',
+   effect:'Parkinson’s control can deteriorate quickly and severely — increased rigidity, slowness and tremor, and in some cases a near-complete loss of the benefit the patient had. The clinical trap is that <strong>the two drugs are almost always started by different people</strong>: the levodopa comes from neurology, while the metoclopramide or prochlorperazine is added later in an emergency department, on a surgical ward or by a GP for nausea, by someone who is treating the vomiting and has not connected it to the Parkinson’s. Dopamine-blocking drugs can also unmask or worsen a movement disorder in people not on levodopa at all.',
+   monitor:'<strong>Anyone with Parkinson’s disease should make sure every prescriber knows it before accepting a drug for nausea.</strong> Metoclopramide and prochlorperazine are the two to ask about by name. Alternatives that do not block brain dopamine receptors exist and are the usual choice in this situation — ondansetron is the common one. If Parkinson’s symptoms worsen abruptly after any new medicine, treat that as drug-related until proven otherwise and seek review promptly rather than increasing the levodopa.',
+   pmid:''},
+
+  {id:'pramipexole_dopamine_antagonist',drugs:['pramipexole','metoclopramide','antipsychotics','prochlorperazine','chlorpromazine'],
+   groups:[['pramipexole'],['metoclopramide','antipsychotics','prochlorperazine','chlorpromazine']],
+   sev:'moderate',ev:'A',
+   label:'Pramipexole + Dopamine Antagonists (metoclopramide, antipsychotics, prochlorperazine)',
+   mech:'Pramipexole is a <strong>dopamine agonist</strong> — it stimulates dopamine receptors directly. Metoclopramide, prochlorperazine and antipsychotics <strong>block</strong> those receptors. Each will reduce the effect of the other at the same target, in both directions.',
+   effect:'Loss of benefit is the main consequence: Parkinson’s symptoms or restless legs can return, sometimes abruptly, after a dopamine-blocking drug is added for nausea or agitation. In the other direction, a person taking an antipsychotic for a psychiatric condition may find it works less well. Dopamine-blocking antiemetics can also produce their own movement side effects on top of this.',
+   monitor:'Tell every prescriber about the pramipexole before accepting a drug for nausea or vomiting — <strong>metoclopramide and prochlorperazine are the two to name</strong>. Antiemetics that do not block brain dopamine receptors are usually available. If restless legs or Parkinson’s symptoms return suddenly after starting a new medicine, ask whether that medicine is the cause before the pramipexole dose is increased.',
+   pmid:''},
+
+  {id:'metoclopramide_eps',drugs:['metoclopramide','antipsychotics','prochlorperazine','chlorpromazine','promethazine'],
+   groups:[['metoclopramide'],['antipsychotics','prochlorperazine','chlorpromazine','promethazine']],
+   sev:'major',ev:'B',
+   label:'Metoclopramide + Other Dopamine-Blocking Drugs (antipsychotics, prochlorperazine, promethazine)',
+   mech:'Every drug in this pair blocks dopamine D<sub>2</sub> receptors. Stacking them <strong>multiplies the total dopamine blockade</strong>, and both the immediate and the long-term movement side effects of these drugs track with exactly that.',
+   effect:'In the short term, <strong>acute dystonic reactions</strong> — sudden involuntary spasm of the neck, jaw, tongue or eye muscles — and akathisia, an intensely unpleasant inner restlessness that is often mistaken for anxiety or agitation and then treated with more of the drug causing it. In the longer term, the concern is <strong>tardive dyskinesia</strong>, which metoclopramide already carries a boxed warning for and which may not resolve when the drugs are stopped. The combination also raises the risk of <strong>neuroleptic malignant syndrome</strong>, a rare emergency with fever, rigidity and confusion.',
+   monitor:'<strong>Report involuntary movements, muscle spasms or an inability to keep still without delay</strong> — akathisia in particular is frequently misread as worsening anxiety. Get emergency help for high fever with muscle rigidity and confusion. Ask whether both dopamine-blocking drugs are genuinely needed at once; often the antiemetic can be swapped for one that does not act this way. Keep metoclopramide courses short and reviewed.',
+   pmid:'28370228'},
+
+  {id:'eletriptan_cyp3a',drugs:['eletriptan','cyp3a4inh','azoles','clarithromycin'],
+   groups:[['eletriptan'],['cyp3a4inh','azoles','clarithromycin']],
+   sev:'major',ev:'A',
+   label:'Eletriptan + Strong CYP3A4 Inhibitors',
+   mech:'Eletriptan is cleared by CYP3A4, and its label is unusually specific about it: the drug <strong>should not be used within at least 72 hours</strong> of ketoconazole, itraconazole, nefazodone, troleandomycin, clarithromycin, ritonavir or nelfinavir. Strong inhibition of that enzyme raises eletriptan concentrations substantially and prolongs its stay in the body.',
+   effect:'More of eletriptan’s dose-related effects, and for longer: <strong>chest, throat, neck or jaw tightness or pressure</strong>, dizziness, drowsiness, tingling and raised blood pressure. Because triptans constrict blood vessels, a markedly raised concentration is the setting in which that effect is least welcome, particularly in anyone with cardiac risk factors.',
+   monitor:'<strong>Do not take eletriptan within 72 hours of any of the drugs named above.</strong> If you are prescribed clarithromycin or an azole antifungal, say that you use eletriptan — another triptan without this restriction can usually be used instead. Report chest pain or pressure rather than assuming it is the familiar triptan sensation.',
+   pmid:''},
+
+  {id:'ics_cyp3a',drugs:['inhaled_steroids','cyp3a4inh','azoles','clarithromycin'],
+   groups:[['inhaled_steroids'],['cyp3a4inh','azoles','clarithromycin']],
+   sev:'moderate',ev:'B',
+   label:'Inhaled Corticosteroids + Strong CYP3A4 Inhibitors',
+   mech:'Inhaled corticosteroids are CYP3A4 substrates. Very little of an inhaled dose normally reaches the circulation, but <strong>strong CYP3A4 inhibition removes the metabolism that keeps it that way</strong>, and systemic exposure can then rise to levels the inhaled route was designed to avoid. Fluticasone with ritonavir is the combination with the most reported harm.',
+   effect:'<strong>Cushing’s syndrome and adrenal suppression</strong> have been reported from this combination — from an inhaler, which is not what most people expect. The presentation is gradual: weight gain around the face and trunk, easy bruising, thin skin, high blood sugar, and then, if the steroid is stopped abruptly, an adrenal crisis because the body’s own cortisol production has been suppressed. Fluticasone is the highest-risk steroid in this respect; beclomethasone and ciclesonide are generally considered lower risk.',
+   monitor:'Tell the prescriber you use a steroid inhaler <strong>before</strong> starting ritonavir or an azole antifungal — this is a planning conversation, not a wait-and-see one. Report weight gain around the face or trunk, easy bruising, or unusual fatigue. <strong>Never stop an inhaled steroid abruptly</strong> if you have been on this combination; the adrenal glands may need time to recover.',
+   pmid:''},
+
+  {id:'hydroxyzine_cns',drugs:['hydroxyzine','opioids','benzos','alcohol','zolpidem'],
+   groups:[['hydroxyzine'],['opioids','benzos','alcohol','zolpidem']],
+   sev:'major',ev:'B',
+   label:'Hydroxyzine + Opioids / Benzodiazepines / Alcohol / Sleep Aids',
+   mech:'Hydroxyzine is a strongly sedating antihistamine, and every drug in the second group is a central nervous system depressant. The effects are <strong>additive, and add cannabis on top and there are three depressant classes acting at once</strong>. Hydroxyzine is frequently perceived as mild because it is old, non-scheduled and often prescribed for anxiety or itching — which is precisely why it gets stacked without much thought.',
+   effect:'Heavy sedation, confusion, poor coordination and falls, and — where opioids or benzodiazepines are involved — <strong>slowed and shallow breathing</strong>. In older adults the presentation is often delirium or a fall rather than obvious drowsiness. Impaired driving is the everyday risk, and it is under-recognised because none of these individually feels like intoxication.',
+   monitor:'<strong>Do not drive.</strong> Avoid alcohol entirely on this combination. Report slowed or shallow breathing, extreme drowsiness or difficulty waking someone — urgently in an older adult or anyone taking an opioid. If hydroxyzine was prescribed for anxiety or sleep and cannabis is being used for the same reason, that is worth raising: the plan probably needs to be simplified rather than layered.',
+   pmid:''},
+
+  {id:'triptan_ssri',drugs:['triptans','eletriptan','ssri','snri','fluvoxamine'],
+   groups:[['triptans','eletriptan'],['ssri','snri','fluvoxamine']],
+   sev:'moderate',ev:'B',
+   label:'Triptans + SSRIs / SNRIs (serotonin syndrome — widely warned about, weakly supported)',
+   mech:'Triptans act at 5-HT<sub>1B/1D</sub> receptors and SSRIs and SNRIs raise synaptic serotonin, so the theoretical concern is <strong>serotonin syndrome</strong>. The FDA issued an alert about this combination in 2006, and it still appears in interaction checkers as a serious warning.',
+   effect:'<strong>The evidence behind that alert is much weaker than its prominence suggests, and this entry says so.</strong> When the American Headache Society reviewed the 29 cases the alert was based on, only 10 met the Sternbach criteria for serotonin syndrome and <strong>none met the more specific Hunter criteria</strong>. All available evidence was Class IV. The Society’s conclusion was explicit: the evidence <strong>does not support limiting the use of triptans with SSRIs or SNRIs</strong> (Level U — insufficient evidence), while noting that caution remains reasonable because serotonin syndrome is serious when it does occur. <strong>Cannabis is not meaningfully serotonergic and does not add to this risk</strong> — it is noted here so that cannabis use is not mistakenly treated as a third serotonergic agent.',
+   monitor:'This combination is commonly prescribed and usually appropriate — <strong>it is not a reason to stop either drug on its own</strong>. Know the symptoms that would matter: agitation or confusion, fast heart rate, shivering, sweating, muscle twitching or stiffness, and fever, usually coming on within hours of a dose change. Seek urgent care if several appear together. Migraine and depression frequently coexist, so if a checker has flagged this pair, ask about it rather than quietly stopping treatment.',
+   pmid:'20618823'}
 ];
 
 // Build DDI lookup: drug ID → array of DDI_DATA indices involving that drug
@@ -7556,7 +7631,7 @@ var DI_DATA = [
    effect:'Increased bleeding tendency, easy bruising, prolonged bleeding time.',
    monitor:'Use caution before surgeries or dental procedures. Monitor for unusual bruising or bleeding.',
    pmid:''},
-  {id:'ibuprofen',drug:'Ibuprofen / Naproxen',brands:['Advil','Motrin IB','Motrin','Aleve','Midol','Pamprin IB','Naprosyn','Anaprox','Naprelan','Ibuprofen','Naproxen','Vicoprofen','Duexis','Caldolor'],cls:'NSAID (OTC)',cat:'otc',
+  {id:'ibuprofen',drug:'Ibuprofen / Naproxen',brands:['Advil','Motrin IB','Motrin','Aleve','Midol','Pamprin IB','Naprosyn','Anaprox','Naprelan','Ibuprofen','Naproxen','Vicoprofen','Duexis','Caldolor','Treximet'],cls:'NSAID (OTC)',cat:'otc',
    mols:['CBD'],sev:'moderate',ev:'C',
    mech:'CBD inhibits CYP2C9, which metabolizes ibuprofen, potentially elevating NSAID plasma levels. Both may share GI mucosal effects.',
    effect:'Potentially elevated NSAID plasma levels; increased GI irritation risk with regular combined use.',
@@ -8435,7 +8510,7 @@ var DI_DATA = [
    monitor:'Do not drive after taking this, and be careful stacking it on top of cannabis, alcohol, opioids or sleep aids. Report slowed or shallow breathing, extreme drowsiness or difficulty waking \u2014 in anyone, and urgently in an older adult. If cannabis is heavy and vomiting keeps recurring in hot-shower-relieved cycles, raise cannabinoid hyperemesis with a clinician rather than escalating antiemetics.',
    pmid:'28370228, 41129865'},
 
-  {id:'donepezil',drug:'Donepezil',brands:['Aricept','Aricept ODT','Adlarity'],cls:'Acetylcholinesterase Inhibitor \u2014 Alzheimer\u2019s disease',cat:'rx',
+  {id:'donepezil',drug:'Donepezil',brands:['Aricept','Aricept ODT','Adlarity','Namzaric'],cls:'Acetylcholinesterase Inhibitor \u2014 Alzheimer\u2019s disease',cat:'rx',
    mols:['CBD','THC9'],sev:'moderate',ev:'C',
    mech:'Donepezil is metabolised by <strong>CYP3A4 and CYP2D6</strong>, and here it matters to separate the two. Ketoconazole, a strong CYP3A4 inhibitor, raised donepezil exposure by <strong>36%</strong> in an 18-subject crossover \u2014 real, but a modest ceiling from a strong inhibitor. <strong>The CYP2D6 route does not apply to cannabis at all</strong>: CBD was shown not to inhibit CYP2D6 in a controlled human study, so the common assumption that cannabis raises donepezil through CYP2D6 is unsupported and this record does not make it. The more useful concern is pharmacodynamic and in the <em>opposite</em> direction from what most people expect: donepezil is <strong>vagotonic</strong> and slows the heart, while &Delta;9-THC speeds it up and lowers blood pressure on standing.',
    effect:'Cardiovascular events with cholinesterase inhibitors are uncommon, but a systematic review confirms a small and statistically significant increase in <strong>syncope and bradycardia</strong>. Layering on cannabis \u2014 which causes tachycardia and orthostatic drops \u2014 gives an unpredictable net effect on an elderly patient whose falls risk is already the clinical preoccupation. The other real issue is not pharmacological at all: the population taking donepezil has dementia, and added psychoactivity, confusion or sedation is a meaningful harm in someone already cognitively impaired. Cannabis is frequently asked about for agitation in dementia, which is exactly why this record exists.',
@@ -8461,11 +8536,115 @@ var DI_DATA = [
    mech:'Allopurinol and its long-lived metabolite oxypurinol work by blocking <strong>xanthine oxidase</strong>, and neither is a cytochrome P450 or UGT substrate to any meaningful degree \u2014 clearance is largely renal. <strong>No meaningful cannabis interaction is expected, and saying that plainly is more useful than inventing a mechanism.</strong> The one honest overlap is mild: allopurinol\u2019s own labeling reports drowsiness, somnolence and dizziness, and advises caution with driving and with central-nervous-system depressants, so a sedating cannabis product adds to that a little.',
    effect:'This record earns its place on the <strong>drug&ndash;drug</strong> axis, not the cannabis one. Allopurinol is the classic and dangerous partner for azathioprine and mercaptopurine \u2014 blocking xanthine oxidase removes one of the routes that inactivates them and can drive life-threatening bone-marrow suppression. Its own risks are its own: rash is common and matters, because a small number of rashes progress to <strong>severe cutaneous reactions</strong> including Stevens\u2013Johnson syndrome and DRESS, a risk concentrated in people carrying HLA-B*58:01.',
    monitor:'<strong>Stop allopurinol and seek care immediately for any new rash</strong>, particularly with fever, blistering or mouth sores \u2014 this is the one instruction that matters most. Tell the prescriber if you take azathioprine or mercaptopurine, because the dose of those must be cut before allopurinol is started. Gout can flare when urate-lowering treatment begins; that is expected and is not a reason to stop. Cannabis use is worth disclosing for completeness, but no specific interaction is expected.',
-   pmid:''}
+   pmid:''},
+
+  {id:'hydroxyzine',drug:'Hydroxyzine',brands:['Vistaril','Atarax','Hydroxyzine','Hydroxyzine Pamoate','Hydroxyzine HCl'],
+   cls:'First-Generation Antihistamine — anxiolytic, antipruritic and sedative',cat:'rx',
+   mols:['THC9','CBD'],sev:'moderate',ev:'C',
+   mech:'Hydroxyzine is a sedating H<sub>1</sub> antihistamine that crosses into the brain freely and carries anticholinergic activity, and the overlap with cannabis is <strong>pharmacodynamic rather than metabolic</strong> — the sedation simply adds up. It is filed apart from the second-generation antihistamines for a reason: <strong>hydroxyzine is metabolised to cetirizine</strong>, which is the non-sedating drug in that other record. The parent compound is the one that sedates. Separately, and independent of cannabis, the label carries a <strong>QT-prolongation and torsades warning</strong> and contraindicates the drug in congenital long QT syndrome or with other QT-prolonging agents. <em>Cannabis is not a QT drug</em>, so that warning belongs to hydroxyzine alone and is not made worse by cannabis — it is listed here so it is not mistaken for one.',
+   effect:'Additive drowsiness, slowed reaction time and impaired driving, plus the anticholinergic set — dry mouth, blurred vision, constipation, and difficulty passing urine, which matters most in an older man with an enlarged prostate. In older adults the more likely presentation is <strong>confusion, unsteadiness and falls</strong> rather than simple sleepiness, and first-generation antihistamines are on the standard lists of medicines to avoid in this age group for exactly that reason. Where hydroxyzine is being used for anxiety, there is a second thing worth naming: cannabis is frequently used for the same complaint, and stacking two sedating approaches to anxiety tends to produce more sedation without more benefit.',
+   monitor:'Do not drive or operate machinery until you know how the combination affects you, and be careful stacking it on cannabis, alcohol, opioids or sleep aids. Report confusion, unsteadiness or a fall — in an older adult these are drug effects until proven otherwise, not simply ageing. Tell the prescriber about any heart-rhythm condition or other QT-prolonging medicine. If hydroxyzine and cannabis are both being used for anxiety, say so, because the plan probably needs to be one or the other rather than both.',
+   pmid:'37559846, 31288397'},
+
+  {id:'memantine',drug:'Memantine',brands:['Namenda','Namenda XR','Namzaric','Memantine'],
+   cls:'NMDA Receptor Antagonist — moderate-to-severe Alzheimer’s disease',cat:'rx',
+   mols:['THC9','CBD'],sev:'minor',ev:'D',
+   mech:'<strong>This record exists to say that the expected interaction is not there.</strong> Memantine is largely <strong>excreted unchanged by the kidney</strong> rather than metabolised by the liver; it is not a meaningful cytochrome P450 substrate and does not appreciably inhibit those enzymes itself. The CBD story that drives most of this database — inhibition of CYP2C19, CYP2C9, CYP3A and CYP1A2 — therefore has almost nothing to act on here. The one route that does change memantine clearance is <strong>urine pH</strong>: strongly alkaline urine slows its elimination. Cannabis does not alkalinise urine, so that route is not a cannabis concern either.',
+   effect:'No clinically meaningful pharmacokinetic interaction is expected, and this record does not manufacture one. What remains is <strong>pharmacodynamic and belongs to the population rather than the pair</strong>: the people taking memantine are typically older adults with dementia, and in that group &Delta;9-THC’s effects on alertness, short-term memory, balance and blood pressure on standing matter more than any effect on drug levels. Dizziness, confusion and headache are listed side effects of memantine on its own, which makes it easy to attribute a new cannabis effect to the dementia or to the drug.',
+   monitor:'No specific cannabis precaution is needed for drug levels. The precaution that does matter is <strong>falls</strong> — report any new unsteadiness, drowsiness or a fall, and expect a medication review rather than reassurance. If cannabis is being introduced for agitation, sleep or appetite, tell the prescribing clinician so that any change in confusion or alertness is attributed correctly instead of being read as the dementia progressing. <strong>Namzaric contains donepezil as well as memantine</strong>, and donepezil has its own separate entry with a different risk profile — check that record too.',
+   pmid:'31288397'},
+
+  {id:'pramipexole',drug:'Pramipexole',brands:['Mirapex','Mirapex ER','Pramipexole'],
+   cls:'Non-Ergot Dopamine Agonist — Parkinson’s disease and restless legs syndrome',cat:'rx',
+   mols:['THC9','CBD'],sev:'moderate',ev:'C',
+   mech:'The important point here is a <strong>contrast with ropinirole</strong>, the other non-ergot dopamine agonist in this database. Ropinirole is cleared by <strong>CYP1A2</strong>, which is why the type of cannabis product moves its levels — CBD inhibits that enzyme while smoking induces it. <strong>Pramipexole is different: it is excreted almost entirely unchanged by the kidney</strong>, through active renal tubular secretion rather than liver metabolism. It is not a CYP substrate in any way that matters. So the smoked-versus-oil problem that dominates the ropinirole record <em>does not apply to pramipexole</em>, and this record does not repeat it. Drugs that compete for the same renal transporters, such as cimetidine, do raise pramipexole exposure — cannabis does not.',
+   effect:'What is left is pharmacodynamic, and it is not trivial. Pramipexole causes <strong>somnolence and, in a documented minority, sudden onset of sleep without warning</strong>, including while driving; &Delta;9-THC adds sedation on top of that. Both lower blood pressure on standing — inhaled &Delta;9-THC has been shown to produce orthostatic hypotension — so dizziness and falls on rising are the likely shared effect. Dopamine agonists as a class also cause <strong>impulse-control disorders</strong>: gambling, compulsive shopping, binge eating and hypersexuality, which patients rarely volunteer and family usually notices first.',
+   monitor:'Do not drive until you know how the combination affects you, and report any episode of falling asleep without warning immediately — that is a stop-and-review event, not something to work around. Rise slowly from sitting or lying. Ask a family member to tell you if new gambling, spending, eating or sexual behaviour appears. <strong>Never stop pramipexole abruptly</strong>; withdrawal can cause a distinct and unpleasant syndrome. Unlike ropinirole, you do not need to keep the cannabis product type constant for the sake of drug levels — but the sedation still adds up whichever product you use.',
+   pmid:'26360835, 6283454'},
+
+  {id:'inhaled_steroids',drug:'Inhaled Corticosteroids (fluticasone, budesonide, mometasone, beclomethasone, ciclesonide)',
+   brands:['Flovent','Flovent HFA','Flovent Diskus','Arnuity Ellipta','ArmonAir','Pulmicort','Pulmicort Flexhaler','Pulmicort Respules',
+           'Asmanex','Asmanex HFA','QVAR','QVAR RediHaler','Alvesco','Advair','Advair Diskus','Advair HFA','Wixela Inhub','AirDuo',
+           'Symbicort','Breztri','Breo Ellipta','Trelegy Ellipta','Dulera','Fluticasone Inhalation','Budesonide Inhalation'],
+   cls:'Corticosteroid — inhaled (asthma and COPD)',cat:'rx',
+   mols:['THC9','CBD'],sev:'moderate',ev:'C',
+   mech:'Two separate things sit in this record, and only one of them is about drug levels. <strong>The metabolic route:</strong> these are CYP3A4 substrates, and their labels warn about <strong>strong</strong> CYP3A4 inhibitors — fluticasone with ritonavir has produced real cases of Cushing’s syndrome and adrenal suppression. CBD raised a CYP3A probe by about 56% in healthy adults, which is <em>moderate</em> inhibition and does not reach the threshold those warnings were written for. Inhaled doses do deliver more systemic exposure than nasal sprays, so the concern is larger here than in the intranasal record — but still below that line. <strong>The route issue, which matters more:</strong> smoking impairs the response to corticosteroids in asthma. Smokers with mild asthma failed to respond to inhaled fluticasone as non-smokers did, and smokers with chronic asthma responded poorly to oral prednisolone; the mechanism is oxidative inactivation of histone deacetylase-2. <em>Those data are from cigarettes, not cannabis.</em> Cannabis smoke is combustion smoke and produces the same bronchitic symptoms, but no study has measured whether it blunts inhaled-steroid response.',
+   effect:'The realistic consequence is not a dangerous drug level — it is <strong>an inhaler that works less well than it should</strong>. Someone smoking cannabis daily may find their asthma control drifting, and smoked cannabis independently causes cough, sputum and wheeze that look exactly like worsening asthma. The trap is that this invites a higher steroid dose or an added controller when the problem is the smoke, so the patient carries the side effects of more treatment without the benefit. Vaporised, oral and topical products do not involve combustion and do not raise this concern.',
+   monitor:'<strong>Tell the prescriber that you smoke cannabis</strong> — without that, worsening control is likely to be treated with more inhaler rather than by addressing the cause. If asthma control is slipping, discuss switching to a non-combusted route. Rinse your mouth after every dose to prevent thrush and hoarseness. A reliever inhaler that is needed more often, night-time waking, or a peak flow that is falling all need review rather than waiting. <strong>Never manage a severe asthma attack at home</strong>; get emergency help.',
+   pmid:'11867826, 12893649, 15001333, 29778658, 37313955'},
+
+  {id:'methocarbamol',drug:'Methocarbamol',brands:['Robaxin','Robaxin-750','Methocarbamol'],
+   cls:'Centrally Acting Skeletal Muscle Relaxant',cat:'rx',
+   mols:['THC9','CBD'],sev:'moderate',ev:'C',
+   mech:'Methocarbamol does not relax muscle directly — it works by <strong>general central nervous system depression</strong>, which is also precisely how it interacts with cannabis: the sedation is additive. It is cleared by dealkylation and hydroxylation followed by conjugation, and is <strong>not a significant cytochrome P450 substrate</strong>, so CBD’s enzyme inhibition has little to act on. That distinction is the reason this record is graded below carisoprodol. <strong>Carisoprodol depends on CYP2C19</strong> to become meprobamate, a barbiturate-like metabolite with real dependence potential, and CYP2C19 is the enzyme CBD inhibits most — so cannabis can shift that drug’s metabolite balance. <em>Methocarbamol has no such metabolite and no such enzyme dependence.</em> It is the lower-risk member of this class, and this record says so rather than inheriting carisoprodol’s warnings.',
+   effect:'Additive drowsiness, dizziness, blurred vision and slowed reactions — the effects that make driving unsafe. The risk climbs steeply if an opioid, a benzodiazepine or alcohol is also in the picture, because these are three or four CNS depressants stacked rather than two. A harmless but genuinely alarming effect worth knowing in advance: <strong>methocarbamol can turn the urine brown, black or green.</strong> That is the drug, not blood, and it is not a reason to stop — but people who are not warned often assume the worst.',
+   monitor:'Do not drive until you know how the two together affect you. Avoid alcohol, and tell the prescriber about any opioid, benzodiazepine or sleep aid — that combination, not cannabis alone, is where the real danger sits. Muscle relaxants are intended for short courses; if you are still taking it weeks later, that is worth revisiting. Discoloured urine is expected and harmless.',
+   pmid:'31288397'},
+
+  {id:'carbidopa_levodopa',drug:'Carbidopa / Levodopa',
+   brands:['Sinemet','Sinemet CR','Rytary','Dhivy','Duopa','Stalevo','Crexont','Vyalev','Carbidopa-Levodopa','Levodopa','Carbidopa'],
+   cls:'Dopamine Precursor + Decarboxylase Inhibitor — Parkinson’s disease',cat:'rx',
+   mols:['THC9','CBD'],sev:'moderate',ev:'C',
+   mech:'Levodopa is <strong>not a cytochrome P450 drug</strong>. It is converted to dopamine by aromatic amino acid decarboxylase — which is exactly what carbidopa blocks outside the brain — and otherwise handled by COMT and monoamine oxidase. <strong>No CYP-mediated cannabis interaction is expected, and this record does not invent one.</strong> What is real is pharmacodynamic and specific. Both levodopa and inhaled &Delta;9-THC lower blood pressure on standing. Both can cause sleepiness. And both are <strong>psychotomimetic</strong>: levodopa produces hallucinations and psychosis at higher doses and later in the disease, and &Delta;9-THC does so independently — in a population that already carries a high baseline rate of Parkinson’s disease psychosis.',
+   effect:'The plausible shared effects are dizziness and falls on standing, daytime sleepiness, and confusion or hallucinations. <strong>Expectations about cannabis treating Parkinson’s deserve care, because the trial evidence does not support the most common hope.</strong> A small crossover study (n&nbsp;=&nbsp;7) found that <em>nabilone</em> — a <strong>synthetic</strong> cannabinoid, not a plant molecule — reduced levodopa-induced dyskinesia. But when a randomised, double-blind trial tested an <strong>oral plant cannabis extract</strong> in 19 patients, it found <strong>no improvement in dyskinesia and no effect on parkinsonism</strong>, on any measure. A separate trial of CBD 300&nbsp;mg/day found <strong>no difference in UPDRS motor scores</strong>, with only a possible signal on a quality-of-life questionnaire. So the honest summary is that plant cannabis has not been shown to help the motor features of Parkinson’s disease.',
+   monitor:'Rise slowly from sitting or lying, and report dizziness or any fall. Report new hallucinations, vivid dreams, confusion or paranoia promptly — these are common in Parkinson’s disease and are frequently treatable, but the treatment choice depends on knowing about the cannabis. Report new gambling, shopping, eating or sexual behaviour. <strong>Never stop levodopa abruptly</strong> — sudden withdrawal can cause a dangerous neuroleptic-malignant-like reaction. Levodopa competes with dietary protein for absorption; that is a levodopa issue and has nothing to do with cannabis.',
+   pmid:'11739835, 15477546, 25237116, 6283454'},
+
+  {id:'triptans',drug:'Triptans (sumatriptan, rizatriptan, zolmitriptan, naratriptan, frovatriptan, almotriptan)',
+   brands:['Imitrex','Imitrex STATdose','Tosymra','Zembrace SymTouch','Onzetra Xsail','Sumatriptan','Maxalt','Maxalt-MLT',
+           'Rizatriptan','Zomig','Zomig ZMT','Zolmitriptan','Amerge','Naratriptan','Frova','Frovatriptan','Axert','Almotriptan','Treximet'],
+   cls:'Serotonin 5-HT1B/1D Agonist — acute migraine',cat:'rx',
+   mols:['THC9','CBD'],sev:'moderate',ev:'C',
+   mech:'<strong>Most triptans are not CYP3A4 drugs</strong>, which is why CBD’s enzyme inhibition is largely beside the point for this class. Sumatriptan, rizatriptan and zolmitriptan are cleared substantially by <strong>monoamine oxidase-A</strong>; naratriptan and frovatriptan are handled largely by the kidney with only minor CYP involvement. The two exceptions are worth naming. <strong>Eletriptan is a genuine CYP3A4 substrate and carries a labelled restriction that no other triptan does — it has its own separate record.</strong> And zolmitriptan has a partial CYP1A2 route, the one enzyme cannabis pushes in <em>both</em> directions — CBD inhibits it, smoking induces it — so its exposure is the most likely of this group to move, though no study has measured that with cannabis.',
+   effect:'The more important overlap is behavioural rather than metabolic: <strong>many people with migraine already use cannabis for it, and that is now supported by a randomised trial rather than anecdote.</strong> In a double-blind crossover study of 92 adults treating 247 attacks, vaporised cannabis containing <strong>6% &Delta;9-THC + 11% CBD beat placebo</strong> for pain relief, pain freedom and freedom from the most bothersome symptom at two hours, with benefit sustained at 24 and 48 hours. THC-dominant flower beat placebo for pain relief only; <strong>CBD-dominant flower did not beat placebo on any endpoint.</strong> The real risk in combining them is <strong>medication-overuse headache</strong>: treating frequent attacks with any acute agent can entrench the headache, and cannabis withdrawal itself causes headache — so someone alternating the two can end up with more headache days, not fewer, and read that as the migraine worsening.',
+   monitor:'Count your treatment days, and count cannabis days among them — this is the single most useful thing to bring to a headache review. Escalating frequency needs preventive treatment, not more acute treatment. Triptans are contraindicated in coronary artery disease, prior stroke and uncontrolled hypertension; that restriction is the triptan’s own and is not changed by cannabis. Report chest, jaw or throat tightness. If you use cannabis for migraine, say which product and how often — the trial evidence applies to a THC-plus-CBD vaporised product, not to CBD alone.',
+   pmid:'41469488, 37313955'},
+
+  {id:'eletriptan',drug:'Eletriptan',brands:['Relpax','Eletriptan'],
+   cls:'Serotonin 5-HT1B/1D Agonist — acute migraine (CYP3A4-dependent)',cat:'rx',
+   mols:['THC9','CBD'],sev:'moderate',ev:'C',
+   mech:'Eletriptan is filed apart from the other triptans because its label carries a restriction that none of theirs do: it <strong>should not be used within at least 72 hours of a potent CYP3A4 inhibitor</strong> — ketoconazole, itraconazole, nefazodone, troleandomycin, clarithromycin, ritonavir or nelfinavir. That makes the direction of any CYP3A effect on eletriptan clinically real rather than theoretical. <strong>CBD is a moderate CYP3A inhibitor, not a potent one</strong> — it raised a CYP3A probe by about 56% in healthy adults, well short of the inhibitors that restriction was written for. So the mechanism applies and the direction is upward, but CBD is not the drug the 72-hour rule is aimed at, and this record does not pretend otherwise.',
+   effect:'Higher eletriptan exposure would mean more of its dose-related effects: <strong>chest, throat, neck or jaw tightness or pressure</strong>, dizziness, drowsiness and tingling. That tightness is usually not cardiac in origin — but it must not be assumed to be benign in anyone with cardiac risk factors, and it is the symptom that most often needs urgent assessment. Adding CBD-dominant products on top of eletriptan is the scenario most likely to nudge exposure upward, particularly with oral CBD at the higher doses people take for pain or sleep.',
+   monitor:'Do not exceed the labelled maximum dose in 24 hours. <strong>Tell the prescriber how much CBD you take and in what form</strong> — a high-dose oral CBD product is a different proposition from an occasional low-dose one. Report chest pain or pressure, and do not assume it is the usual triptan sensation. If you also take an azole antifungal or clarithromycin, that combination is the one the label actually restricts — raise it before the next migraine, not during one.',
+   pmid:'37313955'},
+
+  {id:'metoclopramide',drug:'Metoclopramide',brands:['Reglan','Gimoti','Metoclopramide'],
+   cls:'Dopamine D2 Antagonist — prokinetic and antiemetic',cat:'rx',
+   mols:['THC9','CBD'],sev:'major',ev:'B',
+   mech:'Two things converge here, and together they are why this record is graded major. <strong>First, metoclopramide is one of the conventional antiemetics used for cannabinoid hyperemesis syndrome, and the published evidence is that conventional antiemetics work poorly for it</strong> — two systematic reviews reach that conclusion. <strong>Second, metoclopramide carries a boxed warning for tardive dyskinesia</strong>, a movement disorder that can be irreversible, with risk rising with treatment duration and cumulative dose; the label says to avoid treatment beyond 12 weeks. Put those together and the danger is concrete rather than theoretical: a heavy cannabis user with cyclical vomiting is given metoclopramide, it does not work because the cause has not been addressed, the dose and duration escalate — and the tardive dyskinesia risk accumulates in exchange for no benefit. Metoclopramide is partly cleared by CYP2D6, but <strong>CBD does not inhibit CYP2D6</strong>, so that route is not a cannabis concern and is not presented as one.',
+   effect:'Additive sedation, since metoclopramide crosses into the brain and is itself sedating. <strong>Acute dystonic reactions</strong> — involuntary spasm of the neck, jaw, tongue or eyes — occur early and are most common in young adults; they are frightening but treatable. The serious long-term effect is <strong>tardive dyskinesia</strong>: repetitive involuntary movements of the face, tongue, lips or limbs that may persist after the drug is stopped. Metoclopramide also blocks dopamine everywhere, so it can <strong>worsen Parkinson’s disease and oppose levodopa</strong> — a separate interaction covered in the drug-drug pairs.',
+   monitor:'<strong>Report any involuntary movement of the face, tongue, lips, jaw or limbs immediately</strong> — this is the one that must not be waited out. If vomiting is cyclical, relieved by hot showers, and cannabis use is heavy, <strong>raise cannabinoid hyperemesis syndrome explicitly</strong> rather than accepting an escalating antiemetic; the treatment for that is not a stronger antiemetic. Do not stay on metoclopramide beyond 12 weeks without a specific plan and review. Do not drive if it makes you drowsy on top of cannabis.',
+   pmid:'28370228, 41129865, 33247397, 37313955'},
+
+  {id:'estrogen_hrt',drug:'Estrogens — Menopausal Hormone Therapy (estradiol, conjugated estrogens)',
+   brands:['Estrace','Estradiol','Climara','Vivelle-Dot','Minivelle','Alora','Dotti','Lyllana','Divigel','EstroGel','Elestrin',
+           'Evamist','Estring','Femring','Vagifem','Yuvafem','Imvexxy','Premarin','Menest','Duavee','Prempro','Premphase',
+           'Bijuva','Conjugated Estrogens'],
+   cls:'Estrogen — menopausal hormone therapy',cat:'rx',
+   mols:['CBD','THC9'],sev:'moderate',ev:'C',
+   mech:'Oral estradiol goes through <strong>extensive first-pass metabolism</strong>, with CYP3A4 one of the oxidative routes alongside sulfation and glucuronidation. CBD is a <strong>moderate</strong> CYP3A inhibitor — about a 56% rise in a CYP3A probe in healthy adults — and also inhibits UGT enzymes, so a plausible direction is <strong>modestly higher estrogen exposure with an oral product</strong>. This has not been measured directly with cannabis, so it is a mechanistic expectation, not an established interaction. The route matters and is genuinely actionable: <strong>patches, gels, sprays and vaginal rings bypass first-pass metabolism</strong>, so the same concern is substantially smaller by those routes than by tablet.',
+   effect:'<strong>This record deliberately does not claim that cannabis adds to the clotting risk in the estrogen boxed warning.</strong> That warning, and the familiar rule about not smoking on estrogen over the age of 35, are built on <em>cigarette</em> data — and the extrapolation to cannabis is not supported by the best direct evidence available. In a cohort of 4,285 veterans with established coronary artery disease, smoking cannabis was <strong>not associated</strong> with heart attack, stroke or cardiovascular death over a mean 3.3 years (adjusted hazard ratio 0.87, 95% CI 0.61–1.24). That study has real limits — older, almost entirely male, self-reported use — so it is not a clean read-across to menopausal women either. The honest position is that the plausible interaction here is <strong>metabolic rather than thrombotic</strong>, and the effect of a modestly higher estrogen level would look like breast tenderness, nausea, headache, or breakthrough bleeding.',
+   monitor:'<strong>Report any unexpected vaginal bleeding</strong> — that always needs assessment on its own terms and is never something to attribute to cannabis. The estrogen warnings stand independently and are worth knowing verbatim: get urgent help for leg swelling or pain, sudden breathlessness, chest pain, sudden severe headache, or a change in vision. Tell the prescriber how much CBD you take, especially at the higher oral doses used for pain or sleep, and ask whether a patch or gel would suit you better than a tablet. Do not read the veterans study above as evidence that cannabis is cardiovascularly harmless for you — it was not done in this population.',
+   pmid:'37313955, 40686207'}
   ];
 var DI_INDEX = {};
 var DI_COVERED = {}; // DRUG-A3: record index -> every generic/brand name that resolves to it
 var DI_ALIASES = {
+  // DRUG-24: search-only phrasings for the records added in this tranche. A user types
+  // "carbidopa levodopa" with a space, or "inhaled steroid" singular; neither string appears
+  // in the drug name or the class line, so neither reached the record. Name normalisation
+  // only — no new interaction claim, and every target id is validated to exist.
+  'carbidopa levodopa':'carbidopa_levodopa',
+  'levodopa carbidopa':'carbidopa_levodopa',
+  'inhaled steroid':'inhaled_steroids',
+  'inhaled steroids':'inhaled_steroids',
+  'steroid inhaler':'inhaled_steroids',
+  'hormone replacement':'estrogen_hrt',
+  'hormone replacement therapy':'estrogen_hrt',
+  // DRUG-24: the same phrasing gap existed in the intranasal record shipped by DRUG-23.
+  'intranasal steroid':'intranasal_steroids',
+  'nasal steroid':'intranasal_steroids',
+  'steroid nasal spray':'intranasal_steroids',
   'venclexta':'venetoclax',
   'venclyxto':'venetoclax',
   'accupril':'lisinopril',

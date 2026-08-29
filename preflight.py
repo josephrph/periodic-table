@@ -138,6 +138,8 @@ def load_data(src):
         # of mistake as the citation-array regex that produced a false "42 conditions uncited".
         'DI_DATA': js_literal(src, 'var DI_DATA = [', '['),
         'DDI_DATA': js_literal(src, 'var DDI_DATA = [', '['),
+        # DRUG-24: needed by check_hasrisk_invariant
+        'ADVERSE_FINDINGS': js_literal(src, 'const ADVERSE_FINDINGS = {', '{'),
     }
     prog = ['var out = {};']
     for name, body in parts.items():
@@ -840,6 +842,103 @@ def check_backlog():
     note('backlog: %d rows, ids unique, statuses valid' % len(ids))
 
 
+def check_record_schema(data):
+    """DRUG-24: a drug record and a drug-drug pair must each live in their OWN array.
+
+    This guard exists because the check it replaces did not exist, and the gap shipped a real
+    defect during this very session. Seven DDI-shaped objects were appended to DI_DATA instead of
+    DDI_DATA — the insertion script bracket-searched for the literal "\n  ];" after the last pair,
+    but DDI_DATA closes on "\n];" with NO indentation while DI_DATA closes with two spaces, so the
+    search ran straight past the end of DDI_DATA and landed on DI_DATA's terminator instead.
+
+    Every existing check passed. check_ddi_reachable counted "284 drugs, 96 pairs" and called it
+    clean, because it only asks whether ids resolve — never whether an entry is the right SHAPE.
+    Those seven objects would have rendered in the medication list as drugs with no name, no brands,
+    no class and no molecules. The count was the only visible symptom, and a count is easy to skim.
+
+    So: assert the shape, not just the references. A DI record must carry the keys the card renderer
+    reads; a DDI pair must carry its own. Neither may carry the other's distinctive keys.
+    """
+    di, ddi = data.get('DI_DATA') or [], data.get('DDI_DATA') or []
+    di_required = ('id', 'drug', 'brands', 'cls', 'cat', 'mols', 'sev', 'ev',
+                   'mech', 'effect', 'monitor', 'pmid')
+    ddi_required = ('id', 'drugs', 'sev', 'ev', 'label', 'mech', 'effect', 'monitor', 'pmid')
+    di_only = ('drug', 'brands', 'cls', 'cat', 'mols')
+    ddi_only = ('drugs', 'groups', 'label')
+    for e in di:
+        rid = e.get('id', '?')
+        missing = [k for k in di_required if k not in e]
+        if missing:
+            fail('record schema',
+                 'DI_DATA record "%s" is missing %s — is it a drug-drug pair in the wrong array?'
+                 % (rid, ', '.join(missing)))
+        stray = [k for k in ddi_only if k in e]
+        if stray:
+            fail('record schema',
+                 'DI_DATA record "%s" carries pair-only key(s) %s — it belongs in DDI_DATA'
+                 % (rid, ', '.join(stray)))
+    for e in ddi:
+        rid = e.get('id', '?')
+        missing = [k for k in ddi_required if k not in e]
+        if missing:
+            fail('record schema',
+                 'DDI_DATA pair "%s" is missing %s — is it a drug record in the wrong array?'
+                 % (rid, ', '.join(missing)))
+        stray = [k for k in di_only if k in e]
+        if stray:
+            fail('record schema',
+                 'DDI_DATA pair "%s" carries drug-only key(s) %s — it belongs in DI_DATA'
+                 % (rid, ', '.join(stray)))
+    # severity and evidence are closed vocabularies; a typo silently mis-sorts and mis-badges
+    for label, rows in (('DI_DATA', di), ('DDI_DATA', ddi)):
+        for e in rows:
+            if e.get('sev') not in ('major', 'moderate', 'minor'):
+                fail('record schema', '%s "%s" has sev=%r' % (label, e.get('id'), e.get('sev')))
+            if e.get('ev') not in ('A', 'B', 'C', 'D'):
+                fail('record schema', '%s "%s" has ev=%r' % (label, e.get('id'), e.get('ev')))
+    note('record schema: %d drug records and %d pairs each carry the right keys for their array'
+         % (len(di), len(ddi)))
+
+
+def check_hasrisk_invariant(data):
+    """DRUG-24: hasRisk is editorial intent; ADVERSE_FINDINGS is what the reader actually sees.
+
+    hasRisk is written on conditions but read by NO code — the caution a user sees comes from
+    condHasAdverse(), which matches an adverse finding by condition label or by group. That makes
+    hasRisk a comment that looks like data, and it had already drifted once: an earlier note in
+    index.html claimed hasRisk was what flagged a condition, which was wrong.
+
+    Deleting it would throw away a real editorial signal, so it is enforced instead. The rule is
+    one-directional and deliberately so: if a curator marks a condition risky, the reader MUST see
+    a caution on it. The converse is not required — condHasAdverse legitimately matches by group
+    and covers more conditions than hasRisk marks.
+    """
+    conds = [c for c in data['CONDITIONS'] if c.get('id') != 'cancer-adverse']
+    adverse = data.get('ADVERSE_FINDINGS') or {}
+
+    def shown(cond):
+        if cond.get('isRisk'):
+            return True                       # the global filter row is the adverse entry point
+        groups = group_keys(cond.get('group'))
+        for mol in adverse:
+            for f in adverse[mol]:
+                if f.get('footnote'):
+                    continue
+                if f.get('condition') == cond.get('label') or f.get('group') in groups:
+                    return True
+        return False
+
+    flagged = [c for c in conds if c.get('hasRisk')]
+    silent = [c.get('id') for c in flagged if not shown(c)]
+    for cid in silent:
+        fail('hasRisk invariant',
+             'condition "%s" is marked hasRisk:true but no adverse finding matches it by label or '
+             'group — the curator flagged a risk the reader never sees' % cid)
+    if not silent:
+        note('hasRisk invariant: all %d flagged conditions surface a caution to the reader'
+             % len(flagged))
+
+
 # ── driver ─────────────────────────────────────────────────────────────────────
 def main():
     online = '--online' in sys.argv
@@ -865,6 +964,8 @@ def main():
     check_pubmed_links(src, data)
     check_pmids(src, online)
     check_ddi_reachable(data)
+    check_record_schema(data)
+    check_hasrisk_invariant(data)
     check_backlog()
 
     for n in NOTES:
