@@ -7478,11 +7478,16 @@ function renderMedListResults(ddiHits, cannabisHits) {
 //   A  human trials of THIS interaction
 //   B  observational or case evidence of THIS interaction (incl. an FDA-label
 //      statement about it — see `source:'label'`)
-//   C  preclinical/in-vitro evidence bearing DIRECTLY on this interaction, or a
-//      sufficiently specific interaction mechanism (e.g. the drug is a CYP3A
-//      substrate AND CBD's CYP3A inhibition is measured in humans)
-//   D  theoretical: pharmacodynamic inference, or two separately-established
-//      facts chained together, with no direct cannabis-drug evidence
+//   C  preclinical/in-vitro evidence bearing DIRECTLY ON THIS DRUG PAIR
+//   D  inferred: pharmacodynamic overlap, OR a shared metabolic route, with no
+//      direct cannabis-drug-pair evidence
+//
+// TIGHTENED 2026-08-30 (owner decision, QA Pass B). An earlier version of this
+// block gave "the drug is a CYP3A substrate AND CBD inhibits CYP3A in humans" as
+// an example of C. THAT IS NOW EXPLICITLY D. A shared CYP pathway plus measured
+// CBD inhibition of that enzyme is mechanistic evidence supporting PLAUSIBILITY,
+// and it belongs in the mechanism text with its citations — but it is still an
+// INFERRED pair interaction. Naming the enzyme does not make the pair studied.
 //
 // THE TEST THAT SETTLES MOST CASES: if the record says there is no metabolic route
 // and the overlap is "pharmacodynamic", the grade is D, however well documented
@@ -8355,7 +8360,7 @@ var DI_DATA = [
    pmid:'1900101, 37313955'},
 
   {id:'propafenone',drug:'Propafenone',brands:['Rythmol','Rythmol SR'],cls:'Class Ic Antiarrhythmic with beta-blocking activity (narrow therapeutic index)',cat:'rx',
-   mols:['CBD','THC9'],sev:'major',ev:'C',
+   mols:['CBD','THC9'],sev:'major',ev:'D',
    mech:'Propafenone is metabolized by <strong>CYP2D6, CYP3A4 and CYP1A2</strong>, and its labeling carries an unusual instruction: <strong>avoid using it with a CYP2D6 inhibitor and a CYP3A4 inhibitor at the same time</strong>, because the combination can raise propafenone concentrations enough to cause proarrhythmia. About 6% of the population lacks CYP2D6 activity altogether and already runs high levels. Of the two enzymes the label names, <strong>human data support CBD inhibiting CYP3A but not CYP2D6</strong>: in a randomised crossover in 18 adults, a CBD-dominant extract raised the AUC of a CYP3A probe by 56% while leaving the CYP2D6 probe unchanged. Propafenone also has intrinsic beta-blocking activity.',
    effect:'A plausible rise in propafenone exposure through the CYP3A route — <strong>one of the two pathways the label warns about, though not both</strong> — with proarrhythmia the consequence the warning exists for. Propafenone carries a boxed mortality warning as a Class Ic agent, is contraindicated in heart failure, and can cause agranulocytosis and worsen myasthenia gravis. Its beta-blocking activity adds bradycardia and orthostatic hypotension to &Delta;9-THC\'s cardiovascular effects. <strong>No study has tested cannabis with propafenone.</strong>',
    monitor:'Tell the prescriber about CBD specifically, not just cannabis — the CYP3A concern is CBD\'s, and a THC-only product did not inhibit any CYP enzyme in the same study. Report palpitations, fainting, unusual breathlessness, or signs of infection such as fever or sore throat (agranulocytosis). ECG monitoring is routine after initiation and after dose changes; a cannabis change is worth mentioning at those visits.',
@@ -8376,7 +8381,7 @@ var DI_DATA = [
    pmid:'36257330'},
 
   {id:'quinidine',drug:'Quinidine',brands:['Nuedexta (with dextromethorphan)','Quinidex','Quinaglute'],cls:'Class Ia Antiarrhythmic; potent CYP2D6 inhibitor (narrow therapeutic index)',cat:'rx',
-   mols:['CBD','THC9'],sev:'major',ev:'C',
+   mols:['CBD','THC9'],sev:'major',ev:'D',
    mech:'Quinidine is unusual in being both a <strong>CYP3A4 substrate</strong> and a <strong>potent CYP2D6 inhibitor</strong> — so it is affected by other drugs and strongly affects them. It also inhibits P-glycoprotein, which is why it raises digoxin concentrations. On the cannabis side the relevant route is CYP3A: in a randomised crossover in 18 adults, a CBD-dominant cannabis extract raised the AUC of a CYP3A probe drug by 56%, so a rise in quinidine exposure is mechanistically plausible. <strong>No study has tested cannabis with quinidine.</strong>',
    effect:'Higher quinidine exposure would mean more QT prolongation and torsades de pointes, the toxicity that limits the drug. Quinidine separately causes cinchonism (tinnitus, hearing loss, blurred vision, confusion), immune-mediated thrombocytopenia, hepatitis, a lupus-like syndrome and anticholinergic effects. Because quinidine <strong>inhibits</strong> CYP2D6 it also raises the levels of many other medicines — the interaction list runs in both directions, which is unusual and easy to overlook.',
    monitor:'Report ringing in the ears, hearing changes, blurred vision, confusion, palpitations or fainting — cinchonism is an early warning that levels are climbing. Unusual bruising or bleeding may signal thrombocytopenia and needs prompt review. Any patient on quinidine and digoxin together is in a well-known interaction; see that entry. Mention cannabis or CBD use so a level or ECG can be considered around any change.',
@@ -8390,7 +8395,7 @@ var DI_DATA = [
    pmid:'29870500'},
 
   {id:'disopyramide',drug:'Disopyramide',brands:['Norpace','Norpace CR'],cls:'Class Ia Antiarrhythmic with strong anticholinergic activity (narrow therapeutic index)',cat:'rx',
-   mols:['THC9','CBD'],sev:'major',ev:'C',
+   mols:['THC9','CBD'],sev:'major',ev:'D',
    mech:'Disopyramide differs from the other Class Ia agents in two ways that matter more than its metabolism. It is <strong>strongly anticholinergic</strong> — its labeling states it should not be used in patients with <strong>glaucoma</strong>, myasthenia gravis or urinary retention unless overriding measures are in place — and it is <strong>negatively inotropic</strong>, reducing cardiac output by roughly 10% and more in impaired hearts. <strong>An earlier version of this record said only that it is &ldquo;cleared hepatically and renally&rdquo; and never named an enzyme. That omitted the most interaction-relevant fact about the drug.</strong> In human liver microsomes the formation of its mono-N-dealkylated metabolite correlates best with CYP3A4 activity, and CYP3A4 is the <strong>principal isoenzyme</strong> handling disopyramide in humans. That matters here because <strong>CBD inhibits CYP3A in people</strong> &mdash; a randomised crossover in 18 adults raised the AUC of a CYP3A probe by <strong>56%</strong> &mdash; so a rise in disopyramide exposure runs down a specific, named route rather than a general worry. <em>No study has tested cannabis with disopyramide, so the size of any effect is unknown</em>; what is established is the enzyme on one side and the effect of CBD on that enzyme on the other. The half-life lengthens from about 6.7 hours to 8&ndash;18 hours in renal impairment. Cannabis adds anticholinergic-type dryness and, through &Delta;9-THC, orthostatic hypotension.',
    effect:'Two distinct overlaps. <strong>Anticholinergic:</strong> additive dry mouth, blurred vision, constipation and urinary hesitancy — and because disopyramide can raise intraocular pressure, this is one of the few drugs where V2\'s <strong>Glaucoma / Ocular Pressure</strong> topic and a medication record intersect directly. <strong>Haemodynamic:</strong> disopyramide can cause or worsen congestive heart failure and severe hypotension through its negative inotropic effect, and &Delta;9-THC lowers standing blood pressure. It also prolongs QT. <strong>No study has tested cannabis with disopyramide.</strong>',
    monitor:'Anyone with glaucoma or raised eye pressure should raise disopyramide with both their ophthalmologist and their cardiologist — this is a specific labeled caution, not a general one. Report difficulty passing urine, worsening breathlessness, ankle swelling, weight gain, dizziness or fainting. Dry mouth is common and compounds with cannabis; it matters mainly because it drives people to sugary drinks and dental problems, not because it is dangerous in itself.',
