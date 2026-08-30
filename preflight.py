@@ -842,6 +842,34 @@ def check_backlog():
     note('backlog: %d rows, ids unique, statuses valid' % len(ids))
 
 
+ALLOWED_SOURCES = {'label'}   # DRUG-26: FDA-approved prescribing information
+
+# DRUG-26: the attribution rule below is enforced for the WHOLE database. These 13 entries were
+# already in violation when the guard was written (QA Pass A, 2026-08-30) and are queued as Groups
+# 3 and 4 pending owner review — so they are registered here rather than silently exempted.
+#
+# This register is self-cleaning: check_evidence_attribution FAILS if an id listed here no longer
+# violates, so it cannot rot into a stale allowlist the way index.html's line numbers did. Removing
+# the last entry removes the register.
+ATTRIBUTION_OPEN = {
+    # Group 3 — well-established interactions, grades stand, need citations
+    'gabapentin':              'FDA 2019 gabapentinoid respiratory-depression communication + case series',
+    'ondan_prochlor':          'additive QT; needs a source or regrade to C',
+    'ezet_statin':             'negative finding (no PK change) still needs its source',
+    'alc_benz':                'abundant human literature, simply uncited',
+    'alc_meth':                'moved here from Group 2 — text never cites the label it relies on',
+    'tacro_ibu':               'NSAID + calcineurin-inhibitor nephrotoxicity, well documented',
+    'tram_opi':                'additive respiratory depression, well documented',
+    'tram_benz':               'additive respiratory depression, well documented',
+    'antiarrhythmic_diuretic': 'hypokalaemia-driven QT risk, well documented',
+    'levodopa_dopamine_antagonist':    'classic neurology interaction; cite or attribute to label',
+    'pramipexole_dopamine_antagonist': 'same mechanism as the levodopa pair',
+    'ics_cyp3a':               'fluticasone/ritonavir Cushing case reports — cite them',
+    # Group 4 — grade itself is the question
+    'hydroxyzine_cns':         'pharmacodynamic inference; B->C recommended, or attribute to label',
+}
+
+
 def check_record_schema(data):
     """DRUG-24: a drug record and a drug-drug pair must each live in their OWN array.
 
@@ -896,8 +924,67 @@ def check_record_schema(data):
                 fail('record schema', '%s "%s" has sev=%r' % (label, e.get('id'), e.get('sev')))
             if e.get('ev') not in ('A', 'B', 'C', 'D'):
                 fail('record schema', '%s "%s" has ev=%r' % (label, e.get('id'), e.get('ev')))
+    # DRUG-26: `source` names the AUTHORITY behind a statement when that authority is a
+    # regulatory document rather than a paper. It is orthogonal to `ev`, which keeps describing
+    # the strength and type of evidence — a label contraindication rests on human data the
+    # manufacturer submitted, so ev:'A' with source:'label' is coherent, not a contradiction.
+    for label, rows in (('DI_DATA', di), ('DDI_DATA', ddi)):
+        for e in rows:
+            if 'source' in e and e['source'] not in ALLOWED_SOURCES:
+                fail('record schema',
+                     '%s "%s" has source=%r — allowed: %s'
+                     % (label, e.get('id'), e.get('source'), sorted(ALLOWED_SOURCES)))
     note('record schema: %d drug records and %d pairs each carry the right keys for their array'
          % (len(di), len(ddi)))
+
+
+def n_ab(data):
+    return sum(1 for rows in (data.get('DI_DATA') or [], data.get('DDI_DATA') or [])
+               for e in rows if e.get('ev') in ('A', 'B'))
+
+
+def check_evidence_attribution(data):
+    """DRUG-26: an A- or B-graded entry ASSERTS human evidence, so it must say where that comes from.
+
+    QA Pass A (2026-08-30) found 36 entries graded A or B carrying no citation at all — 30 of the 90
+    A/B pairs. Nothing caught it: check_pmids verifies that PMIDs which are PRESENT resolve, and never
+    asks whether a claim of human evidence has any attribution behind it. The entries rendered an
+    empty citation slot, which reads as "unsupported" for exactly the records with the strongest
+    regulatory backing.
+
+    The rule is deliberately narrow. Grades C (preclinical) and D (theoretical) are exempt: a record
+    that says "no human data exists" is honest without a citation, and 160 of them legitimately have
+    none. Only A and B — the grades that claim humans were studied — must point somewhere, either at
+    a PMID or at a named authority such as the FDA label.
+    """
+    offenders = []
+    for label, rows in (('DI_DATA', data.get('DI_DATA') or []),
+                        ('DDI_DATA', data.get('DDI_DATA') or [])):
+        for e in rows:
+            if e.get('ev') not in ('A', 'B'):
+                continue
+            has_pmid = bool(re.search(r'\d{5,8}', str(e.get('pmid') or '')))
+            if has_pmid or e.get('source') in ALLOWED_SOURCES:
+                continue
+            offenders.append((e.get('id'), '%s "%s" (%s/%s)'
+                             % (label, e.get('id'), e.get('sev'), e.get('ev'))))
+    new_offenders = [o for o in offenders if o[0] not in ATTRIBUTION_OPEN]
+    for _, desc in new_offenders:
+        fail('evidence attribution',
+             '%s is graded A/B — which asserts human evidence — but cites no PMID and names no '
+             'source' % desc)
+    # a register entry that no longer violates must be REMOVED, or the register goes stale
+    still = {o[0] for o in offenders}
+    fixed = sorted(set(ATTRIBUTION_OPEN) - still)
+    for rid in fixed:
+        fail('evidence attribution',
+             '"%s" is listed in ATTRIBUTION_OPEN but now has attribution — delete its line' % rid)
+    if not new_offenders and not fixed:
+        note('evidence attribution: %d A/B entries all attributed, except %d registered as open '
+             '(Groups 3-4)' % (n_ab(data), len(still)))
+    if not offenders:
+        note('evidence attribution: all %d A/B-graded entries cite a PMID or name a source'
+             % n_ab(data))
 
 
 def check_hasrisk_invariant(data):
@@ -966,6 +1053,7 @@ def main():
     check_ddi_reachable(data)
     check_record_schema(data)
     check_hasrisk_invariant(data)
+    check_evidence_attribution(data)
     check_backlog()
 
     for n in NOTES:

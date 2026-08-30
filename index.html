@@ -6815,25 +6815,25 @@ var DDI_DATA = [
    effect:'A meta-analysis of randomised trials found dual blockade gave <strong>no reduction in all-cause or cardiovascular mortality</strong> while increasing hyperkalemia by 55%, hypotension by 66%, kidney failure by 41% and withdrawal for adverse events by 27%. Its authors concluded the risk-to-benefit ratio argues against dual therapy. The ONTARGET trial reached the same conclusion.',
    monitor:'Rarely appropriate, and specialist territory when it is used — most often a nephrologist managing proteinuria. Do not assume the combination is intended: two prescribers each adding a blood-pressure medicine is a common route to it. Flag it to a pharmacist or prescriber for review, and have potassium and kidney function checked. Do not stop either medicine on your own.',
    pmid:'23358488'},
-  {id:'brex_cyp3a4inh',drugs:['brexpiprazole','cyp3a4inh'],sev:'moderate',ev:'B',
+  {id:'brex_cyp3a4inh',drugs:['brexpiprazole','cyp3a4inh'],sev:'moderate',ev:'B',source:'label',
    label:'Brexpiprazole + CYP3A4 inhibitors',
    mech:'Brexpiprazole is a CYP3A4 (and CYP2D6) substrate. Strong or moderate CYP3A4 inhibitors (azole antifungals, clarithromycin/erythromycin, diltiazem, verapamil, and others) reduce its clearance and raise blood levels.',
    effect:'Higher brexpiprazole exposure with more sedation, dizziness, restlessness (akathisia), and orthostatic low blood pressure. Product labeling recommends reducing the brexpiprazole dose (about half) with strong CYP3A4 inhibitors.',
    monitor:'Follow labeling dose adjustments with strong or moderate CYP3A4 inhibitors; watch for sedation, akathisia, and dizziness on standing.',
    pmid:''},
-  {id:'brex_cyp3a4ind',drugs:['brexpiprazole','cyp3a4ind'],sev:'moderate',ev:'B',
+  {id:'brex_cyp3a4ind',drugs:['brexpiprazole','cyp3a4ind'],sev:'moderate',ev:'B',source:'label',
    label:'Brexpiprazole + CYP3A4 inducers',
    mech:'Strong CYP3A4 inducers (rifampin, carbamazepine, phenytoin, St. John wort, and others) speed up brexpiprazole breakdown and lower its blood levels over 1 to 2 weeks.',
    effect:'Reduced brexpiprazole exposure and possible loss of antipsychotic or antidepressant benefit. Labeling recommends increasing the brexpiprazole dose (up to double) when used with strong CYP3A4 inducers.',
    monitor:'Follow labeling dose adjustments; watch for return or worsening of symptoms, and re-adjust if the inducer is later stopped.',
    pmid:''},
-  {id:'brex_ssri',drugs:['brexpiprazole','ssri','fluvoxamine'],groups:[['brexpiprazole'],['ssri','fluvoxamine']],sev:'moderate',ev:'B',
+  {id:'brex_ssri',drugs:['brexpiprazole','ssri','fluvoxamine'],groups:[['brexpiprazole'],['ssri','fluvoxamine']],sev:'moderate',ev:'B',source:'label',
    label:'Brexpiprazole + SSRI (CYP2D6 inhibitors)',
    mech:'Brexpiprazole is also a CYP2D6 substrate. Some SSRIs, especially fluoxetine and paroxetine, are strong CYP2D6 inhibitors and raise brexpiprazole levels; other SSRIs (sertraline, citalopram, escitalopram) inhibit CYP2D6 only weakly. Brexpiprazole is frequently prescribed alongside an antidepressant, so this pairing is common.',
    effect:'Higher brexpiprazole exposure (more sedation, akathisia, dizziness) mainly with fluoxetine or paroxetine. Labeling recommends a brexpiprazole dose reduction with strong CYP2D6 inhibitors.',
    monitor:'With fluoxetine or paroxetine, follow labeling dose adjustments and watch for sedation, restlessness, and dizziness; the effect is smaller with weaker CYP2D6-inhibiting SSRIs.',
    pmid:''},
-  {id:'brex_bupropion',drugs:['brexpiprazole','bupropion'],sev:'moderate',ev:'B',
+  {id:'brex_bupropion',drugs:['brexpiprazole','bupropion'],sev:'moderate',ev:'B',source:'label',
    label:'Brexpiprazole + Bupropion (CYP2D6 inhibitor)',
    mech:'Bupropion is a strong CYP2D6 inhibitor and brexpiprazole is a CYP2D6 substrate, so co-use reduces brexpiprazole clearance and raises its blood levels.',
    effect:'Higher brexpiprazole exposure with more sedation, akathisia, and dizziness. Labeling recommends reducing the brexpiprazole dose with strong CYP2D6 inhibitors.',
@@ -6943,7 +6943,7 @@ var DDI_DATA = [
   // its entries — cimetidine and hydrochlorothiazide — are drugs patients acquire casually.
   // Cimetidine only became targetable when tranche A split it out of the famotidine record today.
   {id:'dofetilide_contraindicated',drugs:['dofetilide','cimetidine','hydrochlorothiazide','bactrim','azoles','cyp3a4inh'],
-   groups:[['dofetilide'],['cimetidine','hydrochlorothiazide','bactrim','azoles','cyp3a4inh']],sev:'major',ev:'A',
+   groups:[['dofetilide'],['cimetidine','hydrochlorothiazide','bactrim','azoles','cyp3a4inh']],sev:'major',ev:'A',source:'label',
    label:'Dofetilide + Contraindicated Drugs (cimetidine, HCTZ, trimethoprim, ketoconazole, verapamil)',
    mech:'Dofetilide is cleared renally by active tubular secretion through the cation transport system. Cimetidine, trimethoprim, ketoconazole, prochlorperazine, megestrol and dolutegravir all block that transporter and raise dofetilide concentrations. Verapamil raises peak dofetilide levels by a different route, and hydrochlorothiazide — alone or combined with triamterene — has been shown to raise dofetilide concentrations and prolong the QT interval further.',
    effect:'Higher dofetilide exposure means more QT prolongation and a higher risk of <strong>torsades de pointes</strong>, the arrhythmia the drug is dose-titrated in hospital to avoid. <strong>The dofetilide labeling contraindicates every drug named here</strong> — this is not a caution to weigh but a combination to prevent.',
@@ -6961,7 +6961,7 @@ var DDI_DATA = [
   // Sotalol's own labeling says to avoid concomitant QT-prolonging drugs. V2 holds several.
   {id:'antiarrhythmic_qt',drugs:['sotalol','dofetilide','quinidine','procainamide','disopyramide','amiodarone','methadone','ondansetron','antipsychotics','chlorpromazine','ssri','tricyclics'],
    groups:[['sotalol','dofetilide','quinidine','procainamide','disopyramide'],['amiodarone','methadone','ondansetron','antipsychotics','chlorpromazine','ssri','tricyclics','loperamide']],
-   sev:'major',ev:'B',
+   sev:'major',ev:'B',source:'label',
    label:'QT-Prolonging Antiarrhythmic + Another QT-Prolonging Drug',
    mech:'Each of these antiarrhythmics prolongs the QT interval as part of how it works or as an unavoidable side effect. Adding a second QT-prolonging drug — another antiarrhythmic, methadone, ondansetron, an antipsychotic, a tricyclic or citalopram — lengthens the interval further, and the risk of torsades de pointes rises steeply rather than proportionally. <strong>Sotalol\'s labeling states plainly that concomitant use with other QT-prolonging drugs should be avoided.</strong>',
    effect:'Torsades de pointes: a polymorphic ventricular tachycardia that can degenerate into ventricular fibrillation. Low potassium or magnesium, bradycardia, female sex, reduced kidney function and higher doses all compound it — so vomiting, diarrhoea or dehydration can turn a tolerated combination into a dangerous one without any change in medication.',
@@ -6970,7 +6970,7 @@ var DDI_DATA = [
 
   // Propafenone's label warns specifically about CYP2D6 + CYP3A4 inhibition TOGETHER.
   {id:'propafenone_cyp',drugs:['propafenone','quinidine','fluvoxamine','azoles','cyp3a4inh','clarithromycin'],
-   groups:[['propafenone'],['quinidine','fluvoxamine','azoles','cyp3a4inh','clarithromycin']],sev:'major',ev:'B',
+   groups:[['propafenone'],['quinidine','fluvoxamine','azoles','cyp3a4inh','clarithromycin']],sev:'major',ev:'B',source:'label',
    label:'Propafenone + CYP2D6 / CYP3A4 Inhibitors',
    mech:'Propafenone is cleared by CYP2D6, CYP3A4 and CYP1A2. Its labeling warns that <strong>inhibiting CYP3A4 at the same time as inhibiting CYP2D6 — or in a patient genetically deficient in CYP2D6 — can raise propafenone concentrations substantially and increase the risk of proarrhythmia</strong>, and advises avoiding that combination. Quinidine is a potent CYP2D6 inhibitor; fluvoxamine inhibits CYP1A2, CYP2C19 and CYP3A4; the azoles and the other CYP3A4 inhibitors cover the second pathway.',
    effect:'Raised propafenone exposure, with proarrhythmia the labeled consequence — new or worsened arrhythmia, including life-threatening ventricular arrhythmia. About 6% of people lack CYP2D6 activity altogether and start from higher concentrations, so the same combination is not equally risky in everyone.',
@@ -6990,7 +6990,7 @@ var DDI_DATA = [
    pmid:''},
 
   // ── DRUG-17: tranche D pairs ────────────────────────────────────────────────
-  {id:'furosemide_lithium',drugs:['furosemide','lithium'],sev:'major',ev:'A',
+  {id:'furosemide_lithium',drugs:['furosemide','lithium'],sev:'major',ev:'A',source:'label',
    label:'Furosemide + Lithium',
    mech:'Lithium is handled by the kidney much like sodium. A diuretic that depletes sodium prompts the kidney to reabsorb more of both, so lithium clearance falls and blood levels rise. The furosemide labeling states plainly that <strong>lithium generally should not be given with diuretics</strong>, because they reduce lithium\'s renal clearance and add a high risk of lithium toxicity.',
    effect:'Lithium toxicity, in a drug with one of the narrowest therapeutic ranges in medicine — tremor, unsteadiness, slurred speech, vomiting and diarrhoea, confusion, and at higher levels seizures and kidney injury. Dehydration from any cause deepens it, so an intercurrent illness can convert a stable combination into a dangerous one without any dose change.',
@@ -6998,7 +6998,7 @@ var DDI_DATA = [
    pmid:''},
 
   {id:'ticagrelor_cyp3a',drugs:['ticagrelor','azoles','clarithromycin','cyp3a4inh','cyclosporine'],
-   groups:[['ticagrelor'],['azoles','clarithromycin','cyp3a4inh','cyclosporine']],sev:'major',ev:'A',
+   groups:[['ticagrelor'],['azoles','clarithromycin','cyp3a4inh','cyclosporine']],sev:'major',ev:'A',source:'label',
    label:'Ticagrelor + Strong CYP3A Inhibitors (avoid)',
    mech:'Ticagrelor is cleared by CYP3A. Its labeling states that <strong>strong CYP3A inhibitors substantially increase ticagrelor exposure</strong> and instructs avoiding them. The azole antifungals, clarithromycin and the other strong CYP3A inhibitors all qualify.',
    effect:'Higher ticagrelor exposure raises the risk of <strong>bleeding</strong> — which already carries a boxed warning — and of the drug\'s characteristic dyspnoea. Ticagrelor also inhibits P-glycoprotein, so digoxin levels should be monitored whenever ticagrelor is started or changed, and there are dose ceilings for simvastatin, lovastatin and rosuvastatin alongside it.',
@@ -7006,7 +7006,7 @@ var DDI_DATA = [
    pmid:''},
 
   {id:'rasagiline_serotonergic',drugs:['rasagiline','tramadol','methadone','opioids','stjohnswort','ssri','fluvoxamine','snris','cyclobenzaprine'],
-   groups:[['rasagiline'],['tramadol','methadone','opioids','stjohnswort','ssri','fluvoxamine','snris','cyclobenzaprine']],sev:'major',ev:'A',
+   groups:[['rasagiline'],['tramadol','methadone','opioids','stjohnswort','ssri','fluvoxamine','snris','cyclobenzaprine']],sev:'major',ev:'A',source:'label',
    label:'Rasagiline + Serotonergic Drugs (contraindicated)',
    mech:'Rasagiline inhibits monoamine oxidase B. Combined with drugs that raise serotonin — meperidine, tramadol, methadone, other MAO inhibitors, St John\'s Wort, and with caution the antidepressants — the result can be serotonin syndrome. <strong>The rasagiline labeling contraindicates meperidine, tramadol, methadone, propoxyphene, other MAO inhibitors and St John\'s Wort outright</strong>, and requires at least 14 days between stopping rasagiline and starting them.',
    effect:'Serotonin syndrome: agitation, confusion, fever, sweating, tremor, muscle rigidity, rapid heartbeat, and in severe cases seizures and death. Several of the contraindicated drugs are ordinary painkillers or over-the-counter supplements that people obtain without a prescriber knowing.',
@@ -7014,7 +7014,7 @@ var DDI_DATA = [
    pmid:''},
 
   {id:'cyp1a2_substrate_inhibitor',drugs:['riluzole','rasagiline','ropinirole','ciprofloxacin','fluvoxamine','cimetidine'],
-   groups:[['riluzole','rasagiline','ropinirole'],['ciprofloxacin','fluvoxamine','cimetidine']],sev:'moderate',ev:'A',
+   groups:[['riluzole','rasagiline','ropinirole'],['ciprofloxacin','fluvoxamine','cimetidine']],sev:'moderate',ev:'A',source:'label',
    label:'Riluzole / Rasagiline / Ropinirole + CYP1A2 Inhibitors',
    mech:'All three drugs are cleared by CYP1A2 and each labeling addresses it directly. Rasagiline\'s instructs <strong>0.5 mg once daily rather than 1 mg in patients taking ciprofloxacin or another CYP1A2 inhibitor</strong>. Riluzole\'s states that strong to moderate CYP1A2 inhibitors may increase riluzole-associated adverse reactions. Ropinirole\'s reports that <strong>ciprofloxacin raised its AUC by 84%</strong> and instructs that the dose may need adjusting whenever a CYP1A2 inhibitor or inducer is started or stopped.',
    effect:'Raised exposure to whichever of the three is involved. For rasagiline and ropinirole that means more dopaminergic effect and more orthostatic hypotension \u2014 and for ropinirole also more sleepiness and a higher chance of the impulse-control effects it is known for; for riluzole it means a higher risk of the hepatotoxicity and neutropenia the drug is already monitored for. Note that cannabis pushes CYP1A2 the other way when smoked, and the same way as these drugs when taken as CBD — so the direction depends on the product.',
@@ -7030,7 +7030,7 @@ var DDI_DATA = [
    pmid:'20492321, 31682552'},
 
   {id:'gepant_cyp3a',drugs:['ubrogepant','rimegepant','cyp3a4inh','azoles','clarithromycin'],
-   groups:[['ubrogepant','rimegepant'],['cyp3a4inh','azoles','clarithromycin']],sev:'major',ev:'A',
+   groups:[['ubrogepant','rimegepant'],['cyp3a4inh','azoles','clarithromycin']],sev:'major',ev:'A',source:'label',
    label:'Ubrogepant / Rimegepant + Strong CYP3A4 Inhibitors',
    mech:'Both gepants are cleared by CYP3A4 and both labels act on it, though not identically. For <strong>ubrogepant a strong CYP3A4 inhibitor is a contraindication</strong> \u2014 ketoconazole raised its exposure 9.7-fold. For <strong>rimegepant the instruction is to avoid the combination</strong>, and with a merely moderate inhibitor to avoid a second dose within 48 hours. Clarithromycin and the azole antifungals are the everyday members of this class; itraconazole and ritonavir belong to it too.',
    effect:'A large rise in gepant exposure \u2014 several-fold, not incremental \u2014 with more nausea and sleepiness. The practical risk is a short antibiotic or antifungal course colliding with a migraine drug the patient takes as needed and may not think of as &ldquo;a medication they are on&rdquo;.',
@@ -7046,7 +7046,7 @@ var DDI_DATA = [
    pmid:'7974621, 22527345, 28520382'},
 
   {id:'carisoprodol_cns',drugs:['carisoprodol','opioids','benzos','alcohol','zolpidem'],
-   groups:[['carisoprodol'],['opioids','benzos','alcohol','zolpidem']],sev:'major',ev:'B',
+   groups:[['carisoprodol'],['opioids','benzos','alcohol','zolpidem']],sev:'major',ev:'B',source:'label',
    label:'Carisoprodol + Opioids / Benzodiazepines / Alcohol',
    mech:'Carisoprodol and its metabolite meprobamate both act as central-nervous-system depressants \u2014 meprobamate is a barbiturate-like sedative in its own right. The label warns against taking more than one CNS depressant at a time. Stacked with an opioid or a benzodiazepine, the depressant effects on breathing and consciousness combine.',
    effect:'Profound sedation and <strong>respiratory depression</strong>. The carisoprodol&ndash;opioid&ndash;benzodiazepine combination is a recognised and specifically dangerous pattern, and carisoprodol is a Schedule IV controlled substance partly for this reason. Alcohol and sedating cannabis products add to the same total.',
@@ -7054,7 +7054,7 @@ var DDI_DATA = [
    pmid:''},
 
   {id:'promethazine_cns',drugs:['promethazine','opioids','benzos','alcohol','zolpidem'],
-   groups:[['promethazine'],['opioids','benzos','alcohol','zolpidem']],sev:'major',ev:'A',
+   groups:[['promethazine'],['opioids','benzos','alcohol','zolpidem']],sev:'major',ev:'A',source:'label',
    label:'Promethazine + Opioids / Benzodiazepines / Alcohol',
    mech:'Promethazine\u2019s labeling does not merely caution about combining it with other central-nervous-system depressants \u2014 it states that such agents <strong>&ldquo;should either be eliminated or given in reduced dosage&rdquo;</strong> when promethazine is used. The label separately warns of potentially fatal respiratory depression and advises against use in people with compromised respiratory function, including COPD and sleep apnea.',
    effect:'Additive sedation and <strong>respiratory depression</strong>, with the greatest risk in older adults, in anyone with lung disease or sleep apnea, and where an opioid is involved. Promethazine also lowers the seizure threshold and adds anticholinergic load \u2014 confusion, urinary retention, constipation \u2014 which compounds poorly in the elderly.',
@@ -7071,7 +7071,7 @@ var DDI_DATA = [
 
   // ── DRUG-23 pairs ───────────────────────────────────────────────────────────
   {id:'potassium_raas',drugs:['potassium','lisinopril','arb','spironolactone'],
-   groups:[['potassium'],['lisinopril','arb','spironolactone']],sev:'major',ev:'A',
+   groups:[['potassium'],['lisinopril','arb','spironolactone']],sev:'major',ev:'A',source:'label',
    label:'Potassium Supplement + ACE Inhibitor / ARB / Aldosterone Blocker',
    mech:'ACE inhibitors, ARBs and aldosterone blockers all <strong>raise potassium as part of how they work</strong> &mdash; less aldosterone means the kidney holds potassium back. Adding a potassium supplement on top pushes in the same direction, and the potassium chloride label directs monitoring for hyperkalaemia whenever a renin-angiotensin-aldosterone inhibitor is taken alongside it. With the potassium-sparing diuretics <strong>triamterene and amiloride the combination is contraindicated outright</strong>.',
    effect:'<strong>Hyperkalaemia, which is dangerous precisely because it is quiet.</strong> There may be no symptoms at all until muscle weakness, tingling, palpitations or a life-threatening rhythm disturbance appears. Risk rises with kidney impairment, dehydration, and age &mdash; and the combination is easy to arrive at unintentionally, because the supplement and the blood-pressure medicine often come from different prescribers, and salt substitutes are potassium chloride.',
@@ -7086,7 +7086,7 @@ var DDI_DATA = [
    monitor:'Keep to the dose on the package and do not extend treatment beyond two days without advice. Report palpitations, fainting or unusual drowsiness. Tell the prescriber if you are taking any of these heart or infection medicines alongside an anti-diarrhoeal, since both are often bought or started separately.',
    pmid:'33446314'},
 
-  {id:'antacid_absorption',drugs:['antacids','levothyroxine'],sev:'moderate',ev:'A',
+  {id:'antacid_absorption',drugs:['antacids','levothyroxine'],sev:'moderate',ev:'A',source:'label',
    label:'Antacids + Levothyroxine (reduced absorption)',
    mech:'Levothyroxine\u2019s own labeling names both <strong>calcium carbonate</strong> and <strong>aluminium and magnesium hydroxide antacids</strong> as reducing its absorption &mdash; the cations bind the hormone in the gut, and levothyroxine also needs stomach acid to be absorbed properly, which antacids reduce. This is a documented, labelled interaction, not an inference.',
    effect:'<strong>Under-treatment of hypothyroidism that is easy to miss</strong>, because nothing dramatic happens: the dose is unchanged, the tablets are taken, and the thyroid tests simply drift. Tiredness, weight gain, cold intolerance and low mood may be attributed to anything else. The same binding reduces absorption of tetracycline and quinolone antibiotics, iron and bisphosphonates.',
@@ -7102,7 +7102,7 @@ var DDI_DATA = [
    pmid:''},
 
   {id:'ropinirole_dopamine_antagonist',drugs:['ropinirole','metoclopramide','antipsychotics','prochlorperazine'],
-   groups:[['ropinirole'],['metoclopramide','antipsychotics','prochlorperazine']],sev:'moderate',ev:'A',
+   groups:[['ropinirole'],['metoclopramide','antipsychotics','prochlorperazine']],sev:'moderate',ev:'A',source:'label',
    label:'Ropinirole + Dopamine Antagonists (metoclopramide, antipsychotics, prochlorperazine)',
    mech:'Ropinirole works by stimulating dopamine receptors; antipsychotics and the phenothiazine antiemetics such as prochlorperazine block them. The ropinirole label names this directly \u2014 dopamine antagonists <strong>may reduce the efficacy of ropinirole</strong>. The two are working against each other at the same receptor.',
    effect:'Loss of Parkinson\u2019s or restless-legs control, sometimes appearing days after an unrelated prescription. Dopamine blockers can also cause <strong>drug-induced parkinsonism</strong> in their own right, so symptoms may worsen from both directions at once and be mistaken for disease progression rather than a medication effect.',
@@ -7138,7 +7138,7 @@ var DDI_DATA = [
 
   {id:'eletriptan_cyp3a',drugs:['eletriptan','cyp3a4inh','azoles','clarithromycin'],
    groups:[['eletriptan'],['cyp3a4inh','azoles','clarithromycin']],
-   sev:'major',ev:'A',
+   sev:'major',ev:'A',source:'label',
    label:'Eletriptan + Strong CYP3A4 Inhibitors',
    mech:'Eletriptan is cleared by CYP3A4, and its label is unusually specific about it: the drug <strong>should not be used within at least 72 hours</strong> of ketoconazole, itraconazole, nefazodone, troleandomycin, clarithromycin, ritonavir or nelfinavir. Strong inhibition of that enzyme raises eletriptan concentrations substantially and prolongs its stay in the body.',
    effect:'More of eletriptan’s dose-related effects, and for longer: <strong>chest, throat, neck or jaw tightness or pressure</strong>, dizziness, drowsiness, tingling and raised blood pressure. Because triptans constrict blood vessels, a markedly raised concentration is the setting in which that effect is least welcome, particularly in anyone with cardiac risk factors.',
@@ -7373,6 +7373,10 @@ function renderMedListResults(ddiHits, cannabisHits) {
     html += '<div class="ddi-section-hdr">⚠ Drug-Drug Interactions Within Your Medication List</div>';
     html += ddiHits.map(function(ddi) {
       var pm = diPubmedLinks(ddi.pmid);   // AUDIT-09
+      // DRUG-26: an A/B-graded pair whose authority is the FDA label, not a paper, previously
+      // rendered an EMPTY citation slot — which reads as "unsupported" for exactly the entries
+      // with the strongest regulatory backing. Name the basis instead of showing nothing.
+      if (!pm && ddi.source === 'label') pm = ddiSourceLine();
       return '<div class="di-card ' + ddi.sev + '" style="margin-bottom:8px">'
         + '<div class="di-card-hdr"><span class="di-drug-name">' + ddi.label + '</span>'
         + '<span class="di-sev-badge di-sev-' + ddi.sev + '">' + sevLabel3[ddi.sev] + '</span>'
@@ -9088,6 +9092,14 @@ function diPubmedLinks(raw, size) {
     return '<a class="di-pmid-link" href="https://pubmed.ncbi.nlm.nih.gov/' + id
       + '/" target="_blank" rel="noopener">PubMed ' + id + ' &#x2197;</a>';
   }).join('<span style="font-size:' + (size || '.62rem') + ';color:var(--mute)"> &middot; </span>');
+}
+
+// DRUG-26: one wording for the label-basis line so the screen card and the printed report
+// can never drift apart. `source` is deliberately NOT a badge or a filter — it names the
+// authority behind the statement, while `ev` keeps describing the strength/type of evidence.
+function ddiSourceLine() {
+  return '<span class="di-pmid-link" style="text-decoration:none;cursor:default">'
+    + 'Basis: FDA prescribing information</span>';
 }
 
 // Severity color maps
@@ -12773,7 +12785,8 @@ document.addEventListener('keydown', function(e) {
         if(ddiN){body+='<div style="font-size:.74rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin:6px 0 5px">Drug–drug interactions within your list</div>'+
           ddiHits.map(function(d){return '<div class="di-card '+(d.sev||'')+'"><div style="font-weight:700;font-size:.82rem;margin-bottom:2px">'+esc(d.label||(d.drugs||[]).join(' + '))+(d.sev?' — '+(sevLbl[d.sev]||d.sev):'')+evTag(d.ev)+'</div>'+
             detRow('Mechanism',d.mech||'')+detRow('Clinical effect',d.effect||'')+detRow('Monitoring / action',d.monitor||'')+
-            (d.pmid?'<div style="font-size:.7rem;color:#555 !important;margin-top:2px">PubMed '+esc(String(d.pmid))+'</div>':'')+'</div>';}).join('');}
+            (d.pmid?'<div style="font-size:.7rem;color:#555 !important;margin-top:2px">PubMed '+esc(String(d.pmid))+'</div>'
+              : (d.source==='label'?'<div style="font-size:.7rem;color:#555 !important;margin-top:2px">Basis: FDA prescribing information</div>':''))+'</div>';}).join('');}
         // Cannabis ↔ medication interactions — split into (1) your recommended molecules and (2) other molecules
         // that also interact (not recommended here, but may be present in full-spectrum products). Kept for safety.
         function molCard(mid){var worst=(byM[mid][0]||{}).sev||'';
