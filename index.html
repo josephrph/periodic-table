@@ -7463,6 +7463,36 @@ function renderMedListResults(ddiHits, cannabisHits) {
   });
 }
 // ── END MEDICATION LIST ───────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════════
+// HOW TO GRADE `ev` (A-D) — V2 POLICY, owner-adopted 2026-08-30 after QA Pass B.
+//
+// THE GRADE DESCRIBES EVIDENCE FOR THE SPECIFIC CANNABIS-DRUG INTERACTION BEING
+// PRESENTED — not the strength of evidence for the individual components of a
+// proposed mechanism.
+//
+// Human evidence that cannabis raises heart rate, lowers standing blood pressure,
+// is associated with arrhythmia, impairs driving, or causes vomiting is real, and
+// it belongs in the explanatory text as biologic plausibility. It does NOT by
+// itself lift an otherwise unstudied cannabis-drug pair to a higher grade.
+//
+//   A  human trials of THIS interaction
+//   B  observational or case evidence of THIS interaction (incl. an FDA-label
+//      statement about it — see `source:'label'`)
+//   C  preclinical/in-vitro evidence bearing DIRECTLY on this interaction, or a
+//      sufficiently specific interaction mechanism (e.g. the drug is a CYP3A
+//      substrate AND CBD's CYP3A inhibition is measured in humans)
+//   D  theoretical: pharmacodynamic inference, or two separately-established
+//      facts chained together, with no direct cannabis-drug evidence
+//
+// THE TEST THAT SETTLES MOST CASES: if the record says there is no metabolic route
+// and the overlap is "pharmacodynamic", the grade is D, however well documented
+// each half is on its own. Ambiguity here previously produced structurally
+// identical records graded differently (memantine D vs pramipexole C; lithium D vs
+// sotalol C) — QA Pass B, batch 1.
+//
+// Severity is INDEPENDENT of this and always has been: a narrow-therapeutic-index
+// drug with a boxed warning can be `major` at grade D, and 17 oncology records are.
+// ═══════════════════════════════════════════════════════════════════════════════
 var DI_DATA = [
   // ═══ PRESCRIPTION (Rx) ═══
   {id:'warfarin',drug:'Warfarin',brands:['Coumadin','Jantoven'],cls:'Anticoagulant',cat:'rx',
@@ -8318,7 +8348,7 @@ var DI_DATA = [
   // inhibition, which is why propafenone and quinidine read differently from flecainide.
 
   {id:'flecainide',drug:'Flecainide',brands:['Tambocor'],cls:'Class Ic Antiarrhythmic (narrow therapeutic index)',cat:'rx',
-   mols:['THC9','CBD'],sev:'major',ev:'C',
+   mols:['THC9','CBD'],sev:'major',ev:'D',
    mech:'Flecainide is cleared by <strong>CYP2D6</strong> with 10&ndash;50% appearing unchanged in urine, so both liver and kidney matter. <strong>The obvious cannabis inference does not hold here.</strong> CBD inhibits CYP2D6 in the test tube, but in a randomised crossover study of 18 healthy adults given a CBD-dominant cannabis extract with a CYP probe cocktail, CBD inhibited CYP2C19, CYP2C9, CYP3A and CYP1A2 — <strong>but not CYP2D6</strong>. A meaningful CBD effect on flecainide clearance therefore should not be assumed. A minor CYP1A2 route exists, so smoked cannabis could nudge levels down rather than up.',
    effect:'The concern here is <strong>pharmacodynamic, not metabolic</strong>. Flecainide carries a boxed warning: in the Cardiac Arrhythmia Suppression Trial, patients given flecainide or encainide after myocardial infarction had <strong>higher mortality than placebo</strong>, and it is contraindicated after recent MI and in structural heart disease. It slows conduction and widens PR, QRS and QT dose-dependently. &Delta;9-THC independently raises heart rate and can provoke arrhythmia, which is the event flecainide exists to prevent. <strong>No study has tested cannabis with flecainide</strong>, so this is a mechanistic concern about additive proarrhythmia, graded accordingly.',
    monitor:'Report palpitations, a racing or irregular heartbeat, fainting, breathlessness or chest pain — and do not assume these are cannabis effects that will pass. Flecainide is monitored by ECG and sometimes by blood level; mention cannabis use so that context is on the record. Kidney function matters independently. Never adjust the dose or stop flecainide on your own.',
@@ -8332,18 +8362,18 @@ var DI_DATA = [
    pmid:'37313955, 1900101'},
 
   {id:'sotalol',drug:'Sotalol',brands:['Betapace','Betapace AF','Sotylize','Sorine'],cls:'Class III Antiarrhythmic + non-selective Beta-Blocker (narrow therapeutic index)',cat:'rx',
-   mols:['THC9','CBD'],sev:'major',ev:'C',
-   mech:'<strong>Sotalol is not metabolized at all.</strong> Its labeling states it is not metabolized and is not expected to inhibit or induce any CYP450 enzyme; it is excreted unchanged by the kidney and dosed by creatinine clearance. <strong>There is therefore no metabolic route for a cannabis interaction</strong> — and saying so plainly is more useful than hedging. What remains is entirely pharmacodynamic: sotalol prolongs the QT interval and blocks beta receptors, while &Delta;9-THC raises heart rate, can lower standing blood pressure, and has been associated with arrhythmia.',
+   mols:['THC9','CBD'],sev:'major',ev:'D',
+   mech:'<strong>Sotalol is not metabolized at all.</strong> Its labeling states it is not metabolized and is not expected to inhibit or induce any CYP450 enzyme; it is excreted unchanged by the kidney and dosed by creatinine clearance. <strong>There is therefore no metabolic route for a cannabis interaction</strong> — and saying so plainly is more useful than hedging. What remains is entirely pharmacodynamic: sotalol prolongs the QT interval and blocks beta receptors, while &Delta;9-THC raises heart rate, can lower standing blood pressure, and has been associated with arrhythmia &mdash; the last of those in a longitudinal analysis of 23.5&nbsp;million Californian patients, where cannabis use among 132,834 people was associated with increased incident atrial fibrillation after adjustment.',
    effect:'Sotalol carries a boxed warning for <strong>life-threatening proarrhythmia</strong> and must be started or restarted in a facility with cardiac resuscitation and continuous ECG monitoring, because of torsades de pointes. Its labeled risk factors for torsades — reduced creatinine clearance, female sex, higher doses and a slow heart rate — say nothing about cannabis, and no study has examined the combination. The realistic concerns are additive bradycardia and orthostatic hypotension from the beta-blockade, and the fact that beta-blockade <strong>masks</strong> the tachycardia that would otherwise signal a cannabis effect.',
    monitor:'Rise slowly from sitting or lying. Report dizziness, fainting, palpitations or a very slow pulse. Sotalol dosing depends on kidney function and on the measured QT interval, so any illness causing dehydration matters as much as any drug. <strong>Never stop sotalol abruptly</strong> — abrupt beta-blocker withdrawal can precipitate angina or arrhythmia.',
-   pmid:''},
+   pmid:'36257330'},
 
   {id:'dofetilide',drug:'Dofetilide',brands:['Tikosyn'],cls:'Class III Antiarrhythmic (narrow therapeutic index; restricted distribution)',cat:'rx',
-   mols:['THC9','CBD'],sev:'major',ev:'C',
+   mols:['THC9','CBD'],sev:'major',ev:'D',
    mech:'Roughly <strong>80% of a dofetilide dose is excreted in urine, 80% of that unchanged</strong>, by glomerular filtration plus active tubular secretion through the renal cation transport system. CYP3A4 can metabolize it but has low affinity, and dofetilide inhibits no CYP enzyme. <strong>There is no meaningful metabolic route for a cannabis interaction.</strong> What matters instead is that dofetilide exists to prolong the QT interval — that is its therapeutic mechanism — so anything that adds to QT risk or destabilises heart rate is operating on an already narrow margin.',
-   effect:'No cannabis-specific interaction has been studied or is mechanistically expected on pharmacokinetic grounds. The pharmacodynamic concern is real but unquantified: &Delta;9-THC raises heart rate and can provoke arrhythmia in a patient whose entire treatment is aimed at rhythm stability, and whose dose was individually titrated against a measured QT interval in hospital. <strong>Dofetilide\'s dangerous interactions are with other drugs, not with cannabis</strong> — its labeling contraindicates verapamil, cimetidine, trimethoprim, ketoconazole, hydrochlorothiazide, prochlorperazine, megestrol and dolutegravir, and it is contraindicated below a creatinine clearance of 20 mL/min.',
+   effect:'No cannabis-specific interaction has been studied or is mechanistically expected on pharmacokinetic grounds. The pharmacodynamic concern is real but unquantified: &Delta;9-THC raises heart rate and is associated with arrhythmia &mdash; cannabis use was linked to increased incident atrial fibrillation in a longitudinal analysis of 23.5&nbsp;million patients in a patient whose entire treatment is aimed at rhythm stability, and whose dose was individually titrated against a measured QT interval in hospital. <strong>Dofetilide\'s dangerous interactions are with other drugs, not with cannabis</strong> — its labeling contraindicates verapamil, cimetidine, trimethoprim, ketoconazole, hydrochlorothiazide, prochlorperazine, megestrol and dolutegravir, and it is contraindicated below a creatinine clearance of 20 mL/min.',
    monitor:'Dofetilide is dispensed through a restricted programme and started in hospital with continuous ECG monitoring for a reason. <strong>Every new medicine, including over-the-counter ones, needs checking against its contraindication list before it is taken</strong> — cimetidine and hydrochlorothiazide are both on that list and both are easy to acquire casually. Report palpitations, fainting or near-fainting immediately. Diarrhoea, vomiting or dehydration change potassium and magnesium and raise torsades risk independently of any drug.',
-   pmid:''},
+   pmid:'36257330'},
 
   {id:'quinidine',drug:'Quinidine',brands:['Nuedexta (with dextromethorphan)','Quinidex','Quinaglute'],cls:'Class Ia Antiarrhythmic; potent CYP2D6 inhibitor (narrow therapeutic index)',cat:'rx',
    mols:['CBD','THC9'],sev:'major',ev:'C',
@@ -8353,7 +8383,7 @@ var DI_DATA = [
    pmid:'7040261'},
 
   {id:'procainamide',drug:'Procainamide',brands:['Pronestyl','Procanbid'],cls:'Class Ia Antiarrhythmic (narrow therapeutic index)',cat:'rx',
-   mols:['THC9','CBD'],sev:'major',ev:'C',
+   mols:['THC9','CBD'],sev:'major',ev:'D',
    mech:'Procainamide is <strong>not a cytochrome P450 drug</strong>. It is acetylated by NAT2 to N-acetylprocainamide (NAPA), an active metabolite with Class III activity of its own — 16&ndash;21% of a dose in slow acetylators and 24&ndash;33% in fast acetylators — and both parent and metabolite are cleared renally, with a half-life of three to four hours that lengthens with reduced creatinine clearance and with age. <strong>No cannabis interaction is expected through metabolism</strong>; the overlap is pharmacodynamic.',
    effect:'Procainamide carries a boxed warning on two counts: prolonged use commonly produces a <strong>positive antinuclear antibody test with or without a lupus-like syndrome</strong>, and it can cause serious blood disorders, particularly leukopenia or agranulocytosis, sometimes fatal, in about 0.5% of patients. It also prolongs QT and can cause torsades de pointes. &Delta;9-THC\'s effect on heart rate and rhythm adds to a proarrhythmic drug in a patient already selected for rhythm instability. <strong>No study has examined cannabis with procainamide.</strong>',
    monitor:'Report fever, sore throat, mouth ulcers or any sign of infection promptly — these can be the first signs of agranulocytosis, and routine blood counts are part of normal monitoring. Joint pain, rash, chest pain on breathing or unexplained fever may signal the lupus-like syndrome. Palpitations or fainting need urgent review. Kidney function and age both lengthen clearance independently of anything else.',
