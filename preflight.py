@@ -844,29 +844,17 @@ def check_backlog():
 
 ALLOWED_SOURCES = {'label'}   # DRUG-26: FDA-approved prescribing information
 
-# DRUG-26: the attribution rule below is enforced for the WHOLE database. These 13 entries were
-# already in violation when the guard was written (QA Pass A, 2026-08-30) and are queued as Groups
-# 3 and 4 pending owner review — so they are registered here rather than silently exempted.
+# DRUG-26: the attribution rule below is enforced for the WHOLE database. Thirteen entries were in
+# violation when the guard was written (QA Pass A, 2026-08-30). DRUG-27 closed the twelve Group 3
+# entries — nine by citing the literature, three by attributing to FDA labeling. The one that
+# remains is a GRADE question, not a citation question, and is held for owner review.
 #
 # This register is self-cleaning: check_evidence_attribution FAILS if an id listed here no longer
 # violates, so it cannot rot into a stale allowlist the way index.html's line numbers did. Removing
 # the last entry removes the register.
 ATTRIBUTION_OPEN = {
-    # Group 3 — well-established interactions, grades stand, need citations
-    'gabapentin':              'FDA 2019 gabapentinoid respiratory-depression communication + case series',
-    'ondan_prochlor':          'additive QT; needs a source or regrade to C',
-    'ezet_statin':             'negative finding (no PK change) still needs its source',
-    'alc_benz':                'abundant human literature, simply uncited',
-    'alc_meth':                'moved here from Group 2 — text never cites the label it relies on',
-    'tacro_ibu':               'NSAID + calcineurin-inhibitor nephrotoxicity, well documented',
-    'tram_opi':                'additive respiratory depression, well documented',
-    'tram_benz':               'additive respiratory depression, well documented',
-    'antiarrhythmic_diuretic': 'hypokalaemia-driven QT risk, well documented',
-    'levodopa_dopamine_antagonist':    'classic neurology interaction; cite or attribute to label',
-    'pramipexole_dopamine_antagonist': 'same mechanism as the levodopa pair',
-    'ics_cyp3a':               'fluticasone/ritonavir Cushing case reports — cite them',
-    # Group 4 — grade itself is the question
-    'hydroxyzine_cns':         'pharmacodynamic inference; B->C recommended, or attribute to label',
+    # Group 4 — the GRADE itself is the open question, not the citation. Pending owner review.
+    'hydroxyzine_cns': 'pharmacodynamic inference graded B; B->C recommended, or attribute to label',
 }
 
 
