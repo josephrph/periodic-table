@@ -845,17 +845,15 @@ def check_backlog():
 ALLOWED_SOURCES = {'label'}   # DRUG-26: FDA-approved prescribing information
 
 # DRUG-26: the attribution rule below is enforced for the WHOLE database. Thirteen entries were in
-# violation when the guard was written (QA Pass A, 2026-08-30). DRUG-27 closed the twelve Group 3
-# entries — nine by citing the literature, three by attributing to FDA labeling. The one that
-# remains is a GRADE question, not a citation question, and is held for owner review.
+# violation when the guard was written (QA Pass A, 2026-08-30); DRUG-27 closed twelve and DRUG-28 the
+# last, so the register is now EMPTY and the rule stands unqualified. Leave it empty. If a future
+# entry needs registering, say WHY and close it — the self-cleaning check below fails on any id that
+# is listed but no longer violates, which is what stops this becoming a stale allowlist.
 #
 # This register is self-cleaning: check_evidence_attribution FAILS if an id listed here no longer
 # violates, so it cannot rot into a stale allowlist the way index.html's line numbers did. Removing
 # the last entry removes the register.
-ATTRIBUTION_OPEN = {
-    # Group 4 — the GRADE itself is the open question, not the citation. Pending owner review.
-    'hydroxyzine_cns': 'pharmacodynamic inference graded B; B->C recommended, or attribute to label',
-}
+ATTRIBUTION_OPEN = {}   # DRUG-28: emptied — every A/B entry now cites a PMID or names a source.
 
 
 def check_record_schema(data):
@@ -967,9 +965,9 @@ def check_evidence_attribution(data):
     for rid in fixed:
         fail('evidence attribution',
              '"%s" is listed in ATTRIBUTION_OPEN but now has attribution — delete its line' % rid)
-    if not new_offenders and not fixed:
-        note('evidence attribution: %d A/B entries all attributed, except %d registered as open '
-             '(Groups 3-4)' % (n_ab(data), len(still)))
+    if not new_offenders and not fixed and still:
+        note('evidence attribution: %d A/B entries attributed, except %d registered as open'
+             % (n_ab(data), len(still)))
     if not offenders:
         note('evidence attribution: all %d A/B-graded entries cite a PMID or name a source'
              % n_ab(data))
