@@ -382,6 +382,44 @@ to whom, without prescribing.
 **6. Clinically significant interactions need a clinician pointer.** Say who to tell and what to
 report. 201 of 237 legacy records currently have none.
 
+**9. CAUTIOUS SOURCE POLICY** (owner-adopted after Legacy Batch 6).
+- Prefer **primary peer-reviewed studies, FDA prescribing information and authoritative regulatory/clinical
+  sources** over reviews or secondary summaries where available.
+- A citation must support **the specific claim AND its direction of effect** — not merely discuss the drug,
+  the cannabinoid, the enzyme or the disease.
+- **Read the abstract or source context before using a PMID.** Never cite from a title or a search-result
+  snippet. *(Three defects in this project came from exactly that: doxorubicin, etoposide, irinotecan.)*
+- Distinguish **human clinical / human mechanistic-PK / animal / in vitro / theoretical inference** and say
+  which one a statement rests on.
+- Do **not** extrapolate across cannabinoid, dose, route, formulation, drug or drug class without labelling
+  the extrapolation. *(The insulin record failed this: a THCV finding was written up as a CBD effect.)*
+- Do **not** convert an in-vitro inhibition percentage into a predicted human exposure change unless human
+  data support it.
+- Reviews may identify evidence or give background, but are **not** pair-specific evidence when what lies
+  beneath them is theoretical or preclinical.
+- Where sources conflict or the claim is uncertain, take **the more conservative wording and grade** and
+  flag it — do not resolve uncertainty by asserting.
+- **Check whether a suitable source is already in V2 before adding a new one.** This has now paid off nine
+  times, including a case where the paper was cited by one record and missing from the record that needed
+  it most.
+
+**10. MISSING-EVIDENCE REPORTING** (owner-adopted after Legacy Batch 6).
+- When no direct cannabis-drug evidence is found, **say so explicitly**. Never let a record imply the pair
+  was studied and found clear.
+- **"No evidence identified" is not "evidence of no interaction."** Keep the two distinct in the wording.
+- Report what was actually checked: direct pair evidence, cannabinoid-specific evidence, supporting
+  mechanism evidence.
+- If only mechanism exists, call it **mechanistic plausibility / theoretical inference**, not pair evidence.
+- **Do not invent or inflate a warning to fill an evidence gap** — and do not read a gap as proof of safety.
+- If an important claim cannot be supported, **remove or qualify it and record the gap**; never leave it
+  standing behind an unrelated citation.
+- Where the absence matters clinically, use plain wording: *"No direct studies of this cannabis-drug
+  combination were identified; the concern is based on [specific mechanism]."*
+- **Record significant evidence gaps in the batch checkpoint** so they stay visible for future literature
+  updates.
+- If a new study would materially change a grade, severity, mechanism or interpretation, **flag it for
+  review** rather than extrapolating.
+
 **8. SEVERITY RUBRIC** (added after Legacy Batch 1; V2 had never written one down).
 Severity describes **the consequence of the cannabis-drug interaction itself** — not how dangerous the
 drug is on its own, and not a separate drug-drug interaction the record happens to mention. Ask: *if this
