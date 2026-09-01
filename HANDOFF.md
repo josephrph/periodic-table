@@ -382,6 +382,19 @@ to whom, without prescribing.
 **6. Clinically significant interactions need a clinician pointer.** Say who to tell and what to
 report. 201 of 237 legacy records currently have none.
 
+### Legacy SECOND-LOOK list (comparator conflicts flagged during review, not yet resolved)
+
+- **`loperamide` (major/D)** — flagged Legacy Batch 7. Its `major` rests on P-glycoprotein inhibition
+  (`16439618`, in vitro) plus loperamide's cardiac toxicity at high doses. Reassess whether `major` is too
+  high **at recommended doses**: the human literature questions whether P-gp inhibition translates into
+  clinically meaningful CNS or cardiac opioid toxicity at therapeutic loperamide doses, and the serious
+  cases are overwhelmingly massive-overdose reports. Surfaced by a comparator conflict with `digoxin`
+  (same mechanism, same citation, `moderate`) — **the conflict triggered review of both rather than forcing
+  either to match the other.** Owner ruling: comparator consistency prompts review, it does not dictate a
+  grade or severity.
+- **`cabazitaxel` (major/D)** — noted Legacy Batch 4. `major` with no pair evidence at all; defensible on
+  its 80-90% CYP3A4 clearance, but worth a second look alongside the other taxanes.
+
 **9. CAUTIOUS SOURCE POLICY** (owner-adopted after Legacy Batch 6).
 - Prefer **primary peer-reviewed studies, FDA prescribing information and authoritative regulatory/clinical
   sources** over reviews or secondary summaries where available.
