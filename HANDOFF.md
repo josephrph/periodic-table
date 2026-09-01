@@ -392,6 +392,13 @@ report. 201 of 237 legacy records currently have none.
   (same mechanism, same citation, `moderate`) — **the conflict triggered review of both rather than forcing
   either to match the other.** Owner ruling: comparator consistency prompts review, it does not dictate a
   grade or severity.
+- **SEARCH GAP (not a record issue, found Legacy Batch 7):** a patient typing **"beta blocker"** or
+  **"beta blockers"** gets **zero results**, because the record reads "Beta-**Blockers**" and the searcher
+  does not split that hyphen. Comparable class terms are fine — "calcium channel blocker" (2 hits),
+  "proton pump inhibitor" (2), "ace inhibitor" (1). Pre-existing, not caused by the propranolol split.
+  Worth a tokeniser fix or a plain "beta blocker" alias, since this is one of the most common drug classes
+  a lay reader would search by name.
+
 - **`cabazitaxel` (major/D)** — noted Legacy Batch 4. `major` with no pair evidence at all; defensible on
   its 80-90% CYP3A4 clearance, but worth a second look alongside the other taxanes.
 
