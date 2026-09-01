@@ -9054,11 +9054,27 @@ function medLabel(entry){
   return g;
 }
 (function buildDiIndex() {
+  // DRUG-29: punctuation normalisation. Every DI_INDEX consumer matches by plain substring
+  // (`key.includes(q)`), so a hyphen in a key silently blocked the spaced spelling of the same
+  // term: the record reads "Beta-Blockers", a reader types "beta blocker", and "beta-blockers"
+  // does not contain "beta blocker" — zero results for one of the commonest drug classes there
+  // is. "calcium channel blocker", "proton pump inhibitor" and "ace inhibitor" all worked, which
+  // is what made the gap invisible. The fix registers a second, punctuation-flattened key
+  // alongside each raw one, so BOTH spellings resolve. Index-level and general: no search site
+  // changes, no per-drug special case, and hyphenated queries keep matching the raw key.
+  function diFlatten(str) {
+    return String(str || '').toLowerCase().replace(/[-\/]+/g, ' ').replace(/\s+/g, ' ').trim();
+  }
   function addKeyFor(k, i) {
     var key = (k || '').toLowerCase().trim();
     if (!key) return;
     if (!DI_INDEX[key]) DI_INDEX[key] = [];
     if (DI_INDEX[key].indexOf(i) === -1) DI_INDEX[key].push(i);
+    var flat = diFlatten(key);
+    if (flat && flat !== key) {
+      if (!DI_INDEX[flat]) DI_INDEX[flat] = [];
+      if (DI_INDEX[flat].indexOf(i) === -1) DI_INDEX[flat].push(i);
+    }
   }
   var idToIndex = {};
   // DRUG-A3: every NAME (generic or brand) that resolves to a record, kept so the result card can
