@@ -138,3 +138,51 @@ severity **54 major / 110 moderate / 115 minor**. Official legacy count **89 →
 records — answered in cycle 3 by instruction instead: assessment-only batches of ~10, grouped by
 therapeutic class or mechanism, prioritised by six named criteria, no mass edits, no mechanical upgrades.
 **Treated as resolved.**
+
+---
+
+## Cycle 4 — decisions received, implemented as `LEGACY-B30`
+
+Ophthalmic / glaucoma cohort. **No grade changes. No severity changes. One record SPLIT.**
+
+| Record | Decision | Result |
+|---|---|---|
+| `oph_timolol` | Grade D and **minor hold**. Correct the false "low systemic absorption" claim. **Do NOT raise to moderate merely to match systemic beta-blocker records** — the rubric needs a harmful consequence attributable to the interaction, and attenuation of THC tachycardia is not one. Do not use timolol's asthma/bradycardia/heart-block/heart-failure warnings as cannabis severity. Add citations. | done |
+| `oph_prostaglandin` | minor/D holds. Explain corneal-esterase local activation, minimal systemic exposure, no established cannabinoid pathway. | done |
+| `oph_brimonidine` | minor/D holds. Sedation/hypotension overlap plausible but ophthalmic exposure limits magnitude. Add clinician/pharmacist pointer. | done |
+| `oph_cai` | **SPLIT.** Separate topical CAIs from oral acetazolamide. Topical may remain minor/D. **Assess oral acetazolamide separately before assigning final severity. Do not invent an interaction merely because it is systemically exposed.** Report the database-count change separately from the legacy count. | **split done; oral severity PENDING** |
+| `oph_netarsudil` | minor/D holds. Esterase/local-exposure explanation. Red-eye overlap allowed **only** as symptom attribution, explicitly not a pharmacological interaction. | done |
+| `oph_pilocarpine` | minor/D holds. Local-exposure/esterase explanation. **Do NOT add the dim-light-vision + driving statement** — independent impairment is not a pilocarpine–cannabis interaction. | done, statement omitted |
+| `oph_cyclosporine` | minor/D holds. Preserve the ophthalmic/systemic distinction; the local-product principle applies. | done |
+
+**The reviewer overruled my severity recommendation on `oph_timolol`, and was right.** I had recommended
+moderate for consistency with `carvedilol`/`betablockers`/`propranolol`. The rubric asks for a harmful
+consequence of the *interaction*, and the only documented overlap runs the other way: in six experienced
+smokers, oral propranolol 120 mg **blocked** the cardiovascular effects of smoked cannabis and also
+prevented a learning impairment and reduced the subjective high (PMID `403557`). That is attenuation, not
+harm. The record now says so explicitly — *"consistency of rating is not evidence of harm"* — and states
+that the labelled asthma/bradycardia/heart-block/heart-failure contraindications are **timolol's own** and
+are not used to set this record's severity. Citations added: `403557`, `6283454`, `22273390`.
+
+**The factual correction stands regardless.** The label reads: *"as with many topically applied ophthalmic
+drugs, this drug is absorbed systemically,"* and *"the same adverse reactions found with systemic
+administration of beta-adrenergic blocking agents may occur with topical administration."* Peak plasma
+~0.46 ng/mL on twice-daily 0.5% drops. The record now states the direction is established **at oral
+beta-blocker doses, not at eye-drop plasma levels**.
+
+**`acetazolamide` — NEW RECORD, severity PROVISIONAL.** Split out of `oph_cai`. Its `sev:'minor'` is
+carried over from the record it came from as the least-claiming option and is marked provisional in a
+code comment and in the record text itself: *"the severity of this record is provisional pending review,
+carried over from the record it was split from rather than independently assigned."* The record asserts
+**no** interaction: *"No cannabis–acetazolamide interaction has been identified, and this record does not
+assert one. Being systemically active is not by itself a reason to expect an interaction, and V2 does not
+manufacture one out of a shared body compartment."*
+
+**DATABASE COUNT CHANGE, reported separately as instructed:** **279 → 280 drug records.** Grades
+A5/B30/C13/**D232** (D +1). Severity 54 major / 110 moderate / **116 minor** (minor +1). Pairs 103,
+unchanged. 796 PMIDs, unchanged (all three timolol citations were already in V2).
+**Legacy review count HELD AT 80** — seven records were reviewed but no decrement was authorised this
+cycle, and `acetazolamide`'s severity is still open.
+
+**Still pending, not implemented:** oral acetazolamide's final severity; the CBD molecule-tag decision;
+the Glaucoma condition assessment against `16988594`. All three returned as assessments.
