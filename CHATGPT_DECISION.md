@@ -22,13 +22,37 @@ cycle's content. Anything not written here is **not** approved — assessments, 
 ## Cycle
 
 **Cycle number:** 1
-**Date:** (pending)
+**Date:** 2026-09-02
 **Responding to handoff:** CHATGPT_CLAUDE_HANDOFF.md, cycle 1
 
 ## Decisions
 
-*(No decisions recorded yet. Paste ChatGPT's response here.)*
+**1. Five-record `major/D` cohort — APPROVED AND CLOSED.** Official working count: **94** unique
+legacy records remaining.
+
+**2. CYP3A wording consistency — APPROVED for all three records:** `palbociclib`, `imatinib`,
+`dasatinib`.
+- Do **not** reopen grades or prior scientific review unless the wording check reveals a substantive
+  problem.
+- Replace categorical statements ("CBD is a moderate CYP3A4 inhibitor", "CBD is a moderate
+  inhibitor") with study-specific language reflecting: the actual human CBD dose/formulation
+  studied; the measured CYP3A effect; and that the magnitude **cannot automatically be transferred**
+  to the target oncology drug.
+- For `imatinib` and `dasatinib`: the comparison with established strong CYP3A inhibitors **may be
+  preserved**, but do **not** assign CBD a universal inhibitor category, and do **not** predict its
+  effect will necessarily be "smaller" unless that comparison is directly supported.
+
+**3. Next cohort — ASSESSMENT ONLY, no edits:** `lithium`, `bupropion`, `tamsulosin`, `nafcillin`,
+`oritavancin`. Per-record scrutiny points recorded in the handoff response; return the assessment
+before any material change.
+
+**4. CYP1A2 tagging audit** — remains open and separate.
 
 ## Notes / conditions
 
-*(Any caveats, wording requirements, or hold instructions.)*
+- Claude's proposed "smaller than a strong inhibitor" formulation for `imatinib`/`dasatinib` was
+  **not** adopted as written: the reviewer specifically barred predicting the effect will
+  necessarily be smaller unless directly supported. Implemented accordingly.
+- Decision requests 1 and 3 from the handoff (categorical phrasing scope; next cohort) are answered
+  above. **Decision request 2 — the method question for the 80 `minor/D` records — was not
+  answered and remains open.**
