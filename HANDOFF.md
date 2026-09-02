@@ -384,23 +384,21 @@ report. 201 of 237 legacy records currently have none.
 
 ### Legacy SECOND-LOOK list (comparator conflicts flagged during review, not yet resolved)
 
-- **`loperamide` (major/D)** — flagged Legacy Batch 7. Its `major` rests on P-glycoprotein inhibition
-  (`16439618`, in vitro) plus loperamide's cardiac toxicity at high doses. Reassess whether `major` is too
-  high **at recommended doses**: the human literature questions whether P-gp inhibition translates into
-  clinically meaningful CNS or cardiac opioid toxicity at therapeutic loperamide doses, and the serious
-  cases are overwhelmingly massive-overdose reports. Surfaced by a comparator conflict with `digoxin`
-  (same mechanism, same citation, `moderate`) — **the conflict triggered review of both rather than forcing
-  either to match the other.** Owner ruling: comparator consistency prompts review, it does not dictate a
-  grade or severity.
-- **SEARCH GAP (not a record issue, found Legacy Batch 7):** a patient typing **"beta blocker"** or
-  **"beta blockers"** gets **zero results**, because the record reads "Beta-**Blockers**" and the searcher
-  does not split that hyphen. Comparable class terms are fine — "calcium channel blocker" (2 hits),
-  "proton pump inhibitor" (2), "ace inhibitor" (1). Pre-existing, not caused by the propranolol split.
-  Worth a tokeniser fix or a plain "beta blocker" alias, since this is one of the most common drug classes
-  a lay reader would search by name.
-
-- **`cabazitaxel` (major/D)** — noted Legacy Batch 4. `major` with no pair evidence at all; defensible on
-  its 80-90% CYP3A4 clearance, but worth a second look alongside the other taxanes.
+- **RESOLVED `loperamide` (major/D — unchanged, support strengthened).** The second-look premise was that the
+  serious cases are overwhelmingly overdoses. **The literature said otherwise.** `11014404` gave 8 volunteers
+  **16 mg loperamide — the maximum recommended daily dose** — with quinidine or placebo: no respiratory
+  depression alone, respiratory depression with quinidine (p<.001), and *not* explained by higher plasma
+  loperamide. The safeguard that makes loperamide safe can be reversed by P-gp inhibition **at a normal dose**.
+  Grade stays D (the inhibitor studied was quinidine, not cannabis; cannabinoid P-gp inhibition is in-vitro
+  only and its human magnitude unknown). Severity `major` now rests on evidenced consequence rather than on
+  overdose reports, and the boxed torsades warning was moved into its own clearly-separated paragraph so it
+  no longer carries the cannabis severity. **A second look can strengthen a record, not only soften one.**
+- **RESOLVED `cabazitaxel` (major/D — unchanged).** Severity is carried by the interaction, not the
+  chemotherapy: ~80-90% of its clearance runs through CYP3A4/5 (the highest single-enzyme dependence of any
+  taxane in V2), its label says *avoid* strong CYP3A4 inhibitors rather than dose-reduce, and CYP3A is the one
+  enzyme where CBD's inhibition is measured in humans. Contrast `paclitaxel`, held at moderate because its
+  primary route (CYP2C8) is one where cannabis has never been measured in people. Grade stays D — pair
+  unstudied, and the probe-drug magnitude explicitly does not transfer.
 
 **9. CAUTIOUS SOURCE POLICY** (owner-adopted after Legacy Batch 6).
 - Prefer **primary peer-reviewed studies, FDA prescribing information and authoritative regulatory/clinical
