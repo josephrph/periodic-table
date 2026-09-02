@@ -382,6 +382,31 @@ to whom, without prescribing.
 **6. Clinically significant interactions need a clinician pointer.** Say who to tell and what to
 report. 201 of 237 legacy records currently have none.
 
+### CYP1A2 / molecule-tag CONSISTENCY AUDIT (opened Legacy Batch 18 — do NOT resolve piecemeal)
+
+**The issue.** V2 records two different CYP1A2 effects: **CBD inhibits** the enzyme (human-measured), and
+**smoked cannabis induces** it — through combustion products, the same polycyclic aromatic hydrocarbons as
+tobacco smoke, **not through Δ9-THC as a molecule**. The `mols` tags do not currently distinguish these.
+
+**Owner's stated principles (to govern the eventual fix):**
+- cannabinoid-mediated CYP effects attributed to the **specific cannabinoid** where supported;
+- CYP1A2 induction from smoked cannabis described as a **smoking/combustion effect**, never as direct THC9
+  induction;
+- **molecule tags must not imply a molecular mechanism the evidence does not support.**
+
+**`caffeine` is now tagged `CBD` only** (Legacy B18) — the direct evidence is CBD, and its prose attributes
+the smoking effect to combustion. That makes it differ from the eight records below, which tag `THC9+CBD`
+and disclaim THC in prose only.
+
+**The eight comparators, NOT yet edited:** `theophylline` · `tizanidine` · `ropinirole` · `rasagiline` ·
+`antipsychotics` · `chlorpromazine` · `flecainide` · `triptans`
+
+**Three options to weigh together, not one at a time:** retain the THC9 tags for product-search
+functionality (a smoker searching a THC product should still reach the record); remove them for mechanistic
+precision (matching caffeine); or introduce a **separate smoking/route indicator** so the tag carries the
+route rather than implying a molecular mechanism. The third is probably the real answer but it is a schema
+change, so it needs deciding as one piece of work.
+
 ### Legacy SECOND-LOOK list (comparator conflicts flagged during review, not yet resolved)
 
 - **RESOLVED `loperamide` (major/D — unchanged, support strengthened).** The second-look premise was that the
