@@ -409,6 +409,22 @@ change, so it needs deciding as one piece of work.
 
 ### Legacy SECOND-LOOK list (comparator conflicts flagged during review, not yet resolved)
 
+**⚠ OPEN — `caffeine` grade inconsistency, raised 2026-09-02 (LEGACY-B37).** `omeprazole` was regraded
+**B → A** because both directions of its interaction rest on human *trials*, which is what A denotes in
+V2 (`DI_EV_LABEL.A` = "Clinical Evidence — Human Trials"), and because `dextromethorphan` — the CYP2D6
+probe drug from the same randomised crossover (`37313955`) — is already graded **A**. That makes
+**`caffeine` (moderate/B)** the remaining outlier: it is the CYP1A2 probe from that same trial, with a
+measured +39% exposure rise and a second human PK study (`33951339`), yet sits at B. Either caffeine
+should be A or the probe-drug precedent needs restating. Not changed.
+
+**RESOLVED — ACE inhibitor / ARB + spironolactone DDI (2026-09-02).** Nothing was added: V2 already
+carries it at **major/A** in three overlapping pairs (`spiro_ace`, `spiro_lisinopril`,
+`potassium_raas`), plus `ace_arb` and `triple_whammy`. What was fixed was a **routing defect**:
+`spiro_ace`'s label has always read *"Spironolactone + ACE Inhibitors / ARBs (Lisinopril, Losartan)"*
+but its `drugs` list held only `spironolactone` + `antihypertensives`, so **spironolactone plus an ARB
+matched nothing and fired no warning**. `arb` added to the flat union and `groups` added so the pair
+fires on spironolactone plus either — verified, with no duplicate for spironolactone + lisinopril.
+
 **`DDI_DATA` SCOPE, established 2026-09-02 (LEGACY-B35) — charter-level.** Medication-medication
 interaction screening **is an intended feature**, not a set of cannabis-workflow exceptions. The
 declared scope in the source is *"high-priority pairs from drugs already in DI_DATA — not
@@ -487,7 +503,7 @@ OAT1 (SLC22A6) only modestly at high concentrations. Those are the renal anion t
 beta-lactams, so the β-lactam cohort's "no meaningful interaction" claim can be **evidenced** rather than
 merely asserted from the absence of a CYP route.
 
-**Official legacy working count: 50** (owner-set 2026-09-02 on closing the 11 non-beta-lactam antibacterials as LEGACY-B35; the separate DRUG-RECORD total is 281 because beclomethasone was split out of `inhaled_steroids`). Previously 61 (owner-set 2026-09-02 on closing the 12-record remaining-beta-lactam cohort as LEGACY-B33). Previously 73 (owner-set 2026-09-02 on closing the seven-record ophthalmic
+**Official legacy working count: 40** (owner-set 2026-09-02 on closing the cardio-renal/endocrine cohort as LEGACY-B37). Previously 50 (owner-set 2026-09-02 on closing the 11 non-beta-lactam antibacterials as LEGACY-B35; the separate DRUG-RECORD total is 281 because beclomethasone was split out of `inhaled_steroids`). Previously 61 (owner-set 2026-09-02 on closing the 12-record remaining-beta-lactam cohort as LEGACY-B33). Previously 73 (owner-set 2026-09-02 on closing the seven-record ophthalmic
 cohort as LEGACY-B31; the separate DRUG-RECORD total is 280 because of the `oph_cai` split). Previously 80 (owner-set 2026-09-02, reduced 94 -> 89 -> 80 as LEGACY-B28 closed the
 five-record cohort and LEGACY-B29 closed the nine oncology `moderate/D` records).
 
