@@ -409,6 +409,26 @@ change, so it needs deciding as one piece of work.
 
 ### Legacy SECOND-LOOK list (comparator conflicts flagged during review, not yet resolved)
 
+**Official legacy working count: 89** (owner-set 2026-09-02, reduced from 94 after the five-record cohort
+`lithium` `bupropion` `tamsulosin` `nafcillin` `oritavancin` closed as LEGACY-B28).
+
+**OPEN — evidence-integrity item raised 2026-09-02, touches CLOSED records.** PMID `32872248`
+(Bar-Sela, *Cancers* 2020 — cannabis during immunotherapy correlates with poor outcome) is cited by three
+records: `nivolumab` (major/B), `pembrolizumab` (major/B) and `atezolizumab` (moderate/C). A formal
+**Correction was published (PMID 35454955, *Cancers* 2022;14:1957)** whose substance PubMed does not
+expose ("In the original article [...]"). Claude has NOT reopened those records. Whether the correction
+affects the finding they rest on needs the full erratum text and an owner decision.
+
+**OPEN — same-molecule / different-formulation evidence question, raised 2026-09-02.** `nab-paclitaxel`
+(moderate/D, uncited) and `doxorubicin-liposomal` (moderate/D, uncited) are formulations of molecules whose
+parent records hold **C on molecule-level preclinical pair evidence**: `paclitaxel` moderate/C
+(`42364563` CBD+paclitaxel synergy in NSCLC cells, `35933415` human CIPN prevention) and `doxorubicin`
+moderate/C (`34324983` CBD sensitising TNBC to doxorubicin in vitro and in vivo, `16439618` cannabinoid
+P-gp inhibition). Either that molecule-level evidence transfers to the reformulated product (both become C
+and gain citations) or the formulation is different enough that it does not (both stay D, and should say so
+explicitly). `doxorubicin-liposomal` already half-concedes the point: it says no study exists "for the
+liposomal formulation **specifically**". This should be decided as ONE rule, not per record.
+
 - **RESOLVED `loperamide` (major/D — unchanged, support strengthened).** The second-look premise was that the
   serious cases are overwhelmingly overdoses. **The literature said otherwise.** `11014404` gave 8 volunteers
   **16 mg loperamide — the maximum recommended daily dose** — with quinidine or placebo: no respiratory
