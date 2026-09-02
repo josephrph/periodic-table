@@ -56,3 +56,33 @@ before any material change.
 - Decision requests 1 and 3 from the handoff (categorical phrasing scope; next cohort) are answered
   above. **Decision request 2 — the method question for the 80 `minor/D` records — was not
   answered and remains open.**
+
+---
+
+## Cycle 2 — decisions received, implemented as `LEGACY-B28`
+
+**1. CYP3A wording cleanup — all eight approved.** `statins` `buspirone` `prednisone`
+`bicalutamide` `apalutamide` `acalabrutinib` `docetaxel` `estrogen_hrt`. Study-specific
+wording; strong-inhibitor comparison retained **only as label/context**; no prediction that
+CBD's effect is necessarily smaller. No grades reopened. `nab-paclitaxel` ruled **not to
+require** the correction — the reviewer accepted that "a CYP3A4 inhibitor with weaker
+evidence of CYP2C8 modulation" assigns no strength category.
+
+**2. Five-record cohort — assessment approved with these decisions:**
+
+| Record | Decision |
+|---|---|
+| `lithium` | moderate/D **holds** — explicitly NOT raised to major. CHS pathway kept as plausible physiology, but must state: no direct pair evidence identified; CHS evidence is background not pair evidence; interaction is therefore theoretical. Add a V2 CHS citation labelled as syndrome/background. Do not restore the unsupported case-report claim. |
+| `bupropion` | moderate/D holds. CYP1A2 sentence must attribute induction to **smoke/combustion**, not to cannabis molecules or THC. Keep the CYP2B6-not-measured distinction. |
+| `tamsulosin` | moderate/D holds. Split the two mechanisms: CYP3A = theoretical PK inference; additive orthostatic hypotension = the PD concern that **supports** moderate severity. Cite both arms, labelled for what each source supports. Replace "Monitor blood pressure" with patient-facing language + a clinician/pharmacist pointer. |
+| `nafcillin` | moderate/D holds. Direction stays nafcillin → cannabinoid. Nifedipine/warfarin/cyclosporine literature stays labelled **non-cannabis**. Remove "counsel patients" and any dose-retitration instruction. |
+| `oritavancin` | **moderate/D → minor/D.** Basis: weak enzyme effects, in-vitro only, bidirectional, no pair evidence, unknown human magnitude — theoretical, but not a moderate interaction-specific consequence. Long half-life kept as context only; **persistence alone must not determine severity**. |
+
+**3. Official legacy count: 94 → 89.**
+
+**4. Next cohort — assessment only, no edits:** the nine oncology `moderate/D` records
+(Cohort B). CYP1A2 tagging audit stays open and separate.
+
+**Still open from cycle 1:** decision request 2 — the method question for the 80 `minor/D`
+records — has not been answered across two cycles. Claude will keep carrying it rather than
+choosing a method unilaterally.
