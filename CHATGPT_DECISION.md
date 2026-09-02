@@ -86,3 +86,55 @@ evidence of CYP2C8 modulation" assigns no strength category.
 **Still open from cycle 1:** decision request 2 — the method question for the 80 `minor/D`
 records — has not been answered across two cycles. Claude will keep carrying it rather than
 choosing a method unilaterally.
+
+---
+
+## Cycle 3 — decisions received, implemented as `LEGACY-B29`
+
+All nine oncology `moderate/D` records. **Two severity reductions, no grade changes.**
+
+| Record | Decision | Result |
+|---|---|---|
+| `arsenic-trioxide` | **moderate → minor**, Grade D. Inherent boxed QT/torsades risk must not determine cannabis-interaction severity. | done |
+| `lenvatinib` | **moderate → minor**, Grade D. Remove the strong-CYP3A-inhibitor analogy and the sorafenib/regorafenib magnitude comparison; state CYP3A4 contributes only a limited portion of disposition and any effect is theoretical, magnitude unknown. | done |
+| `dacarbazine` | moderate/D holds. **Do not state categorically that "CBD inhibits CYP1A2 in humans"** — describe the probe evidence under the studied conditions. Keep cannabinoid inhibition (→ less activation) and smoke/combustion induction (→ opposite direction) separate. No molecule-tag change. | done |
+| `dabrafenib` | moderate/D holds. Correct the CYP2C8 statement; do not imply human CBD inhibition of CYP2C8 is established. Preserve the reverse direction where supported. | done |
+| `topotecan` | moderate/D holds. Add P-gp/BCRP citations labelled as non-pair mechanistic/in-vitro. State renal clearance is dominant, limiting assumed transporter effect. Inherent myelosuppression alone must not be the severity basis. | done |
+| `ipilimumab` | moderate/D holds. Keep the mechanism distinct from PD-1/PD-L1. Prescriber language → patient-facing + oncology-clinician pointer. Do not transfer nivolumab/pembrolizumab findings. | done |
+| `rucaparib` | moderate/D holds. Separate clinically established human findings / in-vitro findings / theoretical cannabinoid extrapolation. No global "moderate inhibitor". CYP2D6 not an established human pathway. Probe AUC changes stay attached to their probes and conditions. Reverse direction may be emphasised as the better-supported inference but remains theoretical for the pair. | done |
+| `nab-paclitaxel` | moderate/D holds. Do not transfer paclitaxel's Grade C; parent studies as labelled background only. Correct CYP2C8 wording and state explicitly that CYP2C8 was not assessed in the cited human probe study. | done |
+| `doxorubicin-liposomal` | Grade D holds. Remove the CBD/CYP2D6 assertion. Do not transfer conventional doxorubicin's Grade C. Distinguish pegylated-liposomal PK. Add P-gp evidence only for the statement it supports. Remove cumulative cardiotoxicity as the primary severity rationale. **Severity: keep moderate if a plausible interaction-specific consequence remains; otherwise stop and return for a severity decision rather than lowering automatically.** | **moderate retained** — see below |
+
+**Reformulated-drug rule adopted, applied identically to both records and quoted in each:**
+*"Evidence involving the parent drug does not automatically establish direct pair evidence for a
+materially different formulation."*
+
+**`doxorubicin-liposomal` severity — the reviewer's conditional test, resolved without returning it.**
+After removing cumulative cardiotoxicity as the rationale, a plausible interaction-specific consequence
+does remain: P-gp inhibition or CYP3A inhibition raising free-drug exposure or intracellular accumulation
+would amplify the toxicities that actually limit *this* formulation's dose — **hand–foot syndrome,
+stomatitis and myelosuppression** — which are exposure-related and distinct from the anthracycline's
+cumulative cardiac risk. Moderate was therefore retained, per the reviewer's instruction, and the record
+now states that basis explicitly. **This is the thinnest of the retained moderates**, because the
+liposomal carrier limits how much enzyme or transporter modulation could plausibly change; the record says
+that too, so a later reduction to minor would be a defensible call rather than a correction.
+
+**Immunotherapy correction — the question is answered, and no record needs reopening.**
+PMID `35454955` (*Cancers* 2022;14:1957) corrected **Table 1 only** — "Typing errors were made regarding
+demographics and medical conditions data" — and the authors state that **"the scientific conclusions are
+unaffected."** It does not materially change results or interpretation. `nivolumab`, `pembrolizumab` and
+`atezolizumab` remain closed and untouched.
+
+**A finding from the corrected table, used in `ipilimumab`.** The Bar-Sela cohort's checkpoint breakdown
+is now legible: of 34 cannabis users, **29 were on anti-PD-1 (pembrolizumab or nivolumab), 4 on
+ipilimumab-plus-nivolumab, and 1 on anti-PD-L1** — none on ipilimumab alone, and outcomes were never
+broken down by regimen. Four patients in a combination arm cannot carry a grade. That is now stated in the
+record as the concrete reason the PD-1 evidence is not transferred, replacing a general assertion.
+
+**Reconciliation confirmed exactly as the reviewer predicted:** grades **A5 / B30 / C13 / D231**;
+severity **54 major / 110 moderate / 115 minor**. Official legacy count **89 → 80**.
+
+**Still open from cycle 1, now unanswered for three cycles:** the method question for the 80 `minor/D`
+records — answered in cycle 3 by instruction instead: assessment-only batches of ~10, grouped by
+therapeutic class or mechanism, prioritised by six named criteria, no mass edits, no mechanical upgrades.
+**Treated as resolved.**
