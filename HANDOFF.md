@@ -409,6 +409,23 @@ change, so it needs deciding as one piece of work.
 
 ### Legacy SECOND-LOOK list (comparator conflicts flagged during review, not yet resolved)
 
+**MOLECULE-TAG SEMANTICS (established 2026-09-02, LEGACY-B31 — charter-level).** A `mols` entry on a
+DI_DATA record means **"molecule implicated in THIS drug interaction."** It is not condition relevance and
+it is not searchability. Four consumers, none of them search: the card's **"Interacts with:"** row;
+`applyDrugHighlighting`, which sets `_diMolSev` to the worst severity across matches and **colours the
+periodic-table tiles**; `getMolDrugInteractions(molId)`, which builds the **molecule panel's** drug-interaction
+list; and `buildCannabisHitsByMol` for the user's own medication list. `DI_INDEX` holds no key for `cbd`,
+`cannabidiol` or `thc` — search runs off drug names, brands and `DI_ALIASES`. Condition relevance is the
+separate scored field `CONDITIONS[].molecules` (1–6). **Therefore condition relevance alone is never
+sufficient reason for a molecule tag.** A record whose finding is that no cannabis mechanism is implicated
+carries an empty `mols`, and the renderer says *"Molecules implicated: none identified — see Mechanism"*
+rather than a dangling label.
+
+*Scope note, measured not estimated:* 450 tags across 280 records. 21 were removed in B31 (the reviewed
+ophthalmic set plus the seven where the tagged molecule was never mentioned). A further **172 tags sit on
+text that says only "cannabis"/"cannabinoid" without naming that molecule** — most legitimately. Those are
+**deliberately left alone**; there is no mass tag pass.
+
 **OPEN — P-GLYCOPROTEIN EVIDENCE CONFLICT, raised 2026-09-02. Touches ~9 records, several CLOSED and
 at major severity. Do not act without an owner decision.** Two papers already in V2 disagree about
 whether cannabis inhibits P-glycoprotein:
@@ -431,7 +448,8 @@ OAT1 (SLC22A6) only modestly at high concentrations. Those are the renal anion t
 beta-lactams, so the β-lactam cohort's "no meaningful interaction" claim can be **evidenced** rather than
 merely asserted from the absence of a CYP route.
 
-**Official legacy working count: 80** (owner-set 2026-09-02, reduced 94 -> 89 -> 80 as LEGACY-B28 closed the
+**Official legacy working count: 73** (owner-set 2026-09-02 on closing the seven-record ophthalmic
+cohort as LEGACY-B31; the separate DRUG-RECORD total is 280 because of the `oph_cai` split). Previously 80 (owner-set 2026-09-02, reduced 94 -> 89 -> 80 as LEGACY-B28 closed the
 five-record cohort and LEGACY-B29 closed the nine oncology `moderate/D` records).
 
 **REFORMULATED-DRUG RULE (owner-adopted 2026-09-02, LEGACY-B29 — charter-level, applies to all future
