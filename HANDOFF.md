@@ -409,6 +409,28 @@ change, so it needs deciding as one piece of work.
 
 ### Legacy SECOND-LOOK list (comparator conflicts flagged during review, not yet resolved)
 
+**OPEN — P-GLYCOPROTEIN EVIDENCE CONFLICT, raised 2026-09-02. Touches ~9 records, several CLOSED and
+at major severity. Do not act without an owner decision.** Two papers already in V2 disagree about
+whether cannabis inhibits P-glycoprotein:
+- **`16439618`** (*J Pharmacol Exp Ther* 2006) — "Characterization of P-glycoprotein inhibition by major
+  cannabinoids from marijuana." Used by `apixaban`, `rivaroxaban`, `dabigatran`, `digoxin`, `venetoclax`,
+  `loperamide`, `afatinib`, `daunorubicin`, `doxorubicin` and `doxorubicin-liposomal` — several at
+  **major** severity — as the basis for a cannabinoid P-gp inhibition mechanism.
+- **`33998860`** (*Cannabis Cannabinoid Res* 2022) — screened three commercial cannabis-based products
+  against 12 transporters and found they **did NOT inhibit ABCB1 (P-glycoprotein)**. What they did inhibit
+  potently was **ABCG2 (BCRP)** — IC50 4.5 µM on CBD content, 0.20 µM on Δ9-THC content — plus ABCB11,
+  and modestly SLC22A6 (OAT1), SLC22A1/2 (OCT1/2), SLCO1B1 and SLCO1B3.
+
+The two are reconcilable in principle — isolated cannabinoids at defined concentrations versus whole
+commercial products — but V2 currently cites both without acknowledging that they point different ways on
+P-gp, and the records that rest on P-gp inhibition are among its most consequential. **`33998860` also
+strengthens the BCRP arm** added to `topotecan` in LEGACY-B29, which stands.
+
+**Also from `33998860`, and useful rather than problematic:** OAT3 (SLC22A8) was **not inhibited** and
+OAT1 (SLC22A6) only modestly at high concentrations. Those are the renal anion transporters that secrete
+beta-lactams, so the β-lactam cohort's "no meaningful interaction" claim can be **evidenced** rather than
+merely asserted from the absence of a CYP route.
+
 **Official legacy working count: 80** (owner-set 2026-09-02, reduced 94 -> 89 -> 80 as LEGACY-B28 closed the
 five-record cohort and LEGACY-B29 closed the nine oncology `moderate/D` records).
 
