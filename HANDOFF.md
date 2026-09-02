@@ -409,25 +409,38 @@ change, so it needs deciding as one piece of work.
 
 ### Legacy SECOND-LOOK list (comparator conflicts flagged during review, not yet resolved)
 
-**Official legacy working count: 89** (owner-set 2026-09-02, reduced from 94 after the five-record cohort
-`lithium` `bupropion` `tamsulosin` `nafcillin` `oritavancin` closed as LEGACY-B28).
+**Official legacy working count: 80** (owner-set 2026-09-02, reduced 94 -> 89 -> 80 as LEGACY-B28 closed the
+five-record cohort and LEGACY-B29 closed the nine oncology `moderate/D` records).
 
-**OPEN — evidence-integrity item raised 2026-09-02, touches CLOSED records.** PMID `32872248`
-(Bar-Sela, *Cancers* 2020 — cannabis during immunotherapy correlates with poor outcome) is cited by three
-records: `nivolumab` (major/B), `pembrolizumab` (major/B) and `atezolizumab` (moderate/C). A formal
-**Correction was published (PMID 35454955, *Cancers* 2022;14:1957)** whose substance PubMed does not
-expose ("In the original article [...]"). Claude has NOT reopened those records. Whether the correction
-affects the finding they rest on needs the full erratum text and an owner decision.
+**REFORMULATED-DRUG RULE (owner-adopted 2026-09-02, LEGACY-B29 — charter-level, applies to all future
+records).** *Evidence involving the parent drug does not automatically establish direct pair evidence for a
+materially different formulation.* Parent-drug studies may be used as **clearly labelled background** only.
+Applied identically to `nab-paclitaxel` (does not inherit `paclitaxel` C) and `doxorubicin-liposomal` (does
+not inherit `doxorubicin` C); both remain D and both quote the rule.
 
-**OPEN — same-molecule / different-formulation evidence question, raised 2026-09-02.** `nab-paclitaxel`
-(moderate/D, uncited) and `doxorubicin-liposomal` (moderate/D, uncited) are formulations of molecules whose
-parent records hold **C on molecule-level preclinical pair evidence**: `paclitaxel` moderate/C
-(`42364563` CBD+paclitaxel synergy in NSCLC cells, `35933415` human CIPN prevention) and `doxorubicin`
-moderate/C (`34324983` CBD sensitising TNBC to doxorubicin in vitro and in vivo, `16439618` cannabinoid
-P-gp inhibition). Either that molecule-level evidence transfers to the reformulated product (both become C
-and gain citations) or the formulation is different enough that it does not (both stay D, and should say so
-explicitly). `doxorubicin-liposomal` already half-concedes the point: it says no study exists "for the
-liposomal formulation **specifically**". This should be decided as ONE rule, not per record.
+**NEXT PHASE (owner-set 2026-09-02).** The remaining **80 `minor/D`** records are to be reviewed in
+**assessment-only batches of ~10**, grouped by therapeutic class or mechanism where possible. Each batch
+prioritises, in order: (1) factual/mechanistic errors, (2) unsupported or missing citations, (3)
+evidence-grade inconsistencies, (4) inherent drug toxicity incorrectly determining interaction severity,
+(5) unsupported enzyme/transporter extrapolation, (6) patient-facing versus prescriber-directed language.
+**No mass edits and no mechanical upgrades of Grade D records.** This supersedes the method question that
+had been carried unanswered for three cycles.
+
+**RESOLVED — Bar-Sela correction (raised and answered 2026-09-02).** PMID `32872248` (Bar-Sela,
+*Cancers* 2020) is cited by `nivolumab` (major/B), `pembrolizumab` (major/B) and `atezolizumab`
+(moderate/C). The Correction, **PMID `35454955`** (*Cancers* 2022;14:1957), retrieved in full from
+PMC9031888, corrected **Table 1 only** — "Typing errors were made regarding demographics and medical
+conditions data" — and the authors state that **"the scientific conclusions are unaffected."** It does not
+materially change results or interpretation. **Those three records stay closed and untouched.**
+A useful by-product from the corrected table, now used in `ipilimumab`: of the 34 cannabis users,
+**29 were on anti-PD-1, 4 on ipilimumab+nivolumab, 1 on anti-PD-L1** — none on ipilimumab alone, and
+outcomes were never broken down by regimen. That is the concrete reason the PD-1 findings are not
+transferred to `ipilimumab`.
+
+**RESOLVED — same-molecule / different-formulation question (raised and decided 2026-09-02).** Settled by
+the reformulated-drug rule above. `nab-paclitaxel` and `doxorubicin-liposomal` both stay Grade D; parent
+studies are labelled background in both.
+
 
 - **RESOLVED `loperamide` (major/D — unchanged, support strengthened).** The second-look premise was that the
   serious cases are overwhelmingly overdoses. **The literature said otherwise.** `11014404` gave 8 volunteers
