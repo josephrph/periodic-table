@@ -409,6 +409,29 @@ change, so it needs deciding as one piece of work.
 
 ### Legacy SECOND-LOOK list (comparator conflicts flagged during review, not yet resolved)
 
+**FOLLOW-UP LIST (owner-set 2026-09-02, LEGACY-B33 — assessed, not implemented).**
+1. `36283465` for `inhaled_steroids`/beclomethasone — assessed; adds a beclomethasone-specific,
+   route-specific mechanism pointing at **reduced** efficacy. Grade/severity hold; CBD tag questionable.
+2. `36467779` against `mycophenloate`'s carboxylesterase claim — assessed; claim stays true but needs
+   the negative human result beside it. No grade/severity change (UGT1A9 is the load-bearing arm).
+3. Whether `albuterol` / `inhaled_steroids` moderate is smoke-driven — assessed: **`albuterol` no**
+   (additive tachycardia is cannabinoid-specific and cited), **`inhaled_steroids` yes**.
+4. Missing carbapenem–valproate direct DDI — assessed; recommended as a DDI_DATA pair, but it is a
+   scope question because the pair has no cannabis component.
+
+**CATEGORICAL CBD/CYP WORDING — DEFINITIVE AUDIT METHOD (established 2026-09-02, LEGACY-B33).**
+Four earlier counts (1 → 3 → 4 → 8 → 22) were produced by word-order-specific regexes and each
+undercounted. The replacement method uses **intersecting closed vocabularies at sentence level, with no
+word-order or phrase patterns**: (1) a cannabinoid vocabulary, (2) a strength/comparison vocabulary,
+(3) an enzyme/transporter vocabulary, (4) an action vocabulary. Stage 1 (vocabularies 1+2) harvests
+374 sentences / 199 records; stage 3 (all four) narrows to 57 sentences / 49 records; **stage 4 closes
+the one known residual gap — pronominal reference**, by running the intersection at FIELD level and
+surfacing sentences that carry strength+target+action but no cannabinoid token (37 sentences /
+33 records, of which exactly one, `intranasal_steroids`, was a genuine new find). Every harvested
+sentence is then adjudicated into CATEGORICAL / COMPARATIVE / correct-usage, and all three counts are
+reported so the denominator is visible. **Adjudicated result: 18 records need correction** (see the
+cycle-7 report). Not implemented.
+
 **MOLECULE-TAG SEMANTICS (established 2026-09-02, LEGACY-B31 — charter-level).** A `mols` entry on a
 DI_DATA record means **"molecule implicated in THIS drug interaction."** It is not condition relevance and
 it is not searchability. Four consumers, none of them search: the card's **"Interacts with:"** row;
@@ -448,7 +471,7 @@ OAT1 (SLC22A6) only modestly at high concentrations. Those are the renal anion t
 beta-lactams, so the β-lactam cohort's "no meaningful interaction" claim can be **evidenced** rather than
 merely asserted from the absence of a CYP route.
 
-**Official legacy working count: 73** (owner-set 2026-09-02 on closing the seven-record ophthalmic
+**Official legacy working count: 61** (owner-set 2026-09-02 on closing the 12-record remaining-beta-lactam cohort as LEGACY-B33). Previously 73 (owner-set 2026-09-02 on closing the seven-record ophthalmic
 cohort as LEGACY-B31; the separate DRUG-RECORD total is 280 because of the `oph_cai` split). Previously 80 (owner-set 2026-09-02, reduced 94 -> 89 -> 80 as LEGACY-B28 closed the
 five-record cohort and LEGACY-B29 closed the nine oncology `moderate/D` records).
 
