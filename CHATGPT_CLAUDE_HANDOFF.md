@@ -128,11 +128,27 @@ an artefact of too narrow a search pattern. Three more were found on a broader c
 | `tamsulosin` | Alpha-1 blocker | **uncited** | CYP3A4/2D6 plus orthostasis |
 | `oritavancin` | Lipoglycopeptide | **uncited** | Weak CYP inducer/inhibitor |
 
-**Cohort B — 9 oncology.** Several have already-reviewed comparators, which will test consistency:
-`nab-paclitaxel` vs `paclitaxel` (mod/C) · `doxorubicin-liposomal` vs `doxorubicin` (mod/C) ·
-`rucaparib` vs `olaparib` (major/C) · `ipilimumab` vs `nivolumab`/`pembrolizumab`/`atezolizumab` ·
-`dabrafenib` vs `vemurafenib` (mod/D). Plus `arsenic-trioxide` (the outlier — QT-dominant, not
-CYP-cleared), `dacarbazine`, `lenvatinib`, `topotecan`.
+**Cohort B — 9 oncology**
+
+| Record | Class | Citation | Reviewed comparator |
+|---|---|---|---|
+| `nab-paclitaxel` | Taxane | **uncited** | `paclitaxel` mod/C |
+| `doxorubicin-liposomal` | Anthracycline | **uncited** | `doxorubicin` mod/C |
+| `rucaparib` | PARP inhibitor | cited | `olaparib` major/C |
+| `ipilimumab` | CTLA-4 checkpoint inhibitor | **uncited** | `nivolumab` / `pembrolizumab` / `atezolizumab` |
+| `dabrafenib` | BRAF inhibitor | **uncited** | `vemurafenib` mod/D |
+| `lenvatinib` | Multikinase inhibitor | **uncited** | `sorafenib` mod/D |
+| `topotecan` | Topoisomerase I inhibitor | **uncited** | `irinotecan` mod/C |
+| `dacarbazine` | Alkylating agent | **uncited** | `temozolomide` minor/A |
+| `arsenic-trioxide` | Differentiation agent (APL) | **uncited** | none — **the outlier**: QT-dominant, not CYP-cleared |
+
+Eight of the nine have a comparator already reviewed to this standard, which should make the cohort
+fast **and** test whether V2 is now internally consistent. `arsenic-trioxide` is the one requiring
+independent work.
+
+**All 14, for reference:** `lithium` · `bupropion` · `tamsulosin` · `nafcillin` · `oritavancin` ·
+`arsenic-trioxide` · `ipilimumab` · `dabrafenib` · `dacarbazine` · `nab-paclitaxel` · `lenvatinib` ·
+`rucaparib` · `topotecan` · `doxorubicin-liposomal` — **11 of 14 uncited**.
 
 ---
 
