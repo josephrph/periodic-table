@@ -409,6 +409,22 @@ change, so it needs deciding as one piece of work.
 
 ### Legacy SECOND-LOOK list (comparator conflicts flagged during review, not yet resolved)
 
+**`DDI_DATA` SCOPE, established 2026-09-02 (LEGACY-B35) — charter-level.** Medication-medication
+interaction screening **is an intended feature**, not a set of cannabis-workflow exceptions. The
+declared scope in the source is *"high-priority pairs from drugs already in DI_DATA — not
+comprehensive"*, sitting under the **MEDICATION LIST MODE** header; `findDdiInteractions(medIds)`
+screens the user's own medication list via `DDI_INDEX` with no cannabis involvement in the matching;
+and **90 of the (then) 103 pairs mention no cannabis at all**. There is direct precedent for treating a
+missing important non-cannabis pair as a defect (code comment DRUG-10, on the absent gemfibrozil+statin
+pair). **New pairs are added under that rule — both drugs must already have DI_DATA records and the
+pair must be high-priority — never as isolated exceptions.**
+
+**⚠ OPEN — `inhaled_steroids` THC9 tag, raised 2026-09-02.** After the beclomethasone split, the class
+record's only remaining cannabinoid-specific arm is CBD/CYP3A. Its THC9 basis was the smoke arm, which
+the record now explicitly labels a **route consideration and not a drug–cannabinoid interaction** — so
+under the established tag definition the THC9 tag is no longer supported by the record's own text. Not
+changed: the cycle-9 tag instructions covered the 11 antibacterials and beclomethasone only.
+
 **FOLLOW-UP LIST (owner-set 2026-09-02, LEGACY-B33 — assessed, not implemented).**
 1. `36283465` for `inhaled_steroids`/beclomethasone — assessed; adds a beclomethasone-specific,
    route-specific mechanism pointing at **reduced** efficacy. Grade/severity hold; CBD tag questionable.
@@ -471,7 +487,7 @@ OAT1 (SLC22A6) only modestly at high concentrations. Those are the renal anion t
 beta-lactams, so the β-lactam cohort's "no meaningful interaction" claim can be **evidenced** rather than
 merely asserted from the absence of a CYP route.
 
-**Official legacy working count: 61** (owner-set 2026-09-02 on closing the 12-record remaining-beta-lactam cohort as LEGACY-B33). Previously 73 (owner-set 2026-09-02 on closing the seven-record ophthalmic
+**Official legacy working count: 50** (owner-set 2026-09-02 on closing the 11 non-beta-lactam antibacterials as LEGACY-B35; the separate DRUG-RECORD total is 281 because beclomethasone was split out of `inhaled_steroids`). Previously 61 (owner-set 2026-09-02 on closing the 12-record remaining-beta-lactam cohort as LEGACY-B33). Previously 73 (owner-set 2026-09-02 on closing the seven-record ophthalmic
 cohort as LEGACY-B31; the separate DRUG-RECORD total is 280 because of the `oph_cai` split). Previously 80 (owner-set 2026-09-02, reduced 94 -> 89 -> 80 as LEGACY-B28 closed the
 five-record cohort and LEGACY-B29 closed the nine oncology `moderate/D` records).
 
