@@ -409,7 +409,17 @@ change, so it needs deciding as one piece of work.
 
 ### Legacy SECOND-LOOK list (comparator conflicts flagged during review, not yet resolved)
 
-**⚠ OPEN — `caffeine` grade inconsistency, raised 2026-09-02 (LEGACY-B37).** `omeprazole` was regraded
+**RESOLVED 2026-09-02 (LEGACY-B39) — `caffeine` promoted B → A.** Its second citation turned out to be
+stronger than omeprazole's: `33951339` is a **dedicated Phase 1 open-label fixed-sequence PK
+drug-interaction trial** of Epidiolex at 750 mg twice daily to steady state, finding caffeine AUC **+95%**
+and half-life **5.4 → 10.9 h**. Two human trials, so A under the rubric. The probe-drug review also
+settled the boundary: of the five probes in `37313955`, only records where the drug ITSELF was
+administered and measured are promoted — `omeprazole` and `dextromethorphan` (already A) and `caffeine`.
+**`arb` (losartan) and `benzos` (midazolam) stay D and B**: both are CLASS records covering drugs that
+were never studied, and their ratings rest on class-level pharmacodynamic overlap, not the enzyme
+finding. Superseded note follows.
+
+**⚠ SUPERSEDED — `caffeine` grade inconsistency, raised 2026-09-02 (LEGACY-B37).** `omeprazole` was regraded
 **B → A** because both directions of its interaction rest on human *trials*, which is what A denotes in
 V2 (`DI_EV_LABEL.A` = "Clinical Evidence — Human Trials"), and because `dextromethorphan` — the CYP2D6
 probe drug from the same randomised crossover (`37313955`) — is already graded **A**. That makes
@@ -503,7 +513,7 @@ OAT1 (SLC22A6) only modestly at high concentrations. Those are the renal anion t
 beta-lactams, so the β-lactam cohort's "no meaningful interaction" claim can be **evidenced** rather than
 merely asserted from the absence of a CYP route.
 
-**Official legacy working count: 40** (owner-set 2026-09-02 on closing the cardio-renal/endocrine cohort as LEGACY-B37). Previously 50 (owner-set 2026-09-02 on closing the 11 non-beta-lactam antibacterials as LEGACY-B35; the separate DRUG-RECORD total is 281 because beclomethasone was split out of `inhaled_steroids`). Previously 61 (owner-set 2026-09-02 on closing the 12-record remaining-beta-lactam cohort as LEGACY-B33). Previously 73 (owner-set 2026-09-02 on closing the seven-record ophthalmic
+**Official legacy working count: 30** (owner-set 2026-09-02 on closing the 10-record oncology cohort as LEGACY-B39). Previously 40 (owner-set 2026-09-02 on closing the cardio-renal/endocrine cohort as LEGACY-B37). Previously 50 (owner-set 2026-09-02 on closing the 11 non-beta-lactam antibacterials as LEGACY-B35; the separate DRUG-RECORD total is 281 because beclomethasone was split out of `inhaled_steroids`). Previously 61 (owner-set 2026-09-02 on closing the 12-record remaining-beta-lactam cohort as LEGACY-B33). Previously 73 (owner-set 2026-09-02 on closing the seven-record ophthalmic
 cohort as LEGACY-B31; the separate DRUG-RECORD total is 280 because of the `oph_cai` split). Previously 80 (owner-set 2026-09-02, reduced 94 -> 89 -> 80 as LEGACY-B28 closed the
 five-record cohort and LEGACY-B29 closed the nine oncology `moderate/D` records).
 
