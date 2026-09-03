@@ -409,6 +409,42 @@ change, so it needs deciding as one piece of work.
 
 ### Legacy SECOND-LOOK list (comparator conflicts flagged during review, not yet resolved)
 
+## §0d — FORMAL EVIDENCE-MODEL RULE (owner-approved 2026-09-03; binding on all future records)
+
+**`ev` grades the strength of evidence that an interaction exists between cannabis and this drug — the
+pair — irrespective of which cannabis exposure form was studied** (isolated cannabinoid, whole
+product, or smoked/combusted cannabis).
+
+**`routes[].ev` grades the evidence for one named exposure route's own contribution.**
+
+**`mols` identifies the molecules implicated in the interaction mechanism. It is NOT a claim that the
+record's `ev` was earned from molecule-level evidence.**
+
+> **⇒ `mols` and `ev` are independent evidence/attribution axes.**
+
+**Why this, and not the two obvious alternatives.** The question was forced by `theophylline`, whose
+grade **B** comes from `688731` — cannabis *smoking* — while its only molecule tag is CBD, pointing the
+opposite way. Two definitions were considered and both rejected:
+- *"`ev` = strongest evidence for any interaction associated with the drug"* would let a **drug–drug**
+  finding inflate a cannabis grade.
+- *"`ev` = evidence for the molecule-level interaction in `mols`"* was verified against the data and
+  would have **forced eight A/B records down to D** — `alcohol` (A, controlled vaporiser study),
+  `opioids` (B, 21-patient inpatient trial), `propranolol` (B, *"marihuana… administered in smoke"*),
+  `antiretrovirals` (B, 3.95% THC cigarettes), `sildenafil` (B, cannabis smokers), `tricyclics`,
+  `theophylline`, `antipsychotics`. Relabelling the most clinically relevant evidence in the database
+  "theoretical" because the exposure was a real cannabis product rather than a purified molecule is
+  the wrong answer.
+
+**The defect was never the grade — it was that the grade's provenance was invisible.** Hence the
+binding corollary: **where a record carries both `mols` and `routes`, the card MUST display both
+strands with their evidence attributed.** That display is a *requirement* of the model, not a UI
+preference; it is what makes the definition safe. Live proof of independence: `caffeine`
+parent **A** / route **D**; `antipsychotics` parent **B** / route **D**; `theophylline`
+parent **B** / route **B** (same study, two different questions).
+
+Guarded mechanically in `check_routes` — no code path may copy either grade into the other, and a
+database-wide mirror of parent grades is itself reported as a defect.
+
 ## POST-LEGACY QA INVENTORY (reconciled 2026-09-02, exact counts from the data)
 
 **W1 CLOSED 2026-09-02.** All 10 records corrected; no grade, severity or molecule-tag change.

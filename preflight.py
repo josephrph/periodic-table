@@ -874,6 +874,159 @@ def check_ddi_referenced_ids(data):
              '`drugs` matches `groups`, and every member routes' % (n_refs, len(ddi)))
 
 
+ROUTE_VOCAB = {
+    'route':     {'combustion'},
+    'target':    {'CYP1A2'},
+    'direction': {'induction', 'inhibition'},
+    'ev':        {'A', 'B', 'C', 'D'},
+    'basis':     {'cannabis-measured', 'cannabis-confounded', 'tobacco-measured', 'mechanism-review'},
+}
+ROUTE_KEYS = {'route', 'target', 'direction', 'ev', 'basis', 'pmid', 'source', 'appliesTo'}
+
+
+def check_routes(data, src):
+    """ROUTE-01: the exposure/route axis, and the nine safeguards that keep it apart from `mols`.
+
+    W3 established that combustion-driven CYP1A2 induction comes from the polycyclic aromatic
+    hydrocarbons in smoke, not from any cannabinoid — so it can never earn a molecule tag, while
+    remaining real and (for theophylline) the best-evidenced cannabis interaction in the database.
+    `routes` carries it. The whole point of a separate field is that the separation is mechanical
+    rather than a matter of wording discipline, which this project has watched drift four times.
+
+    `routes` is OPTIONAL and deliberately absent from di_required: adding it there would fail all
+    281 records. Everything below is skipped for a record that does not carry it.
+    """
+    di = data.get('DI_DATA') or []
+    if not di:
+        fail('routes', 'DI_DATA did not evaluate')
+        return
+    mol_ids = set((data.get('M') or {}).keys())
+    withr = [r for r in di if r.get('routes')]
+    n_entries = sum(len(r['routes']) for r in withr)
+    bad = []
+
+    for r in withr:
+        rid = r.get('id')
+        for i, x in enumerate(r['routes']):
+            where = '%s[%d]' % (rid, i)
+            if not isinstance(x, dict):
+                bad.append('%s: route entry is not an object' % where); continue
+            # -- schema + controlled vocabulary
+            unknown = set(x) - ROUTE_KEYS
+            if unknown:
+                bad.append('%s: unknown key(s) %s' % (where, ', '.join(sorted(unknown))))
+            for k in ('route', 'target', 'direction', 'ev', 'basis'):
+                if k not in x:
+                    bad.append('%s: missing required key %r' % (where, k))
+                elif x[k] not in ROUTE_VOCAB[k]:
+                    bad.append('%s: %s=%r is not in the controlled vocabulary %s'
+                               % (where, k, x[k], sorted(ROUTE_VOCAB[k])))
+            # -- SAFEGUARD 1: a route entry may never name a molecule
+            for k, v in x.items():
+                vals = v if isinstance(v, list) else [v]
+                for val in vals:
+                    if isinstance(val, str) and val in mol_ids:
+                        bad.append('%s: %s=%r is a MOLECULE id — routes must never name a molecule'
+                                   % (where, k, val))
+            # -- SAFEGUARD 5: every entry carries its own evidence
+            has_pmid = bool(re.search(r'\d{7,8}', str(x.get('pmid') or '')))
+            if not has_pmid and x.get('source') not in ALLOWED_SOURCES:
+                bad.append('%s: no valid PMID and no approved source' % where)
+            # -- SAFEGUARD 6: appliesTo must resolve to something the record actually covers
+            for who in (x.get('appliesTo') or []):
+                hay = (str(r.get('drug') or '') + ' ' + str(r.get('brands') or '')).lower()
+                if who.lower() not in hay:
+                    bad.append('%s: appliesTo %r does not appear in this record\'s drug/brands'
+                               % (where, who))
+            # -- SAFEGUARD 3/4: the two grades must not be copies of one another by construction.
+            # A shared value is legitimate (theophylline is B on both, from the same study answering
+            # two different questions), so this only flags the case where EVERY route entry in the
+            # database mirrors its parent — the signature of an inherited rather than assigned grade.
+    if withr and all(x['ev'] == r.get('ev') for r in withr for x in r['routes']):
+        bad.append('every route ev equals its record ev across all %d records — grades look '
+                   'inherited rather than independently assigned' % len(withr))
+
+    # -- SAFEGUARD 2: highlighting must read `mols` only
+    m = re.search(r'function applyDrugHighlighting\(.*?\n\}', src, re.S)
+    if not m:
+        bad.append('could not locate applyDrugHighlighting to verify it ignores routes')
+    elif re.search(r'\broutes\b', m.group(0)):
+        bad.append('applyDrugHighlighting references `routes` — route entries must never drive '
+                   'molecule highlighting')
+    for fn in ('getMolDrugInteractions', 'buildCannabisHitsByMol'):
+        mm = re.search(r'function %s\(.*?\n\}' % fn, src, re.S)
+        if mm and re.search(r'\broutes\b', mm.group(0)):
+            bad.append('%s references `routes` — the molecule axis must not read the route axis' % fn)
+
+    # -- SAFEGUARD 3/4 (static): no code path may copy one grade into the other
+    for pat, msg in (
+        (r'\.ev\s*=\s*[^=;]*routes', 'code assigns a record ev from a route entry'),
+        (r'routes\[[^\]]*\]\.ev\s*=', 'code assigns a route ev at runtime'),
+        (r'\bev\s*:\s*r\.ev\b', 'a route entry is being built from the record ev'),
+    ):
+        if re.search(pat, src):
+            bad.append('grade independence violated — %s' % msg)
+
+    for b in bad:
+        fail('routes', b)
+    if not bad:
+        note('routes: %d entries across %d records — vocabulary valid, no molecule ids, every entry '
+             'cited, appliesTo resolves, grades independent, highlighting untouched'
+             % (n_entries, len(withr)))
+
+
+def check_route_wording(data):
+    """ROUTE-02: the wording safeguards (7, 8, 9). Text-level, because these are claims prose can
+    make that a schema cannot prevent — and each corresponds to an error actually found in review:
+    a THC9 tag standing in for smoke (W3, 6 records), `tizanidine` calling vaporised cannabis a
+    combustion exposure, and the net-effect inference the theophylline card is built to forestall.
+    """
+    # Scans DI_DATA *and* DDI_DATA. The drug-drug pairs were initially out of scope, until a
+    # coverage check found `cyp1a2_substrate_inhibitor` making its own cannabis/CYP1A2 directional
+    # claim -- correct as written, but it sat outside every safeguard. The rules are about what the
+    # prose may assert, so they apply wherever cannabis prose lives.
+    di = (data.get('DI_DATA') or []) + (data.get('DDI_DATA') or [])
+    strip = lambda t: re.sub(r'\s+', ' ', re.sub(r'<[^>]+>', ' ', re.sub(r'&[a-z]+;|&#x?\w+;', ' ', str(t or ''))))
+    bad = []
+    for r in di:
+        rid = r.get('id')
+        t = strip(' '.join(str(r.get(k) or '') for k in ('mech', 'effect', 'monitor')))
+        sents = re.split(r'(?<=[.;:])\s+', t)
+        for x in sents:
+            # SAFEGUARD 7: a cannabinoid credited with INDUCING CYP1A2.
+            # Tests the grammatical relationship, not co-occurrence. A first version matched any
+            # sentence containing a cannabinoid, "induc" and "1A2" and flagged six records whose
+            # text was correct -- e.g. "CBD inhibits it, smoking induces it", where the inducing
+            # subject is the smoke. The gap below therefore forbids clause-boundary punctuation, so
+            # the cannabinoid must be the actual subject of the induction verb.
+            CANNA = r'(?:\u0394?9?-?THC|THC9|CBD|CBN|cannabinoids?|cannabidiol|cannabinol|tetrahydrocannabinol)'
+            if re.search(CANNA + r'\b[^.,;:\u2013\u2014-]{0,30}\binduces?\b', x, re.I) \
+               and re.search(r'1A2', x) \
+               and not re.search(r'\bnot\b|\bdo not\b|\bdoes not\b|rather than|combustion|smoke|smoking', x, re.I):
+                bad.append('%s: CYP1A2 induction attributed to a cannabinoid -- %r' % (rid, x[:110]))
+            # SAFEGUARD 8: vaporised/oral cannabis described as combustion
+            if re.search(r'vapor|vape|edible|oral cannabis', x, re.I) and re.search(r'induc', x, re.I) \
+               and re.search(r'combustion|polycyclic|smoke', x, re.I) \
+               and not re.search(r'\bnot\b|no longer|rather than|without combust|heats without|nothing is being combusted', x, re.I):
+                bad.append('%s: a non-combusted route is tied to combustion induction -- %r' % (rid, x[:110]))
+            # SAFEGUARD 9: an ASSERTED net or cancelling effect where two strands oppose.
+            # V2 routinely and correctly says the net effect is *unpredictable*; a first version of
+            # this guard flagged four such records. Only an affirmative prediction is a defect, so
+            # every hedge below exonerates the sentence.
+            if re.search(r'\b(cancel(?:s)? out|balance(?:s)? out|offset(?:s)? each other|even(?:s)? out'
+                         r'|the net effect is (?:therefore )?(?:zero|neutral|nil|none)'
+                         r'|(?:they|the two) cancel)\b', x, re.I) \
+               and not re.search(r'\bnot\b|\bno\b|does not|do not|cannot|never|unpredictab|unknown'
+                                 r'|rather than|should not|must not|unquantified|unmeasured', x, re.I):
+                bad.append('%s: predicts a net or cancelling effect -- %r' % (rid, x[:110]))
+    for b in bad:
+        fail('route wording', b)
+    if not bad:
+        note('route wording: %d records + pairs scanned; no cannabinoid is credited with CYP1A2 '
+             'induction, no non-combusted route is described as combustion, and nothing predicts a '
+             'net or cancelling effect' % len(di))
+
+
 def check_backlog():
     """The backlog is the plan — duplicate IDs make a row unfindable. Two pairs shipped."""
     path = os.path.join(HERE, 'Project_Backlog.xlsx')
@@ -1102,6 +1255,8 @@ def main():
     check_pmids(src, online)
     check_ddi_reachable(data)
     check_ddi_referenced_ids(data)
+    check_routes(data, src)
+    check_route_wording(data)
     check_record_schema(data)
     check_hasrisk_invariant(data)
     check_evidence_attribution(data)
