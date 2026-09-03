@@ -426,6 +426,73 @@ text calls possibly negligible — *"The size of any such effect is unknown and 
 negligible"* — while carrying a moderate rating. The citation correction does not change that
 rationale either way, so severity was left untouched. Both read like minor records.
 
+**W2 CLOSED 2026-09-03.** UGT consistency audit, 29 records, Option A (owner-approved
+"shown-inhibition rule"). **`34493601` was verified as molecule-level before being applied** — HEK293
+cells *individually* overexpressing recombinant UGTs 1A1/1A3/1A4/1A6/1A9/2B4/2B7/2B10/2B15/2B17,
+screened against *individual isolated cannabinoids* and their metabolites, one IC50 per cannabinoid per
+isoform. **"Binding-corrected" corrects for non-specific binding — the opposite of `33998860`'s
+whole-product content normalisation.** Suitable for molecule-level `mols` attribution.
+
+**The attribution matrix (reusable; this is the answer to "which cannabinoid on which isoform"):**
+
+| Isoform | CBD | Δ9-THC | CBN |
+|---|---|---|---|
+| **UGT1A9** | **0.12 µM** | **0.45 µM** | **0.51 µM** |
+| **UGT2B7** | **0.82 µM** | significant | significant |
+| **UGT2B4** | **0.22 µM** | significant | **not** significant |
+| **UGT1A6** | **0.40 µM** | — | marginal @100 µM |
+| UGT1A1 / 1A3 / 1A4 / 2B15 | **tested, not inhibited** | **not** | **not** |
+| UGT2B17 / 2B10 | marginal @100 µM | — | marginal @100 µM |
+
+**THE RULE (applies database-wide, not just to W2):** tag a cannabinoid only where **(1)** the drug
+*materially depends* on the isoform, **(2)** `34493601` tested *that* cannabinoid against *that*
+isoform, **(3)** inhibition was **significant, not marginal at 100 µM**, and **(4)** the tag marks
+mechanistic implication, not a demonstrated clinical interaction. **Unidentified isoform → no tag.
+"The drug is glucuronidated" → no tag.** Marginal 100 µM findings are never tag-bearing.
+
+**Tags: 5 records +7, 5 records −6, net +1 (345 → 346).** Added: `acetaminophen` +THC9+CBN,
+`sorafenib` +THC9+CBN, `regorafenib` +CBN, `mycophenolate` +CBN (all UGT1A9), `diclofenac` +CBN
+(UGT2B7). Removed: `anastrozole` −CBD, `lamotrigine` −CBD (both **UGT1A4**), `aspirin` −THC9,
+`bismuth` −THC9 (**UGT1A6 is CBD-only**), `azathioprine` −CBD−THC9 (no cannabinoid mechanism of any
+kind — now correctly D/minor/no tags, the §0c standard).
+
+**Isoforms were established from primary literature, never from the word "glucuronidation":**
+`anastrozole` UGT1A4 (`21175441`); `lamotrigine` UGT1A4 ≫ 1A3, 2B7/2B4 *no measurable activity*
+(`19387891`), plus UGT2B10 (`39322784`); `etoposide` **UGT1A1 only** (`12695347`, `17151191`);
+`sorafenib` UGT1A9 (`24797816`); oxazepam **S→2B15 / R→2B7** (`12386133`, `16166450`, `33033903`);
+`bicalutamide` **isoform unresolved** (`23527766`) → no UGT tag.
+
+**⚠ FACTUAL CORRECTION — `irinotecan`.** The record said *"no study has tested whether plant
+cannabinoids inhibit UGT1A1."* That was **out of date**: `34493601` tested UGT1A1 against all three
+and found no significant inhibition. Now **tested-and-negative rather than unknown** — a stronger
+position, not a weaker one. The same upgrade applies to `etoposide` and `lorlatinib` (UGT1A1 / UGT1A4).
+
+**Citation gaps closed:** `mycophenolate` was quoting `34493601`'s binding-corrected 0.12 µM **without
+citing it**; `gemfibrozil` had an **empty `pmid`** while making three specific enzyme claims (and
+wrongly called CBD a CYP2C9 *substrate*); `allopurinol` quoted its own labelling with no attribution
+(`source:'label'` added, as for `azathioprine`).
+
+**Severity: `bismuth` moderate → minor** — the same salicylate/UGT1A6 route the `aspirin` record
+carries as minor, resting on the same single in-vitro finding. Its moderate had rested on the
+product's **own** salicylate/bleeding/Reye risks, which remain stated separately and unchanged.
+`diclofenac` major/D, `regorafenib` major/D, `mycophenolate` major/B **held**. **No grade changes.**
+
+**⚠ SCOPING NOTE (worth reading before W3).** The working set was 29, but **38 records mention UGT or
+glucuronidation** — derived from the data, not transcribed. The other **nine were already resolved in
+earlier cycles and all nine correctly carry no tag**: `ezetimibe` (isoform-mapped and exonerated —
+1A1/1A3/2B15 are not among the inhibited four) and `trifluridine-tipiracil` (states the isoform is
+unidentified, so no tag) **already implement exactly the rule W2 formalised**; `moxifloxacin`,
+`niraparib`, `trametinib`, `fulvestrant`, `levothyroxine`, `potassium`, `oph_prostaglandin` carry
+negative or exonerating mentions. The HANDOFF text below still says `moxifloxacin` and
+`trifluridine-tipiracil` were "reclassified to W2"; that was **superseded** — both were fixed in
+B42/B43 before W2 began. **No residual W2 work exists.** A sentence-level residual scan flagged
+`moxifloxacin`'s *"CBD inhibits UGT enzymes in laboratory work"* as categorical, but it is a **premise
+the next two sentences refute** — the same false-positive class as `topotecan` in W5/W6. Sentence-level
+scans cannot see a rebuttal; read the surrounding field before acting on a hit.
+
+**Remaining unique QA records: 54 → 26**, all W3. `deucravacitinib` was the single W2∩W3 record and
+stays in the pool for its CYP1A2 question, which W2 deliberately did not touch.
+
 **89 workstream slots · 78 unique records (27.8% of 281) · 11 records in exactly two workstreams,
 none in three or more** — verified by deduplicating on record id, with the overlap distribution
 checked ({1 workstream: 67 records, 2 workstreams: 11 records, 3+: none}) rather than inferred from
@@ -434,11 +501,11 @@ checked ({1 workstream: 67 records, 2 workstreams: 11 records, 3+: none}) rather
 | # | Workstream | n | Type | Can move grade/severity? |
 |---|---|---|---|---|
 | ~~W1~~ | ~~`31288397` citation audit~~ | ~~10~~ | **CLOSED (W1, 2026-09-02)** | no change made |
-| W2 | UGT-tag consistency (isoform rule) | **29** | tag + mechanism | rarely |
+| ~~W2~~ | ~~UGT-tag consistency (isoform rule)~~ | ~~29~~ | **CLOSED (W2, 2026-09-03)** | bismuth mod→minor |
 | W3 | CYP1A2 tagging audit | **26** | tag + structural/schema | **yes** |
-| W4 | Renal/material-UGT | **1** | mechanism | yes (1 record) |
-| W5 | BCRP tagging consistency | **8** | tag | no |
-| W6 | P-gp mechanism attribution | **15** | mechanism + citation | possibly |
+| ~~W4~~ | ~~Renal/material-UGT~~ | ~~1~~ | **CLOSED inside W2** (`regorafenib`) | no change |
+| ~~W5~~ | ~~BCRP tagging consistency~~ | ~~8~~ | **CLOSED (2026-09-02)** | no change |
+| ~~W6~~ | ~~P-gp mechanism attribution~~ | ~~15~~ | **CLOSED (2026-09-02)** | no change |
 
 **W1 (10):** `ssri` `erythromycin` `metronidazole` `linezolid` `isoniazid` `sulfadiazine` `fluvoxamine`
 `hydroxyzine` `memantine` `methocarbamol`. *(Four already corrected and excluded: `nitrofurantoin`,
@@ -471,6 +538,8 @@ citation, mechanism-wording or tag work only.**
 
 **Recommended order:** W1 → W5+W6 together → W2 (absorbing W4) → W3 last (it carries the possible
 schema change). **W4 is functionally one record inside W2, so there are 5 substantive workstreams.**
+
+**✔ RESOLVED IN W2 (2026-09-03) — molecule-tag consistency: unnamed UGT isoform (raised 2026-09-02, LEGACY-B42).** `anastrozole`'s isoform was identified as **UGT1A4** (PMID 21175441 — glucuronide formation correlated with the UGT1A4 marker reaction at r = 0.72, and recombinant UGT1A4 catalysed it fastest), and UGT1A4 is one of the isoforms `34493601` **tested and found not inhibited**. Its CBD tag was therefore **removed**, resolving the inconsistency *toward* `moxifloxacin`'s removal rather than away from it. The original note is kept below for the record.
 
 **⚠ OPEN — molecule-tag consistency: unnamed UGT isoform (raised 2026-09-02, LEGACY-B42).**
 `moxifloxacin`'s CBD tag was **removed** because the drug forms a glucuronide but its label does not
