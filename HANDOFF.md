@@ -530,7 +530,12 @@ OAT1 (SLC22A6) only modestly at high concentrations. Those are the renal anion t
 beta-lactams, so the β-lactam cohort's "no meaningful interaction" claim can be **evidenced** rather than
 merely asserted from the absence of a CYP route.
 
-**Official legacy working count: 9** (owner-set 2026-09-02 on closing the 11 antibacterials as LEGACY-B42). Previously 20 (owner-set 2026-09-02 on closing the oncology hormonal/targeted cohort as LEGACY-B41). Previously 30 (owner-set 2026-09-02 on closing the 10-record oncology cohort as LEGACY-B39). Previously 40 (owner-set 2026-09-02 on closing the cardio-renal/endocrine cohort as LEGACY-B37). Previously 50 (owner-set 2026-09-02 on closing the 11 non-beta-lactam antibacterials as LEGACY-B35; the separate DRUG-RECORD total is 281 because beclomethasone was split out of `inhaled_steroids`). Previously 61 (owner-set 2026-09-02 on closing the 12-record remaining-beta-lactam cohort as LEGACY-B33). Previously 73 (owner-set 2026-09-02 on closing the seven-record ophthalmic
+**RECORD-BY-RECORD LEGACY REVIEW: COMPLETE (LEGACY-B44, 2026-09-02). Official legacy working count:
+0.** All **281** drug records have now been individually reviewed against the charter (`HANDOFF.md` §0c
+rules 1-10): disposition attributed to primary or regulatory sources, grade tested against the
+pair-specific rubric, severity tested against the interaction-itself rubric, molecule tags tested against
+`mols` = molecule implicated in the interaction, and monitoring converted to patient-facing language.
+Previously 9 (owner-set 2026-09-02 on closing the 11 antibacterials as LEGACY-B42). Previously 20 (owner-set 2026-09-02 on closing the oncology hormonal/targeted cohort as LEGACY-B41). Previously 30 (owner-set 2026-09-02 on closing the 10-record oncology cohort as LEGACY-B39). Previously 40 (owner-set 2026-09-02 on closing the cardio-renal/endocrine cohort as LEGACY-B37). Previously 50 (owner-set 2026-09-02 on closing the 11 non-beta-lactam antibacterials as LEGACY-B35; the separate DRUG-RECORD total is 281 because beclomethasone was split out of `inhaled_steroids`). Previously 61 (owner-set 2026-09-02 on closing the 12-record remaining-beta-lactam cohort as LEGACY-B33). Previously 73 (owner-set 2026-09-02 on closing the seven-record ophthalmic
 cohort as LEGACY-B31; the separate DRUG-RECORD total is 280 because of the `oph_cai` split). Previously 80 (owner-set 2026-09-02, reduced 94 -> 89 -> 80 as LEGACY-B28 closed the
 five-record cohort and LEGACY-B29 closed the nine oncology `moderate/D` records).
 
