@@ -409,6 +409,54 @@ change, so it needs deciding as one piece of work.
 
 ### Legacy SECOND-LOOK list (comparator conflicts flagged during review, not yet resolved)
 
+## POST-LEGACY QA INVENTORY (reconciled 2026-09-02, exact counts from the data)
+
+**89 workstream slots · 78 unique records (27.8% of 281) · 11 records in exactly two workstreams,
+none in three or more** — verified by deduplicating on record id, with the overlap distribution
+checked ({1 workstream: 67 records, 2 workstreams: 11 records, 3+: none}) rather than inferred from
+`slots − overlaps`.
+
+| # | Workstream | n | Type | Can move grade/severity? |
+|---|---|---|---|---|
+| W1 | `31288397` citation audit | **10** | citation | unlikely |
+| W2 | UGT-tag consistency (isoform rule) | **29** | tag + mechanism | rarely |
+| W3 | CYP1A2 tagging audit | **26** | tag + structural/schema | **yes** |
+| W4 | Renal/material-UGT | **1** | mechanism | yes (1 record) |
+| W5 | BCRP tagging consistency | **8** | tag | no |
+| W6 | P-gp mechanism attribution | **15** | mechanism + citation | possibly |
+
+**W1 (10):** `ssri` `erythromycin` `metronidazole` `linezolid` `isoniazid` `sulfadiazine` `fluvoxamine`
+`hydroxyzine` `memantine` `methocarbamol`. *(Four already corrected and excluded: `nitrofurantoin`,
+`clindamycin`, `tinidazole`, `pyrazinamide`.)*
+
+**W4 narrowed from 14 candidates to ONE by screening**, applying the rule that renal elimination alone
+does not justify reopening a record: the pathway must be **material** and the **isoform identified and
+among those cannabinoids inhibit (UGT1A9, UGT2B4, UGT1A6, UGT2B7)**.
+- **Needs correction: `regorafenib`** — its label route is **UGT1A9**, CBD's most potent target
+  (IC50 0.12 µM), but the record says only "inhibits UGT enzymes in the laboratory".
+- **Already compliant, no work: `fenofibrate`** (identifies UGT2B7 as the primary route, 16-fold above
+  the next, and names UGT2B7 as the relevant overlap), **`mycophenolate`** (UGT1A9 principal, notes the
+  pathway is rate-limiting in practice), **`diclofenac`** (UGT2B7 named on both sides).
+- **Reclassified to W2** (glucuronidated, isoform *unidentified*): `moxifloxacin`,
+  `trifluridine-tipiracil`, `letrozole`, `bicalutamide`.
+- **Out** (negative UGT mentions, or an inducer rather than substrate question): `allopurinol`,
+  `antacids`, `azathioprine`, `potassium`, `dicloxacillin`, `oxacillin`.
+- **The 97 renally-cleared records with no glucuronidation step are NOT in scope and are not reopened.**
+
+**W5 vs W6 are different questions and must not be conflated.** W5 asks **which molecules to tag** on
+BCRP substrates (currently inconsistent: 2 records CBD+THC9, 4 CBD only, 2 none — while `33998860`
+found **THC the more potent ABCG2 inhibitor**, 0.20 µM vs 4.5 µM). W6 asks **what the mechanism
+sentence claims** — whether it says "CBD inhibits P-gp" (correct per `16439618`, where only CBD
+inhibited) or the over-read "cannabinoids inhibit P-gp", and whether the in-vitro and concentration
+qualifications are present. **`methotrexate`, `niraparib` and `topotecan` sit in both** and should be
+handled once.
+
+**42 unique records could plausibly move grade or severity** (W3 ∪ W4 ∪ W6); **36 are expected to be
+citation, mechanism-wording or tag work only.**
+
+**Recommended order:** W1 → W5+W6 together → W2 (absorbing W4) → W3 last (it carries the possible
+schema change). **W4 is functionally one record inside W2, so there are 5 substantive workstreams.**
+
 **⚠ OPEN — molecule-tag consistency: unnamed UGT isoform (raised 2026-09-02, LEGACY-B42).**
 `moxifloxacin`'s CBD tag was **removed** because the drug forms a glucuronide but its label does not
 identify **which UGT isoform** — and CBD's UGT inhibition is isoform-specific (strongest at UGT1A9,
