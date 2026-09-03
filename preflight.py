@@ -810,6 +810,70 @@ def check_ddi_reachable(data):
              % (len(di), len(ddi)))
 
 
+def check_ddi_referenced_ids(data):
+    """DRUG-27: every id referenced by every pair must exist AND actually route.
+
+    Why this exists as a separate guard from check_ddi_reachable(). That one asks only whether a
+    pair *can* fire — `all(any(x in seen for x in g) for g in groups)`. One valid member per group
+    satisfies it, so a stale id sitting beside seven good ones is invisible. That is exactly how
+    `rasagiline_serotonergic` shipped listing `snris` when the record id is `snri`: the pair fired
+    for SSRIs and fluvoxamine, the guard passed, and `rasagiline` + an SNRI silently matched
+    nothing — on a major/A pair whose own label reads "contraindicated". Found 2026-09-03 by a
+    per-id sweep during the W2 closeout, not by preflight.
+
+    Checks, per pair:
+      * every id in `drugs` and in every `groups` sub-array resolves to a DI_DATA record;
+      * `drugs` and the flat union of `groups` agree — drift between the two means an id was added
+        to one and not the other, and the matcher only reads `groups`;
+      * every group member genuinely routes: choosing that member plus one member from each other
+        group fires the pair under the matcher's own rule.
+    """
+    di, ddi = data.get('DI_DATA') or [], data.get('DDI_DATA') or []
+    if not di or not ddi:
+        fail('ddi referenced ids', 'DI_DATA / DDI_DATA did not evaluate')
+        return
+    ids = {e.get('id') for e in di}
+    bad_refs, drift, unrouted, n_refs = [], [], [], 0
+    for pair in ddi:
+        pid = pair.get('id')
+        groups = [g for g in (pair.get('groups') or []) if g]
+        drugs = pair.get('drugs') or []
+        flat = [x for g in groups for x in g]
+        for x in drugs + flat:
+            n_refs += 1
+            if x not in ids:
+                bad_refs.append('%s -> %r' % (pid, x))
+        if groups:
+            if set(drugs) != set(flat):
+                only_d = sorted(set(drugs) - set(flat))
+                only_g = sorted(set(flat) - set(drugs))
+                drift.append('%s (drugs-only: %s | groups-only: %s)'
+                             % (pid, ', '.join(only_d) or 'none', ', '.join(only_g) or 'none'))
+            # the matcher fires when every group has at least one selected member
+            for gi, g in enumerate(groups):
+                for member in g:
+                    if member not in ids:
+                        continue
+                    picked = {member}
+                    for gj, other in enumerate(groups):
+                        if gj == gi:
+                            continue
+                        live = [y for y in other if y in ids]
+                        if live:
+                            picked.add(live[0])
+                    if not all(any(y in picked for y in gg) for gg in groups):
+                        unrouted.append('%s via %s' % (pid, member))
+    for b in sorted(set(bad_refs)):
+        fail('ddi referenced ids', 'pair references a non-existent drug record: %s' % b)
+    for d in drift:
+        fail('ddi referenced ids', '`drugs` and `groups` disagree: %s' % d)
+    for u in sorted(set(unrouted)):
+        fail('ddi referenced ids', 'group member cannot route to its pair: %s' % u)
+    if not bad_refs and not drift and not unrouted:
+        note('ddi referenced ids: %d references across %d pairs all resolve to a drug record, '
+             '`drugs` matches `groups`, and every member routes' % (n_refs, len(ddi)))
+
+
 def check_backlog():
     """The backlog is the plan — duplicate IDs make a row unfindable. Two pairs shipped."""
     path = os.path.join(HERE, 'Project_Backlog.xlsx')
@@ -1037,6 +1101,7 @@ def main():
     check_pubmed_links(src, data)
     check_pmids(src, online)
     check_ddi_reachable(data)
+    check_ddi_referenced_ids(data)
     check_record_schema(data)
     check_hasrisk_invariant(data)
     check_evidence_attribution(data)
