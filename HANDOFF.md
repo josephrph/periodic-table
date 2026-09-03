@@ -409,6 +409,23 @@ change, so it needs deciding as one piece of work.
 
 ### Legacy SECOND-LOOK list (comparator conflicts flagged during review, not yet resolved)
 
+**⚠ OPEN — molecule-tag consistency: unnamed UGT isoform (raised 2026-09-02, LEGACY-B42).**
+`moxifloxacin`'s CBD tag was **removed** because the drug forms a glucuronide but its label does not
+identify **which UGT isoform** — and CBD's UGT inhibition is isoform-specific (strongest at UGT1A9,
+IC50 0.12 µM, and UGT2B7). Treating "the drug is glucuronidated" as sufficient would tag a large part of
+the database. **`anastrozole` retains its CBD tag on the same unnamed-isoform reasoning** (owner-approved
+in B41). The two are inconsistent. Flagged for a later molecule-tag audit; **`anastrozole` was not
+reopened in B42**.
+
+**⚠ OPEN — `31288397` citation audit, remaining records (raised 2026-09-02, LEGACY-B42).** The review
+(*J Clin Med* 2019) reviews the prescribing information for **approved CBD products** and discusses **no
+individual non-cannabis drug**. It was removed from 10 antibacterial records in B42 where it was
+supporting drug-specific disposition claims. It remains on **13 other records**: `clindamycin`,
+`erythromycin`, `fluvoxamine`, `hydroxyzine`, `isoniazid`, `linezolid`, `memantine`, `methocarbamol`,
+`metronidazole`, `nitrofurantoin`, `pyrazinamide`, `ssri`, `sulfadiazine`, `tinidazole`. Of these,
+`nitrofurantoin`, `clindamycin`, `tinidazole` and `pyrazinamide` were already corrected to cite it only
+for a general CBD statement. **The other nine have not been checked.**
+
 **RESOLVED 2026-09-02 (LEGACY-B39) — `caffeine` promoted B → A.** Its second citation turned out to be
 stronger than omeprazole's: `33951339` is a **dedicated Phase 1 open-label fixed-sequence PK
 drug-interaction trial** of Epidiolex at 750 mg twice daily to steady state, finding caffeine AUC **+95%**
@@ -513,7 +530,7 @@ OAT1 (SLC22A6) only modestly at high concentrations. Those are the renal anion t
 beta-lactams, so the β-lactam cohort's "no meaningful interaction" claim can be **evidenced** rather than
 merely asserted from the absence of a CYP route.
 
-**Official legacy working count: 20** (owner-set 2026-09-02 on closing the oncology hormonal/targeted cohort as LEGACY-B41). Previously 30 (owner-set 2026-09-02 on closing the 10-record oncology cohort as LEGACY-B39). Previously 40 (owner-set 2026-09-02 on closing the cardio-renal/endocrine cohort as LEGACY-B37). Previously 50 (owner-set 2026-09-02 on closing the 11 non-beta-lactam antibacterials as LEGACY-B35; the separate DRUG-RECORD total is 281 because beclomethasone was split out of `inhaled_steroids`). Previously 61 (owner-set 2026-09-02 on closing the 12-record remaining-beta-lactam cohort as LEGACY-B33). Previously 73 (owner-set 2026-09-02 on closing the seven-record ophthalmic
+**Official legacy working count: 9** (owner-set 2026-09-02 on closing the 11 antibacterials as LEGACY-B42). Previously 20 (owner-set 2026-09-02 on closing the oncology hormonal/targeted cohort as LEGACY-B41). Previously 30 (owner-set 2026-09-02 on closing the 10-record oncology cohort as LEGACY-B39). Previously 40 (owner-set 2026-09-02 on closing the cardio-renal/endocrine cohort as LEGACY-B37). Previously 50 (owner-set 2026-09-02 on closing the 11 non-beta-lactam antibacterials as LEGACY-B35; the separate DRUG-RECORD total is 281 because beclomethasone was split out of `inhaled_steroids`). Previously 61 (owner-set 2026-09-02 on closing the 12-record remaining-beta-lactam cohort as LEGACY-B33). Previously 73 (owner-set 2026-09-02 on closing the seven-record ophthalmic
 cohort as LEGACY-B31; the separate DRUG-RECORD total is 280 because of the `oph_cai` split). Previously 80 (owner-set 2026-09-02, reduced 94 -> 89 -> 80 as LEGACY-B28 closed the
 five-record cohort and LEGACY-B29 closed the nine oncology `moderate/D` records).
 
