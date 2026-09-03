@@ -411,6 +411,21 @@ change, so it needs deciding as one piece of work.
 
 ## POST-LEGACY QA INVENTORY (reconciled 2026-09-02, exact counts from the data)
 
+**W1 CLOSED 2026-09-02.** All 10 records corrected; no grade, severity or molecule-tag change.
+`31288397` now appears on **8 records**, each citing it only for something it genuinely supports:
+CBD's own adverse-effect profile (`hydroxyzine` and `methocarbamol` — sedation; `isoniazid` —
+transaminase elevations) or the general CBD enzyme picture (`erythromycin`), plus the four corrected
+earlier (`clindamycin`, `nitrofurantoin`, `tinidazole`, `pyrazinamide`).
+**Remaining unique QA records: 78 → 72.** The six cleared entirely are `erythromycin`,
+`metronidazole`, `linezolid`, `sulfadiazine`, `hydroxyzine`, `methocarbamol`; `ssri`, `isoniazid`,
+`fluvoxamine` and `memantine` remain in the pool because they also sit in W3.
+
+**⚠ LOGGED FOR A LATER TARGETED SEVERITY-CONSISTENCY CHECK (raised during W1, deliberately not acted
+on):** `metronidazole` (moderate/D) and `sulfadiazine` (moderate/D) both describe an effect their own
+text calls possibly negligible — *"The size of any such effect is unknown and may well be
+negligible"* — while carrying a moderate rating. The citation correction does not change that
+rationale either way, so severity was left untouched. Both read like minor records.
+
 **89 workstream slots · 78 unique records (27.8% of 281) · 11 records in exactly two workstreams,
 none in three or more** — verified by deduplicating on record id, with the overlap distribution
 checked ({1 workstream: 67 records, 2 workstreams: 11 records, 3+: none}) rather than inferred from
@@ -418,7 +433,7 @@ checked ({1 workstream: 67 records, 2 workstreams: 11 records, 3+: none}) rather
 
 | # | Workstream | n | Type | Can move grade/severity? |
 |---|---|---|---|---|
-| W1 | `31288397` citation audit | **10** | citation | unlikely |
+| ~~W1~~ | ~~`31288397` citation audit~~ | ~~10~~ | **CLOSED (W1, 2026-09-02)** | no change made |
 | W2 | UGT-tag consistency (isoform rule) | **29** | tag + mechanism | rarely |
 | W3 | CYP1A2 tagging audit | **26** | tag + structural/schema | **yes** |
 | W4 | Renal/material-UGT | **1** | mechanism | yes (1 record) |
