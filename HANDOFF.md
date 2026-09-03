@@ -493,6 +493,72 @@ scans cannot see a rebuttal; read the surrounding field before acting on a hit.
 **Remaining unique QA records: 54 → 26**, all W3. `deucravacitinib` was the single W2∩W3 record and
 stays in the pool for its CYP1A2 question, which W2 deliberately did not touch.
 
+**W3 CLOSED 2026-09-03 — and with it the systematic scientific QA programme. Remaining pool: 26 → 0.**
+
+**The rule applied:** cannabis smoking is not Δ9-THC. For CYP1A2 the evidence is asymmetric and that asymmetry
+decides every record: **CBD has molecule-level human evidence** (`37313955`, +39% probe AUC, isolated
+CBD-dominant extract) while **Δ9-THC has none** — the only THC-adjacent CYP1A2 evidence is combustion, whose
+active agents are the polycyclic aromatic hydrocarbons in any smoke. **`caffeine` already had this right**
+(grade A, CBD only, and its text says "V2 does not attribute it to THC"); W3 brought the other 26 into line.
+
+**Tags: 9 records, 1 added, 10 removed, net −9 (346 → 337).** THC9 138→132, CBN 16→13, CBD 192 unchanged.
+- **6 THC9 removed as smoke proxies:** `theophylline` `ropinirole` `riluzole` `erlotinib` `deucravacitinib`
+  `bupropion`. Every one already attributed the induction to combustion *in prose* — the tag contradicted the text.
+- **3 CBN removed** (`melatonin`, `cyclobenzaprine`, `tizanidine`) under the **B43 standard**: CBN's sedative
+  reputation is not supported by human evidence (`34468204`; `41698831` primary endpoint negative). Applied
+  consistently with `cetirizine`.
+- **1 CBD added** (`melatonin`) — cleared predominantly by CYP1A2, so CBD was the one molecule with real
+  evidence and the one that was missing. **1 CBD removed** (`bupropion`).
+
+**14 THC9 tags RETAINED** on independent, stated, molecule-specific pharmacodynamic grounds — orthostatic
+hypotension, tachycardia/arrhythmia, CB1 sedation, pro-psychotic effect, 5-HT1A activity, or victim-direction
+clearance: `antipsychotics` `chlorpromazine` `flecainide` `propafenone` `fluvoxamine` `mirtazapine`
+`ondansetron` `rasagiline` `snri` `pramipexole` `memantine` `melatonin` `cyclobenzaprine` `triptans`
+(+`ssri`, `isoniazid`, `cimetidine` where CYP1A2 is not the basis). **W3 is not a mass deletion** — the
+distinction is mechanism, not route.
+
+**⚠ Route does not decide attribution — mechanism does.** `6283454` (inhaled Δ9-THC → orthostatic hypotension
+via peripheral venodilation, plasma THC measured during the episodes) is a **smoked** exposure that
+nevertheless supports a **molecule** tag, because the mechanism is vascular and was measured against plasma
+THC. CYP1A2 induction from the same smoked exposure supports **no** molecule tag, because its agents are
+combustion products. Do not simplify this to "smoked ⇒ no tag".
+
+**Decisions held as owner-directed:** `tizanidine` **moderate/D retained** — high CYP1A2 dependence plus a
+label contraindication for ciprofloxacin/fluvoxamine does **not** establish that CBD produces comparable
+inhibition or a comparable exposure rise; that contraindication is not transferred to CBD quantitatively.
+Its THC9 was retained only after the orthostatic-hypotension rationale was made explicit and cited.
+`bupropion` **moderate/D retained** — reassessed on the route-specific consequence itself (a smoking-cessation
+prescription undermined by continued cannabis smoking, which also keeps CYP1A2 induced), *not* lowered merely
+because its tags disappeared. **No grade changes anywhere in W3.**
+
+**`cimetidine` — two defects fixed.** Its `pmid` was **empty** while it named four specific isoforms; no source
+supports that precision, so the isoform list was **removed** and the claim narrowed to what is published
+(`1352227` non-selective P450 inhibitor; `1524698` P450 inhibition as the mechanism of its interactions;
+`3288213` CYP1A2-mediated theophylline demethylation), with `source:'label'` added. Separately it carried
+CBD+THC9 with **no THC-specific sentence anywhere** — the victim direction (cimetidine → cannabinoid) is now
+stated explicitly.
+
+**Verified at closure:** 0 THC9 tags lack an independent non-combustion rationale across the 20 CYP1A2 records
+that carry one; 29 cannabis-side CYP1A2 induction claims, 0 failing to name combustion.
+
+## ⚠ NEW POST-W3 WORKSTREAM — route/exposure indicator (Option C, approved in principle 2026-09-03, NOT started)
+
+**The gap.** `mols` can say "this molecule is implicated"; it cannot say "the combustion route is implicated".
+After W3 two records have a documented cannabis interaction with no molecule to carry it:
+- **`theophylline`** — the database's **strongest** cannabis-specific CYP1A2 evidence (grade B, human,
+  clearance measured in chronic marihuana smokers) is now represented by a **CBD tag pointing the opposite
+  direction**. A smoker gets tag-level guidance that inverts their actual risk. The text carries it; the tags cannot.
+- **`bupropion`** — combustion is the *entire* cannabis story, so it now carries **no tags**, and molecule
+  highlighting surfaces nothing for the population most affected.
+
+~14 of the 26 W3 records carry a combustion strand, so the indicator would be broadly used, not a two-record patch.
+
+**Assess BEFORE implementing (owner-directed):** record schema · molecule highlighting
+(`applyDrugHighlighting`, worst-severity tile colouring) · Drug Interactions UI (the "Interacts with:" row and
+the B31 "none identified" guard) · Guided Match / recommendation behaviour if applicable · print/report output
+(`printDrugReport`, molecule-panel printouts) · mobile · preflight/regression (`di_required` schema tuple,
+derived counts, the new DRUG-27 guard).
+
 **89 workstream slots · 78 unique records (27.8% of 281) · 11 records in exactly two workstreams,
 none in three or more** — verified by deduplicating on record id, with the overlap distribution
 checked ({1 workstream: 67 records, 2 workstreams: 11 records, 3+: none}) rather than inferred from
@@ -502,7 +568,7 @@ checked ({1 workstream: 67 records, 2 workstreams: 11 records, 3+: none}) rather
 |---|---|---|---|---|
 | ~~W1~~ | ~~`31288397` citation audit~~ | ~~10~~ | **CLOSED (W1, 2026-09-02)** | no change made |
 | ~~W2~~ | ~~UGT-tag consistency (isoform rule)~~ | ~~29~~ | **CLOSED (W2, 2026-09-03)** | bismuth mod→minor |
-| W3 | CYP1A2 tagging audit | **26** | tag + structural/schema | **yes** |
+| ~~W3~~ | ~~CYP1A2 tagging audit~~ | ~~26~~ | **CLOSED (W3, 2026-09-03)** | no change |
 | ~~W4~~ | ~~Renal/material-UGT~~ | ~~1~~ | **CLOSED inside W2** (`regorafenib`) | no change |
 | ~~W5~~ | ~~BCRP tagging consistency~~ | ~~8~~ | **CLOSED (2026-09-02)** | no change |
 | ~~W6~~ | ~~P-gp mechanism attribution~~ | ~~15~~ | **CLOSED (2026-09-02)** | no change |
