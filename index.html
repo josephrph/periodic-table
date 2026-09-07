@@ -11991,12 +11991,30 @@ document.addEventListener('keydown', function(e) {
   // product-form (type) values. Empty array = no filter ('any', or transdermal which the sample stock lacks).
   var ROUTE_META={
     any:{ic:'🌀',label:'Any route',forms:'all formats'},
-    inhalation:{ic:'💨',label:'Inhalation',forms:'flower, vape, concentrate'},
+    inhalation:{ic:'💨',label:'Inhalation',forms:'flower, vape, concentrate'},   // legacy alias
+    inhalation_vapor:{ic:'💨',label:'Inhalation — vaporised',forms:'vape, vaporised flower, concentrate'},
+    inhalation_smoked:{ic:'🔥',label:'Inhalation — smoked',forms:'flower or pre-roll, lit'},
     oral:{ic:'💊',label:'Oral',forms:'edible, capsule, tablet, beverage'},
     sublingual:{ic:'💧',label:'Sublingual',forms:'tinctures / drops'},
     topical:{ic:'🧴',label:'Topical',forms:'balm, cream, lotion'},
     transdermal:{ic:'🩹',label:'Transdermal patch',forms:'patch'}};
-  var ROUTE_MAP={any:[],inhalation:['flower','vape','concentrate'],oral:['edible','capsule','tablet','beverage'],sublingual:['tincture'],topical:['topical'],transdermal:['patch','transdermal']};
+  // ROUTE-02 (Phase 2a): smoked and vaporised inhalation are DIFFERENT EXPOSURES and must not be one
+// option. The drug records say so fourteen times over — combustion-derived polycyclic aromatic
+// hydrocarbons induce CYP1A2, and "a vaporiser heats without combusting" — while this map used to
+// answer `inhalation` with one undifferentiated list, so the app contradicted its own science.
+//
+// Note what is NOT done here: exposure is never inferred from the product type. `flower` appears
+// under BOTH inhalation routes because a flower can be smoked or vaporised, and `concentrate`
+// appears under both because a dab and a cartridge are not the same act. The user's stated method
+// decides, which is why scRoute() asks. Only `vape` is route-exclusive, being non-combustible.
+// `inhalation` is retained as a legacy alias so any persisted session still resolves.
+var ROUTE_MAP={
+  any:[],
+  inhalation:['flower','vape','concentrate'],                 // legacy alias — do not remove
+  inhalation_vapor:['vape','flower','concentrate'],
+  inhalation_smoked:['flower','concentrate'],
+  oral:['edible','capsule','tablet','beverage'],
+  sublingual:['tincture'],topical:['topical'],transdermal:['patch','transdermal']};
   var st={}, hist=[];
   var lastImport=null, browseSort={key:'name',dir:1}, browseQ='';  // INV-02 import/browse state
   function G(){return window.V4Guided;}
@@ -12204,9 +12222,10 @@ document.addEventListener('keydown', function(e) {
     optBtn("V4GX.onset('balanced')",'⚖️','A balance','Moderate onset &amp; duration',o==='balanced',true)+
     optBtn("V4GX.onset('lasting')",'⏳','Slow &amp; long-lasting','Hours of relief (edible / capsule / tablet / patch)',o==='lasting',true));}
   function scRoute(){var r=st.route||'any';
-    stage('<h2 class="gx-q">Any preferred way to take it?</h2><p class="gx-hint">This helps match the right product formats. Pick one — or keep all options open.</p>'+
+    stage('<h2 class="gx-q">Any preferred way to take it?</h2><p class="gx-hint">This helps match the right product formats. Pick one &mdash; or keep all options open. <b>Smoked and vaporised are listed separately because they are different exposures, not different words for the same thing.</b> The same flower can be either, so this asks how you would use it rather than assuming from the product.</p>'+
     optBtn("V4GX.route('any')",'🌀','Any route','Show me everything',r==='any',true)+
-    optBtn("V4GX.route('inhalation')",'💨','Inhalation','Flower, vape, concentrate',r==='inhalation',true)+
+    optBtn("V4GX.route('inhalation_vapor')",'💨','Inhalation &mdash; vaporised','Vape, vaporised flower, concentrate',r==='inhalation_vapor'||r==='inhalation',true)+
+    optBtn("V4GX.route('inhalation_smoked')",'🔥','Inhalation &mdash; smoked','Flower or pre-roll, lit',r==='inhalation_smoked',true)+
     optBtn("V4GX.route('oral')",'💊','Oral','Edible, capsule, tablet, beverage',r==='oral',true)+
     optBtn("V4GX.route('sublingual')",'💧','Sublingual','Tincture / drops under the tongue',r==='sublingual',true)+
     optBtn("V4GX.route('topical')",'🧴','Topical','Balm, cream, lotion',r==='topical',true)+
@@ -12781,7 +12800,8 @@ document.addEventListener('keydown', function(e) {
     var hasCann=rec.molecules.some(function(m){return !G().terps[m.molId];});var hasTerp=rec.molecules.some(function(m){return G().terps[m.molId];});
     var catBtns=(hasCann?'<button class="gx-catbtn" onclick="V4GX.djToggleCat(\'cann\')">Cannabinoids</button>':'')+(hasTerp?'<button class="gx-catbtn" onclick="V4GX.djToggleCat(\'terp\')">Terpenes</button>':'');
     var curRoute=st.route||'any';
-    var routeBtns=['any','inhalation','oral','sublingual','topical','transdermal'].map(function(k){var on=curRoute===k;
+    var routeBtns=['any','inhalation_vapor','inhalation_smoked','oral','sublingual','topical','transdermal']
+      .concat(curRoute==='inhalation'?['inhalation']:[]).map(function(k){var on=curRoute===k;
       return '<button class="gx-catbtn" style="'+(on?'border-color:var(--accent);color:var(--accent);font-weight:700':'')+'" onclick="V4GX.djSetRoute(\''+k+'\')">'+ROUTE_META[k].ic+' '+ROUTE_META[k].label+'</button>';}).join('');
     var res=G().match(active);var n=res.shown.length;
     var rfNote=res.routeFallback?'<div class="gx-hint" style="margin-top:6px">No '+ROUTE_META[curRoute].label.toLowerCase()+' products are in stock — showing the closest alternatives.</div>':'';
