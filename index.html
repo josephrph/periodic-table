@@ -12178,8 +12178,12 @@ var ROUTE_MAP={
     var hint=(st.intent==='appetite'||st.intent==='cancer')
       ? 'For appetite and nausea, &Delta;9-THC is often the molecule with the most evidence behind it — this is your preference, not a recommendation.'
       : 'This is your preference. It changes which molecules V2 lists and how products are ranked — it is not a dose, a potency target or a tolerance level.';
-    stage((st.dj?djStepBar(2):'')+'<h2 class="gx-q">How would you like V2 to account for THC&rsquo;s psychoactive effects?</h2><p class="gx-hint">'+hint+'</p>'+
-    optBtn("V4GX.thc('none')",'🚫','I&rsquo;d prefer to avoid noticeable THC effects','V2 leaves &Delta;9-THC out of the molecule list and strongly limits THC-dominant product matches',st.ceiling==='none',true)+
+    // GX-THC2: many users will not know what THC is. Define it once, plainly, before asking the
+    // question — neutral about whether the effects are wanted, and worded so it cannot be read as
+    // describing alcohol or another drug.
+    var thcDef='<p class="gx-hint"><strong>THC (&Delta;9-THC)</strong> is the main cannabis compound associated with feeling high and other psychoactive effects &mdash; which can include altered perception, relaxation, or impairment.</p>';
+    stage((st.dj?djStepBar(2):'')+'<h2 class="gx-q">How would you like V2 to account for THC&rsquo;s psychoactive effects?</h2>'+thcDef+'<p class="gx-hint">'+hint+'</p>'+
+    optBtn("V4GX.thc('none')",'🚫','I&rsquo;d prefer to avoid THC effects','V2 leaves &Delta;9-THC out of the molecule list and strongly limits THC-dominant product matches',st.ceiling==='none',true)+
     optBtn("V4GX.thc('low')",'🌤️','I&rsquo;m comfortable with some THC effects','&Delta;9-THC stays eligible where the science supports it; lower-THC products rank higher',st.ceiling==='low',true)+
     optBtn("V4GX.thc('any')",'🙂','THC effects are not a deciding factor','&Delta;9-THC stays eligible where the science supports it; product ranking is not adjusted for THC',st.ceiling==='any',true));}
   function scSecond(){
@@ -12977,7 +12981,7 @@ var ROUTE_MAP={
         'supporting the association between the molecule and the selected health topic. '+
         'It is not a dose, a potency, or a product recommendation.</div></div>';
       var prefBits=[];
-      var ceilMap={none:'Prefer to avoid noticeable THC effects',low:'Comfortable with some THC effects',any:'THC effects not a deciding factor'};
+      var ceilMap={none:'Prefer to avoid THC effects',low:'Comfortable with some THC effects',any:'THC effects not a deciding factor'};
       if(st.ceiling&&ceilMap[st.ceiling])prefBits.push('THC preference — '+ceilMap[st.ceiling]);
       if(st.experience)prefBits.push('Experience — '+({'new':'New to cannabis',some:'Some experience',exp:'Experienced'}[st.experience]||st.experience));
       if(st.timeOfDay)prefBits.push('Time of day — '+({day:'Daytime',evening:'Evening',any:'Anytime'}[st.timeOfDay]||st.timeOfDay));
