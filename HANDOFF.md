@@ -577,6 +577,16 @@ stated explicitly.
 **Verified at closure:** 0 THC9 tags lack an independent non-combustion rationale across the 20 CYP1A2 records
 that carry one; 29 cannabis-side CYP1A2 induction claims, 0 failing to name combustion.
 
+## ⚠ FUTURE ASSESSMENT — possible split of the `antipsychotics` record (logged 2026-09-03, NOT started)
+
+`antipsychotics` is a class record covering clozapine, olanzapine, risperidone, quetiapine, aripiprazole and
+others, but its **major** severity rests on a mechanism only **clozapine and olanzapine** have: CYP1A2
+clearance, and therefore vulnerability to combustion-driven de-induction. The record scopes this in text and
+the class caveat is explicit, following the `snri` precedent of scoping rather than splitting. A cleaner
+long-term structure would be a dedicated clozapine/olanzapine record carrying the CYP1A2 strand at major,
+leaving a class record at whatever the shared pharmacodynamic overlap supports. **Owner decision 2026-09-03:
+do not split now.** Assess only if the scoping proves insufficient in use.
+
 ## ⚠ FUTURE ASSESSMENT — molecule → enzyme structured evidence architecture (logged 2026-09-03, NOT started)
 
 **The gap.** V2 has **no structured representation of molecule → enzyme → direction anywhere.** Verified by
