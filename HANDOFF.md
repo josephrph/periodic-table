@@ -577,6 +577,38 @@ stated explicitly.
 **Verified at closure:** 0 THC9 tags lack an independent non-combustion rationale across the 20 CYP1A2 records
 that carry one; 29 cannabis-side CYP1A2 induction claims, 0 failing to name combustion.
 
+## ⚠ FUTURE ASSESSMENT — molecule → enzyme structured evidence architecture (logged 2026-09-03, NOT started)
+
+**The gap.** V2 has **no structured representation of molecule → enzyme → direction anywhere.** Verified by
+enumerating every top-level constant (~140) and inspecting the molecule schema: `M[]` carries
+`receptors:['TRP','5HT','PPAR']` — a molecule→target map — but **no enzyme equivalent**, and `M.CBD`
+contains no CYP or UGT reference at all. Every enzyme relationship in the database lives **only in
+`DI_DATA[].mech` prose**, which is not a safe thing to derive behaviour from.
+
+**Why it was NOT built during ROUTE-01 Phase 2b (owner decision).** Phase 2b needed exactly one
+relationship — CBD → CYP1A2 → inhibition (PMID 37313955). Introducing a schema for one UI feature
+would either create a second mechanism store that can drift from the drug records, or expand a
+display-only notice into a database-wide scientific schema project. Neither is acceptable
+incrementally.
+
+**What the future assessment must cover — comprehensively, not one target at a time:**
+- CYP isoforms (1A2, 2C9, 2C19, 2D6, 3A4, 2B6, 2C8 …), UGT isoforms (1A1, 1A3, 1A4, 1A6, 1A9, 2B4,
+  2B7, 2B10, 2B15, 2B17), and transporters (P-gp, BCRP, OATP, OAT) — the three families W2, W3 and
+  W5/W6 have already adjudicated.
+- Direction (inhibition / induction / substrate), potency where measured, and the evidence basis —
+  reusing the `basis` vocabulary already proven in `routes` (cannabis-measured / cannabis-confounded
+  / tobacco-measured / mechanism-review).
+- Whether it belongs on `M[]` beside `receptors` (single source of truth, molecule-schema change,
+  wider blast radius) or in a dedicated governed table.
+- Migration: the facts already exist in prose across ~90 records. Extracting them is a scientific
+  review task, **not** a parsing task, and must not be automated from text.
+- Impact: `M` schema, preflight molecule validation, molecule detail panel, print, and every
+  consumer of `mols`.
+
+**Precedent to preserve:** whatever is built must not be readable by `applyDrugHighlighting`,
+`getMolDrugInteractions` or `buildCannabisHitsByMol` without a separate decision — the molecule and
+route axes were deliberately separated in ROUTE-01 and that separation is guarded.
+
 ## ⚠ NEW POST-W3 WORKSTREAM — route/exposure indicator (Option C, approved in principle 2026-09-03, NOT started)
 
 **The gap.** `mols` can say "this molecule is implicated"; it cannot say "the combustion route is implicated".
