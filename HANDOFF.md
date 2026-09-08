@@ -5,6 +5,43 @@ _**Pre-release audit COMPLETE: waves 2–6 ALL SHIPPED. Wave 1 (the release bloc
 
 ---
 
+## 0a. COVID-19 / SARS-CoV-2 CORRECTION — CLOSED 2026-09-08 (`26397bf` + `83b425f`)
+
+Owner decision: **do not** add COVID-19 as a Health Condition and **do not** add PMID `33221759`
+as CBD evidence. The approved correction was limited to fixing what the build already asserted.
+
+**Shipped.** `Anti-Covid-19` removed as an indication from **CBDA** and **CBLA** (CBLA now has
+`indications:[]`); descriptions on **CBDA / CBGA / CBLA / CBL** rewritten to state the actual
+assay, the actual target and the actual limits; **CBLA's target corrected** — the record named the
+spike protein, but `35566148` docked against PLpro, MPro and ACE2 and ranked CBLA for **PLpro**;
+a negative-RCT entry (`34619044`) added to `ADVERSE_FINDINGS.CBD`. Grades unchanged (C/B/D/D).
+`38904961` was deliberately **not** attached to any molecule.
+
+**Three process points worth keeping:**
+
+1. **`finding` is an enum, not prose.** Across all 657 citations it is only ever `'neg'` or empty,
+   and its sole consumer is `c.finding === 'neg'`. Explanatory text belongs in `note`. Empty
+   `finding` is how V2 encodes a non-negative result.
+
+2. **`PUBMED_EMPTY.pairs` is derived, not decorative.** `check_pubmed_links` recomputes it as
+   `sum(len(m.indications))`, so removing two indications broke the guard (383 → 381). The guard
+   was reconciled only after confirming by diff against `HEAD~1` that **exactly** CBDA and CBLA
+   accounted for the delta. Never adjust that number to make the guard pass.
+
+3. **The prerendered tile grid is a stale first-paint snapshot.** `buildGrid()` wipes
+   `#ptGrid` and rebuilds every tile from `M` at load, and **nothing reads
+   `dataset.indications`** — search goes through `M` directly. So the static markup is dead
+   text, but it is still *shipped* text: it kept asserting `anti-covid-19` for a full commit
+   after the data was corrected (fixed in `83b425f`). **The snapshot is broadly out of sync
+   with `M` for many other molecules** (THC9, THC8, CBG, CBD, CBN all differ — missing migraine,
+   glaucoma, endometriosis and others). That is pre-existing and was left alone; a future
+   decision is whether to regenerate or delete it.
+
+**Observation logged, not actioned:** CBGA and CBL both still carry a generic **`Antiviral`**
+indication chip. It is not COVID-specific and was outside the approved scope.
+
+---
+
 ## 0b. CONVENTION — CITE SYMBOLS, NOT LINE NUMBERS (added 2026-08-29)
 
 `index.html` is one 13,700-line file that grows every session, so **every line number written into this
