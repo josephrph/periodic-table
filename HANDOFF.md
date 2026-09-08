@@ -577,6 +577,113 @@ stated explicitly.
 **Verified at closure:** 0 THC9 tags lack an independent non-combustion rationale across the 20 CYP1A2 records
 that carry one; 29 cannabis-side CYP1A2 induction claims, 0 failing to name combustion.
 
+## 🛠 MANDATORY PROCEDURE — editing a route-bearing record (ROUTE-03, 2026-09-03)
+
+**Applies to the 14 records carrying `routes`:** `theophylline` `antipsychotics` `caffeine` `ropinirole`
+`riluzole` `tizanidine` `chlorpromazine` `rasagiline` `erlotinib` `cyclobenzaprine` `melatonin`
+`deucravacitinib` `snri` `triptans`.
+
+**The hazard.** Since ROUTE-01 the `routes` array sits **before `sev`** in the record and carries its **own
+`pmid`, `ev` and `source`**. Any record-level edit that searches the record text for `"pmid"`, `"ev"` or
+`"source"` finds the **route entry's** field first:
+
+```
+{"id":"antipsychotics", … "mols":["THC9","CBD"],
+ "routes":[{ … "ev":"D","basis":"cannabis-confounded","pmid":"11981356, …" }],   ← naive search hits HERE
+ "sev":"major", "ev":"B", "pmid":"11981356, 27106177, …"}                        ← intended target
+```
+
+This nearly happened during the `antipsychotics` correction. The replacement PMIDs were themselves valid, so
+**every other guard would have passed** — citations resolve, counts hold, schema is intact. A mistyped
+backreference failed first, by luck rather than design.
+
+**The rule — mask the nested array before locating any record-level field:**
+
+```python
+def routes_range(seg):
+    m = re.search(r'["\']?routes["\']?\s*:\s*\[', seg)
+    if not m: return None
+    d = 1
+    for k in range(m.end(), len(seg)):
+        if seg[k] == '[': d += 1
+        elif seg[k] == ']':
+            d -= 1
+            if d == 0: return (m.start(), k+1)
+
+# in setf(): mask the span, search the MASKED text, splice into the ORIGINAL
+masked = seg[:rr[0]] + ('\x00' * (rr[1]-rr[0])) + seg[rr[1]:] if rr else seg
+```
+
+Then **assert afterwards that the route entry is byte-identical**, unless the route entry was the thing being
+edited. Note the correct backreference is `\2` (the quote group), not `\3`.
+
+**Two defences, both required:**
+1. **Procedure** — mask + post-edit assertion, as above.
+2. **Backstop** — `check_route_fingerprint` (ROUTE-03) in `preflight.py` pins all 14 entries by SHA-256.
+   Any change fails the build and prints the new value. A **deliberate** route edit costs one line
+   (update `ROUTE_FINGERPRINT`); an **accidental** one cannot ship. Mutation-tested against the exact
+   accident described above.
+
+**Verified 2026-09-03: no existing record is wrong.** All 14 route entries were checked field-by-field
+against the owner-approved table — zero drift. This is a latent tooling hazard, **not** a data defect, and
+no database-wide audit is warranted on account of it.
+
+## 📋 BACKLOG — ROUTE-01 Phase 2b: Guided Match informational route notice (APPROVED DESIGN, NOT IMPLEMENTED)
+
+Resume from the current baseline. Design approved 2026-09-03; implementation deferred by owner decision.
+
+**Prominence — severity × route evidence, no record-specific exceptions:**
+
+| Tier | Rule | Records |
+|---|---|---|
+| **1 Prominent** | major × B | `theophylline` |
+| **2 Standard** | major × D · moderate × B | `ropinirole` · `riluzole` · **`antipsychotics`** (Tier 2 since its 2026-09-03 severity correction) |
+| **3 Brief** | moderate × D · minor × any | the other 10, **including `caffeine`** — no exception |
+
+**Behaviour — display-only, downstream of every recommendation computation.** Tier 1/2 render an own
+`gx-note`; Tier 3 appends one line to the existing Medication check. Insertion point:
+`renderFpRecommendation`, after `medSummary`, before `prefRecap`; flows to the guided print summary.
+
+**Collapse/expand:** Tier 1 and 2 expanded by default, Tier 3 collapsed; all three collapsible and
+expandable by the user. **In-memory `st` only — never `localStorage` or `sessionStorage`**, so nothing
+survives a kiosk hand-off; restart/reset restores tier defaults. No permanent dismissal at any tier.
+
+**`theophylline` dual strand:** `routes[].showCounterStrand: true` — a **presentation instruction, not a
+mechanism**. `theophylline` only. Must not contain a molecule id, create or alter molecule attribution, or
+affect evidence, severity, recommendations, highlighting, filtering, ranking, route, `thcCeiling` or
+inventory. It only selects the approved dual-strand template. **Never inferred** from `mols`, `routes`, CBD
+presence, CYP1A2 or prose. Guard: the record must carry the governed scientific content and citations.
+
+Its three approved statements: cannabis smoking is **direct human pair evidence** for increased theophylline
+clearance; CBD inhibition is **CYP1A2 probe/mechanistic evidence, not a CBD–theophylline study**; the
+mechanisms act in opposite directions and **the combined effect has not been established and should not be
+assumed to cancel**. **Never "unpredictable"** as a demonstrated combined outcome.
+
+**Scoping language, all templates:** non-combusted products are not expected to produce *this specific
+combustion-mediated CYP1A2 induction* because nothing is burned — **and that is not a statement that they
+have no other interaction with the medication**. Banned: *safe*, *safer*, *no interaction*, *use instead*,
+*you should stop*, or any predicted level.
+
+**Class records:** conditional wording only — *"If the SNRI you take is duloxetine…"*, *"If the triptan you
+take is zolmitriptan…"*. Guided Match stores the class record, not the member, so **no member-specific
+behaviour**. Guard: a record with `appliesTo` must use the conditional template.
+
+**Personas** (`cust` / `emp` / `pro` already exist): Customer/Patient, Dispensary Employee, Knowledgeable
+Healthcare Professional — 9 templates plus the 4 `basis` clauses, not 14 paragraphs.
+
+**Hard boundary:** no molecule-recommendation, `thcCeiling`, route, ranking, filtering, suppression,
+exclusion or inventory effect. Medication data stays informational.
+
+**Safeguards:** notice output unreachable from `rec.molecules`/`thcCeiling`/`routeTypes`/`shown`/`excluded`/
+`st.route`; tier computed never stored; basis clause mandatory; conditional template mandatory where
+`appliesTo`; dual-strand template only where `showCounterStrand`; no banned words; no net/cancel/unpredictable
+claim; no notice state in browser storage; all Phase 1 + ROUTE-03 guards retained.
+
+**Regression:** preflight `--online`; 1,940-query sweep; all Phase 1 mutation tests plus one per new
+safeguard; tier assignment asserted for all 14; **byte-identical recommendation output with and without the
+notice**; never-zero-out; legacy `inhalation`; 104 DDI pairs + DRUG-27; mobile 375 px × 3 tiers; print
+× 3 tiers × 3 personas; back/restart/reset.
+
 ## ⚠ FUTURE ASSESSMENT — possible split of the `antipsychotics` record (logged 2026-09-03, NOT started)
 
 `antipsychotics` is a class record covering clozapine, olanzapine, risperidone, quetiapine, aripiprazole and

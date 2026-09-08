@@ -23,6 +23,7 @@ Every check here exists because the corresponding bug ACTUALLY SHIPPED at least 
 Add a check whenever a content or data bug gets past review. That is the whole point:
 this file is the project's memory of its own mistakes.
 """
+import hashlib
 import html.entities
 import json
 import os
@@ -1027,6 +1028,54 @@ def check_route_wording(data):
              'net or cancelling effect' % len(di))
 
 
+# ROUTE-03 tripwire. Update ONLY when a route entry is being changed deliberately; the failure
+# message prints the new value to paste in. See HANDOFF "Editing route-bearing records".
+ROUTE_FINGERPRINT = '60137541509fc426'
+
+
+def check_route_fingerprint(data):
+    """ROUTE-03: pin every route entry so an ACCIDENTAL change cannot pass silently.
+
+    Why this exists. Since ROUTE-01 the `routes` array sits BEFORE `sev` in a record and carries its
+    own `pmid`, `ev` and `source`. A record-level field edit that searches the record text for
+    `"pmid"` therefore finds the ROUTE's pmid first. During the antipsychotics correction that edit
+    was attempted and would have overwritten the route citation instead of the record citation —
+    silently, because the replacement PMIDs were themselves valid, so every other guard would have
+    passed. A mistyped backreference happened to fail first; nothing in the harness would have
+    caught it.
+
+    Two defences, and this is the second one. The first lives in the editing procedure (mask the
+    nested routes span, then assert it is byte-identical afterwards). This guard is the backstop:
+    it fingerprints all route entries so any change at all — intended or not — must be
+    acknowledged by updating the constant above. Deliberate route edits cost one line; accidental
+    ones fail the build.
+    """
+    di = data.get('DI_DATA') or []
+    if not di:
+        fail('route fingerprint', 'DI_DATA did not evaluate')
+        return
+    parts = []
+    for r in sorted(di, key=lambda x: str(x.get('id'))):
+        for x in (r.get('routes') or []):
+            parts.append('%s|%s|%s|%s|%s|%s|%s|%s' % (
+                r.get('id'), x.get('route'), x.get('target'), x.get('direction'),
+                x.get('ev'), x.get('basis'), x.get('pmid') or '', x.get('source') or '',
+            ) + '|' + ','.join(x.get('appliesTo') or []))
+    canon = '\n'.join(parts)
+    digest = hashlib.sha256(canon.encode('utf-8')).hexdigest()[:16]
+    if ROUTE_FINGERPRINT == '__PLACEHOLDER__':
+        note('route fingerprint: NOT YET PINNED — set ROUTE_FINGERPRINT to %r' % digest)
+        return
+    if digest != ROUTE_FINGERPRINT:
+        fail('route fingerprint',
+             'a route entry changed. If this was DELIBERATE, set ROUTE_FINGERPRINT = %r in '
+             'preflight.py. If it was NOT, a record-level edit has very likely written into '
+             '`routes` — check routes[].pmid / .ev / .source against HANDOFF before proceeding.'
+             % digest)
+        return
+    note('route fingerprint: %d route entries unchanged (%s)' % (len(parts), digest))
+
+
 def check_backlog():
     """The backlog is the plan — duplicate IDs make a row unfindable. Two pairs shipped."""
     path = os.path.join(HERE, 'Project_Backlog.xlsx')
@@ -1257,6 +1306,7 @@ def main():
     check_ddi_referenced_ids(data)
     check_routes(data, src)
     check_route_wording(data)
+    check_route_fingerprint(data)
     check_record_schema(data)
     check_hasrisk_invariant(data)
     check_evidence_attribution(data)
