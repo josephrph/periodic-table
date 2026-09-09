@@ -30,6 +30,46 @@ after** bedtime THC. A meta-analysis of 47 RCTs (`33952424`) puts orthostatic hy
 a treatment for the syndrome that symptom belongs to. Do not aggregate symptom conditions into a
 syndrome entry.
 
+**IMPLEMENTED 2026-09-09 — four POTS medication records (POTS itself still declined).**
+`ivabradine` (Corlanor, Procoralan) moderate/D `['CBD','THC9']` · `midodrine` (ProAmatine,
+Orvaten, Gutron) moderate/D `['THC9']` · `fludrocortisone` (Florinef) minor/D `['THC9']` ·
+`pyridostigmine` (Mestinon, Mestinon Timespan, Regonol) minor/D `mols:[]`. All Grade D — no
+cannabis-drug study exists for any of them. Plus a THC9 adverse finding for orthostatic
+hypotension, grade B, anchored on `6283454`. **None of these makes a cannabis claim for POTS**,
+and no Health Condition, category or molecule recommendation was added.
+
+### Two items deliberately parked here
+
+**1. Droxidopa — DEFERRED, and not on POTS grounds.** Reconsider it under **neurogenic
+orthostatic hypotension / Parkinsonian autonomic dysfunction**, which is where it actually
+belongs: 98 PubMed papers for nOH versus **4** for POTS. V2 already carries rasagiline,
+ropinirole and amantadine and already discusses orthostatic hypotension in all three, so
+droxidopa (Northera) fits that cluster. Pharmacology if it is picked up: norepinephrine prodrug
+via DOPA decarboxylase; the label states metabolism is *"mediated by catecholamine pathway and
+**not** through the cytochrome P450 system"* (COMT / DDC / DOPS aldolase) — so any record would
+be **purely pharmacodynamic**, the same opposition-to-a-pressor reasoning as `midodrine`.
+
+**2. PMID `33952424` — class-level safety evidence, deliberately NOT in the build.**
+Systematic review + meta-analysis of **47 RCTs / 2,800 patients** (*JAPhA* 2021): medical
+cannabinoids raised **orthostatic hypotension RR 3.16 (95% CI 2.27-4.40)** and hypotension
+RR 3.55 (1.45-8.71), with a non-significant tachycardia trend RR 1.94 (0.81-4.64). 45% of the
+trials excluded patients with cardiovascular disease, so this is likely a floor.
+
+**Why it is not in V2.** `ADVERSE_FINDINGS` is **molecule-keyed**, and this estimate is pooled
+across molecularly heterogeneous products — **nabilone is not Δ9-THC** (it is a synthetic
+cannabinol derivative) and **nabiximols contains CBD**. The paper reports no agent-level
+subgroup and the full text is paywalled with no PMC deposit, so agent attribution cannot be
+verified. Owner decision 2026-09-09: **do not force it into the molecule-keyed schema, not even
+as a footnote.** It is the strongest quantified evidence V2 has on this endpoint and it is worth
+keeping — **it needs a non-molecule-specific safety structure that does not exist yet.** That
+structure is the real backlog item; this PMID is its first tenant.
+
+*(Also assessed and rejected as the anchor: PMID `35056154`, dronabinol dizziness OR 4.60
+(2.39-8.83). Wrong endpoint — dizziness, not orthostatic BP — and V2 has a standing rule stated
+throughout the build that "dronabinol is a synthetic THC, not a molecule on this table".
+PMID `42665978` (tilt-table, next-morning blunting) was **excluded** because its study drug
+could not be verified as a plant-molecule exposure; it is not open access.)*
+
 **Left open (assessed 2026-09-09, not implemented):** the five POTS medications absent from V2
 (midodrine, fludrocortisone, ivabradine, pyridostigmine, droxidopa) and whether V2's cardiovascular
 adverse findings communicate orthostatic intolerance adequately. Note for whoever picks that up:
