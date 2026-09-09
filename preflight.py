@@ -357,7 +357,13 @@ def check_brand_lockups(src):
     Comments excluded — CLAUDE.md's own wording is quoted in a CSS comment.
     """
     src = strip_comments(src)
-    pat = re.compile(r'(?:The Periodic Table of (?:<em>)?Cannabis(?:</em>)? Plant Molecules)'
+    # NAMING 2026-09-09: the public lockup changed from "V2 · The Periodic Table of Cannabis
+    # Plant Molecules™" to "Acannability's Periodic Table of Cannabis Plant Molecules™".
+    # The old pattern required the leading "The", so after the rename it policed only 4 of the
+    # 18 lockups in the file and passed silently on the rest. Anchoring on "Periodic Table of
+    # Cannabis Plant Molecules" alone covers every article form — "The", "Acannability's",
+    # "Interactive", "Acannability™" — which is the string the mark actually attaches to.
+    pat = re.compile(r'(?:Periodic Table of (?:<em>)?Cannabis(?:</em>)? Plant Molecules)'
                      r'(&trade;|&#8482;|™)?')
     missing = 0
     for m in pat.finditer(src):

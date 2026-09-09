@@ -5,6 +5,50 @@ _**Pre-release audit COMPLETE: waves 2–6 ALL SHIPPED. Wave 1 (the release bloc
 
 ---
 
+## 00. PUBLIC NAMING CHANGE — "The Table" — SHIPPED 2026-09-09
+
+**Team decision. This supersedes the 2026-08-05 rule that made "V2" the public name.**
+
+| | |
+|---|---|
+| Official public name | **Acannability's Periodic Table of Cannabis Plant Molecules** |
+| Approved public short name | **The Table** |
+| Current internal version | **V2** (internal only; future versions V3, V4, …) |
+
+**What shipped.** All **379** user-facing occurrences of "V2" were rewritten; **0 remain**. The
+**74** that remain in the file are all in developer comments (70 JS, 2 CSS, 2 HTML) and are correct
+— they refer to the version. Identifiers (`V2TERMS`, `V2EV`, `V2EVID`, `V2FACTS`, `V2PLAIN`,
+`V2TableView`) and the 34 `data-v2fact` hooks were deliberately **not** renamed.
+
+This was a contextual copy edit, not a find-and-replace. Roughly 33 occurrences were rewritten
+rather than substituted: brand lockups, the version-history FAQ copy ("What is new in V2?" →
+"What does The Table include?"; "(new in V2)" dropped entirely, since an internal version number
+means nothing to a customer), "this free V2 service" → "this free service", and the print
+letterhead line.
+
+**Introductory surfaces establish both names**, per the decision: the welcome overlay and the
+entry gate read *Acannability's Periodic Table of Cannabis Plant Molecules ("The Table")*. Every
+other lockup carries the full name without the parenthetical; the grid logo and print letterhead
+show **The Table** with the full name beneath.
+
+### The one thing that would have broken silently
+
+`check_brand_lockups` in `preflight.py` anchored on **"The** Periodic Table of Cannabis Plant
+Molecules". The new lockup is "**Acannability's** Periodic Table of …", so after the rename the
+guard matched only **4 of 18** lockups and **passed silently on the other 14** — including every
+lockup the rename had just touched. The regex now anchors on `Periodic Table of Cannabis Plant
+Molecules` alone, covering every article form, and was **mutation-tested**: dropping a single
+`&trade;` makes it fail. **If a lockup's wording changes again, re-check this guard's regex first.**
+
+**Trademark unchanged:** every lockup still carries *Periodic Table of Cannabis Plant Molecules™*.
+**"The Table" carries no ™** and must not until separately authorised. Acannability branding and
+logo treatment untouched.
+
+**Nothing scientific changed.** No molecule or drug record, evidence grade, severity, molecule tag,
+citation, Guided Match logic, filtering or ranking was altered — verified by count and by diff.
+
+---
+
 ## 0. POTS (POSTURAL ORTHOSTATIC TACHYCARDIA SYNDROME) — DECLINED 2026-09-09
 
 **Owner decision: do NOT add POTS as a V2 Health Condition.** Also declined: a new
