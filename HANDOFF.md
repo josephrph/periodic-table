@@ -5,6 +5,40 @@ _**Pre-release audit COMPLETE: waves 2–6 ALL SHIPPED. Wave 1 (the release bloc
 
 ---
 
+## 0. POTS (POSTURAL ORTHOSTATIC TACHYCARDIA SYNDROME) — DECLINED 2026-09-09
+
+**Owner decision: do NOT add POTS as a V2 Health Condition.** Also declined: a new
+dysautonomia category, POTS-specific molecule recommendations, and any use of existing
+symptom conditions (migraine, nausea, sleep, anxiety, IBS, fibromyalgia) as a surrogate for
+treating POTS. Those conditions remain independent and must not be re-framed as POTS evidence.
+
+**Why.** There is **no direct cannabis/POTS evidence of any kind** — not a trial, cohort, case
+series or physiological study. PubMed returns 0 for `cannabis × "postural tachycardia"` and 0 for
+`cannabis × POTS[Mesh]`; the 15 hits for `cannabinoid* AND POTS[tiab]` are **agronomy papers about
+plant pots**. The single true hit, PMID `37314117`, is **WITHDRAWN** (n=7, nabilone for GI
+dysmotility vomiting, POTS only an incidental comorbidity) and must never be cited.
+
+**And the indirect evidence runs toward harm, which is the stronger reason.** POTS is defined by
+*failed* orthostatic compensation. Δ9-THC produces orthostatic hypotension through peripheral
+venodilation, and in the human study V2 already cites (`6283454`) those episodes were
+*"characterized by the absence of tachycardia"* — the compensatory reflex did not fire. A
+tilt-table study (`42665978`) found blunted diastolic-BP and heart-rate reactivity the **morning
+after** bedtime THC. A meta-analysis of 47 RCTs (`33952424`) puts orthostatic hypotension at
+**RR 3.16 (2.27-4.40)** for medical cannabinoids as a class.
+
+**Standing rule this establishes:** a molecule that may help an associated symptom is not thereby
+a treatment for the syndrome that symptom belongs to. Do not aggregate symptom conditions into a
+syndrome entry.
+
+**Left open (assessed 2026-09-09, not implemented):** the five POTS medications absent from V2
+(midodrine, fludrocortisone, ivabradine, pyridostigmine, droxidopa) and whether V2's cardiovascular
+adverse findings communicate orthostatic intolerance adequately. Note for whoever picks that up:
+**`33952424` is a class-level result and is NOT attributable to any single molecule** — nabilone is
+not Δ9-THC and nabiximols contains CBD. Do not attach it to `ADVERSE_FINDINGS.THC9` as a
+THC-specific finding.
+
+---
+
 ## 0a. COVID-19 / SARS-CoV-2 CORRECTION — CLOSED 2026-09-08 (`26397bf` + `83b425f`)
 
 Owner decision: **do not** add COVID-19 as a Health Condition and **do not** add PMID `33221759`
