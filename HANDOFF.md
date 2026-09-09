@@ -15,6 +15,10 @@ _**Pre-release audit COMPLETE: waves 2–6 ALL SHIPPED. Wave 1 (the release bloc
 | Approved public short name | **The Table** |
 | Current internal version | **V2** (internal only; future versions V3, V4, …) |
 
+**FINAL — platform-wide renaming work is COMPLETE and CLOSED (owner sign-off 2026-09-09).**
+No further naming changes are outstanding. All 17 user-facing lockups carry the official full
+name with the mark; 0 user-facing "V2" remain; "The Table" carries no ™.
+
 **What shipped.** All **379** user-facing occurrences of "V2" were rewritten; **0 remain**. The
 **74** that remain in the file are all in developer comments (70 JS, 2 CSS, 2 HTML) and are correct
 — they refer to the version. Identifiers (`V2TERMS`, `V2EV`, `V2EVID`, `V2FACTS`, `V2PLAIN`,
@@ -58,10 +62,13 @@ introductory surfaces only. **All 17 user-facing lockups are now the official fo
 carry the mark.** Descriptive prose about the *chemistry* periodic table (the foreword body,
 *"The periodic table has been taught and used by millions since 1869"*) was deliberately left alone.
 
-**Open cosmetic point, not actioned:** the molecule-panel foreword and the reference-card modal
-each keep a small `Acannability™` brand eyebrow directly above the now-official title, so
-"Acannability" reads twice in two stacked lines. Branding treatment was preserved rather than
-edited; dropping the eyebrow in those two places is a one-line change if the team wants it.
+**CLOSED — the `Acannability™` eyebrow is INTENTIONALLY RETAINED (owner decision 2026-09-09).**
+The molecule-panel foreword and the reference-card modal each keep a small `Acannability™` brand
+eyebrow directly above the official platform name, so "Acannability" reads twice in two stacked
+lines. **This is a known, accepted repetition, not an unresolved naming issue.** The owner
+declined to alter the existing branding treatment without a separate visual review. **Do not
+"fix" it as part of any future naming or copy pass** — it needs a branding decision, not an
+editorial one.
 
 ---
 
