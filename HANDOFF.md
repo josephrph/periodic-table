@@ -47,6 +47,22 @@ logo treatment untouched.
 **Nothing scientific changed.** No molecule or drug record, evidence grade, severity, molecule tag,
 citation, Guided Match logic, filtering or ranking was altered — verified by count and by diff.
 
+**Follow-up 2026-09-09 — five legacy lockups harmonised.** Five user-facing lockups predated the
+rename and so contained no "V2" to catch: the How-to-Use overlay title (*"Interactive Periodic
+Table…"*), the molecule-panel foreword title, the reference-card modal header, the reference-card
+expanded/print label (*"Acannability™ — The Periodic Table…"*), and Full Disclaimer §1 (*"The
+Acannability™ Periodic Table…"*). All five were **naming the platform**, not describing the
+periodic-table visualisation, so all five now read **Acannability's Periodic Table of Cannabis
+Plant Molecules™**. No parenthetical short-name was added to any of them — that stays on the
+introductory surfaces only. **All 17 user-facing lockups are now the official form and all 17
+carry the mark.** Descriptive prose about the *chemistry* periodic table (the foreword body,
+*"The periodic table has been taught and used by millions since 1869"*) was deliberately left alone.
+
+**Open cosmetic point, not actioned:** the molecule-panel foreword and the reference-card modal
+each keep a small `Acannability™` brand eyebrow directly above the now-official title, so
+"Acannability" reads twice in two stacked lines. Branding treatment was preserved rather than
+edited; dropping the eyebrow in those two places is a one-line change if the team wants it.
+
 ---
 
 ## 0. POTS (POSTURAL ORTHOSTATIC TACHYCARDIA SYNDROME) — DECLINED 2026-09-09
