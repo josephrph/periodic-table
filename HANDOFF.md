@@ -5,6 +5,87 @@ _**Pre-release audit COMPLETE: waves 2–6 ALL SHIPPED. Wave 1 (the release bloc
 
 ---
 
+## 000. BCC STANDALONE KIOSK PILOT — PROPOSED CONCEPT, AWAITING REVIEW (2026-09-10)
+
+> **STATUS: PROPOSAL ONLY. NOTHING APPROVED. NOTHING IMPLEMENTED.**
+> Owner instruction 2026-09-10: *"Do not implement any of the proposed kiosk, Guided Match,
+> printing, inventory, analytics, timeout, medication-flow, session-code, or other changes at this
+> time."* To be discussed with the Acannability team and Bridge City Collective before any
+> decision. **`index.html` was not modified and no existing functionality was changed.**
+
+**Context.** Bridge City Collective (BCC) operates dispensaries in **Oregon and Illinois**. BCC is
+hesitant to integrate an untested educational platform directly into its POS/inventory system and
+suggested instead deploying The Table as a **standalone in-store kiosk with a printer, in its own
+sandbox environment**.
+
+### The concept, as the owner has framed it — preserve this wording
+
+> **Patient → standalone kiosk → Guided Match → evidence-supported molecules → optional product
+> matching → one-page printed result → patient takes printout to dispensary employee/cashier**
+
+**The printer and the staff handoff are ESSENTIAL COMPONENTS of the proposed pilot, not future
+enhancements.** Anyone picking this up must not reclassify them as optional or phase-2.
+
+The kiosk remains an **educational decision-support tool**. It does not diagnose a condition,
+prescribe cannabis, recommend a dose, or replace consultation with a healthcare professional.
+
+### Inventory — THREE OPTIONS, ALL PRESERVED FOR DISCUSSION. Do not pick one.
+
+1. **No inventory connection** — print molecule/form guidance; staff identify available products.
+2. **Periodic BCC inventory file/CSV** — The Table identifies and prints specific matching products
+   from the supplied inventory.
+3. **Future automated inventory/POS connection** — only if a pilot demonstrates sufficient value.
+
+### Guided Match — DISCUSSION PROPOSALS ONLY
+
+Every item below is a proposal for the team to accept, modify or reject. **None is a defect, a
+decision, or scheduled work.** The Guided Match works today and is not to be touched.
+
+- Remove the persona ("who's using the table") screen on a kiosk
+- Remove the experience question (it no longer changes any output since the silent
+  `new → low THC` inference was withdrawn)
+- Add route/form and timing to the kiosk flow — today these sit in Demo Mode only, gated by
+  `// UX-79: timeofday/onset/route only inform product matching, so only Demo Mode asks them`.
+  **That rationale inverts under a kiosk model, where product matching is the deliverable.**
+- Reposition medication entry to after the result
+- Review the inactivity timeout (`INACTIVITY_MS` = 2.5 min + 30 s countdown = 3:00 total) against a
+  session intended to take a few minutes
+- Add a non-identifying session reference number to the printout
+- Aggregate non-identifying analytics, or none at all in a first pilot
+- A session code keyed into BCC's POS so BCC could measure conversion on their own side
+
+### What already exists (assessed 2026-09-10, unchanged)
+
+`match(rec, inv)` product matcher — weights, THC-ceiling gate, format bonus, fit tiers
+(strong/good/basic), out-of-stock exclusion, and an existing kiosk-aware route fallback
+(*"never zero-out a kiosk result"*) · `scImport` CSV import with validation and on-device
+persistence (`INV_KEY`, survives `newSession()`) · the full Demo-Mode journey (`scDJConds` →
+`scDJDone`) · `printRec` (~9.9 KB of print logic, already hardened for budtender readability) ·
+inactivity timer, New Session, entry gate · Feedback capture. Plus `V4_matcher_spec.md`
+(270 lines, "ready to build") and three inventory CSV schemas including a real dispensary sample.
+
+### Flagged for legal/policy review before ANY analytics
+
+Omitting a patient's name does **not** make kiosk data non-identifiable. A record of
+**condition + timestamp**, in a store with cameras and a POS transaction at the same minute, is
+re-identifiable by linkage — **the timestamp is the identifier**. Safety-check answers
+(pregnancy, psychosis history) are health information by any standard. Illinois and Oregon differ,
+medical-patient confidentiality provisions under state cannabis law may attach, and BCC's own
+privacy policy may already commit them. **Data controller, consent language and retention all
+need counsel before anything is collected.**
+
+### Honest limitation to carry into the meeting
+
+**Print-to-purchase conversion cannot be measured in a true sandbox.** It requires some
+reconciliation with BCC transaction data. Everything else — utilization, completion, drop-off,
+route/THC/condition distribution, printouts generated, match rate — is measurable with no POS
+contact at all.
+
+**One-pager prepared for the BCC/Acannability meeting:**
+https://claude.ai/code/artifact/9db2716d-be6e-4a7f-b99e-2fc56cc6ebcd
+
+---
+
 ## 00. PUBLIC NAMING CHANGE — "The Table" — SHIPPED 2026-09-09
 
 **Team decision. This supersedes the 2026-08-05 rule that made "V2" the public name.**
