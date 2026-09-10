@@ -1,4 +1,4 @@
-# Project: Periodic Table of Cannabis Plant Molecules (V4 Build)
+# Project: Acannability’s Cannabis Periodic Table of Molecules (V4 Build)
 
 A single-file, self-contained web app: an interactive "periodic table" reference for
 cannabis-derived compounds (cannabinoids, terpenes, flavonoids), with condition/receptor/
@@ -7,15 +7,16 @@ molecule detail panels. Intended for use including as a dispensary kiosk (note t
 disclaimer, "New Session" reset, and inactivity timer).
 
 ## Standing product requirements (do not violate)
-1. **Public naming = "Acannability’s Periodic Table of Cannabis Plant Molecules"; short form "The Table".**
-   **Team decision 2026-09-09 — this SUPERSEDES the 2026-08-05 rule that made "V2" the public name.**
-   - **Official public name:** **Acannability’s Periodic Table of Cannabis Plant Molecules**
+1. **Public naming = "Acannability’s Cannabis Periodic Table of Molecules"; short form "The Table".**
+   **Team decision 2026-09-10 (name corrected) — supersedes 2026-09-09, which in turn superseded the
+   2026-08-05 rule that made "V2" the public name.**
+   - **Official public name:** **Acannability’s Cannabis Periodic Table of Molecules**
    - **Approved public short name:** **The Table** (capital T on both words; it is a proper noun)
    - **Current internal version:** **V2**. Future internal versions are V3, V4, … **"V2" is
      INTERNAL ONLY and must never appear in user-facing copy again.**
 
    **Where each form goes.** On *introductory* surfaces — the welcome overlay and the entry gate —
-   establish both: **Acannability’s Periodic Table of Cannabis Plant Molecules ("The Table")**. Other
+   establish both: **Acannability’s Cannabis Periodic Table of Molecules ("The Table")**. Other
    brand lockups (title tag, persistent header, grid logo, FAQ header, footer, disclaimer modal, print
    letterhead) carry the full name **without** the parenthetical; the grid logo and print letterhead use
    **The Table** as the display name with the full name beneath. In running body copy use **The Table**.
@@ -25,10 +26,13 @@ disclaimer, "New Session" reset, and inactivity timer).
    clearest — "The Table", "this tool", "this reference", or a direct scientific statement with no
    subject at all. Rewrite the sentence rather than wedging the name in.
 
-   **Trademark.** Every lockup still carries the mark: **Periodic Table of Cannabis Plant Molecules™**
-   (owner decision 2026-08-13, UX-54), enforced by `check_brand_lockups` in `preflight.py` — whose regex
-   was widened on 2026-09-09 because the old one required a leading "The" and would have policed only 4 of
-   18 lockups after the rename. **Do NOT add ™ to "The Table"** unless separately authorised.
+   **Trademark.** Every lockup carries the mark: **Cannabis Periodic Table of Molecules™**
+   (owner decision 2026-08-13, UX-54), enforced by `check_brand_lockups` in `preflight.py`.
+   **That guard anchors on the name string, so ANY future change to the name breaks it.** It has
+   already broken twice this way — widened 2026-09-09, rewritten again 2026-09-10 — so it now carries a
+   **zero-match tripwire**: if the pattern matches nothing it FAILS instead of reporting success.
+   **Update the regex in the same commit as any name change.** **Do NOT add ™ to "The Table"**
+   unless separately authorised.
    Acannability branding and logo treatment are unchanged.
 
    **Internal "V2" that must NOT be renamed:** JavaScript identifiers (`V2TERMS`, `V2EV`, `V2EVID`,
@@ -44,10 +48,12 @@ disclaimer, "New Session" reset, and inactivity timer).
 
    **Naming history (kept deliberately — do not delete):** public name was "V2" through 2026-08-03
    → rebranded **"PhytoTable™"** 2026-08-04 [adc1e0a] → reverted to **"V2 – The Periodic
-   Table of Cannabis Plant Molecules"** 2026-08-05 [8298eb5] at the team’s request → **superseded
-   2026-09-09** by the current rule above, which retires "V2" as a public name and makes it the internal
-   version designation only. A rename has been reverted once before; treat any future change as a team
-   decision, not an editorial one.
+   Table of Cannabis Plant Molecules"** 2026-08-05 [8298eb5] at the team’s request → **2026-09-09**,
+   "V2" retired as a public name and replaced by **"Acannability’s Periodic Table of Cannabis Plant
+   Molecules™"** with short form "The Table" → **2026-09-10, name CORRECTED to "Acannability’s
+   Cannabis Periodic Table of Molecules™"** (current). Note that this last form already existed in FAQ
+   body copy as an unreconciled variant before it became official. The name has now changed four times
+   and one rename was reverted; treat any future change as a team decision, not an editorial one.
 
 2. **Guided ↔ Table navigation must always exist.** From the Periodic Table there is always an
    intuitive way back to the Guided Experience without restarting the app or starting a new

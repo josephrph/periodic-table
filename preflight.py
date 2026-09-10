@@ -357,22 +357,39 @@ def check_brand_lockups(src):
     Comments excluded — CLAUDE.md's own wording is quoted in a CSS comment.
     """
     src = strip_comments(src)
-    # NAMING 2026-09-09: the public lockup changed from "V2 · The Periodic Table of Cannabis
-    # Plant Molecules™" to "Acannability's Periodic Table of Cannabis Plant Molecules™".
-    # The old pattern required the leading "The", so after the rename it policed only 4 of the
-    # 18 lockups in the file and passed silently on the rest. Anchoring on "Periodic Table of
-    # Cannabis Plant Molecules" alone covers every article form — "The", "Acannability's",
-    # "Interactive", "Acannability™" — which is the string the mark actually attaches to.
-    pat = re.compile(r'(?:Periodic Table of (?:<em>)?Cannabis(?:</em>)? Plant Molecules)'
+    # NAMING 2026-09-10: the official name was corrected to "Acannability's Cannabis Periodic
+    # Table of Molecules™". The mark now attaches to "Cannabis Periodic Table of Molecules".
+    #
+    # THIS GUARD HAS BROKEN TWICE THE SAME WAY — read before editing the name again.
+    # It anchors on the name string, so ANY change to that string makes it match nothing and
+    # pass silently. On 2026-09-09 the pattern still required a leading "The" and policed only
+    # 4 of 18 lockups. Had it not been rewritten again here, the 2026-09-10 correction would
+    # have removed its target string entirely and it would have policed ZERO.
+    # The zero-match tripwire below is what makes that impossible now: if the count ever drops
+    # to 0, the guard FAILS instead of reporting success.
+    #
+    # "Cannabis" may be wrapped in <em> (header, welcome overlay, both grid logo tags), and the
+    # name appears both possessive ("Acannability's Cannabis Periodic Table of Molecules™") and
+    # with a plain article ("the Cannabis Periodic Table of Molecules™ chart", in FAQ body copy),
+    # so the pattern deliberately anchors on the name alone and ignores what precedes it.
+    pat = re.compile(r'(?:(?:<em>)?Cannabis(?:</em>)? Periodic Table of Molecules)'
                      r'(&trade;|&#8482;|™)?')
     missing = 0
+    total = 0
     for m in pat.finditer(src):
+        total += 1
         if not m.group(1):
             ctx = re.sub(r'\s+', ' ', src[max(0, m.start() - 60):m.end() + 20])
             fail('trademark lockups', 'lockup without the mark: …%s…' % ctx)
             missing += 1
-    if not missing:
-        note('trademark: every "Periodic Table of Cannabis Plant Molecules" lockup carries the mark')
+    if total == 0:
+        fail('trademark lockups',
+             'the brand-lockup pattern matched NOTHING — the official name has almost certainly '
+             'changed again and this guard is now checking zero lockups. Update the regex in '
+             'check_brand_lockups to the current name before trusting this run.')
+    elif not missing:
+        note('trademark: all %d "Cannabis Periodic Table of Molecules" lockups carry the mark'
+             % total)
 
 
 def check_standing_rules(src):

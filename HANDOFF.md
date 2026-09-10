@@ -1,4 +1,4 @@
-# V2 — The Periodic Table of Cannabis Plant Molecules · Project Handoff
+# Acannability’s Cannabis Periodic Table of Molecules · Project Handoff  _(internal build: V2)_
 _Last updated: **2026-08-30** · Baseline commit: **`9d58461`** (HEAD == origin/main, live byte-identical, sha256 `ee34b511bc63f588`)_
 _Build: 1.60 MB · 64 molecules · **65 health conditions** / 10 groups · **774 NCBI-verified PMIDs** · **277 drugs · 103 drug–drug pairs** · backlog 277 rows_
 _**Pre-release audit COMPLETE: waves 2–6 ALL SHIPPED. Wave 1 (the release blocker) needs the owner. Drug tranches A–E ALL SHIPPED; severity-sort bug FIXED; the CYP2D6 sweep is COMPLETE across all 21 records; prostate evidence recalibrated; three Men's Health topics added; a V2-wide count guard now blocks stale numbers; Demo Mode and Guided Match are ALIGNED and share one data source, guarded. Tranche E is now COMPLETE and the four discovered gaps are closed (DRUG-24); the CBD→Δ⁹-THC exposure finding is in the build; `hasRisk` is enforced rather than dead.**_
@@ -11,13 +11,31 @@ _**Pre-release audit COMPLETE: waves 2–6 ALL SHIPPED. Wave 1 (the release bloc
 
 | | |
 |---|---|
-| Official public name | **Acannability's Periodic Table of Cannabis Plant Molecules** |
+| Official public name | **Acannability's Cannabis Periodic Table of Molecules™** |
 | Approved public short name | **The Table** |
 | Current internal version | **V2** (internal only; future versions V3, V4, …) |
 
-**FINAL — platform-wide renaming work is COMPLETE and CLOSED (owner sign-off 2026-09-09).**
-No further naming changes are outstanding. All 17 user-facing lockups carry the official full
-name with the mark; 0 user-facing "V2" remain; "The Table" carries no ™.
+**NAME CORRECTED 2026-09-10 — the official name is now `Acannability's Cannabis Periodic Table
+of Molecules™`.** The short name (**The Table**) and the internal version (**V2**) are unchanged.
+All 17 formal lockups were updated. 0 user-facing "V2" remain; "The Table" carries no ™.
+
+**The correction was partly a convergence, not just a rename.** The corrected name *already
+existed in the build*, 11 times, all carrying ™, in FAQ body copy as "the Cannabis Periodic Table
+of Molecules™ chart" — a variant CLAUDE.md had explicitly left alone. Those 11 were **not
+touched**: they are non-possessive by design ("…**was developed by Acannability**", so a leading
+"Acannability's" would duplicate the company name in the same sentence). The build now carries one
+name in two grammatically correct forms — possessive for lockups, plain article for running prose.
+
+**The four `<em>Cannabis</em>` lockups lost their emphasis.** Moving the italic to the front of the
+name produced "Acannability's *Cannabis* Periodic Table of Molecules", which reads as a contrast
+rather than as part of the name — the italic landed immediately after the possessive. Rendered and
+judged on screen, then removed. **All 17 lockups are now typographically uniform**, which they were
+not before. `.hdr-title em` and `.wg-product em` are now unused rules; harmless, left in place.
+
+**The trademark guard has now broken the same way twice** — it anchors on the name string, so any
+name change makes it match nothing and pass silently. It was widened 2026-09-09 and rewritten again
+here. It now carries a **zero-match tripwire**: if the pattern matches nothing, it FAILS. Both
+behaviours are mutation-tested. **Update the regex in the same commit as any future name change.**
 
 **What shipped.** All **379** user-facing occurrences of "V2" were rewritten; **0 remain**. The
 **74** that remain in the file are all in developer comments (70 JS, 2 CSS, 2 HTML) and are correct
@@ -31,7 +49,7 @@ means nothing to a customer), "this free V2 service" → "this free service", an
 letterhead line.
 
 **Introductory surfaces establish both names**, per the decision: the welcome overlay and the
-entry gate read *Acannability's Periodic Table of Cannabis Plant Molecules ("The Table")*. Every
+entry gate read *Acannability's Cannabis Periodic Table of Molecules™ ("The Table")*. Every
 other lockup carries the full name without the parenthetical; the grid logo and print letterhead
 show **The Table** with the full name beneath.
 
@@ -44,7 +62,7 @@ lockup the rename had just touched. The regex now anchors on `Periodic Table of 
 Molecules` alone, covering every article form, and was **mutation-tested**: dropping a single
 `&trade;` makes it fail. **If a lockup's wording changes again, re-check this guard's regex first.**
 
-**Trademark unchanged:** every lockup still carries *Periodic Table of Cannabis Plant Molecules™*.
+**Trademark:** every lockup carries *Cannabis Periodic Table of Molecules™*.
 **"The Table" carries no ™** and must not until separately authorised. Acannability branding and
 logo treatment untouched.
 
