@@ -1,7 +1,135 @@
 # Acannability’s Cannabis Periodic Table of Molecules · Project Handoff  _(internal build: V2)_
-_Last updated: **2026-08-30** · Baseline commit: **`9d58461`** (HEAD == origin/main, live byte-identical, sha256 `ee34b511bc63f588`)_
-_Build: 1.60 MB · 64 molecules · **65 health conditions** / 10 groups · **774 NCBI-verified PMIDs** · **277 drugs · 103 drug–drug pairs** · backlog 277 rows_
+_Last updated: **2026-09-19** · Baseline commit: **`149fe1d`** (HEAD == origin/main, live byte-identical, sha256 `69b9a3a2aff15083`)_
+_Build: 2.2 MB · 64 molecules · **66 health conditions** / 10 groups · **836 NCBI-verified PMIDs** · **289 drugs · 104 drug–drug pairs** · backlog 278 rows · preflight: 25 guards, all passing `--online`_
 _**Pre-release audit COMPLETE: waves 2–6 ALL SHIPPED. Wave 1 (the release blocker) needs the owner. Drug tranches A–E ALL SHIPPED; severity-sort bug FIXED; the CYP2D6 sweep is COMPLETE across all 21 records; prostate evidence recalibrated; three Men's Health topics added; a V2-wide count guard now blocks stale numbers; Demo Mode and Guided Match are ALIGNED and share one data source, guarded. Tranche E is now COMPLETE and the four discovered gaps are closed (DRUG-24); the CBD→Δ⁹-THC exposure finding is in the build; `hasRisk` is enforced rather than dead.**_
+
+---
+
+## 0000. TRANSPLANT / CKD REVIEW + SEARCH FIX — CLOSED 2026-09-19
+
+**Owner-approved final accounting. This is authoritative for the series.**
+
+| | |
+|---|---:|
+| New Health Conditions | **0** |
+| New adverse/safety findings | **3** |
+| Unsupported indications removed | **1** |
+| New medication records | **4** |
+| New search aliases | **13** |
+| Search-logic defects fixed | **1** |
+
+Commits: `2364aa4` (TX-01) → `57197ab` (TX-02) → `149fe1d` (DRUG-30).
+Final build **`69b9a3a2aff15083`**, local = origin = live.
+
+### How this started, and why it matters
+
+A real Guided Match session with an SIU cannabis-program student, run on a **kidney-transplant
+patient**, appeared to show two missing drugs (Envarsus XR and acyclovir). **Neither was actually
+a data gap.** Investigating properly surfaced three things that were worth far more than the
+reported symptom. **Treat "a user couldn't find X" as a lead, not a specification.**
+
+### ⚠ 1. THC9 carried an unsupported "Organ Transplant Anti-Rejection" indication — REMOVED
+
+It had **zero citations**, was **not** in `SUPPRESS` (so it rendered as a live clickable chip and
+mapped to a PubMed *transplant rejection* search), and **the human evidence points the opposite
+way**. For a transplant patient this was the most dangerous content in the build.
+
+Replaced by a THC9 adverse finding, **grade B**: acute rejection **aHR 1.55 (1.06–2.27)** and
+reduced transplant clearance aHR 0.82 in 2,091 recipients (`38375934`); death-censored graft
+failure **pooled OR 1.72 (1.13–2.60)** across 55,897 recipients (`32558277`). Stated as
+observational. A CB2-agonist mouse skin-graft study (`35185546`) is explicitly named and excluded
+as support — different molecule, organ and species.
+
+### 2. Advanced CKD — a PK safety finding, NOT a Health Condition
+
+**CKD was assessed and declined as a condition.** No evidence cannabis treats CKD; the only
+"CKD trial" (`41866124`) tested **monlunabant, a CB1 inverse agonist** — a *blocker*, the same
+trap already handled in PCOS with rimonabant.
+
+What *was* added: two grade-A findings (THC9 and CBD) from `40225360` — 29 patients at **CKD
+stage 4–5** vs 20 controls, single Sativex dose (5.4 mg THC / 5 mg CBD). THC AUC **2.76 → 4.16
+(stage 4) → 4.31 (stage 5)**; dizziness NRS **0.1 → 0.7 → 1.5**.
+
+**The grade is scoped inside the entry text and must stay that way.** Grade A attaches to the
+**directly measured exposure only**. It does **not** grade "advanced CKD makes cannabis more
+dangerous" — no clinical outcome was measured — and the dizziness scores are flagged as
+nonrandomized, unblinded and self-rated. Limits stated: single dose, one oromucosal product,
+**stages 4–5 only, nothing about stages 1–3**, no repeat dosing, high intersubject variability.
+
+### ⚠ 3. The search returned the WRONG DRUG, confidently — fixed at the logic level
+
+All three `DI_INDEX` consumers tested `key.includes(query)`. Plain substring matching produced
+confident wrong answers whenever a query sat inside an unrelated drug name. **Three reached real
+users:**
+
+| Typed | Returned | Why |
+|---|---|---|
+| `acyclovir` | the **VALACYCLOVIR** record | "val-ACYCLOVIR" contains it |
+| `IVIG` | an **ESTRADIOL GEL** | "d-IVIG-el" contains it |
+| `AZA` | **CLOBAZAM** | "clob-AZA-m" contains it |
+
+Matching now anchors to the **start of the key or the start of any token inside it**, via one
+shared `diSearchIndices()` used by the Drug Interaction Checker, the medication-list builder and
+the Guided Match lookup. Exact generic/brand/alias matches rank above looser prefix hits.
+
+**Measured before shipping — re-run this before ever loosening it.** Across all 289 records and
+2,020 index keys, using every index token, every full key, every generic and every brand as a
+query (**2,581 queries**): 2,480 unchanged · **101 narrowed** (all mid-word false positives:
+"arb" no longer returns carbamazepine, "oph" no longer returns acetaminophen) · **0 lost all
+results** · **0 widened unexpectedly**.
+
+**A trap inside the fix, documented in the code:** `DI_INDEX` also holds *word-level* keys for
+multi-word brands, so the key `"tylenol"` exists for **both** Tylenol (acetaminophen) and Tylenol
+PM (diphenhydramine). Inferring exactness from the index key flagged both records exact and sorted
+the wrong one first. **Exactness is a property of the record's own `drug`/`brands`/alias, never
+the index key.**
+
+### 4. Medication records added — exactly FOUR
+
+| Record | Brands | Sev / Grade | Basis |
+|---|---|:--:|---|
+| `acyclovir` | Zovirax · Sitavig · Acyclovir Sodium | minor / D | No CYP, renal clearance. **No interaction asserted.** Added chiefly to stop the wrong-answer defect |
+| `letermovir` | Prevymis | moderate / D | **The only one with a real mechanism**: OATP1B1/3, P-gp, UGT1A1/1A3 substrate *and* a moderate CYP3A inhibitor (basis of its pimozide/ergot contraindications). Plausible both ways with CBD, **never studied** |
+| `valganciclovir` | Valcyte · Ganciclovir · Cytovene | minor / D | Esterase hydrolysis to ganciclovir, no significant metabolism. **No interaction identified** |
+| `belatacept` | Nulojix | minor / D | IV fusion protein, no CYP/P-gp/UGT route. Real risk sits with its co-prescribed **mycophenolate (major)** |
+
+Only `letermovir` carries a molecule tag (`CBD`). The other three are `mols:[]`.
+
+**`tacrolimus` was NOT added — it already existed** as one of the strongest records in the
+database (**major / grade A**, Prograf · Astagraf XL · Envarsus XR, Cmax ↑4.2× / AUC ↑3.1× from
+the Phase I crossover `39601108`). It gained aliases only. An earlier draft of this accounting
+said "five records"; the owner caught it. **Four.**
+
+### 5. Aliases added — 13, names only, no new claims
+
+`tacrolimus extended-release` · `tacrolimus extended release` · `tacrolimus er` · `tacrolimus xr` ·
+`envarsus xr tacrolimus` · `fk506` · `fk-506` → **tacrolimus**
+`ciclosporin` (INN spelling) · `csa` → **cyclosporine**
+`mycophenolate sodium` · `mycophenolic acid` → **mycophenolate**
+`aza` → **azathioprine** · `ganciclovir` → **valganciclovir**
+
+**Aliases must be NAMES.** A `cmv prophylaxis` alias was added and then removed: `DI_COVERED`
+renders every resolving name in the card's "ALSO LISTED AS" line, so a category phrase displayed
+as though it were a brand.
+
+### 6. Assessed and deliberately NOT added
+
+| Proposed | Why not |
+|---|---|
+| Chronic Kidney Disease (condition) | No treatment evidence; recorded as a PK safety finding instead |
+| Kidney transplant (condition) | Safety topic only — no therapeutic evidence exists |
+| Encephalitis | Hits were a *different disease* (EAE = the MS model), in-vitro hemp work, or FIRES (already under Epilepsy) |
+| Liver resection | Only human paper (`39322515`) is a Letter with **no abstract** — not relied on unread |
+| Rheumatoid arthritis | One n=58 Sativex trial from 2006 (`16282192`), never replicated; Arthritis / Joint Pain covers it |
+| Lupus, psoriasis, T1D, Sjögren's, scleroderma, myasthenia, ankylosing spondylitis | No adequately powered human therapeutic trial for any |
+| Induction / acute-rejection agents (basiliximab, ATG, alemtuzumab, rituximab, bortezomib, eculizumab, IVIG) | Inpatient IV biologics with **no CYP/P-gp/UGT route**; a patient will not look them up |
+
+### 7. Transplant coverage verdict
+
+**Complete for practical clinical purposes.** Every outpatient maintenance immunosuppressant is
+present and correctly graded: tacrolimus **major/A** · cyclosporine **major/B** · mycophenolate
+**major/B** · everolimus **major/B** · sirolimus **major/D** · azathioprine minor/D · prednisone
+moderate/D (covers prednisolone and methylprednisolone) · belatacept minor/D.
 
 ---
 
