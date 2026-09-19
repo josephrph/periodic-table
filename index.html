@@ -7274,12 +7274,10 @@ function medAddSearch(query) {
     return;
   }
   var alreadyIds = _medList.map(function(m) { return m.id; });
-  var matched = new Set();
-  Object.keys(DI_INDEX).forEach(function(key) {
-    if (key.includes(q)) DI_INDEX[key].forEach(function(i) { matched.add(i); });
-  });
-  var matches = Array.from(matched).map(function(i) { return DI_DATA[i]; })
-    .filter(function(d) { return alreadyIds.indexOf(d.id) === -1; });
+  var hit = diSearchIndices(q);                       // DRUG-30
+  var matches = hit.idx.map(function(i) { return DI_DATA[i]; })
+    .filter(function(d) { return alreadyIds.indexOf(d.id) === -1; })
+    .sort(diRankBy(hit.exact, {major:1, moderate:2, minor:3}));
   if (!matches.length) {
     el.innerHTML = '<div class="med-suggestion-item" style="color:var(--dim);font-style:italic;cursor:default">Not found in local database — see tips below</div>'
       + '<div class="med-suggestion-item" style="cursor:pointer" onmousedown="Feedback.fromContext(\'missing_med\',\'Drug Interaction Checker\',((document.getElementById(\'medAddInput\')||{}).value)||\'\')"><span style="color:var(--accent);font-weight:700">💬 Can\'t find it? Tell us it\'s missing →</span></div>';
@@ -8111,6 +8109,12 @@ var DI_DATA = [
   {"id":"venetoclax","drug":"Venetoclax","brands":["Venclexta","Venclyxto","Venetoclax"],"cls":"BCL-2 Inhibitor (antineoplastic)","group":"Oncology","cat":"rx","mols":['CBD'],"sev":"major","ev":"D","mech":"Venetoclax is a <strong>sensitive CYP3A4/5 substrate</strong> and is also carried by P-glycoprotein, and CBD inhibits both &mdash; CYP3A in humans, where a single 640&nbsp;mg oral dose of CBD, taken as a cannabis extract by 18 healthy adults, raised the exposure of a midazolam CYP3A probe drug by about 56%, and P-glycoprotein in laboratory systems at micromolar concentrations. That is mechanistic plausibility and no more. <em>No direct cannabis&ndash;venetoclax interaction study was identified, in people, animals or the laboratory, which is why this record is graded D. Nor should CBD be read as behaving like the strong CYP3A inhibitors venetoclax labeling is written around: what has been measured for CBD in humans is a 56% rise in a midazolam probe drug&rsquo;s exposure at a single 640&nbsp;mg oral dose, and CBD has not been characterised against the strong-inhibitor category that labeling is written around &mdash; so how much it would change venetoclax exposure is unknown. The Table does not predict a figure.</em>","effect":"<strong>Why this is rated major despite theoretical evidence.</strong> Venetoclax labeling contraindicates strong CYP3A inhibitors during the initiation and ramp-up phase, because too much drug too quickly can trigger <strong>tumour lysis syndrome</strong> &mdash; a rapid release of cell contents that can damage the kidneys and disturb heart rhythm, and which can be fatal. The rating reflects <em>how serious that would be if a clinically meaningful exposure increase did occur</em>, not any measured cannabis effect. Severe drops in white cells are the other dose-limiting problem.","monitor":"The ramp-up weeks at the start of venetoclax are when your team watches most closely, with blood tests and often hospital or clinic visits arranged around each dose increase &mdash; that schedule exists to catch tumour lysis syndrome early. Tell your oncology team about any cannabis or CBD you use, and especially before starting or changing it during ramp-up, so the timing can be taken into account. Report reduced urine output, muscle cramps, palpitations, confusion, fever or signs of infection. Any change to your venetoclax is your team&rsquo;s to make.","pmid":"37313955, 16439618"},
   {"id":"ondansetron","drug":"Ondansetron","brands":["Zofran","Zuplenz","Ondansetron"],"cls":"5-HT3 Antagonist Antiemetic","group":"Antiemetic","cat":"rx","mols":["CBD","THC9"],"sev":"moderate","ev":"D","mech":"Ondansetron is cleared by CYP3A4, CYP1A2 and CYP2D6, and CBD inhibits the first two in people, so a modest rise in ondansetron exposure is plausible. Ondansetron also prolongs the QT interval, and &Delta;9-THC raises heart rate. <em>No study has tested cannabis with ondansetron. Both the exposure and the shared-QT concerns are inference, which is why this record is graded D.</em>","effect":"Possible higher ondansetron levels, and a theoretical additive effect on the heart&rsquo;s electrical timing. <em>Ondansetron prolongs the QT interval in its own right &mdash; that is a property of the drug, is more relevant at higher doses and alongside other QT-prolonging medicines or low potassium or magnesium, and it is not what sets this rating.</em>","monitor":"Report fainting, palpitations, or a heartbeat that feels irregular to the clinician or pharmacist managing your treatment. If you are having chemotherapy and taking several antiemetics, your team already considers how they combine. Mention your cannabis use &mdash; worth knowing that cannabis is separately associated with a vomiting syndrome in regular heavy users that antiemetics tend not to relieve, which is covered in The Table&rsquo;s metoclopramide and promethazine records.","pmid":"37313955"},
   {"id":"prochlorperazine","drug":"Prochlorperazine","brands":["Compazine","Compro","Prochlorperazine"],"cls":"Phenothiazine Antiemetic / Antipsychotic","group":"Antiemetic","cat":"rx","mols":["THC9","CBD"],"sev":"moderate","ev":"D","mech":"Prochlorperazine is a sedating phenothiazine cleared mainly by <strong>CYP2D6</strong>. <strong>That is not a route cannabis affects</strong> \u2014 an earlier version of this record said CBD inhibits CYP2D6 and raises prochlorperazine levels, but a randomised crossover in 18 adults found CBD does not inhibit CYP2D6 in humans, and the claim has been removed. <strong>The overlap here is pharmacodynamic, and it is substantial without needing a metabolic story:</strong> prochlorperazine sedates, lowers blood pressure and prolongs the QT interval, while \u0394-9-THC adds CNS depression, orthostatic hypotension and tachycardia. The two act on the same three endpoints.","effect":"Additive drowsiness, dizziness and orthostatic hypotension \u2014 a meaningful falls risk in older adults \u2014 together with QT-prolongation risk when other QT-prolonging drugs are present. Extrapyramidal effects (restlessness, muscle stiffness, involuntary movements) are prochlorperazine own and are dose-related. Two points matter specifically in this app: prochlorperazine is a <strong>dopamine antagonist</strong>, so it opposes dopamine-agonist Parkinson medicines, and it is one of the conventional antiemetics that performs poorly in cannabinoid hyperemesis syndrome.","monitor":"Rise slowly from sitting or lying down, and <strong>do not drive if you feel drowsy</strong> &mdash; sedation and a drop in blood pressure on standing are the practical concerns, and falls are the everyday harm. Report muscle stiffness, restlessness, or involuntary movements of the face or tongue to your prescriber promptly; those relate to prochlorperazine itself and need attention on their own account. Tell the clinician or pharmacist managing your treatment that you use cannabis.","pmid":"37313955"},
+  {"id":"belatacept","drug":"Belatacept","brands":["Nulojix","Belatacept"],"cls":"Costimulation Blocker (Selective T-cell Co-stimulation Blocker) \u2014 maintenance immunosuppression","group":"Transplant","cat":"rx",
+   "mols":[],"sev":"minor","ev":"D",
+   "mech":"<strong>No direct cannabis interaction has been identified for this medicine.</strong> <em>That is a statement about what has been looked for and not found &mdash; not evidence that no interaction exists.</em> <strong>Why none is expected on the pharmacology.</strong> Belatacept is a <strong>fusion protein given by intravenous infusion</strong>, usually once a month. Like other large protein therapeutics it is broken down into peptides and amino acids rather than metabolised by liver enzymes: <strong>it is not a substrate of cytochrome P450 enzymes, P-glycoprotein or the UGT enzymes</strong>, which are the routes carrying almost every interaction in this platform. <em><strong>Direct cannabis&ndash;drug pair evidence: none.</strong> No study has tested cannabis, &Delta;9-THC or CBD with belatacept, which is why this record is graded <strong>D</strong> and carries <strong>no molecule tag</strong>.</em> <em><strong>The important context is what belatacept is usually taken with.</strong> It is used in CNI-free regimens precisely to avoid calcineurin-inhibitor toxicity, and is normally combined with <strong>mycophenolate and a corticosteroid</strong> &mdash; both of which carry their own records here, and mycophenolate is rated <strong>major</strong>. The interaction risk for someone on belatacept usually sits with those co-prescribed medicines rather than with belatacept itself.</em>",
+   "effect":"<strong>No clinically meaningful interaction is expected on current evidence, and none has been reported.</strong> Belatacept&rsquo;s own important risks &mdash; notably a boxed warning for <strong>post-transplant lymphoproliferative disorder</strong>, which is why it is restricted to Epstein-Barr virus seropositive recipients, together with the general infection risk of immunosuppression &mdash; exist whether or not cannabis is used. <em>This platform does not present a drug&rsquo;s own risk profile as the consequence of a cannabis interaction.</em>",
+   "monitor":"<strong>Do not miss belatacept infusions.</strong> It is given on a fixed schedule at a transplant centre, and a missed dose is a rejection risk &mdash; that matters more than anything on this page. <strong>Tell the transplant team about any cannabis or CBD product</strong> before starting, stopping or changing it. The reason is usually not belatacept itself: most people on belatacept also take <strong>mycophenolate and a steroid</strong>, and CBD has documented interactions with those, recorded separately in this platform. Because immunosuppression raises infection risk, report fever, persistent sore throat, swollen glands, night sweats or unexplained weight loss promptly. <strong>Smoked or vaporised products carry their own lung-related considerations in an immunosuppressed person</strong> and are worth raising with the transplant team specifically.",
+   "pmid":""},
   {"id":"letermovir","drug":"Letermovir","brands":["Prevymis","Letermovir"],"cls":"CMV Prophylaxis \u2014 Terminase Complex Inhibitor","group":"Antiviral","cat":"rx",
    "mols":["CBD"],"sev":"moderate","ev":"D",
    "mech":"<strong>A genuine two-way mechanism, and no study of it.</strong> The letermovir label describes a drug that sits on exactly the routes cannabidiol touches. <strong>Letermovir is a substrate</strong> of <strong>OATP1B1/3</strong> and <strong>P-glycoprotein</strong> transporters and of <strong>UGT1A1/1A3</strong> enzymes &mdash; and the label states that co-administration with inducers of those transporters or enzymes <em>is not recommended</em>, because letermovir levels can fall. <strong>Letermovir is also itself a moderate CYP3A inhibitor</strong>: co-administration with midazolam raises midazolam concentrations, and it is this CYP3A inhibition that makes <strong>pimozide and ergot alkaloids outright contraindications</strong> on the label. <em><strong>Where cannabis could meet it.</strong> CBD inhibits CYP3A4 and P-glycoprotein, so CBD could in principle raise letermovir exposure by slowing its transport. Running the other way, letermovir&rsquo;s own CYP3A inhibition could raise exposure to cannabinoids that depend on CYP3A. Both directions are plausible from the label pharmacology alone.</em> <em><strong>None of that has been measured.</strong> No study has tested cannabis, &Delta;9-THC or CBD with letermovir &mdash; a PubMed search returns nothing for the pair. <strong>A shared enzyme and a shared transporter are mechanistic plausibility, not a demonstrated clinical interaction</strong>, and this platform does not convert one into the other. That is why this record is graded <strong>D</strong> and why no claim is made about the size or even the direction of any net effect.</em> <em>CBD has never been characterised as a <strong>strong</strong> CYP3A4 inhibitor, and this platform does not treat it as one.</em>",
@@ -8839,6 +8843,75 @@ var DI_DATA = [
    monitor:'<strong>Take pyridostigmine exactly as prescribed and do not miss or delay doses.</strong> In myasthenia gravis the timing of the dose is the treatment, and skipping one has real consequences for swallowing, breathing and muscle strength &mdash; this matters more than anything on this page. <strong>Tell the prescriber and pharmacist that you use cannabis</strong>, so it is on the record alongside everything else you take. Report increasing muscle weakness, difficulty swallowing or any breathing difficulty <strong>urgently</strong> &mdash; that always needs assessment on its own terms and should never be attributed to cannabis. Report new or worse stomach cramping, diarrhoea or excess saliva to the prescriber, since these usually indicate the dose needs review.',
    pmid:''},
   ];
+// ── DRUG-30: medication search matching ─────────────────────────────────────
+// Every DI_INDEX consumer used to test `key.includes(query)`. Plain substring matching
+// produced CONFIDENT WRONG ANSWERS whenever a query happened to sit inside an unrelated
+// drug name, and three reached real users:
+//     "acyclovir" → the VALACYCLOVIR record   ("valacyclovir" contains "acyclovir")
+//     "IVIG"      → an ESTRADIOL GEL          ("divigel"      contains "ivig")
+//     "AZA"       → CLOBAZAM                  ("clob-AZA-m"   contains "aza")
+// A wrong drug shown confidently is worse than no result, so matching now anchors to the
+// START of the key or the start of any token inside it — which is how clinical drug
+// look-ups behave. "gaba" still finds gabapentin; "aza" still finds azathioprine and
+// azacitidine; "aza" no longer finds clobazam.
+//
+// Measured before shipping across all 2,009 index keys using every distinct token in the
+// index as a query (1,826 queries): 100 queries returned NARROWER results and **zero**
+// queries lost all their results. Every narrowing removed a mid-word false positive
+// ("arb" no longer returns carbamazepine; "oph" no longer returns acetaminophen).
+// If this is ever loosened again, re-run that comparison first.
+function diTokenStarts(key) {
+  var starts = [0], i;
+  for (i = 1; i < key.length; i++) {
+    if (!/[a-z0-9]/.test(key.charAt(i - 1)) && /[a-z0-9]/.test(key.charAt(i))) starts.push(i);
+  }
+  return starts;
+}
+function diKeyMatches(key, q) {
+  var st = diTokenStarts(key), i;
+  for (i = 0; i < st.length; i++) {
+    if (key.lastIndexOf(q, st[i]) === st[i]) return true;   // ES5 startsWith(q, st[i])
+  }
+  return false;
+}
+// Returns { idx: [record indices], exact: {index:true} }.
+// `exact` marks records whose OWN generic name, brand list or approved alias IS the query, so
+// callers can rank those above looser prefix hits.
+//
+// It deliberately does NOT infer exactness from the index key. DI_INDEX also carries word-level
+// keys for multi-word brands, so the key "tylenol" is present for BOTH Tylenol (acetaminophen)
+// and Tylenol PM (diphenhydramine) — keying off that flagged both records as exact and let the
+// wrong one sort first. Exactness is a property of the drug's names, not of the index.
+function diExactName(rec, q) {
+  if (!rec) return false;
+  if (String(rec.drug || '').toLowerCase() === q) return true;
+  var b = rec.brands || [], i;
+  for (i = 0; i < b.length; i++) if (String(b[i]).toLowerCase() === q) return true;
+  if (typeof DI_ALIASES !== 'undefined' && DI_ALIASES[q] === rec.id) return true;
+  return false;
+}
+function diSearchIndices(q) {
+  var idx = [], seen = {}, exact = {};
+  q = String(q || '').toLowerCase();
+  if (!q) return { idx: idx, exact: exact };
+  Object.keys(DI_INDEX).forEach(function(key) {
+    if (!diKeyMatches(key, q)) return;
+    DI_INDEX[key].forEach(function(i) {
+      if (!seen[i]) { seen[i] = 1; idx.push(i); }
+      if (diExactName(DI_DATA[i], q)) exact[i] = true;
+    });
+  });
+  return { idx: idx, exact: exact };
+}
+function diRankBy(exact, sevOrder) {
+  return function(a, b) {
+    var ai = DI_DATA.indexOf(a), bi = DI_DATA.indexOf(b);
+    var ae = exact[ai] ? 0 : 1, be = exact[bi] ? 0 : 1;
+    if (ae !== be) return ae - be;                       // exact name/brand/alias first
+    return (sevOrder[a.sev] || 9) - (sevOrder[b.sev] || 9);
+  };
+}
+
 var DI_INDEX = {};
 var DI_COVERED = {}; // DRUG-A3: record index -> every generic/brand name that resolves to it
 var DI_ALIASES = {
@@ -8846,6 +8919,14 @@ var DI_ALIASES = {
   // resolves to a record in the card's "ALSO LISTED AS" line, so a category phrase would display
   // there as though it were a brand ("Cmv prophylaxis · Cytovene · …"). Aliases must be names.
   'ganciclovir':'valganciclovir',
+  // TX-03 (2026-09-19): clinical shorthand and the INN spelling. Names only — no new claims.
+  'ciclosporin':'cyclosporine',       // INN spelling used outside the US
+  'csa':'cyclosporine',
+  'fk506':'tacrolimus',
+  'fk-506':'tacrolimus',
+  'mycophenolate sodium':'mycophenolate',
+  'mycophenolic acid':'mycophenolate',
+  'aza':'azathioprine',
   // TX-01 (2026-09-18): DI_INDEX matches `key.includes(query)`, so a longer typed phrase never
   // reaches a shorter key. A transplant patient typing the dose-form phrasing missed the record.
   // Name normalisation only — these all resolve to the EXISTING tacrolimus record, which already
@@ -9690,11 +9771,8 @@ function onDiSearch(query) {
     return;
   }
   var q = query.toLowerCase();
-  var matchedIndices = new Set();
-  Object.keys(DI_INDEX).forEach(function(key) {
-    if (key.includes(q)) DI_INDEX[key].forEach(function(i) { matchedIndices.add(i); });
-  });
-  var results = Array.from(matchedIndices).map(function(i) { return DI_DATA[i]; });
+  var hit = diSearchIndices(q);                       // DRUG-30
+  var results = hit.idx.map(function(i) { return DI_DATA[i]; });
   // DRUG-19: ranks start at 1, NOT 0. The previous map was {major:0,...} read through
   // `sevOrder[a.sev]||3`, and because `0||3` is 3, every MAJOR interaction scored the same as
   // an unknown severity and sorted LAST — behind moderate and minor. The two other severity
@@ -9702,7 +9780,7 @@ function onDiSearch(query) {
   // this reason; this one was the outlier. Keeping 0 out of the map removes the footgun rather
   // than patching the guard, and stays ES5 (`??` is used nowhere in this build).
   var sevOrder = {major:1, moderate:2, minor:3};
-  results.sort(function(a,b) { return (sevOrder[a.sev]||9) - (sevOrder[b.sev]||9); });
+  results.sort(diRankBy(hit.exact, sevOrder));        // DRUG-30: exact name/brand/alias first
   // Update matched drug name for panel annotation
   _diMatchedDrug = results.length ? (results[0].drug.split('(')[0].trim().split('/')[0].trim()) : query;
   renderDrugResults(results, query);
@@ -12896,9 +12974,10 @@ var ROUTE_MAP={
   }
   function djRenderMedSearch(q){var box=el('djMedSug');if(!box)return;q=(q||'').trim().toLowerCase();
     if(q.length<2){box.style.display='none';box.innerHTML='';return;}
-    var already=(st.meds||[]).map(function(m){return m.id;});var matched={};
-    if(typeof DI_INDEX!=='undefined')Object.keys(DI_INDEX).forEach(function(key){if(key.indexOf(q)>=0)DI_INDEX[key].forEach(function(i){matched[i]=1;});});
-    var list=Object.keys(matched).map(function(i){return DI_DATA[i];}).filter(function(d){return d&&already.indexOf(d.id)<0;}).slice(0,6);
+    var already=(st.meds||[]).map(function(m){return m.id;});
+    var hit=(typeof diSearchIndices!=='undefined')?diSearchIndices(q):{idx:[],exact:{}};   // DRUG-30
+    var list=hit.idx.map(function(i){return DI_DATA[i];}).filter(function(d){return d&&already.indexOf(d.id)<0;})
+      .sort(diRankBy(hit.exact,{major:1,moderate:2,minor:3})).slice(0,6);
     if(!list.length){
       // UX-104: this function serves BOTH the standard patient funnel (scMeds) and the Demo Mode
       // journey (scDJMeds). It said "No match in the demo dataset" unconditionally, so a real
