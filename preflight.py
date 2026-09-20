@@ -1301,6 +1301,67 @@ def check_hasrisk_invariant(data):
              % len(flagged))
 
 
+
+def check_folded_aliases(src, data):
+    """UX-126: folded aliases must stay VERBATIM inside the parent label, or search breaks silently.
+
+    Some COND_ALIASES entries are synonyms carrying their parent's own name ("Cannabis Dependence"
+    under "Cannabis Use Disorder"). They used to render as their own "alias -> parent" rows, sorted
+    straight next to the parent, and read as duplicated entries. They now carry fold:true and are
+    shown inside the parent's row text instead.
+
+    The failure this guard exists to prevent has not shipped, and that is the point: it is one
+    tidy-up away. "Cannabis Use Disorder (CUD - Cannabis Dependence - Cannabis Withdrawal)" looks
+    redundant, and shortening it to "(CUD - Dependence - Withdrawal)" reads better and SILENTLY
+    BREAKS a search for "cannabis dependence", because the Guided Match condition search matches
+    the typed string CONTIGUOUSLY against visible row text. Measured before shipping: the shortened
+    form lost 7 search terms, the verbatim form lost none.
+
+    Enforces three things:
+      1. every fold:true alias appears VERBATIM in its parent's rendered label;
+      2. CONDITIONS[].label is never itself folded (folding is display-only — the bare label is the
+         join key for condHasAdverse, the PubMed query map, the FAQ list and the V2FACTS counts);
+      3. a zero-match tripwire — if no fold:true alias is found at all, the feature has been
+         removed or the parser has drifted, and this FAILS rather than reporting success.
+    """
+    aliases = re.findall(r"\{alias:'([^']+)',\s*target:'([^']+)'(,\s*fold:true)?\}",
+                         src[src.find('var COND_ALIASES'):src.find('];', src.find('var COND_ALIASES'))])
+    folded = [(a, t) for a, t, f in aliases if f]
+    if not folded:
+        fail('folded aliases',
+             'no fold:true alias found — UX-126 folding was removed, or this parser no longer '
+             'matches the COND_ALIASES format (zero-match tripwire)')
+        return
+
+    labels = {c.get('id'): c.get('label') for c in data['CONDITIONS']}
+    bad = []
+    for alias, target in folded:
+        parent = labels.get(target)
+        if parent is None:
+            fail('folded aliases', 'alias "%s" folds into unknown condition id "%s"' % (alias, target))
+            continue
+        if '(' in parent and alias in parent:
+            continue                          # already inside the condition's own published label
+        rendered = parent + ' (' + ' \u00b7 '.join(
+            a for a, t in folded if t == target) + ')'
+        if alias not in rendered:
+            bad.append((alias, rendered))
+    for alias, rendered in bad:
+        fail('folded aliases',
+             'alias "%s" is NOT verbatim in the rendered parent label "%s" — a Guided Match search '
+             'for it will return nothing' % (alias, rendered))
+
+    shortened = [a for a, t in folded
+                 if labels.get(t) and a.split()[0].lower() == labels[t].split()[0].lower()
+                 and a not in src]
+    for a in shortened:
+        fail('folded aliases', 'folded alias "%s" no longer appears in the source verbatim' % a)
+
+    if not bad and not shortened:
+        note('folded aliases: %d synonym aliases fold verbatim into %d parent labels; no condition '
+             'label mutated' % (len(folded), len(set(t for _, t in folded))))
+
+
 # ── driver ─────────────────────────────────────────────────────────────────────
 def main():
     online = '--online' in sys.argv
@@ -1332,6 +1393,7 @@ def main():
     check_route_fingerprint(data)
     check_record_schema(data)
     check_hasrisk_invariant(data)
+    check_folded_aliases(src, data)
     check_evidence_attribution(data)
     check_backlog()
 

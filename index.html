@@ -5524,8 +5524,8 @@ var COND_ALIASES = [
   {alias:'Liver Fibrosis',                         target:'liver'},
   {alias:'Hepatoprotective',                       target:'liver'},
   // UX-107: the names people and clinicians actually use for opioid use disorder.
-  {alias:'Opioid Addiction',                       target:'oud'},
-  {alias:'Opioid Dependence',                      target:'oud'},
+  {alias:'Opioid Addiction',                       target:'oud', fold:true},
+  {alias:'Opioid Dependence',                      target:'oud', fold:true},
   {alias:'Heroin Use Disorder',                     target:'oud'},
   {alias:'Narcotic Addiction',                     target:'oud'},
   // UX-111: 'MDD' is the abbreviation clinicians use and it is not a substring of the label.
@@ -5533,12 +5533,13 @@ var COND_ALIASES = [
   {alias:'Clinical Depression',                    target:'depression'},
   {alias:'Unipolar Depression',                    target:'depression'},
   // UX-112: the everyday and clinical names for cannabis use disorder.
-  {alias:'Cannabis Dependence',                    target:'cannabis-ud'},
-  {alias:'Cannabis Withdrawal',                    target:'cannabis-ud'},
+  {alias:'CUD',                                    target:'cannabis-ud', fold:true},
+  {alias:'Cannabis Dependence',                    target:'cannabis-ud', fold:true},
+  {alias:'Cannabis Withdrawal',                    target:'cannabis-ud', fold:true},
   {alias:'Marijuana Addiction',                    target:'cannabis-ud'},
   // UX-113: older and colloquial names still in wide use.
   {alias:'Manic Depression',                       target:'bipolar'},
-  {alias:'Bipolar Affective Disorder',             target:'bipolar'},
+  {alias:'Bipolar Affective Disorder',             target:'bipolar', fold:true},
   {alias:'Mania',                                  target:'bipolar'},
   // UX-114: both names resolve, in either direction.
   {alias:'PMOS',                                   target:'pcos'},
@@ -5547,11 +5548,11 @@ var COND_ALIASES = [
   // UX-121
   {alias:'Impotence',                              target:'erectile-dysfunction'},
   {alias:'Low Testosterone / Testosterone Deficiency',target:'erectile-dysfunction'},
-  {alias:'Male Infertility',                       target:'male-fertility'},
+  {alias:'Male Infertility',                       target:'male-fertility', fold:true},
   {alias:'Low Sperm Count',                        target:'male-fertility'},
   {alias:'Sperm Quality',                          target:'male-fertility'},
   {alias:'Seminoma',                               target:'testicular-cancer'},
-  {alias:'Testicular Germ Cell Tumour',            target:'testicular-cancer'},
+  {alias:'Testicular Germ Cell Tumour',            target:'testicular-cancer', fold:true},
   // CHS-01. Cannabinoid hyperemesis syndrome is documented in ADVERSE_FINDINGS.THC9 scoped to
   // 'Antiemetic / Nausea', and condHasAdverse() already marks that chip — but nothing in the
   // condition search resolved the syndrome's NAME. Typing "hyperemesis" or "CHS" into the A-Z
@@ -5562,16 +5563,48 @@ var COND_ALIASES = [
   // DELIBERATELY NOT ALIASED: 'Cyclic Vomiting Syndrome'. CVS is a distinct idiopathic diagnosis and
   // the principal differential for CHS; pointing it at the nausea topic would assert a clinical
   // equivalence that does not exist (Venkatesan 2019, PMID 31241817).
-  {alias:'Cannabinoid Hyperemesis Syndrome',       target:'nausea'},
-  {alias:'CHS (Cannabinoid Hyperemesis Syndrome)', target:'nausea'}
+  {alias:'Cannabinoid Hyperemesis Syndrome (CHS)', target:'nausea'}
 ];
+
+// ── UX-126: FOLDED ALIASES ────────────────────────────────────────────────────────────────
+// Some aliases are SYNONYMS carrying their parent's own name — "Cannabis Dependence" under
+// "Cannabis Use Disorder", "Opioid Addiction" under "Opioid Use Disorder". As their own rows they
+// sorted straight next to the parent and read as duplicated entries; five consecutive "Cann…"/"CHS"
+// rows is what made this visible. Those carry `fold:true` and are rendered INSIDE the parent's row
+// text instead. Aliases that are a DISTINCT name — Causalgia, Heroin Use Disorder, Marijuana
+// Addiction, MASLD, PMOS — keep their own "alias → parent" row, because there the arrow is doing
+// real work: it tells you that you are being sent somewhere else.
+//
+// ⚠ THE PARENTHETICAL CARRIES EACH ALIAS VERBATIM, INCLUDING WORDS IT REPEATS FROM THE PARENT.
+// "Cannabis Use Disorder (CUD · Cannabis Dependence · Cannabis Withdrawal)" looks redundant and
+// MUST NOT BE TIDIED to "(CUD · Dependence · Withdrawal)". The Guided Match condition search
+// matches the typed string CONTIGUOUSLY against visible row text, so the shortened form silently
+// breaks a search for "cannabis dependence". Measured before shipping: shortened lost 7 search
+// terms, verbatim lost none. `check_folded_aliases` in preflight.py enforces this.
+//
+// DISPLAY ONLY. CONDITIONS[].label is deliberately NOT touched — it is the join key for
+// condHasAdverse(), adverseFindingsFor(), the PubMed query map, the FAQ condition enumeration and
+// the V2FACTS counts. Folding is presentation; the data underneath is unchanged.
+function condFoldedFor(id) {
+  if (typeof COND_ALIASES === 'undefined') return [];
+  return COND_ALIASES.filter(function(a) { return a.fold && a.target === id; })
+                     .map(function(a) { return a.alias; });
+}
+function condDisplayLabel(c) {
+  if (!c) return '';
+  var f = condFoldedFor(c.id);
+  return f.length ? c.label + ' (' + f.join(' \u00b7 ') + ')' : c.label;
+}
+
 function buildCondSelect() {
   const sel = document.getElementById('condSelect');
   if (!sel) return;
   const items = CONDITIONS.map(function(c) {
-    return {sortKey: c.label, id: c.id, text: c.label};
+    // UX-126: sortKey stays the bare label so A-Z order is unchanged; only the shown text folds.
+    return {sortKey: c.label, id: c.id, text: condDisplayLabel(c)};
   });
   COND_ALIASES.forEach(function(a) {
+    if (a.fold) return;                 // UX-126: shown inside the parent's row, not as its own
     const parent = CONDITIONS.filter(function(c) { return c.id === a.target; })[0];
     // fail quietly rather than rendering an option that goes nowhere if a target id is ever renamed
     if (!parent) return;
@@ -12327,9 +12360,13 @@ var ROUTE_MAP={
     if(typeof CONDITIONS==='undefined')return items;
     CONDITIONS.forEach(function(c){
       if(c.isRisk)return;                                   // the ⚠ filter chip is not a condition
-      items.push({id:c.id,text:c.label,sort:c.label,group:c.group,alias:false,cond:c});
+      // UX-126: folded synonyms ride in the parent's row text, so a search for "cannabis
+      // dependence" or "CUD" still matches something the reader can see in that row.
+      var txt=(typeof condDisplayLabel==='function')?condDisplayLabel(c):c.label;
+      items.push({id:c.id,text:txt,sort:c.label,group:c.group,alias:false,cond:c});
     });
     if(typeof COND_ALIASES!=='undefined')COND_ALIASES.forEach(function(a){
+      if(a.fold)return;                                     // UX-126: folded into the parent row
       var p=CONDITIONS.filter(function(c){return c.id===a.target;})[0];
       if(!p)return;                                         // fail quietly if a target is renamed
       items.push({id:p.id,text:a.alias+' → '+p.label,sort:a.alias,group:p.group,alias:true,cond:p});
