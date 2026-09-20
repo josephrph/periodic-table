@@ -1,7 +1,67 @@
 # Acannability’s Cannabis Periodic Table of Molecules · Project Handoff  _(internal build: V2)_
-_Last updated: **2026-09-19** · Baseline commit: **`be788fb`** (HEAD == origin/main, live byte-identical, sha256 `23bbb2d55218a6d2`)_
-_Build: 2.2 MB · 64 molecules · **66 health conditions** / 10 groups · **838 NCBI-verified PMIDs** · **289 drugs · 104 drug–drug pairs** · backlog 278 rows · preflight: 25 guards, all passing `--online`_
+_Last updated: **2026-09-19** · Baseline commit: **`b22aed9`** (HEAD == origin/main, live byte-identical, sha256 `ab61d96901e89525`)_
+_Build: 2.2 MB · 64 molecules · **66 health conditions** / 10 groups · **838 NCBI-verified PMIDs** · **289 drugs · 104 drug–drug pairs** · backlog 278 rows · preflight: 26 guards, all passing `--online`_
 _**Pre-release audit COMPLETE: waves 2–6 ALL SHIPPED. Wave 1 (the release blocker) needs the owner. Drug tranches A–E ALL SHIPPED; severity-sort bug FIXED; the CYP2D6 sweep is COMPLETE across all 21 records; prostate evidence recalibrated; three Men's Health topics added; a V2-wide count guard now blocks stale numbers; Demo Mode and Guided Match are ALIGNED and share one data source, guarded. Tranche E is now COMPLETE and the four discovered gaps are closed (DRUG-24); the CBD→Δ⁹-THC exposure finding is in the build; `hasRisk` is enforced rather than dead.**_
+
+---
+
+## 000000. UX-126 — CONDITION LIST: FOLD SYNONYM ALIASES — CLOSED 2026-09-19
+
+**Owner-approved. Commit `b22aed9`, build `ab61d96901e89525`, local = origin = live.**
+
+Reported from a screenshot of the A–Z pull-down: CHS and CUD looked listed several times over.
+**Three causes, only one of them introduced by CHS-01.**
+
+1. CHS-01 shipped **two aliases for the same destination in the same words**. A duplicate, not a
+   design. Merged to one.
+2. **Alphabetical clustering** — five "Cann…"/"CHS" rows land consecutively, so the pattern reads as
+   repetition *here* and nowhere else. *Causalgia* sits next to *Cervical Cancer* and never looked
+   duplicated.
+3. **Pre-existing:** all 36 aliases rendered as their own arrow row, and 7 carried the parent's own
+   leading word.
+
+### The rule now in force
+
+| Alias is… | Treatment |
+|---|---|
+| a **synonym** carrying the parent's name | `fold:true` — rendered *inside* the parent's row |
+| a **distinct name** | keeps its own `alias → parent` row; the arrow is doing real work |
+
+Final labels: `Opioid Use Disorder (Opioid Addiction · Opioid Dependence)` ·
+`Cannabis Use Disorder (CUD · Cannabis Dependence · Cannabis Withdrawal)` ·
+`Bipolar Disorder (Bipolar Affective Disorder)` · `Male Fertility (Male Infertility)` ·
+`Testicular Cancer (Testicular Germ Cell Tumour)` ·
+`Cannabinoid Hyperemesis Syndrome (CHS) → Antiemetic / Nausea`
+
+### ⚠ THE PARENTHETICAL IS VERBATIM ON PURPOSE — DO NOT TIDY IT
+
+Guided Match matches the typed string **contiguously** against visible row text. Shortening
+`(CUD · Cannabis Dependence · Cannabis Withdrawal)` to `(CUD · Dependence · Withdrawal)` reads far
+better and **silently breaks** a search for "cannabis dependence". **Measured before shipping: the
+shortened form lost 7 search terms, verbatim lost 0.** An earlier draft of this change used the
+shortened form and would have shipped that bug. `check_folded_aliases` in `preflight.py` now
+enforces it, with a zero-match tripwire (tested: stripping `fold:true` makes preflight FAIL).
+
+**`CUD` resolved to NOTHING before this commit.** It is now an alias and works.
+
+### Deliberately NOT done
+
+`Cirrhosis →` and `Polyendocrine Metabolic Ovarian Syndrome →` repeat their parent label outright
+and were offered for deletion. **Owner kept them:** removing the row also removes native `<select>`
+type-ahead for that word, and neither contributes to the reported clutter. The native `<select>` was
+not replaced with a searchable combobox — that stays a backlog item, and it is the only thing that
+would make "CUD"/"CHS" work as prefix type-ahead on the A–Z control.
+
+**Display only.** `CONDITIONS[].label` untouched — it is the join key for `condHasAdverse()`,
+`adverseFindingsFor()`, the PubMed query map, the FAQ enumeration and the V2FACTS counts. Verified
+identical before/after: condition labels, molecule weights, all 947 `pmid` fields, all evidence
+grades.
+
+### QA
+
+`preflight.py --online` — **26 guards** (new: `folded aliases`), all pass, 838 PMIDs resolved.
+JS parses under `jsc`. `#condSelect` **104 → 96 rows**, alias rows **36 → 28**. All **113 search
+terms resolve, 0 lost**. Mobile 390×844 renders the folded list with the tab bar intact.
 
 ---
 
