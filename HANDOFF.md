@@ -1,7 +1,115 @@
 # Acannability’s Cannabis Periodic Table of Molecules · Project Handoff  _(internal build: V2)_
-_Last updated: **2026-09-19** · Baseline commit: **`149fe1d`** (HEAD == origin/main, live byte-identical, sha256 `69b9a3a2aff15083`)_
-_Build: 2.2 MB · 64 molecules · **66 health conditions** / 10 groups · **836 NCBI-verified PMIDs** · **289 drugs · 104 drug–drug pairs** · backlog 278 rows · preflight: 25 guards, all passing `--online`_
+_Last updated: **2026-09-19** · Baseline commit: **`be788fb`** (HEAD == origin/main, live byte-identical, sha256 `23bbb2d55218a6d2`)_
+_Build: 2.2 MB · 64 molecules · **66 health conditions** / 10 groups · **838 NCBI-verified PMIDs** · **289 drugs · 104 drug–drug pairs** · backlog 278 rows · preflight: 25 guards, all passing `--online`_
 _**Pre-release audit COMPLETE: waves 2–6 ALL SHIPPED. Wave 1 (the release blocker) needs the owner. Drug tranches A–E ALL SHIPPED; severity-sort bug FIXED; the CYP2D6 sweep is COMPLETE across all 21 records; prostate evidence recalibrated; three Men's Health topics added; a V2-wide count guard now blocks stale numbers; Demo Mode and Guided Match are ALIGNED and share one data source, guarded. Tranche E is now COMPLETE and the four discovered gaps are closed (DRUG-24); the CBD→Δ⁹-THC exposure finding is in the build; `hasRisk` is enforced rather than dead.**_
+
+---
+
+## 00000. CHS / CUD ASSESSMENT — CLOSED 2026-09-19
+
+**Owner-approved. Commit `be788fb`, build `23bbb2d55218a6d2`, local = origin = live.**
+
+| | |
+|---|---:|
+| New Health Conditions | **0** |
+| Classifications changed | **0** |
+| Molecule weights changed | **0** |
+| New citations | **2** |
+| New search aliases | **2** |
+| Claims assessed and excluded | **3** |
+
+### The question, and why the answer was "already done"
+
+Asked to assess **Cannabinoid Hyperemesis Syndrome** and **Cannabis Use Disorder** for
+inclusion as Health Conditions. **Neither was a data gap.** Both were already in the build,
+and both were already in the category the evidence supports. This is now the second review in
+a row where the reported gap was not the real finding — see §0000. **Check what is already
+there before researching what to add.**
+
+### ⚠ 1. CHS stays an ADVERSE FINDING — this is the load-bearing decision
+
+**No cannabis molecule has any treatment evidence for CHS.** The entire published management
+literature is non-cannabis: topical capsaicin (a TRPV1 agonist from chili — `32569429`, plus
+two systematic reviews), IV haloperidol vs ondansetron (HaVOC, `33160719`), droperidol plus
+diphenhydramine. The definitive treatment is cessation.
+
+A Health Condition in this build is a **therapeutic affordance** — it carries molecule weights
+and fires a PubMed indication query. Making CHS one would mean either inventing weights nothing
+supports, or shipping a live clickable chip with no molecules behind it. **That is precisely
+what TX-01 deleted.** The cannabis relationship here runs in the causal direction, which is what
+`ADVERSE_FINDINGS` exists for, and where the entry already sat.
+
+### 2. CHS was invisible to search — `COND_ALIASES` +2
+
+The content existed but **nothing resolved the syndrome's name.** "hyperemesis" and "CHS"
+returned nothing in the A–Z dropdown and in Guided Match, both of which read the same alias
+table, so it only surfaced for someone who already knew to open *Antiemetic / Nausea*.
+**Same defect as DRUG-30, on the condition side rather than the drug side.**
+
+→ `'Cannabinoid Hyperemesis Syndrome'` → `nausea` · `'CHS (Cannabinoid Hyperemesis Syndrome)'` → `nausea`
+
+**`'Cyclic Vomiting Syndrome'` was deliberately NOT aliased.** CVS is a distinct idiopathic
+diagnosis and the principal differential for CHS (Venkatesan 2019, `31241817`); pointing it at
+the nausea topic would assert a clinical equivalence that does not exist. Aliases are for
+alternate names of the same thing, never for a neighbouring diagnosis.
+
+### 3. Both entries' evidence strengthened — grades and weights UNCHANGED
+
+**CHS** carried one narrative review in adolescents. Added **Sorensen 2017** (`28000146`), a
+GRADE-assessed systematic review of 183 reports: regular cannabis use in **100%** of cases,
+cyclic nausea and vomiting **100%**, resolution after stopping **96.8%**, compulsive hot bathing
+**92.3%**, abdominal pain **85.1%**, at least weekly use **97.4%**. **Grade stays B** — a
+systematic review *of case reports* does not become grade A. The entry now states explicitly
+that those figures describe the **exposure relationship** and are **not** treatment evidence.
+
+**CUD** cited Allsop 2014 for nabiximols — six inpatient days, measuring withdrawal. Added
+**Lintzeris 2019** (`31305874`), its outpatient counterpart and the largest trial in the
+condition: twelve weeks, four sites, n=128, mean 47.5 mg THC + 44.0 mg CBD daily; **53.1 vs
+35.0 days** of illicit use, difference **18.6 days (95% CI 3.5–33.7), P=.02**. **Weights stay
+at CBD:6 / THC9:6** — the Cochrane ceiling governs, it is a single trial, the interval is wide,
+and fewer than half of either arm was retained.
+
+### ⚠ 4. THREE claims assessed and EXCLUDED — recorded so they are not rediscovered
+
+**AEF0117** (Haney 2023, *Nat Med*, `37291212`) — "signaling-specific inhibition of the CB1
+receptor for cannabis use disorder". A positive-looking CUD trial that must not be counted, on
+two independent grounds: it is a **CB1 inhibitor**, and it is **synthetic**. **Third instance of
+this trap in the series — rimonabant in PCOS, monlunabant in advanced CKD, AEF0117 here. A
+blocker is not evidence for the thing it blocks.** Also out on the same basis:
+dronabinol+lofexidine (`26711160`), galantamine, pregabalin, nicotine patch, gabapentin,
+N-acetylcysteine.
+
+**Candida / gastric candidiasis / GI fungal dysbiosis and CHS** — raised from a real patient
+account. **PubMed returns ZERO for every combination, tagged and untagged**, and a non-PubMed
+sweep of the case-report literature found nothing. Russo 2024 (`39507417`), the current
+synthesis, explicitly addresses and *refutes* alternative causes and does not list Candida.
+SIFO (`25786900`) is real but presents as belching, bloating, indigestion, nausea and gas —
+**not cyclic vomiting** — and the systemic "candida overgrowth" construct failed its randomised
+test (Dismukes, `2247104`: nystatin no better than placebo). Gastric Candida is also commonly a
+**secondary coloniser of a stomach that already empties poorly**, so an isolate does not
+establish direction. **Not added.**
+
+**Caffeine / coffee as a CHS trigger** — no clinical evidence. The sole citation in existence is
+a thematic analysis of 2,683 Reddit posts (Wightman 2023, `37014024`) whose own authors state
+the food-and-drink relationships have not been studied scientifically. **Not added.**
+
+THC delaying gastric emptying **is** documented (McCallum 1999, `9892882` — randomised, slower
+in all 13 subjects). A chain from there to fungal colonisation to CHS is **biologic plausibility
+only**, untested at every link, and is asserted nowhere in this build.
+
+### 5. Differential-diagnosis language — CONSIDERED and DECLINED
+
+Adding "CHS is a diagnosis of exclusion; CVS is the principal differential" was raised and
+**declined by the owner**: clinically relevant, but a scope expansion beyond a cannabis
+molecule/evidence reference. **To be considered separately if diagnostic guidance is ever added
+deliberately.** Recorded here so the omission reads as a decision, not an oversight.
+
+### QA
+
+`preflight.py --online` — all 25 guards pass, **all 838 PMIDs resolved at NCBI** (836 → 838,
++2 exactly). JS parses under `jsc`. Headless render confirms both aliases appear as
+"… → Antiemetic / Nausea". Conditions, molecules, drugs, pairs, weights and grades unchanged;
+mobile/desktop identifiers intact.
 
 ---
 
