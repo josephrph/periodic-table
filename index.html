@@ -3652,7 +3652,8 @@ const ADVERSE_FINDINGS = {
       citations: [
         {type:'Meta', authors:'Spiga F, et al.', year:'2025', title:'Pharmacotherapies for cannabis use disorder', journal:'Cochrane Database Syst Rev', vol:'9(9):CD008940', pmid:'41025421'},
         {type:'RCT', authors:'Freeman TP, et al.', year:'2020', title:'Cannabidiol for the treatment of cannabis use disorder: a phase 2a, double-blind, placebo-controlled, randomised, adaptive Bayesian trial', journal:'Lancet Psychiatry', vol:'7(10):865-874', pmid:'32735782'},
-        {type:'RCT', authors:'Allsop DJ, et al.', year:'2014', title:'Nabiximols as an agonist replacement therapy during cannabis withdrawal: a randomized clinical trial', journal:'JAMA Psychiatry', vol:'71(3):281-91', pmid:'24430917'}
+        {type:'RCT', authors:'Allsop DJ, et al.', year:'2014', title:'Nabiximols as an agonist replacement therapy during cannabis withdrawal: a randomized clinical trial', journal:'JAMA Psychiatry', vol:'71(3):281-91', pmid:'24430917'},
+        {type:'RCT', authors:'Lintzeris N, et al.', year:'2019', title:'Nabiximols for the Treatment of Cannabis Dependence: A Randomized Clinical Trial', journal:'JAMA Intern Med', vol:'179(9):1242-1253', pmid:'31305874'}
       ]
     },
     {
@@ -3790,11 +3791,34 @@ const ADVERSE_FINDINGS = {
       ]
     },
     {
+      // ASSESSED AND EXCLUDED (CHS-01 review, 2026-09-19) — two proposed contributors were searched
+      // and are NOT represented here because no literature supports them:
+      //   (a) Candida / gastric candidiasis / GI fungal dysbiosis. PubMed returns ZERO for every
+      //       combination, tagged and untagged, and a non-PubMed sweep of the case-report literature
+      //       found nothing either. Russo 2024 (PMID 39507417), the current synthesis, explicitly
+      //       addresses and refutes alternative "causes" and does not list Candida among them.
+      //       Small intestinal fungal overgrowth (PMID 25786900) is real but presents as belching,
+      //       bloating, indigestion, nausea and gas — NOT cyclic vomiting — and the systemic
+      //       "candida overgrowth" construct failed its randomised test (Dismukes, PMID 2247104:
+      //       nystatin no better than placebo). Gastric Candida is also commonly a SECONDARY
+      //       coloniser of a stomach that already empties poorly, so an isolate does not establish
+      //       direction of causation.
+      //   (b) Caffeine / coffee as a trigger. Zero clinical evidence. The only citation in existence
+      //       is a thematic analysis of 2,683 Reddit posts (Wightman 2023, PMID 37014024) in which
+      //       "food and drink" was the most-mentioned trigger category; the authors state these
+      //       relationships have not been studied scientifically.
+      // THC delaying gastric emptying IS documented (McCallum 1999, PMID 9892882, randomised, slower
+      // in all 13 subjects), but no study has tested any link from that to fungal colonisation or to
+      // CHS. That chain is biologic plausibility only and is not asserted anywhere in this build.
       title: 'Cannabinoid Hyperemesis Syndrome',
       condition: 'Antiemetic / Nausea',
       evidence: 'B',
-      summary: 'Chronic, heavy THC-dominant cannabis use is associated with a paradoxical syndrome of cyclic vomiting and abdominal pain (CHS) &mdash; the inverse of THC&rsquo;s typical antiemetic effect &mdash; classically relieved by hot showers/bathing and resolving with cannabis cessation.',
+      summary: 'Chronic, heavy THC-dominant cannabis use is associated with a paradoxical syndrome of cyclic vomiting and abdominal pain (CHS) &mdash; the inverse of THC&rsquo;s typical antiemetic effect &mdash; classically relieved by hot showers/bathing and resolving with cannabis cessation. A systematic review of 183 published reports found a history of regular cannabis use in <strong>100&#37;</strong> of cases and cyclic nausea and vomiting in <strong>100&#37;</strong>, with resolution of symptoms after stopping cannabis in <strong>96.8&#37;</strong>, compulsive hot bathing in <strong>92.3&#37;</strong>, abdominal pain in <strong>85.1&#37;</strong> and at least weekly use in <strong>97.4&#37;</strong>. <em>Those figures describe the exposure relationship. They are not evidence that any molecule treats the syndrome &mdash; no cannabis molecule has any treatment evidence for CHS, and the published management literature is entirely non-cannabis.</em>',
       citations: [
+        // CHS-01: added so the grade B rests on a GRADE-assessed systematic review rather than on a
+        // single narrative review in adolescents. Grade stays B — the underlying literature is still
+        // overwhelmingly case reports, and a systematic review OF case reports does not become grade A.
+        {type:'Rev', authors:'Sorensen CJ, DeSanto K, Borgelt L, Phillips KT, Monte AA.', year:'2017', title:'Cannabinoid Hyperemesis Syndrome: Diagnosis, Pathophysiology, and Treatment-a Systematic Review', journal:'J Med Toxicol', vol:'13(1):71-87', pmid:'28000146'},
         {type:'Rev', authors:'Pietrantoni C, Margiotta G, Marano G, Mazza M, Proli F, Stella G, Cherubino A, Viozzi F, Guida FR, Rendeli C, Pola R, Gaetani E, Giorgio V.', year:'2025', title:'Cannabinoid Hyperemesis Syndrome in Adolescents: A Narrative Review', journal:'Pediatr Rep', vol:'17(4):75', pmid:'40700063'}
       ]
     },
@@ -4484,6 +4508,7 @@ const MENTAL_CITATIONS = {
   ],
   THC9:[
     {type:'RCT',authors:'Allsop DJ, et al.',year:'2014',title:'Nabiximols as an agonist replacement therapy during cannabis withdrawal: a randomized clinical trial',journal:'JAMA Psychiatry',vol:'71(3):281-91',pmid:'24430917',indications:['Cannabis Use Disorder'],note:'Agonist replacement for cannabis, on the same principle as nicotine replacement or methadone: a measured dose of a THC/CBD medicine reduced the severity of withdrawal. It reduced withdrawal and retained people in treatment; it did not, on its own, reduce cannabis use after treatment ended.'},
+    {type:'RCT',authors:'Lintzeris N, et al.',year:'2019',title:'Nabiximols for the Treatment of Cannabis Dependence: A Randomized Clinical Trial',journal:'JAMA Intern Med',vol:'179(9):1242-1253',pmid:'31305874',indications:['Cannabis Use Disorder'],note:'THE OUTPATIENT COUNTERPART TO ALLSOP 2014, and the largest nabiximols trial in this condition. Allsop ran six days on an inpatient ward and measured withdrawal; this ran twelve weeks across four outpatient services and measured actual use. 128 participants, flexible dosing to a mean 47.5 mg THC and 44.0 mg CBD daily. Over the twelve weeks the placebo group reported 53.1 days of illicit cannabis use against 35.0 days on nabiximols, a difference of 18.6 days (95&#37; CI 3.5-33.7), P=.02. It does NOT lift the weighting above 6: the Cochrane ceiling still governs, it is a single trial, the interval is wide, and fewer than half of either arm was retained (44.8&#37; placebo, 49.2&#37; nabiximols).'},
     {type:'Meta',authors:'Spiga F, et al.',year:'2025',title:'Pharmacotherapies for cannabis use disorder',journal:'Cochrane Database Syst Rev',vol:'9(9):CD008940',pmid:'41025421',indications:['Cannabis Use Disorder'],note:'The Cochrane caveat applies equally to the THC-containing preparations: still experimental, and the greater withdrawal from treatment seen with some agents may limit their value.'},
     {type:'Meta',authors:'Wilson J, et al.',year:'2026',title:'The efficacy and safety of cannabinoids for the treatment of mental disorders and substance use disorders: a systematic review and meta-analysis',journal:'Lancet Psychiatry',vol:'13(4):304-315',pmid:'41856154',indications:['Bipolar Disorder'],finding:'neg',note:'Across 54 randomised trials there were "insufficient data to meta-analyse" bipolar disorder. Nothing here supports THC for it.'},
     {type:'Rev',authors:'Bally N, Zullino D, Aubry JM.',year:'2014',title:'Cannabis use and first manic episode',journal:'J Affect Disord',vol:'165:103-8',pmid:'24882185',indications:['Bipolar Disorder'],finding:'neg',note:'THE MOST RELEVANT PAPER TO THC SPECIFICALLY: it concerns the association between cannabis use and the timing of a first manic episode, which is a risk question rather than a treatment one.'},
@@ -5052,6 +5077,15 @@ const CONDITIONS = [
   // THC9 shares the 6 because the positive nabiximols and CBD/THC results are combination results;
   // attributing them to CBD alone would misreport what was tested. bCA is NOT included: no
   // cannabis-use-disorder literature exists for it, unlike opioid use disorder where Galaj 2024 does.
+  //
+  // ASSESSED AND EXCLUDED (CHS-01 review, 2026-09-19) — AEF0117, Haney 2023, Nat Med, PMID 37291212:
+  // "Signaling-specific inhibition of the CB1 receptor for cannabis use disorder: phase 1 and phase 2a
+  // randomized trials". A positive-looking CUD trial that must NOT be counted here on two independent
+  // grounds: it is a CB1 INHIBITOR, not an agonist, and it is a synthetic compound, not a plant
+  // molecule. This is the third instance of the same trap in this series — rimonabant in PCOS,
+  // monlunabant in advanced CKD, AEF0117 here. A blocker is not evidence for the thing it blocks.
+  // Out of scope on the same basis and likewise absent: dronabinol+lofexidine (PMID 26711160),
+  // galantamine, pregabalin, nicotine patch, gabapentin, N-acetylcysteine. None is a plant molecule.
   {id:'cannabis-ud',label:'Cannabis Use Disorder',group:'sud',hasRisk:true,molecules:{CBD:6,THC9:6}},
   {id:'cancer',label:'Cancer / Anti-Tumor',group:'cancer',molecules:{THC9:9,CBC:8,CBD:8,CBG:7,CBGV:7,KAF:7,LTL:7,MYC:7,bCA:7,aHU:6,aBI:6,CBL:7,aPI:6,GE:6,MY:5}},
   {id:'antiviral',label:'Antiviral / Immune',group:'cancer',molecules:{CBGA:7,CBDA:7,CBD:6,CBG:6,THC9:5,EU:5,aHU:5,aPI:5}},
@@ -5517,7 +5551,19 @@ var COND_ALIASES = [
   {alias:'Low Sperm Count',                        target:'male-fertility'},
   {alias:'Sperm Quality',                          target:'male-fertility'},
   {alias:'Seminoma',                               target:'testicular-cancer'},
-  {alias:'Testicular Germ Cell Tumour',            target:'testicular-cancer'}
+  {alias:'Testicular Germ Cell Tumour',            target:'testicular-cancer'},
+  // CHS-01. Cannabinoid hyperemesis syndrome is documented in ADVERSE_FINDINGS.THC9 scoped to
+  // 'Antiemetic / Nausea', and condHasAdverse() already marks that chip — but nothing in the
+  // condition search resolved the syndrome's NAME. Typing "hyperemesis" or "CHS" into the A-Z
+  // dropdown or the Guided Match condition search returned nothing, so the content only surfaced
+  // for someone who already knew to open the nausea topic. Same discoverability defect as DRUG-30,
+  // on the condition side rather than the drug side. Navigation only: no condition, no molecule and
+  // no weight is added, and the "alias -> parent" arrow makes the redirect explicit.
+  // DELIBERATELY NOT ALIASED: 'Cyclic Vomiting Syndrome'. CVS is a distinct idiopathic diagnosis and
+  // the principal differential for CHS; pointing it at the nausea topic would assert a clinical
+  // equivalence that does not exist (Venkatesan 2019, PMID 31241817).
+  {alias:'Cannabinoid Hyperemesis Syndrome',       target:'nausea'},
+  {alias:'CHS (Cannabinoid Hyperemesis Syndrome)', target:'nausea'}
 ];
 function buildCondSelect() {
   const sel = document.getElementById('condSelect');
