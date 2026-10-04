@@ -1,7 +1,63 @@
 # Acannability’s Cannabis Periodic Table of Molecules · Project Handoff  _(internal build: V2)_
-_Last updated: **2026-09-19** · Baseline commit: **`b22aed9`** (HEAD == origin/main, live byte-identical, sha256 `ab61d96901e89525`)_
-_Build: 2.2 MB · 64 molecules · **66 health conditions** / 10 groups · **838 NCBI-verified PMIDs** · **289 drugs · 104 drug–drug pairs** · backlog 278 rows · preflight: 26 guards, all passing `--online`_
+_Last updated: **2026-10-03** · Baseline commit: **`253e630`** (HEAD == origin/main, live byte-identical, sha256 `fe0df8dc5d0fb44d`)_
+_Build: 2.2 MB · 64 molecules · **65 health conditions** / 10 groups · 3 cross-listed · **838 NCBI-verified PMIDs** · **289 drugs · 104 drug–drug pairs** · backlog 278 rows · preflight: 27 guards, all passing `--online`_
 _**Pre-release audit COMPLETE: waves 2–6 ALL SHIPPED. Wave 1 (the release blocker) needs the owner. Drug tranches A–E ALL SHIPPED; severity-sort bug FIXED; the CYP2D6 sweep is COMPLETE across all 21 records; prostate evidence recalibrated; three Men's Health topics added; a V2-wide count guard now blocks stale numbers; Demo Mode and Guided Match are ALIGNED and share one data source, guarded. Tranche E is now COMPLETE and the four discovered gaps are closed (DRUG-24); the CBD→Δ⁹-THC exposure finding is in the build; `hasRisk` is enforced rather than dead.**_
+
+---
+
+## 0000000. UX-127 — CROSS-LISTING COUNT WRONG; 65 vs 66 SETTLED — CLOSED 2026-10-03
+
+**Owner-approved. Commit `253e630`, build `fe0df8dc5d0fb44d`, local = origin = live.**
+
+### ⚠ 65 is the authoritative user-facing condition count. This document said 66.
+
+`CONDITIONS` holds **66 entries**, but one (`cancer-adverse`) is the **⚠ Adverse Findings filter
+chip, not a health condition** — the app excludes it everywhere (`if (c.isRisk) return;`). The
+user-facing number is therefore **65**, which is what the entry gate, the How-to-Use overlay, the
+main FAQ and Guided Match all correctly derive and display.
+
+**The HANDOFF header was the only place claiming 66**, and it was wrong twice today before anyone
+noticed. Corrected. **Do not "fix" a 65 to 66 by counting the array.**
+
+### ⚠ The cross-listing sentence said TWO; the data holds THREE
+
+Both the How-to-Use overlay and the main FAQ read *"two conditions are cross-listed: Prostate Cancer
+… and PCOS/PMOS …"*. **`testicular-cancer` is `['cancer-sub','mens']` and was never added to the
+sentence.**
+
+**It hid exactly the way AUDIT-11 did.** The count beside it *is* derived and *was* correct, so the
+arithmetic still balanced — the enumeration lists **68 names, 65 distinct, 68 − 3 = 65** — and
+nothing looked wrong. `check_faq_parity` could not catch it either: that guard compares the two FAQ
+copies **to each other**, and two identical wrong sentences agree perfectly.
+
+### Fixed by derivation, not by editing the sentence
+
+New `data-v2fact="crossListedNote"` span, rendered from `CONDITIONS` by `crossListedNote()` beside
+the `byGroup()` that already knows a cross-listed condition carries an array group. Both copies now
+render:
+
+> *three conditions are cross-listed: Prostate Cancer under Cancer Sub-types and Men's Health; PCOS /
+> Polyendocrine Metabolic Ovarian Syndrome under Women's Health and Metabolic & Cardiovascular; and
+> Testicular Cancer under Cancer Sub-types and Men's Health*
+
+Add or remove a dual-grouped condition and the sentence, the number word and the singular/plural all
+follow by themselves.
+
+### New guard: `check_cross_listed` (preflight 26 → 27)
+
+Derives the dual-grouped conditions from `CONDITIONS` and asserts every `crossListedNote` fallback
+names the right **number** and every cross-listed condition **by label**. Three tripwires, all
+tested as failing: fallback says "two" → FAIL; fallback drops Testicular Cancer → FAIL; span removed
+and the sentence hand-written again → FAIL.
+
+### Global sweep — no other count conflicts
+
+Every rendered number adjacent to condition wording was checked against the data: **65 health
+topics**, **65 health conditions**, and the ten group counts (8·14·6·2·6·4·6·5·5·12) which
+`check_v2fact_keys` already validates. Guided Match's `nConds` is derived
+(`CONDITIONS.filter(c => !c.isRisk).length`). **No hardcoded condition count exists in any rendered
+string.** Stale "58 conditions" / "50 conditions" figures survive in CODE COMMENTS only (UX-103-era)
+and were left alone as out of scope.
 
 ---
 
