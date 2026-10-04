@@ -181,6 +181,9 @@ def check_scripts_parse(src):
             fail('scripts parse', 'script block %d: %s' % (i, out or res.stderr.strip()[:200]))
 
 
+PROSE_FACT_KEYS = {'crossListedNote'}   # UX-127: rendered prose, asserted by check_cross_listed
+
+
 def check_v2fact_keys(src, data):
     """Each data-v2fact key must be a real V2FACTS function, and its fallback must be current.
 
@@ -210,6 +213,10 @@ def check_v2fact_keys(src, data):
         expected['rec' + rc] = sum(
             1 for k in mols if rc in (mols[k].get('receptors') or []))
     found = re.findall(r'<span data-v2fact="([^"]+)"[^>]*>([^<]*)</span>', src)
+    # UX-127: crossListedNote renders PROSE, not a scalar, so it has no entry in `expected`.
+    # check_cross_listed() derives and asserts it instead; skipping it here keeps this guard
+    # about numbers and stops it failing on a key it was never meant to validate.
+    found = [(k, v) for k, v in found if k not in PROSE_FACT_KEYS]
     if not found:
         fail('V2FACTS wiring', 'no data-v2fact spans found at all')
     for key, literal in found:
@@ -1362,6 +1369,65 @@ def check_folded_aliases(src, data):
              'label mutated' % (len(folded), len(set(t for _, t in folded))))
 
 
+
+def check_cross_listed(src, data):
+    """UX-127: the cross-listing sentence must be DERIVED, not just agree with its own copy.
+
+    It read "two conditions are cross-listed" in BOTH the How-to-Use overlay and the main FAQ while
+    the data held three: testicular-cancer had been dual-grouped into Men's Health and the sentence
+    was never updated. check_faq_parity could not catch it — that guard compares the two copies to
+    EACH OTHER, and two identical wrong sentences agree perfectly.
+
+    It hid for the same reason AUDIT-11 did: the COUNT beside it is derived and was correct, so the
+    arithmetic still balanced (the enumeration listed 68 names of which 65 were distinct, and
+    68 - 3 = 65). Nothing looked wrong.
+
+    Asserts that every crossListedNote fallback names the right NUMBER of cross-listed conditions
+    and names every one of them, both derived from CONDITIONS. Tripwires on the data side and the
+    markup side: if either the dual-grouped conditions or the spans vanish, this FAILS rather than
+    quietly reporting success.
+    """
+    conds = [c for c in data['CONDITIONS'] if c.get('id') != 'cancer-adverse']
+    dual = [c for c in conds
+            if isinstance(c.get('group'), (list, tuple)) and len(c['group']) > 1]
+    if not dual:
+        fail('cross-listed',
+             'no dual-grouped condition found in CONDITIONS — cross-listing was removed, or this '
+             'parser no longer reads group arrays (zero-match tripwire)')
+        return
+
+    words = ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten']
+    want = words[len(dual)] if len(dual) < len(words) else str(len(dual))
+
+    spans = re.findall(r'<span data-v2fact="crossListedNote"[^>]*>([^<]*)</span>', src)
+    if not spans:
+        fail('cross-listed',
+             'no data-v2fact="crossListedNote" span found — the sentence has been hand-written '
+             'again (zero-match tripwire)')
+        return
+
+    import html as _html
+    bad = False
+    for i, lit in enumerate(spans, 1):
+        text = _html.unescape(lit)
+        if not text.strip().lower().startswith(want):
+            bad = True
+            fail('cross-listed',
+                 'crossListedNote fallback #%d starts "%s..." but the data has %d cross-listed '
+                 'conditions, so it must start "%s"'
+                 % (i, text.strip()[:30], len(dual), want))
+        for c in dual:
+            label = _html.unescape(c.get('label') or '')
+            if label not in text:
+                bad = True
+                fail('cross-listed',
+                     'crossListedNote fallback #%d never names cross-listed condition "%s"'
+                     % (i, label))
+    if not bad:
+        note('cross-listed: %d dual-grouped conditions (%s) named in all %d crossListedNote '
+             'fallback(s)' % (len(dual), ', '.join(c['id'] for c in dual), len(spans)))
+
+
 # ── driver ─────────────────────────────────────────────────────────────────────
 def main():
     online = '--online' in sys.argv
@@ -1394,6 +1460,7 @@ def main():
     check_record_schema(data)
     check_hasrisk_invariant(data)
     check_folded_aliases(src, data)
+    check_cross_listed(src, data)
     check_evidence_attribution(data)
     check_backlog()
 

@@ -1322,7 +1322,7 @@ body.is-mobile-view.is-touch-device #imDoneBtn{right:10px;bottom:calc(56px + env
           <details class="faq-item">
             <summary><span class="faq-q" style="font-size:.95rem">What health conditions does The Table cover?</span><span class="faq-icon" style="width:22px;height:22px;font-size:1.1rem">+</span></summary>
             <div class="faq-content" style="font-size:.82rem">
-              <p>The Table covers <span data-v2fact="conditions">65</span> health conditions across ten clinical groups (two conditions are cross-listed: Prostate Cancer under Cancer Sub-types and Men's Health, and PCOS/PMOS under Women's Health and Metabolic &amp; Cardiovascular):</p>
+              <p>The Table covers <span data-v2fact="conditions">65</span> health conditions across ten clinical groups (<span data-v2fact="crossListedNote">three conditions are cross-listed: Prostate Cancer under Cancer Sub-types and Men's Health; PCOS / Polyendocrine Metabolic Ovarian Syndrome under Women's Health and Metabolic &amp; Cardiovascular; and Testicular Cancer under Cancer Sub-types and Men's Health</span>):</p>
               <div data-v2fact="conditionGroups" data-v2fact-style="short"><p><u>Pain &amp; Inflammation (8):</u> Analgesic / Pain, Neuropathic Pain, Fibromyalgia, Sickle Cell Disease, Arthritis / Joint Pain, Muscle Spasm / Spasticity, Anti-Inflammatory, Skin Health / Acne.</p>
         <p><u>Neurological (14):</u> Epilepsy / Seizures, Sleep &amp; Insomnia, Migraine / Headache, Tourette Syndrome, Multiple Sclerosis, Neuroprotection, Alzheimer's Disease, Parkinson's Disease, Neurodegenerative, Autism Spectrum (ASD), Glaucoma / Ocular Pressure, Essential Tremor, Spinal Cord Injury, Traumatic Brain Injury / Post-Concussion.</p>
         <p><u>Mental Health (6):</u> Anxiety, Depression (Major Depressive Disorder), PTSD / Trauma, Stress / Cortisol, Psychosis / Schizophrenia, Bipolar Disorder.</p>
@@ -2359,7 +2359,7 @@ body.is-mobile-view .panel.panel-condensed .panel-sym{font-size:1.05rem}
   <details class="faq-item">
     <summary><span class="faq-q">What health conditions does The Table cover?</span><span class="faq-icon">+</span></summary>
     <div class="faq-content">
-      <p>The Table covers <span data-v2fact="conditions">65</span> health conditions, organized across ten clinical groups — two conditions are cross-listed: Prostate Cancer under Cancer Sub-types and Men's Health, and PCOS/PMOS under Women's Health and Metabolic &amp; Cardiovascular:</p>
+      <p>The Table covers <span data-v2fact="conditions">65</span> health conditions, organized across ten clinical groups — <span data-v2fact="crossListedNote">three conditions are cross-listed: Prostate Cancer under Cancer Sub-types and Men's Health; PCOS / Polyendocrine Metabolic Ovarian Syndrome under Women's Health and Metabolic &amp; Cardiovascular; and Testicular Cancer under Cancer Sub-types and Men's Health</span>:</p>
       <div data-v2fact="conditionGroups" data-v2fact-style="long"><p><u>Pain &amp; Inflammation (8 conditions):</u> Analgesic / Pain, Neuropathic Pain, Fibromyalgia, Sickle Cell Disease, Arthritis / Joint Pain, Muscle Spasm / Spasticity, Anti-Inflammatory, Skin Health / Acne.</p>
         <p><u>Neurological (14 conditions):</u> Epilepsy / Seizures, Sleep &amp; Insomnia, Migraine / Headache, Tourette Syndrome, Multiple Sclerosis, Neuroprotection, Alzheimer's Disease, Parkinson's Disease, Neurodegenerative, Autism Spectrum (ASD), Glaucoma / Ocular Pressure, Essential Tremor, Spinal Cord Injury, Traumatic Brain Injury / Post-Concussion.</p>
         <p><u>Mental Health (6 conditions):</u> Anxiety, Depression (Major Depressive Disorder), PTSD / Trauma, Stress / Cortisol, Psychosis / Schizophrenia, Bipolar Disorder.</p>
@@ -10295,6 +10295,32 @@ window.V2FACTS = (function() {
     });
     return g;
   }
+  // UX-127: the cross-listing note was hand-written in TWO places and claimed "two conditions are
+  // cross-listed" while the data held THREE — testicular-cancer was dual-grouped into Men's Health
+  // and the sentence was never updated. This is the AUDIT-11 failure again, and it hid the same way:
+  // the COUNT beside it IS derived and was correct, so the arithmetic still worked (68 names listed,
+  // 65 distinct) and nothing looked wrong. Derived now, so it cannot drift a third time.
+  // A condition is cross-listed when its `group` is an ARRAY of more than one key — the same shape
+  // byGroup() already handles. Order follows CONDITIONS, so it matches the enumeration below it.
+  function crossListed() {
+    return conds().filter(function(c) {
+      return Array.isArray(c.group) && c.group.length > 1;
+    });
+  }
+  var NUM_WORD = ['no','one','two','three','four','five','six','seven','eight','nine','ten'];
+  function crossListedNote() {
+    var x = crossListed(), n = x.length;
+    if (!n) return 'no conditions are cross-listed';
+    var parts = x.map(function(c) {
+      return c.label + ' under ' + c.group.map(function(k) {
+        return GROUP_LABEL[k] || k;
+      }).join(' and ');
+    });
+    var joined = (n === 1) ? parts[0]
+               : parts.slice(0, -1).join('; ') + '; and ' + parts[n - 1];
+    return (NUM_WORD[n] || n) + ' condition' + (n === 1 ? ' is' : 's are')
+         + ' cross-listed: ' + joined;
+  }
   var F = {
     molecules:      function() { return molIds().length; },
     acids:          function() { return catCount('acid'); },
@@ -10333,17 +10359,20 @@ window.V2FACTS = (function() {
           el.innerHTML = groupParas(el.getAttribute('data-v2fact-style') || 'short');
           return;
         }
+        // innerHTML, not textContent: GROUP_LABEL carries entities ("Metabolic &amp; Cardiovascular")
+        if (key === 'crossListedNote') { el.innerHTML = crossListedNote(); return; }
         var fn = F[key];
         if (typeof fn === 'function') el.textContent = fn();
       });
     } catch (e) {}
   }
-  return {apply: apply, groupParas: groupParas, f: F,
+  return {apply: apply, groupParas: groupParas, crossListedNote: crossListedNote, f: F,
           // exposed so a future check can assert the page matches the data
           audit: function() {
             var o = {};
             Object.keys(F).forEach(function(k) { if (k !== 'groupCount') o[k] = F[k](); });
             o.groups = {}; GROUP_ORDER.forEach(function(g) { o.groups[g] = F.groupCount(g); });
+            o.crossListed = crossListed().map(function(c) { return c.id; });
             return o;
           }};
 })();
