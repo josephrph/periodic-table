@@ -1517,12 +1517,18 @@ def check_legacy_safari(src):
     for pat, name in (
             (r'\.gx-opt \.ic\{[^}]*display:inline-block', '.gx-opt .ic{display:inline-block}'),
             (r'\.gx-opt \.lab\{[^}]*display:inline-flex', '.gx-opt .lab{display:inline-flex}'),
-            (r'\.gx-opt \.chk\{[^}]*float:right', '.gx-opt .chk{float:right}')):
+            (r'\.gx-opt \.chk\{[^}]*float:right', '.gx-opt .chk{float:right}'),
+            # IOS-03: .gx-cta was the ONLY full-width Guided Match control relying on flex
+            # stretch instead of declaring a width, and Safari <14 does not stretch <button>
+            # flex items — the three result-screen buttons came out 303/157/94px, not 460.
+            (r'#gxOverlay \.gx-cta\{[^}]*width:100%', '#gxOverlay .gx-cta{width:100%}')):
         if not re.search(pat, src):
             found = True
             fail('legacy safari',
-                 'the IOS-02 legacy fallback "%s" is missing — Guided Match option rows will stack '
-                 'on Safari before 14' % name)
+                 'the legacy fallback "%s" is missing — on Safari before 14 the Guided Match rows '
+                 'lose their layout: <button> cannot be a flex container (option rows stack) and '
+                 '<button> flex items do not stretch (the result-screen CTAs shrink to their text)'
+                 % name)
 
     guarded = len(re.findall(
         r'position\s*:\s*fixed\s*;\s*top:0;right:0;bottom:0;left:0;\s*inset\s*:\s*0', src))
@@ -1536,6 +1542,46 @@ def check_legacy_safari(src):
         note('legacy safari: no ES2020+ syntax in %d KB of inline JS; %d fixed overlay(s) carry '
              'longhand offsets beside inset:0; .gx-opt flex fallback intact '
              '(floor: Safari 10.3 / iOS 10.3)' % (len(js) // 1024, guarded))
+
+
+
+def check_tablet_default_view(src):
+    """IOS-03: a tablet-sized mobile screen must OPEN on the fitted table, not the phone list.
+
+    MOBILE_BREAKPOINT is 900, so an iPad in portrait (768) was treated as a phone and started on
+    the molecule list. The fitted Table view already existed (MOB-14 scales the grid as one unit,
+    transform-origin 0 0, overflow clipped) and measured correctly — 0.661 scale, 744px inside a
+    763px screen — but it sat behind a toggle, and native pinch cannot zoom out past the layout
+    width, so the whole table was effectively unreachable without hunting for the control.
+
+    Three things are asserted, because removing any one silently restores the old behaviour:
+      1. the tablet test keys off the device's SHORTER side, not the current width — otherwise a
+         phone in landscape (844 wide) is mistaken for a tablet;
+      2. the default never overrides a reader who picked a view (`userPickedView`);
+      3. rotation across the breakpoint clears the scaled-grid state on the way out and re-applies
+         it on the way back, or portrait returns showing the table at actual size until a reload.
+    """
+    checks = [
+        (r'TABLET_MIN_SIDE\s*=\s*700',
+         'the TABLET_MIN_SIDE = 700 threshold'),
+        (r'Math\.min\(window\.innerWidth,\s*window\.innerHeight\)\s*>=\s*TABLET_MIN_SIDE',
+         'the shorter-side test (a phone in landscape must not read as a tablet)'),
+        (r'function applyDefaultView\(\)',
+         'applyDefaultView()'),
+        (r'userPickedView\s*=\s*true',
+         "the reader's own view choice being recorded"),
+        (r'applyDefaultView:\s*applyDefaultView',
+         'applyDefaultView exposed on __v3MobileList for the rotation path'),
+        (r'if \(!nowMobile\) \{ if \(window\.V2TableView\) window\.V2TableView\.clear\(\); \}',
+         'the leaving-mobile cleanup in refresh()'),
+    ]
+    missing = [name for pat, name in checks if not re.search(pat, src)]
+    for name in missing:
+        fail('tablet default', 'IOS-03: %s is missing — a tablet in portrait will fall back to the '
+                               'phone list, or rotation will leave stale scaled-grid state' % name)
+    if not missing:
+        note('tablet default: portrait tablets open on the fitted table; shorter-side test, '
+             'reader override and rotation cleanup all present')
 
 
 # ── driver ─────────────────────────────────────────────────────────────────────
@@ -1572,6 +1618,7 @@ def main():
     check_folded_aliases(src, data)
     check_cross_listed(src, data)
     check_legacy_safari(src)
+    check_tablet_default_view(src)
     check_evidence_attribution(data)
     check_backlog()
 

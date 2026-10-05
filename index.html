@@ -2726,8 +2726,15 @@ body.is-mobile-view .panel.panel-condensed .panel-sym{font-size:1.05rem}
   .gx-opt .lab{display:inline-flex;vertical-align:middle;text-align:left}
   .gx-opt .chk{float:right;vertical-align:middle}
 #gxOverlay .gx-opt.sel .chk{border-color:var(--accent,#2E7D57);background:var(--accent,#2E7D57);box-shadow:inset 0 0 0 3px var(--surface,#fff)}
+/* IOS-03: width:100% is NOT redundant. Every other full-width control in Guided Match
+   (.gx-opt, .gx-condrow, .gx-express, .gx-browse-link, .gx-missing-link) declares it; .gx-cta
+   alone relied on .gx-stage's flex `align-items:stretch`, and Safari before 14 does not stretch
+   <button> flex items — they shrink to their text and sit left. Measured in a 460px column:
+   the three result-screen buttons came out 303 / 157 / 94px instead of 460 / 460 / 460.
+   In a stretch column width:100% resolves to exactly what stretch produces, so modern layout is
+   unchanged — verified identical before and after. check_legacy_safari asserts this. */
 #gxOverlay .gx-cta{margin-top:8px;background:var(--accent,#2E7D57);color:#fff;border:none;border-radius:14px;
-  padding:16px;font-size:1rem;font-weight:800;cursor:pointer;font-family:inherit}
+  padding:16px;font-size:1rem;font-weight:800;cursor:pointer;font-family:inherit;width:100%}
 #gxOverlay .gx-cta.ghost{background:var(--surface,#fff);color:var(--dim,#777);border:1px solid var(--border,#ccc);font-weight:600;font-size:.9rem;padding:12px}
 #gxOverlay .gx-rec{border:1.5px solid var(--accent,#2E7D57);border-radius:16px;padding:18px;background:var(--surface2,#eef3ee)}
 #gxOverlay .gx-rec .kind{font-size:1.3rem;font-weight:800}
@@ -11526,8 +11533,21 @@ document.addEventListener('keydown', function(e) {
   function computeIsMobile(){ return window.innerWidth <= MOBILE_BREAKPOINT; }
   function computeIsTouch(){ return navigator.maxTouchPoints > 0; }
   function refresh(){
-    document.body.classList.toggle('is-mobile-view', computeIsMobile());
+    var wasMobile = document.body.classList.contains('is-mobile-view');
+    var nowMobile = computeIsMobile();
+    document.body.classList.toggle('is-mobile-view', nowMobile);
     document.body.classList.toggle('is-touch-device', computeIsTouch());
+    // IOS-03: an iPad crosses this breakpoint every time it is rotated (768 portrait / 1024
+    // landscape). Leaving mobile view has to drop the scaled-grid state, or the transform and the
+    // scroller height computed for 768px survive into the desktop layout. Returning to mobile view
+    // has to re-apply the default (or re-fit the view the reader chose) for the new width —
+    // otherwise portrait came back showing the table at actual size, needing a reload to recover.
+    try {
+      if (!nowMobile) { if (window.V2TableView) window.V2TableView.clear(); }
+      else if (!wasMobile && window.__v3MobileList && window.__v3MobileList.applyDefaultView) {
+        window.__v3MobileList.applyDefaultView();
+      }
+    } catch (e) {}
   }
   var resizeTimer;
   function onResize(){
@@ -11622,20 +11642,57 @@ document.addEventListener('keydown', function(e) {
     });
   }
 
-  function toggleView(){
-    var isTable = document.body.classList.toggle('mobile-table-view');
+  // IOS-03: one place that actually switches the view, so the default and the toggle cannot
+  // drift apart. `scrollIn` is false when we are only restoring state (e.g. coming back from
+  // landscape) — re-scrolling the page under someone who did not tap anything is jarring.
+  function setView(isTable, scrollIn){
+    document.body.classList.toggle('mobile-table-view', !!isTable);
     var btn = document.getElementById('mmlViewToggle');
     if (btn) btn.textContent = isTable ? 'List view' : 'Table view';
     // MOB-14: fit the table to the screen and scroll it into view, else the tap looks
     // like a no-op because the grid sits below the filter and recommendation panels.
     try {
-      if (isTable) window.V2TableView.enter();
+      if (isTable) { if (scrollIn) window.V2TableView.enter(); else window.V2TableView.fit(); }
       else window.V2TableView.clear();
     } catch (e) {}
   }
 
+  // IOS-03: DEFAULT ONLY. Once the reader taps the toggle their choice wins for the session and
+  // this never overrides it again — it only re-fits the table they already chose.
+  var userPickedView = false;
+
+  // A tablet is identified by its SHORTER side, not by the current width, so the answer does not
+  // change when the device is rotated: an iPad is >=700 either way (768 x 1024), a phone never is
+  // (390 x 844 — a Pro Max in landscape is 844 wide and would otherwise look like a tablet).
+  var TABLET_MIN_SIDE = 700;
+  function isTabletSized(){
+    return Math.min(window.innerWidth, window.innerHeight) >= TABLET_MIN_SIDE;
+  }
+
+  // Called at startup and whenever is-mobile-view turns back on after a rotation. The portrait
+  // iPad lands here at 768 wide: mobile view, tablet-sized, so it opens on the fitted table
+  // (scale ~0.66, the whole grid inside the screen) instead of the phone list.
+  function applyDefaultView(){
+    if (!document.body.classList.contains('is-mobile-view')) return;
+    if (userPickedView) {
+      // Honour the choice. Re-fit only if the table is the view they are on — rotating changes
+      // the available width, and a scale computed for the old width would be wrong.
+      if (document.body.classList.contains('mobile-table-view')) { try { window.V2TableView.fit(); } catch (e) {} }
+      return;
+    }
+    setView(isTabletSized(), false);
+  }
+
+  function toggleView(){
+    userPickedView = true;                       // IOS-03: from here on the reader decides
+    setView(!document.body.classList.contains('mobile-table-view'), true);
+  }
+
   render();
-  window.__v3MobileList = { render: render, toggleView: toggleView };
+  applyDefaultView();
+  window.__v3MobileList = { render: render, toggleView: toggleView,
+                            applyDefaultView: applyDefaultView,
+                            isTabletSized: isTabletSized };
 })();
 
 /* ── MOBILE BOTTOM TAB BAR + FILTER CHIPS (Phase 4) ───────────────────
