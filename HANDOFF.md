@@ -1,7 +1,73 @@
 # Acannability’s Cannabis Periodic Table of Molecules · Project Handoff  _(internal build: V2)_
-_Last updated: **2026-10-03** · Baseline commit: **`253e630`** (HEAD == origin/main, live byte-identical, sha256 `fe0df8dc5d0fb44d`)_
-_Build: 2.2 MB · 64 molecules · **65 health conditions** / 10 groups · 3 cross-listed · **838 NCBI-verified PMIDs** · **289 drugs · 104 drug–drug pairs** · backlog 278 rows · preflight: 27 guards, all passing `--online`_
+_Last updated: **2026-10-05** · Baseline commit: **`815d4d5`** (HEAD == origin/main, live byte-identical, sha256 `70acaeec4b58b26e`)_
+_Build: 2.2 MB · 64 molecules · **65 health conditions** / 10 groups · 3 cross-listed · **838 NCBI-verified PMIDs** · **289 drugs · 104 drug–drug pairs** · backlog 278 rows · preflight: 28 guards, all passing `--online`_
 _**Pre-release audit COMPLETE: waves 2–6 ALL SHIPPED. Wave 1 (the release blocker) needs the owner. Drug tranches A–E ALL SHIPPED; severity-sort bug FIXED; the CYP2D6 sweep is COMPLETE across all 21 records; prostate evidence recalibrated; three Men's Health topics added; a V2-wide count guard now blocks stale numbers; Demo Mode and Guided Match are ALIGNED and share one data source, guarded. Tranche E is now COMPLETE and the four discovered gaps are closed (DRUG-24); the CBD→Δ⁹-THC exposure finding is in the build; `hasRisk` is enforced rather than dead.**_
+
+---
+
+## 00000000. IOS-01 — OLDER iPads: APP COMPLETELY INERT — SHIPPED 2026-10-05, AWAITING DEVICE RETEST
+
+**Commit `815d4d5`, build `70acaeec4b58b26e`.** ⚠ **NOT closed** — owner is retesting on the original iPad.
+
+Reported from an older iPad: the Full Disclaimer gate appeared but **could not be scrolled or
+dismissed**, the page behind it **still scrolled**, and every molecule tile plus Guided Match,
+Health Conditions, Entourage Effect and Drug Interactions was **inert** — while the page rendered
+normally and the `<details>` FAQ rows still opened. **Two independent causes.**
+
+### ⚠ 1. ONE optional-chaining token killed 98% of the JavaScript
+
+`tile.dataset.name?.toLowerCase()` in `filterByMolecule()`. **Optional chaining is ES2020 and a
+SYNTAX error in Safari before 13.4** — it does not throw at that line, it stops the **whole
+`<script>` block from parsing**. That block holds **1.81 MB of the build's 1.85 MB of JS**.
+
+That single fact explains every symptom, including the confusing ones: the page rendered because
+that is HTML and CSS; the FAQ opened because `<details>` needs no JavaScript; the background
+scrolled because the scroll-lock never ran; nothing could be clicked because no handler was ever
+bound.
+
+**`check_scripts_parse` could never have caught it** — it runs the Mac's *current* JavaScriptCore,
+which accepts ES2020 happily. **A modern parser cannot tell you what an old browser will reject.**
+
+### ⚠ 2. `inset:0` is ignored before Safari 14.5, so fixed overlays never covered the screen
+
+A `position:fixed` element with **no offsets** shrink-wraps to its content instead of filling the
+viewport. Measured in a real browser: **11×18 px against a 1000×613 viewport.** `#entryGate` then
+had almost no height for its own `overflow-y:auto` to scroll against — which *is* "the overlay is
+frozen and cannot be scrolled" while the page behind it still scrolls.
+
+All **14** `position:fixed;inset:0` declarations now carry `top/right/bottom/left` **before** the
+shorthand, so modern browsers resolve to the same four values and older ones still get offsets.
+Owner approved fixing all 14 rather than just the gate: every overlay shares that one declaration,
+so fixing one would only move the failure to the next modal opened.
+
+**Do not "tidy" the longhands away.** They are not redundant.
+
+### New guard `check_legacy_safari` (27 → 28)
+
+Scans for ES2020+ **syntax** with strings and comments blanked, and for `position:fixed;inset:`
+without longhands. Three tripwires, each tested as failing: reintroduce `?.`; reintroduce `??`;
+strip the longhands. **Floor: Safari 10.3 / iOS 10.3**, which the rest of the build already meets.
+
+### Devices
+
+| | Before | After |
+|---|---|---|
+| Safari < 13.4 (iPad Air 1, mini 2/3, iPad 4) | completely inert | works |
+| Safari 13.4–14.4 | overlays mispositioned | works |
+| Safari ≥ 14.5, Chrome, Firefox, Edge, Android | fine | **behaviour byte-identical** |
+
+### Open — owner retest required before this closes
+
+On the original iPad: gate scrolls and dismisses · molecules respond · Guided Match, Health
+Conditions, Entourage Effect, Drug Interactions all open and work · other modals open/scroll/close ·
+**page behind an active modal does not scroll**. Body scroll-lock for the Full Disclaimer, Entourage
+and reference-card overlays is implemented in JS and returns with fix 1; the entry gate needs none
+because it now genuinely covers the viewport at z-index 10500 on an opaque ground.
+
+**If the iPad turns out to be iPadOS ≥ 14.5, both fixes are still real but something else is also
+wrong** — get the iOS version from Settings → General → About.
+
+Backup retained: `index_BACKUP_20261005_pre_IOS01.html`.
 
 ---
 
