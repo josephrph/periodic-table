@@ -279,6 +279,17 @@ body.is-mobile-view.is-touch-device #imDoneBtn{right:10px;bottom:calc(56px + env
 .grid-scroll{overflow-x:auto;padding:20px;flex-shrink:1;min-width:0}
 .side-panel{background:var(--surface);border:1px solid var(--border);border-radius:8px;flex-shrink:0;padding:20px 16px;align-self:flex-start;position:sticky;top:20px}
 .side-left{width:194px;margin:20px 0 20px 20px}
+  /* IOS-02: the tablet band. Width breakpoints in this sheet were 560/600/620 only, and
+     MOBILE_BREAKPOINT (which hides BOTH panels) is 900 — so an older iPad in landscape at 1024px
+     got the full desktop layout and the two side panels ate 458px, 45% of the screen, leaving the
+     table about 601px. Between 901 and 1100 the LEFT panel is hidden and the right one is not.
+     #sideLeft is the "How to Read a Molecule Tile" legend: purely explanatory, ZERO controls, and
+     the same information is in the FAQ. #sideRight holds all 13 interactive controls — Categories,
+     Safety filter, Evidence grade, Resources — and stays. 901 is deliberate: at <=900 the
+     is-mobile-view class already hides both, so the two rules meet exactly with no gap or overlap. */
+  @media (min-width:901px) and (max-width:1100px){
+    #sideLeft{display:none}
+  }
 .side-right{width:184px;margin:20px 20px 20px 0}
 .side-title{font-size:.68rem;letter-spacing:.11em;text-transform:uppercase;color:var(--dim);font-weight:700;margin-bottom:10px}
 .ex-ann{font-size:.65rem;font-weight:700;color:var(--accent2);line-height:1.4;text-align:right}
@@ -2703,6 +2714,17 @@ body.is-mobile-view .panel.panel-condensed .panel-sym{font-size:1.05rem}
 #gxOverlay .gx-opt .lab{display:flex;flex-direction:column}
 #gxOverlay .gx-opt .lab small{color:var(--dim,#777);font-size:.78rem}
 #gxOverlay .gx-opt .chk{margin-left:auto;width:20px;height:20px;border-radius:50%;border:2px solid var(--border,#ccc);flex:0 0 auto}
+  /* IOS-02: .gx-opt is a <button>, and Safari before 14 cannot make a <button> a flex container.
+     The declaration above is simply ignored there, so the three spans fall out of the row and the
+     option stacks — measured at 117px tall against the intended 67px, with the tick dropping to the
+     left. These three lines put it back. THEY DO NOTHING WHERE FLEX WORKS, by design: `float` and
+     `vertical-align` have no effect on flex items, and `inline-flex` on a flex item blockifies to
+     the `flex` it already computes to. Verified before shipping — with and without these rules a
+     modern browser lays the row out to the pixel: button 560x67, .ic 16,18, .lab 59,17, .chk 520,22.
+     DO NOT delete them as redundant; `check_legacy_safari` in preflight.py asserts they are here. */
+  .gx-opt .ic{display:inline-block;vertical-align:middle}
+  .gx-opt .lab{display:inline-flex;vertical-align:middle;text-align:left}
+  .gx-opt .chk{float:right;vertical-align:middle}
 #gxOverlay .gx-opt.sel .chk{border-color:var(--accent,#2E7D57);background:var(--accent,#2E7D57);box-shadow:inset 0 0 0 3px var(--surface,#fff)}
 #gxOverlay .gx-cta{margin-top:8px;background:var(--accent,#2E7D57);color:#fff;border:none;border-radius:14px;
   padding:16px;font-size:1rem;font-weight:800;cursor:pointer;font-family:inherit}

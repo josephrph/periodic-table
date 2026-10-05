@@ -1510,6 +1510,20 @@ def check_legacy_safari(src):
              '`inset` is ignored before Safari 14.5 and the overlay will not cover the viewport'
              % bare)
 
+    # IOS-02: the .gx-opt fallback looks redundant on a modern browser — that is precisely the
+    # point, and precisely why a tidy-up would delete it. <button> cannot be a flex container
+    # before Safari 14, and without these the Guided Match option rows stack (measured 117px tall
+    # against the intended 67px, tick dropping to the left).
+    for pat, name in (
+            (r'\.gx-opt \.ic\{[^}]*display:inline-block', '.gx-opt .ic{display:inline-block}'),
+            (r'\.gx-opt \.lab\{[^}]*display:inline-flex', '.gx-opt .lab{display:inline-flex}'),
+            (r'\.gx-opt \.chk\{[^}]*float:right', '.gx-opt .chk{float:right}')):
+        if not re.search(pat, src):
+            found = True
+            fail('legacy safari',
+                 'the IOS-02 legacy fallback "%s" is missing — Guided Match option rows will stack '
+                 'on Safari before 14' % name)
+
     guarded = len(re.findall(
         r'position\s*:\s*fixed\s*;\s*top:0;right:0;bottom:0;left:0;\s*inset\s*:\s*0', src))
     if not guarded:
@@ -1520,8 +1534,8 @@ def check_legacy_safari(src):
 
     if not found:
         note('legacy safari: no ES2020+ syntax in %d KB of inline JS; %d fixed overlay(s) carry '
-             'longhand offsets beside inset:0 (floor: Safari 10.3 / iOS 10.3)'
-             % (len(js) // 1024, guarded))
+             'longhand offsets beside inset:0; .gx-opt flex fallback intact '
+             '(floor: Safari 10.3 / iOS 10.3)' % (len(js) // 1024, guarded))
 
 
 # ── driver ─────────────────────────────────────────────────────────────────────
