@@ -1,7 +1,78 @@
 # Acannability’s Cannabis Periodic Table of Molecules · Project Handoff  _(internal build: V2)_
-_Last updated: **2026-10-05** · Baseline commit: **`b32429d`** (HEAD == origin/main, live byte-identical, sha256 `0e904825afca2a3c`)_
-_Build: 2.2 MB · 64 molecules · **65 health conditions** / 10 groups · 3 cross-listed · **838 NCBI-verified PMIDs** · **289 drugs · 104 drug–drug pairs** · backlog 278 rows · preflight: 28 guards, all passing `--online`_
+_Last updated: **2026-10-05** · Baseline commit: **`10c1474`** (HEAD == origin/main, live byte-identical, sha256 `e503479564224c1e`)_
+_Build: 2.2 MB · 64 molecules · **65 health conditions** / 10 groups · 3 cross-listed · **838 NCBI-verified PMIDs** · **289 drugs · 104 drug–drug pairs** · backlog 278 rows · preflight: 29 guards, all passing `--online`_
 _**Pre-release audit COMPLETE: waves 2–6 ALL SHIPPED. Wave 1 (the release blocker) needs the owner. Drug tranches A–E ALL SHIPPED; severity-sort bug FIXED; the CYP2D6 sweep is COMPLETE across all 21 records; prostate evidence recalibrated; three Men's Health topics added; a V2-wide count guard now blocks stale numbers; Demo Mode and Guided Match are ALIGNED and share one data source, guarded. Tranche E is now COMPLETE and the four discovered gaps are closed (DRUG-24); the CBD→Δ⁹-THC exposure finding is in the build; `hasRisk` is enforced rather than dead.**_
+
+---
+
+## 0000000000. IOS-03 — GUIDED MATCH CTAs + PORTRAIT TABLET DEFAULT — SHIPPED 2026-10-05
+
+**Commit `10c1474`, build `e503479564224c1e`.** Third older-iPad round.
+
+### 1. The result-screen buttons failed by a DIFFERENT mechanism than IOS-02
+
+"Explore these in the Periodic Table", "Print this summary", "Start over" are `.gx-cta`, which has
+**no `display:flex`** — IOS-02 was never going to touch them.
+
+`.gx-cta` was the **only** full-width control in Guided Match that did not declare a width.
+`.gx-opt`, `.gx-condrow`, `.gx-express`, `.gx-browse-link`, `.gx-missing-link` all do. It relied on
+`.gx-stage`'s `align-items:stretch`, and **Safari <14 does not stretch `<button>` flex items** —
+they shrink to their text and sit left. Measured in a 460px column: **303 / 157 / 94px** instead of
+460 / 460 / 460.
+
+**The labels were never off-centre. The BUTTONS were the wrong width**, so their centred text landed
+wherever each button ended. Worth remembering: "text is not centred" can mean the box is wrong, not
+the text.
+
+### 2. The fitted table already worked — it just was not the default
+
+MOB-14's Table view scales the grid as one unit (origin `0 0`, overflow clipped) and at 768 measures
+**0.661 scale, 744px inside a 763px screen, 71×63px tiles**. It worked the whole time. But
+`MOBILE_BREAKPOINT` is 900, so a **768px iPad was treated as a phone** and started on the molecule
+list. Native pinch cannot zoom out past the layout width — MOB-14's own notes say so, which is why
+Fit/Actual exist — so pinching could never substitute.
+
+**A tablet is identified by its SHORTER SIDE (≥700), not the current width**, so the answer survives
+rotation and a phone in landscape (844 wide, 390 short) is not mistaken for one.
+
+**DEFAULT ONLY.** The first toggle tap sets `userPickedView` and the default never overrides the
+reader again; it only re-fits the view they chose when the width changes.
+
+### ⚠ Rotation — an iPad crosses the 900px breakpoint every time it is turned
+
+`refresh()` now clears the scaled-grid state on the way out (a transform and scroller height
+computed for 768px otherwise survive into the 1024px desktop layout) and re-applies the default or
+re-fits the chosen view on the way back. **Before this, portrait came back showing the table at
+actual size until a reload.**
+
+Verified by driving the real code:
+
+| step | | view | transform |
+|---|---|---|---|
+| initial load 768 | mobile | **TABLE** fit | 0.661 → 744px |
+| user taps toggle | mobile | LIST | none |
+| default re-applied | mobile | **LIST** | none — choice NOT overridden |
+| user taps back | mobile | TABLE fit | 0.661 → 744px |
+| rotate to 1024 | desktop | — | **none — stale state cleared** |
+| rotate back to 768 | mobile | TABLE fit | 0.661 → 744px — **no reload** |
+
+Across sizes: 500×757 LIST · 844×303 phone-landscape LIST · 768×937 TABLE 0.661 · 834×1025 TABLE
+0.72 · 1024/1280/1440 desktop, no transform. Toggle present and working at every size.
+
+### Guards (28 → 29)
+
+`check_legacy_safari` extended for the `.gx-cta` width; new **`check_tablet_default_view`** asserts
+the shorter-side test, the reader override and the rotation cleanup — **removing any one silently
+restores the old behaviour**, so all three are asserted separately. Four tripwires, all tested as
+failing.
+
+### QA
+
+`preflight --online` 29/29, 838 PMIDs resolved. JS parses under `jsc`. `.gx-cta` geometry identical
+before/after in-app (424px, left 0, centred). Entourage Effect untouched. Backup:
+`index_BACKUP_20261005_pre_IOS03.html`.
+
+**IOS-01 / IOS-02 / IOS-03 all remain OPEN** pending the owner's device retest on this build.
 
 ---
 
