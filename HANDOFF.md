@@ -1,7 +1,75 @@
 # Acannability’s Cannabis Periodic Table of Molecules · Project Handoff  _(internal build: V2)_
-_Last updated: **2026-10-05** · Baseline commit: **`815d4d5`** (HEAD == origin/main, live byte-identical, sha256 `70acaeec4b58b26e`)_
+_Last updated: **2026-10-05** · Baseline commit: **`b32429d`** (HEAD == origin/main, live byte-identical, sha256 `0e904825afca2a3c`)_
 _Build: 2.2 MB · 64 molecules · **65 health conditions** / 10 groups · 3 cross-listed · **838 NCBI-verified PMIDs** · **289 drugs · 104 drug–drug pairs** · backlog 278 rows · preflight: 28 guards, all passing `--online`_
 _**Pre-release audit COMPLETE: waves 2–6 ALL SHIPPED. Wave 1 (the release blocker) needs the owner. Drug tranches A–E ALL SHIPPED; severity-sort bug FIXED; the CYP2D6 sweep is COMPLETE across all 21 records; prostate evidence recalibrated; three Men's Health topics added; a V2-wide count guard now blocks stale numbers; Demo Mode and Guided Match are ALIGNED and share one data source, guarded. Tranche E is now COMPLETE and the four discovered gaps are closed (DRUG-24); the CBD→Δ⁹-THC exposure finding is in the build; `hasRisk` is enforced rather than dead.**_
+
+---
+
+## 000000000. IOS-02 — GUIDED MATCH ROWS + TABLET TABLE WIDTH — SHIPPED 2026-10-05
+
+**Commit `b32429d`, build `0e904825afca2a3c`.** CSS ONLY — inline JS byte-identical. From the older-iPad retest
+after IOS-01.
+
+### ⚠ A third issue was found and DELIBERATELY NOT FIXED
+
+Entourage Effect had failed on the device. On retest after IOS-01 it **works**. The leading
+hypothesis was that `showEntourage()` never resets scroll, while Guided Match's `stage()` calls
+`window.scrollTo(0,0)` on every render — which matters because older iOS lays out `position:fixed`
+against the **layout** viewport, so an overlay opened while scrolled down is painted off-screen.
+`showFullDisclaimer()`, `openRefCard()` and `showWelcome()` share that shape.
+
+**Owner declined the change: the fault is no longer reproducible, and code written for an
+unconfirmed fault is its own regression risk.** Recorded here rather than written into the build —
+if any overlay is ever reported as "the button does nothing" on an old device, start here.
+
+### 1. Guided Match rows — `<button>` cannot be a flex container before Safari 14
+
+`.gx-opt` is a `<button>` with `display:flex`. Safari <14 ignores it and the three spans fall out of
+the row: **117px tall against the intended 67px**, tick dropping to the left. The screens that
+looked *right* use `.gx-condrow` / `.gx-express`, which are `display:block` and never relied on flex
+— that is the whole of "some screens are aligned and some are not".
+
+```
+.gx-opt .ic{display:inline-block;vertical-align:middle}
+.gx-opt .lab{display:inline-flex;vertical-align:middle;text-align:left}
+.gx-opt .chk{float:right;vertical-align:middle}
+```
+
+**These do nothing where flex works, by design** — `float` and `vertical-align` have no effect on
+flex items, and `inline-flex` on a flex item blockifies to the `flex` it already computes to.
+**Proven, not assumed:** row geometry is byte-identical with and without them, both in an isolated
+page and in the real app with Guided Match open (button 424×64, `.ic` 16,17,30,30, `.lab` 59,17).
+**Do not delete them as redundant** — `check_legacy_safari` asserts all three.
+
+### 2. Tablet band 901–1100px — hide the LEFT legend only
+
+Width breakpoints in this sheet were **560/600/620 only**, and `MOBILE_BREAKPOINT` (which hides
+*both* panels) is **900**. An older iPad in landscape at 1024px therefore got the full desktop
+layout, where the two side panels ate **458px — 45% of the screen**.
+
+`#sideLeft` is the "How to Read a Molecule Tile" legend: **purely explanatory, ZERO controls**, same
+information in the FAQ. `#sideRight` keeps **all 13 controls**. 901 is deliberate — at ≤900
+`is-mobile-view` already hides both, so the rules meet with no gap or overlap.
+
+| width | mobile? | sideLeft | sideRight | table region | #sideRight controls |
+|---:|---|---|---:|---:|---:|
+| 900 | yes | hidden | hidden | 895px | 13 |
+| 901 | no | hidden | 184px | 692px | 13 |
+| **1024** | no | hidden | 184px | **815px** (was 601, **+36%**) | 13 |
+| 1100 | no | hidden | 184px | 891px | 13 |
+| 1101 | no | 194px | 184px | 678px | 13 |
+| 1440 | no | 194px | 184px | 1017px | 13 |
+
+No horizontal scroll at any width. **Not done, per owner:** no collapsible Categories panel, no
+change to `MOBILE_BREAKPOINT`, no other Guided Match change.
+
+### QA
+
+`preflight --online` 28/28, 838 PMIDs resolved. JS parses under `jsc`. Inline JS byte-identical.
+Guided Match rows byte-identical in-app on a modern browser. Backup:
+`index_BACKUP_20261005_pre_IOS02.html`.
+
+**IOS-01 remains OPEN** until the owner confirms the full device retest on this build.
 
 ---
 
