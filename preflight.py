@@ -1428,6 +1428,102 @@ def check_cross_listed(src, data):
              'fallback(s)' % (len(dual), ', '.join(c['id'] for c in dual), len(spans)))
 
 
+
+def check_legacy_safari(src):
+    """IOS-01: the build must parse and lay out on an older iPad. jsc cannot tell us this.
+
+    Reported from an iPad: the entry gate appeared but could not be scrolled or dismissed, and
+    Guided Match, Health Conditions, Entourage Effect, Drug Interactions and every molecule tile
+    were inert — while the page still rendered and the <details> FAQ rows still opened, because
+    those need no JavaScript. Two independent causes, both invisible to every existing guard:
+
+      1. ONE optional-chaining token (`?.`). It is ES2020, a SYNTAX error in Safari before 13.4,
+         and a syntax error does not fail one line — it kills the whole <script> block at parse
+         time. That block held 1.81 MB of the build's 1.85 MB of JS. check_scripts_parse runs the
+         Mac's current JavaScriptCore, which accepts ES2020 happily, so it passed throughout.
+      2. `inset:0` on position:fixed overlays. `inset` is ignored before Safari 14.5, and a fixed
+         element with no offsets shrink-wraps instead of covering the viewport, so #entryGate had
+         no constrained height for its own overflow-y:auto to scroll against.
+
+    Floor enforced here is Safari 10.3 / iOS 10.3, which the rest of the build already meets.
+    Strings and comments are blanked before scanning so prose about these features cannot trip it.
+    """
+    blocks = re.findall(r'<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)</script>', src)
+    if not blocks:
+        fail('legacy safari', 'no inline <script> blocks found (zero-match tripwire)')
+        return
+    js = '\n'.join(blocks)
+
+    def blank(code):
+        out = []; i = 0; n = len(code)
+        while i < n:
+            c = code[i]
+            if c == '/' and i + 1 < n and code[i + 1] == '/':
+                j = code.find('\n', i); j = n if j < 0 else j
+                out.append(' ' * (j - i)); i = j
+            elif c == '/' and i + 1 < n and code[i + 1] == '*':
+                j = code.find('*/', i + 2); j = n if j < 0 else j + 2
+                out.append(' ' * (j - i)); i = j
+            elif c in '"\'`':
+                q = c; j = i + 1
+                while j < n:
+                    if code[j] == '\\':
+                        j += 2; continue
+                    if code[j] == q:
+                        j += 1; break
+                    if q != '`' and code[j] == '\n':
+                        break
+                    j += 1
+                out.append(' ' * (j - i)); i = j
+            else:
+                out.append(c); i += 1
+        return ''.join(out)
+
+    code = blank(js)
+    # Syntax-level only. These do not throw at runtime — they stop the whole block from parsing.
+    SYNTAX = [
+        ('optional chaining `?.`',        'Safari 13.4', r'\?\.'),
+        ('nullish coalescing `??`',       'Safari 13.4', r'\?\?'),
+        ('logical assignment `||= &&= ??=`', 'Safari 14', r'(\|\|=|&&=|\?\?=)'),
+        ('regex lookbehind `(?<=` `(?<!`', 'Safari 16.4', r'\(\?<[=!]'),
+        ('class private `#field`',        'Safari 14.5', r'(?m)^\s*#[A-Za-z_]'),
+        ('class `static {}` block',       'Safari 16.4', r'\bstatic\s*\{'),
+        ('numeric separator `1_000`',     'Safari 13',   r'\b\d[\d_]*_\d'),
+        ('BigInt literal `1n`',           'Safari 14',   r'\b\d+n\b'),
+    ]
+    found = False
+    for name, ver, pat in SYNTAX:
+        for m in re.finditer(pat, code):
+            found = True
+            line = js[:m.start()].count('\n') + 1
+            fail('legacy safari',
+                 '%s needs %s and is a PARSE error below it — one occurrence kills the entire '
+                 '<script> block. Near JS line %d: ...%s...'
+                 % (name, ver, line, ' '.join(js[max(0, m.start() - 48):m.start() + 24].split())))
+
+    # `inset` without longhand offsets: silently ignored before Safari 14.5
+    bare = len(re.findall(r'position\s*:\s*fixed\s*;\s*inset\s*:', src))
+    if bare:
+        found = True
+        fail('legacy safari',
+             '%d `position:fixed;inset:` declaration(s) carry no top/right/bottom/left fallback — '
+             '`inset` is ignored before Safari 14.5 and the overlay will not cover the viewport'
+             % bare)
+
+    guarded = len(re.findall(
+        r'position\s*:\s*fixed\s*;\s*top:0;right:0;bottom:0;left:0;\s*inset\s*:\s*0', src))
+    if not guarded:
+        found = True
+        fail('legacy safari',
+             'no position:fixed overlay carries the top/right/bottom/left + inset:0 pair — the '
+             'IOS-01 fallback has been removed or reformatted (zero-match tripwire)')
+
+    if not found:
+        note('legacy safari: no ES2020+ syntax in %d KB of inline JS; %d fixed overlay(s) carry '
+             'longhand offsets beside inset:0 (floor: Safari 10.3 / iOS 10.3)'
+             % (len(js) // 1024, guarded))
+
+
 # ── driver ─────────────────────────────────────────────────────────────────────
 def main():
     online = '--online' in sys.argv
@@ -1461,6 +1557,7 @@ def main():
     check_hasrisk_invariant(data)
     check_folded_aliases(src, data)
     check_cross_listed(src, data)
+    check_legacy_safari(src)
     check_evidence_attribution(data)
     check_backlog()
 

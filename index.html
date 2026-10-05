@@ -119,7 +119,7 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
    of them. A session that expired inside Guided Match reset correctly but invisibly. 10500
    clears the guided overlay (9000), demo ribbon (9999), toast (10000) and inactivity pill
    (10001), so nothing left open can conceal the gate again. */
-#welcomeGate{position:fixed;inset:0;z-index:10500;background:linear-gradient(160deg,#FBF7EF 0%,#F3EADA 55%,#E9DFC9 100%);display:none;align-items:flex-start;justify-content:center;padding:16px;overflow-y:auto}
+#welcomeGate{position:fixed;top:0;right:0;bottom:0;left:0;inset:0;z-index:10500;background:linear-gradient(160deg,#FBF7EF 0%,#F3EADA 55%,#E9DFC9 100%);display:none;align-items:flex-start;justify-content:center;padding:16px;overflow-y:auto}
 #welcomeGateBox{background:#fff;border-radius:16px;max-width:680px;width:100%;box-shadow:0 24px 70px rgba(60,40,10,.22);overflow:hidden;margin:auto}
 .wg-hero{position:relative;background:linear-gradient(150deg,#F7F2E6 0%,#FFFDF8 100%);border-bottom:1px solid #EADFC8;padding:22px 26px 18px;text-align:center}
 .wg-hero-art{display:block;width:100%;max-width:340px;height:auto;margin:0 auto 6px}
@@ -149,7 +149,7 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
 .wg-enter-btn:disabled{background:#B8B0A0;cursor:not-allowed}
 .wg-decline{background:none;border:none;color:#8A7A5A;font-size:.68rem;text-decoration:underline;cursor:pointer;padding:6px 4px}
 .wg-decline:hover{color:#CC2200}
-#researchGate{position:fixed;inset:0;z-index:10500;background:#0F1A0A;display:none;align-items:flex-start;justify-content:center;padding:16px;overflow-y:auto}
+#researchGate{position:fixed;top:0;right:0;bottom:0;left:0;inset:0;z-index:10500;background:#0F1A0A;display:none;align-items:flex-start;justify-content:center;padding:16px;overflow-y:auto}
 #researchGateBox{background:#fff;border-radius:12px;max-width:660px;width:100%;box-shadow:0 24px 80px rgba(0,0,0,.7);overflow:hidden;margin:auto}
 .rg-skip-btn{padding:10px 18px;background:none;border:2px solid #999;border-radius:7px;color:#666;font-size:.74rem;font-weight:700;cursor:pointer;transition:border-color .15s,color .15s}
 .rg-skip-btn:hover{border-color:#5A7A1A;color:#5A7A1A}
@@ -160,7 +160,13 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,
   .wg-ftr{padding:12px 16px;justify-content:center}
   .wg-enter-btn{width:100%}
 }
-#entryGate{position:fixed;inset:0;z-index:10500;background:#0F1A0A;display:flex;align-items:flex-start;justify-content:center;padding:16px;overflow-y:auto}
+/* IOS-01: top/right/bottom/left are NOT redundant with inset:0 and must not be "tidied" away.
+   `inset` is ignored by Safari before 14.5, and a position:fixed element with no offsets does not
+   stretch to the viewport — it shrink-wraps its content. #entryGate then had no constrained height
+   for its own overflow-y:auto to scroll against, which is why the disclaimer could not be scrolled
+   on an older iPad while the page behind it still could. Longhands first, inset:0 after, so modern
+   browsers resolve to exactly the same four values. check_legacy_safari in preflight.py enforces it. */
+#entryGate{position:fixed;top:0;right:0;bottom:0;left:0;inset:0;z-index:10500;background:#0F1A0A;display:flex;align-items:flex-start;justify-content:center;padding:16px;overflow-y:auto}
 #entryGateBox{background:#fff;border-radius:12px;max-width:660px;width:100%;box-shadow:0 24px 80px rgba(0,0,0,.7);overflow:hidden;margin:auto}
 .eg-hdr{background:#1C0A00;padding:14px 22px;display:flex;align-items:center;gap:14px}
 .eg-hdr-logo{height:38px;width:auto;object-fit:contain}
@@ -433,7 +439,7 @@ body.is-mobile-view.is-touch-device #imDoneBtn{right:10px;bottom:calc(56px + env
 .adv-disclaimer{font-size:.61rem;color:var(--dim);line-height:1.65;padding:9px 11px;background:#FFF8F6;border:1px solid rgba(204,34,0,.22);border-radius:5px;margin-top:10px}
 .adv-disclaimer strong{color:#8B1000}
 /* FULL DISCLAIMER MODAL */
-#fullDiscOv{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:9500;display:none;align-items:center;justify-content:center;padding:20px}
+#fullDiscOv{position:fixed;top:0;right:0;bottom:0;left:0;inset:0;background:rgba(0,0,0,.72);z-index:9500;display:none;align-items:center;justify-content:center;padding:20px}
 #fullDiscOv.open{display:flex}
 #fullDiscBox{background:#fff;border-radius:10px;max-width:720px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.5)}
 .disc-modal-hdr{background:#1C0A00;padding:20px 26px;border-radius:10px 10px 0 0;display:flex;align-items:center;justify-content:space-between;gap:12px;position:sticky;top:0}
@@ -594,7 +600,7 @@ body.is-mobile-view.is-touch-device #imDoneBtn{right:10px;bottom:calc(56px + env
 /* ── ENTOURAGE OVERLAY ─────────────────────────────────────── */
 /* z-index 9100 keeps the Entourage overlay above the Guided overlay (#gxOverlay = 9000), so it can be
    opened from within the Guided Match; still below feedback/disclaimer/demo modals (9200–9999). */
-#ent-ov{position:fixed;inset:0;background:rgba(28,26,20,.58);z-index:9100;display:none;align-items:flex-start;justify-content:center;padding:16px;overflow-y:auto}
+#ent-ov{position:fixed;top:0;right:0;bottom:0;left:0;inset:0;background:rgba(28,26,20,.58);z-index:9100;display:none;align-items:flex-start;justify-content:center;padding:16px;overflow-y:auto}
 #ent-ov.open{display:flex}
 #ent-box{background:var(--surface);border:1px solid var(--border);border-radius:10px;width:100%;max-width:920px;max-height:calc(100vh - 32px);overflow-y:auto;box-shadow:0 10px 48px rgba(0,0,0,.28);display:flex;flex-direction:column}
 .ent-hdr{padding:16px 22px 13px;border-bottom:2px solid var(--accent);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--surface);z-index:1;border-radius:10px 10px 0 0}
@@ -675,7 +681,7 @@ body.is-mobile-view.is-touch-device #imDoneBtn{right:10px;bottom:calc(56px + env
 .fp-reco-print{display:flex;align-items:center;padding:9px 14px;border:2px solid var(--border);border-radius:7px;font-size:.7rem;line-height:1;letter-spacing:.04em;text-transform:uppercase;background:var(--surface);color:var(--text);cursor:pointer;font-weight:800;white-space:nowrap;transition:border-color .12s,color .12s}
 .fp-reco-print:hover{border-color:var(--accent);color:var(--accent)}
 /* WELCOME OVERLAY */
-#wlcOv{position:fixed;inset:0;z-index:1000;background:rgba(28,26,20,.6);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:20px}
+#wlcOv{position:fixed;top:0;right:0;bottom:0;left:0;inset:0;z-index:1000;background:rgba(28,26,20,.6);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:20px}
 #wlcBox{background:var(--surface);border:1px solid var(--border);border-radius:12px;max-width:680px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.28);max-height:90vh;overflow-y:auto}
 .wlc-hd{background:var(--surface2);border-bottom:2px solid var(--accent);padding:22px 28px;text-align:center}
 .wlc-logo-img{height:64px;width:auto;max-width:90%;object-fit:contain;margin:0 auto 6px;display:block}
@@ -1829,7 +1835,7 @@ details.faq-item[open] .faq-icon{transform:rotate(45deg)}
 }
 
 /* ── REFERENCE CARD OVERLAY ── */
-.rc-ov{position:fixed;inset:0;background:rgba(28,26,20,.58);z-index:400;display:none;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto}
+.rc-ov{position:fixed;top:0;right:0;bottom:0;left:0;inset:0;background:rgba(28,26,20,.58);z-index:400;display:none;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto}
 #rcOv.open{display:flex}
 #rcBox{background:var(--surface);border:1px solid var(--border);border-radius:10px;width:100%;max-width:680px;max-height:calc(100vh - 40px);overflow-y:auto;box-shadow:0 10px 48px rgba(0,0,0,.28);display:flex;flex-direction:column}
 .rc-hdr{padding:16px 20px 14px;border-bottom:2px solid var(--accent);display:flex;align-items:flex-start;justify-content:space-between;gap:12px;position:sticky;top:0;background:var(--surface);z-index:1}
@@ -1940,7 +1946,7 @@ body.is-mobile-view.mobile-table-view.mtv-fit .grid-scroll{overflow-x:hidden}
 body.is-mobile-view .main-area.panel-open{padding-right:0}
 
 body.is-mobile-view .mobile-sheet-backdrop{
-  position:fixed;inset:0;background:rgba(28,26,20,.45);z-index:199;
+  position:fixed;top:0;right:0;bottom:0;left:0;inset:0;background:rgba(28,26,20,.45);z-index:199;
   opacity:0;pointer-events:none;transition:opacity .22s;
 }
 body.is-mobile-view .main-area.panel-open ~ .mobile-sheet-backdrop{
@@ -2636,7 +2642,7 @@ body.is-mobile-view .panel.panel-condensed .panel-sym{font-size:1.05rem}
 
 <style>
 /* ===== V4 Guided Finder overlay (additive; uses the app's own theme variables) ===== */
-#gxOverlay{position:fixed;inset:0;z-index:9000;background:var(--bg,#f5f5f2);color:var(--text,#1a1a1a);
+#gxOverlay{position:fixed;top:0;right:0;bottom:0;left:0;inset:0;z-index:9000;background:var(--bg,#f5f5f2);color:var(--text,#1a1a1a);
   display:none;flex-direction:column;align-items:center;overflow-y:auto;font-family:inherit}
 #gxOverlay .gx-wrap{width:100%;max-width:460px;padding:0 18px 34px;display:flex;flex-direction:column;flex:1}
 #gxOverlay .gx-top{display:flex;align-items:center;gap:10px;padding:18px 2px 8px}
@@ -2837,7 +2843,7 @@ body.demo-mode.is-mobile-view #gxOverlay{padding-bottom:116px}
   font-family:inherit;font-size:.74rem;font-weight:700;letter-spacing:.03em;cursor:pointer}
 #gxOverlay .gx-demo-link:hover{border-color:var(--accent,#2E7D57);color:var(--accent,#2E7D57)}
 /* Demo Mode sign-in modal (above the guided overlay z-index 9000 and disclaimer 9500) */
-.demo-login-ov{display:none;position:fixed;inset:0;z-index:9600;background:rgba(20,24,20,.62);
+.demo-login-ov{display:none;position:fixed;top:0;right:0;bottom:0;left:0;inset:0;z-index:9600;background:rgba(20,24,20,.62);
   align-items:center;justify-content:center;padding:20px}
 .demo-login-box{width:100%;max-width:360px;background:var(--surface,#fff);color:var(--text,#1a1a1a);
   border-radius:16px;padding:22px 22px 20px;box-shadow:0 18px 50px rgba(0,0,0,.4);border:1px solid var(--border,#ddd)}
@@ -5898,7 +5904,14 @@ function filterByMolecule(q) {
   const tiles = document.querySelectorAll('.mol-tile');
   let count = 0;
   tiles.forEach(tile => {
-    const name = tile.dataset.name?.toLowerCase() || '';
+    // IOS-01: was `tile.dataset.name?.toLowerCase() || ''`. Optional chaining is ES2020 and is a
+    // SYNTAX error in Safari before 13.4 — it does not throw at this line, it kills the ENTIRE
+    // <script> block at parse time. That block is 1.81 MB of the build's 1.85 MB of JS, so on an
+    // older iPad nothing was ever wired up: the entry gate could not be dismissed, and Guided
+    // Match, Health Conditions, Entourage Effect, Drug Interactions and every molecule tile were
+    // inert. The page still rendered and <details> FAQ rows still opened, because those are HTML.
+    // This form is exactly equivalent and parses everywhere.
+    const name = (tile.dataset.name || '').toLowerCase();
     const matches = q === '' || name.includes(q);
     tile.style.display = matches ? '' : 'none';
     if (matches) count++;
@@ -13697,7 +13710,7 @@ function djToast(msg){try{var t=document.getElementById('djToastEl');if(!t){t=do
      backend. Do not store anything sensitive here.
      ══════════════════════════════════════════════════════════════════════ -->
 <style>
-  .fb-ov{position:fixed;inset:0;z-index:9200;background:rgba(20,12,8,.62);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;padding:20px}
+  .fb-ov{position:fixed;top:0;right:0;bottom:0;left:0;inset:0;z-index:9200;background:rgba(20,12,8,.62);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;padding:20px}
   .fb-ov.open{display:flex}
   .fb-box{background:var(--surface,#fff);color:var(--text,#1a1a1a);border-radius:14px;max-width:460px;width:100%;box-shadow:0 24px 70px rgba(0,0,0,.45);padding:22px 24px;max-height:92vh;overflow:auto}
   .fb-head{display:flex;align-items:flex-start;gap:12px;justify-content:space-between;margin-bottom:14px}
@@ -13732,7 +13745,7 @@ function djToast(msg){try{var t=document.getElementById('djToastEl');if(!t){t=do
   .fb-staff-link{font-size:.56rem;color:var(--mute,#aaa);background:none;border:none;cursor:pointer;padding:0;font-family:inherit;opacity:.7}
   .fb-staff-link:hover{opacity:1;text-decoration:underline}
   /* Admin / staff review console */
-  .fb-adm-ov{position:fixed;inset:0;z-index:9300;background:rgba(15,10,8,.7);display:none;align-items:flex-start;justify-content:center;padding:24px;overflow:auto}
+  .fb-adm-ov{position:fixed;top:0;right:0;bottom:0;left:0;inset:0;z-index:9300;background:rgba(15,10,8,.7);display:none;align-items:flex-start;justify-content:center;padding:24px;overflow:auto}
   .fb-adm-ov.open{display:flex}
   .fb-adm-box{background:var(--surface,#fff);color:var(--text,#1a1a1a);border-radius:14px;max-width:860px;width:100%;box-shadow:0 24px 70px rgba(0,0,0,.5);padding:22px 24px}
   .fb-adm-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;border-bottom:1px solid var(--border,#eee);padding-bottom:14px;margin-bottom:14px}
@@ -13773,7 +13786,7 @@ function djToast(msg){try{var t=document.getElementById('djToastEl');if(!t){t=do
   .fb-privacy-fine{display:inline-block;margin-top:5px;opacity:.85}
   .fb-empty{padding:26px;text-align:center;color:var(--mute,#999);font-size:.8rem;font-style:italic}
   /* Reuse demo-login look for the staff sign-in via fb-adm-login classes */
-  .fb-login-ov{position:fixed;inset:0;z-index:9350;background:rgba(15,10,8,.72);display:none;align-items:center;justify-content:center;padding:20px}
+  .fb-login-ov{position:fixed;top:0;right:0;bottom:0;left:0;inset:0;z-index:9350;background:rgba(15,10,8,.72);display:none;align-items:center;justify-content:center;padding:20px}
   .fb-login-ov.open{display:flex}
   .fb-login-box{background:var(--surface,#fff);color:var(--text,#1a1a1a);border-radius:12px;max-width:360px;width:100%;padding:22px 24px;box-shadow:0 20px 60px rgba(0,0,0,.45)}
   @media print{.fb-ov,.fb-adm-ov,.fb-login-ov{display:none !important}}
@@ -14438,7 +14451,7 @@ window.ResearchData = (function(){
   function openInfo(){
     var wrap=document.getElementById('rdInfoOv');
     if(!wrap){wrap=document.createElement('div');wrap.id='rdInfoOv';
-      wrap.setAttribute('style','position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:100000;padding:20px');
+      wrap.setAttribute('style','position:fixed;top:0;right:0;bottom:0;left:0;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:100000;padding:20px');
       wrap.onclick=function(e){if(e.target===wrap)wrap.style.display='none';};document.body.appendChild(wrap);}
     wrap.innerHTML='<div role="dialog" aria-modal="true" aria-label="Research data and privacy" style="background:var(--surface,#FDFAF4);max-width:520px;width:100%;border-radius:12px;padding:22px 24px;box-shadow:0 20px 60px rgba(0,0,0,.35)">'+
       '<div style="font-family:Georgia,serif;font-size:1.2rem;color:var(--accent);font-weight:700;margin-bottom:8px">📊 Anonymous Research Data</div>'+
