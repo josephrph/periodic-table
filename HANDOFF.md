@@ -1,7 +1,77 @@
 # Acannability’s Cannabis Periodic Table of Molecules · Project Handoff  _(internal build: V2)_
-_Last updated: **2026-10-05** · Baseline commit: **`10c1474`** (HEAD == origin/main, live byte-identical, sha256 `e503479564224c1e`)_
-_Build: 2.2 MB · 64 molecules · **65 health conditions** / 10 groups · 3 cross-listed · **838 NCBI-verified PMIDs** · **289 drugs · 104 drug–drug pairs** · backlog 278 rows · preflight: 29 guards, all passing `--online`_
+_Last updated: **2026-10-05** · Baseline commit: **`67019e9`** (HEAD == origin/main, live byte-identical, sha256 `607dd85d50c52cd4`)_
+_Build: 2.2 MB · 64 molecules · **65 health conditions** / 10 groups · 3 cross-listed · **838 NCBI-verified PMIDs** · **289 drugs · 104 drug–drug pairs** · backlog 278 rows · preflight: 30 guards, all passing `--online`_
 _**Pre-release audit COMPLETE: waves 2–6 ALL SHIPPED. Wave 1 (the release blocker) needs the owner. Drug tranches A–E ALL SHIPPED; severity-sort bug FIXED; the CYP2D6 sweep is COMPLETE across all 21 records; prostate evidence recalibrated; three Men's Health topics added; a V2-wide count guard now blocks stale numbers; Demo Mode and Guided Match are ALIGNED and share one data source, guarded. Tranche E is now COMPLETE and the four discovered gaps are closed (DRUG-24); the CBD→Δ⁹-THC exposure finding is in the build; `hasRisk` is enforced rather than dead.**_
+
+---
+
+## 00000000000. IOS-04 — MEASURED LEGACY-CSS CAPABILITY DETECTION — SHIPPED 2026-10-05
+
+**Commit `67019e9`, build `607dd85d50c52cd4`.** Demo Mode round.
+
+### Two causes, and only one was the bug we already knew
+
+| | unsupported before |
+|---|---|
+| flex `gap` | **Safari 14.1** |
+| `<button>` as a flex container | Safari 14 — *the IOS-02 bug, in a new place* |
+
+`.gx-prod`, `.gx-prod .mols`, `.gx-chips` and `.gx-catrow` all lose their gap **at once**, so the
+card's icon abuts its text and the molecule pills run together. Measured on the live rules: `.info`
+74 → 61, pills 74/117/180 → 61/99/157, chips 0/70/166 → 0/58/142, category buttons 122/227 →
+116/215. `.gx-tog` is separately an inline-flex `<button>`.
+
+**All product cards come from ONE template and ONE class, `.gx-prod`** — so the Best Matches fix is
+made at the shared component level, never per product.
+
+### ⚠ THESE FALLBACKS ARE NOT INERT BY CSS SEMANTICS — unlike IOS-02 and IOS-03
+
+Those used properties flex **ignores** (`float`, `vertical-align`, `width:100%`), so a modern
+browser could not be affected and that was provable from the CSS alone. **`gap` and `margin` both
+apply where both are supported.** An unscoped rule, or a false positive in detection,
+**double-spaces every modern browser** — measured, `.info` x=74 → x=87.
+
+Safety therefore rests entirely on the detection, which is why:
+
+- Both capabilities are **measured**, never inferred from a version or user-agent string. The gap
+  probe measures two 10px rows in a 10px-row-gap column (30px vs 20px). **The `<button>` probe uses
+  a COLUMN flex button on purpose — a row test passes either way**, because two inline-block spans
+  sit side by side whether or not flex is honoured.
+- Both probes **fail closed**: no body yet, or a throw, leaves the class OFF — modern behaviour,
+  the safe direction.
+- Every rule is scoped to `body.no-flex-gap` / `body.no-button-flex`, and
+  **`check_legacy_fallback_scoping` fails the build if one ever loses its prefix.**
+
+Verified end to end against each simulated behaviour:
+
+| simulated browser | probe | classes set |
+|---|---|---|
+| modern | flexGap=T buttonFlex=T | none |
+| no flex gap | flexGap=F buttonFlex=T | `no-flex-gap` |
+| no button flex | flexGap=T buttonFlex=F | `no-button-flex` |
+| both | flexGap=F buttonFlex=F | both |
+
+With the legacy behaviour simulated the fallbacks restore the modern layout **exactly across all 10
+measured properties, including wrapped rows** — which is why the chips use `margin-right` plus a
+negative `margin-bottom` on the container rather than a plain `margin-left`, and why `.gx-catbtn`
+needs `:first-of-type`. A plain `margin-left` left a wrapped button 6px out.
+
+### Scope held deliberately
+
+Demo Mode (`.gx-prod`, `.mols`, `.gx-chips`, `.gx-catrow`, `.gx-tog`) plus `.cat-btn` and
+`.mtb-btn`. **The other 20 flex-`<button>` rules and ~105 flex-`gap` rules are NOT swept** — owner's
+call, to hold regression risk down. The full inventory is in the IOS-04 investigation if a broader
+sweep is ever approved. `clamp()` on `h2.gx-q` (dropped before 13.4, headings fall back to the UA
+size) left alone — not required. Entourage Effect untouched.
+
+### QA
+
+`preflight --online` **30/30**, 838 PMIDs resolved. JS parses under `jsc`; zero executable `?.` or
+`??`. Modern rendering identical at 1440px: body class empty, `.cat-btn` 150×32 with children at the
+same offsets, `#sideRight` 184×642, grid 1017px. **IOS-01/02/03 verified intact.** Backup:
+`index_BACKUP_20261005_pre_IOS04.html`.
+
+**IOS-01 / IOS-02 / IOS-03 / IOS-04 all remain OPEN** pending the owner's comprehensive device test.
 
 ---
 
