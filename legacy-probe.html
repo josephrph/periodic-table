@@ -5,19 +5,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <title>Table Legacy Probe</title>
-<!-- Diagnostic page. NOT part of The Table. Serves no data, stores nothing, links to nothing.
-     It renders the live components with the live CSS and measures them on the device.
+<!-- Round 2. Diagnostic page, NOT part of The Table. Stores nothing, sends nothing.
      Deliberately ES5 and free of flex gap / clamp() / inset / flex-on-button in its OWN layout,
      because those are the features it exists to test. -->
 <style>
-/* Layout: one column of test cards, each a specimen plus its measured numbers.
-   Palette and type are tokens; everything else derives from them. */
 :root{
   --bg:#F3F5F3; --panel:#FFFFFF; --ink:#13241B; --body:#36423B; --muted:#6C7B72;
   --line:#DBE2DD; --accent:#14402B; --pass:#1C6B42; --fail:#A32F1E; --warn:#8A6412;
   --pass-bg:#E4F1E9; --fail-bg:#FAE6E2; --warn-bg:#F7EEDA; --code:#F0F3F0;
   --mono:ui-monospace,Menlo,Monaco,"Courier New",monospace;
-  --ui:system-ui,-apple-system,"Segoe UI",sans-serif;   /* same stack The Table uses */
+  --ui:system-ui,-apple-system,"Segoe UI",sans-serif;
 }
 @media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
   --bg:#0F1512; --panel:#171F1A; --ink:#E8EFE9; --body:#C0CBC4; --muted:#8C9992;
@@ -29,399 +26,326 @@
   --line:#28332C; --accent:#8DC3A5; --pass:#6CBE92; --fail:#DE8B79; --warn:#D2AE6E;
   --pass-bg:#16281E; --fail-bg:#2C1C18; --warn-bg:#2B2518; --code:#1C2520; color-scheme:dark;
 }
-
-/* NOTE: this page deliberately uses NO flex `gap`, no clamp(), no inset:, and no flex on any
-   <button> for its OWN layout — it is testing those features, so it must not depend on them. */
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--body);font-family:var(--ui);font-size:15px;line-height:1.5;margin:0}
-.page{max-width:760px;margin:0 auto;padding-left:16px;padding-right:16px;padding-block:28px 56px}
-
-h1{font-size:25px;line-height:1.2;color:var(--ink);margin:6px 0 0;font-weight:800}
-.sub{margin:10px 0 0;max-width:60ch}
+.page{max-width:760px;margin:0 auto;padding-left:16px;padding-right:16px;padding-block:22px 56px}
 .eyebrow{font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--accent)}
-.howto{margin-top:16px;background:var(--panel);border:1px solid var(--line);
-  border-left:3px solid var(--accent);border-radius:4px;padding:13px 15px}
-.howto b{color:var(--ink)}
-.howto ol{margin:8px 0 0;padding-left:20px}
-.howto li{margin:4px 0}
+h1{font-size:23px;line-height:1.2;color:var(--ink);margin:6px 0 0;font-weight:800}
 
+/* ── the one answer that settles IOS-04 ── */
+#gapVerdict{margin-top:16px;border-radius:8px;padding:20px 18px;text-align:center;border:3px solid}
+#gapVerdict .k{font-size:13px;font-weight:800;letter-spacing:2px;text-transform:uppercase;opacity:.85}
+#gapVerdict .v{font-size:44px;font-weight:800;line-height:1.05;margin-top:6px}
+#gapVerdict .d{font-family:var(--mono);font-size:12.5px;margin-top:8px;opacity:.85}
+#gapVerdict.yes{background:var(--pass-bg);border-color:var(--pass);color:var(--pass)}
+#gapVerdict.no{background:var(--fail-bg);border-color:var(--fail);color:var(--fail)}
+
+.howto{margin-top:18px;background:var(--panel);border:1px solid var(--line);
+  border-left:3px solid var(--accent);border-radius:4px;padding:13px 15px}
+.howto b{color:var(--ink)} .howto ol{margin:8px 0 0;padding-left:20px} .howto li{margin:5px 0}
 h2{font-size:12px;font-weight:800;letter-spacing:1.6px;text-transform:uppercase;color:var(--muted);
-  margin:40px 0 0;padding-bottom:8px;border-bottom:1px solid var(--line)}
+  margin:38px 0 0;padding-bottom:8px;border-bottom:1px solid var(--line)}
+p.sub{margin:10px 0 0;max-width:60ch}
+
+.cand{background:var(--panel);border:1px solid var(--line);border-radius:6px;margin-top:12px;padding:14px 15px}
+.cand .hd{font-size:19px;font-weight:800;color:var(--ink)}
+.cand .what{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:3px;word-wrap:break-word}
+.cand .res{margin-top:10px;font-family:var(--mono);font-size:12px;white-space:pre-wrap;word-wrap:break-word}
+.verd{display:inline-block;font-family:var(--ui);font-size:11px;font-weight:800;letter-spacing:1px;
+  text-transform:uppercase;padding:4px 9px;border-radius:3px;margin-top:9px}
+.verd.ok{background:var(--pass-bg);color:var(--pass)}
+.verd.no{background:var(--fail-bg);color:var(--fail)}
+button.look{display:block;width:100%;margin-top:11px;font-family:var(--ui);font-size:16px;font-weight:800;
+  color:#fff;background:var(--accent);border:0;border-radius:6px;padding:14px 16px;cursor:pointer;
+  -webkit-appearance:none;appearance:none}
 
 table.caps{width:100%;border-collapse:collapse;margin-top:12px;font-size:14px}
 table.caps th{text-align:left;font-size:10.5px;letter-spacing:1.2px;text-transform:uppercase;
   color:var(--muted);padding:0 8px 7px 0;border-bottom:1px solid var(--line)}
-table.caps td{padding:8px 8px 8px 0;border-bottom:1px solid var(--line);vertical-align:top}
-table.caps td.v{font-family:var(--mono);font-size:12.5px;white-space:nowrap}
-.tag{display:inline-block;font-family:var(--ui);font-size:10.5px;font-weight:800;letter-spacing:1px;
-  text-transform:uppercase;padding:3px 8px;border-radius:3px;white-space:nowrap}
+table.caps td{padding:7px 8px 7px 0;border-bottom:1px solid var(--line);vertical-align:top}
+table.caps td.v{font-family:var(--mono);font-size:12px}
+.tag{display:inline-block;font-size:10.5px;font-weight:800;letter-spacing:1px;text-transform:uppercase;
+  padding:3px 8px;border-radius:3px;white-space:nowrap}
 .tag.ok{background:var(--pass-bg);color:var(--pass)}
 .tag.no{background:var(--fail-bg);color:var(--fail)}
 .tag.hm{background:var(--warn-bg);color:var(--warn)}
+#dump{width:100%;min-height:190px;font-family:var(--mono);font-size:11px;line-height:1.45;
+  background:var(--code);color:var(--body);border:1px solid var(--line);border-radius:4px;padding:10px;margin-top:12px}
+button.copy{font-family:var(--ui);font-size:15px;font-weight:700;color:#fff;background:var(--accent);
+  border:0;border-radius:5px;padding:12px 18px;margin-top:10px;cursor:pointer;-webkit-appearance:none;appearance:none}
+footer{margin-top:36px;padding-top:16px;border-top:1px solid var(--line);color:var(--muted);font-size:13px}
 
-.card{background:var(--panel);border:1px solid var(--line);border-radius:6px;margin-top:14px;
-  padding:15px 16px 16px}
-.card h3{font-size:17px;color:var(--ink);margin:0;font-weight:800}
-.card .cls{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:3px}
-.card p.note{margin:9px 0 0;font-size:13.5px;max-width:60ch}
-.card p.ask{margin:10px 0 0;font-size:13.5px;font-weight:700;color:var(--ink);
-  background:var(--warn-bg);border-radius:4px;padding:8px 11px}
+/* ══ THE REAL GUIDED MATCH CONTAINER CHAIN, COPIED FROM THE LIVE BUILD ══════════════════
+   #gxOverlay -> .gx-wrap -> .gx-stage, verbatim. inset:0 is written as longhands because
+   that is what IOS-01 shipped and what the device actually supports. ══════════════════ */
+.ov{position:fixed;top:0;right:0;bottom:0;left:0;z-index:9000;background:#f5f5f2;color:#1a1a1a;
+  display:none;flex-direction:column;align-items:center;overflow-y:auto;padding-bottom:64px}
+.ov.open{display:flex}
+.ov .gx-wrap{width:100%;max-width:460px;padding:0 18px 34px;display:flex;flex-direction:column;flex:1}
+.ov .gx-stage{display:flex;flex-direction:column;gap:12px}
+.ov h2.q{font-size:1.6rem;line-height:1.2;margin:2px 0;color:#1a1a1a;border:0;padding:0;
+  letter-spacing:0;text-transform:none;font-weight:800}
+.ov p{margin:0;font-size:.95rem;color:#36423b}
+.ov .gx-cta{margin-top:8px;background:#2E7D57;color:#fff;border:none;border-radius:14px;padding:16px;
+  font-size:1rem;font-weight:800;cursor:pointer;font-family:inherit;width:100%;-webkit-appearance:none;appearance:none}
+.ov .gx-cta.ghost{background:#fff;color:#777;border:1px solid #ccc;font-weight:600;font-size:.9rem;padding:12px}
+.ov .closebar{position:fixed;top:0;left:0;right:0;z-index:10;background:#13241B;color:#fff;
+  padding:10px 14px;font-weight:800;font-size:15px;text-align:center}
+.ov .closebar button{font-family:var(--ui);font-size:15px;font-weight:800;color:#13241B;background:#fff;
+  border:0;border-radius:5px;padding:8px 16px;margin-left:10px;-webkit-appearance:none;appearance:none}
+.ov .spacer{height:18px}
+.ov .endmark{margin-top:10px;background:#F7EEDA;border:2px dashed #8A6412;color:#5A4208;
+  border-radius:8px;padding:12px;font-weight:800;font-size:14px;text-align:center}
 
-.variant{margin-top:14px;padding-top:12px;border-top:1px dashed var(--line)}
-.variant:first-of-type{border-top:0;padding-top:4px}
-.vname{font-size:11px;font-weight:800;letter-spacing:1.1px;text-transform:uppercase;color:var(--accent)}
-.vcss{font-family:var(--mono);font-size:11.5px;color:var(--muted);margin-top:2px;word-wrap:break-word}
-.stage{width:100%;max-width:360px;margin-top:9px;padding:10px;background:var(--code);
-  border:1px solid var(--line);border-radius:4px;overflow-x:auto}
-.m{font-family:var(--mono);font-size:11.5px;color:var(--body);margin-top:7px;white-space:pre-wrap;
-  word-wrap:break-word}
-
-#dump{width:100%;min-height:200px;font-family:var(--mono);font-size:11px;line-height:1.45;
-  background:var(--code);color:var(--body);border:1px solid var(--line);border-radius:4px;
-  padding:10px;margin-top:12px}
-button.copy{font-family:var(--ui);font-size:13px;font-weight:700;color:#fff;background:var(--accent);
-  border:0;border-radius:5px;padding:10px 16px;margin-top:10px;cursor:pointer;
-  -webkit-appearance:none;appearance:none}
-footer{margin-top:40px;padding-top:16px;border-top:1px solid var(--line);color:var(--muted);font-size:13px}
-</style>
-<style id="v2css">
-.gx-wrap{width:100%;max-width:460px;padding:0 18px 34px;display:flex;flex-direction:column;flex:1}
-.gx-stage{display:flex;flex-direction:column;gap:12px;animation:gxfade .25s ease}
-
-.gx-opt{display:flex;align-items:center;gap:13px;padding:16px 15px;border:1.5px solid var(--border,#ccc);
-  border-radius:14px;background:var(--surface,#fff);color:var(--text,#1a1a1a);font-size:1rem;text-align:left;
-  cursor:pointer;width:100%;font-family:inherit}
-.gx-opt .ic{font-size:1.5rem;width:30px;text-align:center;flex:0 0 auto}
-.gx-opt .lab{display:flex;flex-direction:column}
-.gx-opt .lab small{color:var(--dim,#777);font-size:.78rem}
-.gx-opt .chk{margin-left:auto;width:20px;height:20px;border-radius:50%;border:2px solid var(--border,#ccc);flex:0 0 auto}
-
-.gx-condrow{display:block;width:100%;text-align:left;font-family:inherit;font-size:.83rem;
-  padding:11px 13px;margin-bottom:5px;cursor:pointer;color:var(--text,#1a1a1a);
-  background:var(--surface,#fff);border:1px solid var(--border,#ccc);border-radius:9px}
-
-.gx-cta{margin-top:8px;background:var(--accent,#2E7D57);color:#fff;border:none;border-radius:14px;
-  padding:16px;font-size:1rem;font-weight:800;cursor:pointer;font-family:inherit;width:100%}
-.gx-cta.ghost{background:var(--surface,#fff);color:var(--dim,#777);border:1px solid var(--border,#ccc);
-  font-weight:600;font-size:.9rem;padding:12px}
-
-.gx-prod{display:flex;align-items:center;gap:13px;padding:14px;border:1px solid var(--border,#ccc);
-  border-radius:14px;background:var(--surface,#fff);margin-bottom:10px}
-.gx-prod .sw{width:44px;height:44px;border-radius:11px;flex:0 0 auto;display:flex;align-items:center;
-  justify-content:center;font-size:1.3rem;background:var(--surface2,#eef3ee);border:1px solid var(--border,#ccc)}
-.gx-prod .info{flex:1;min-width:0}
-.gx-prod .info b{font-size:.95rem}
-.gx-prod .meta{font-size:.74rem;color:var(--dim,#777);margin-top:2px}
-.gx-prod .mols{margin-top:5px;display:flex;gap:5px;flex-wrap:wrap}
-.gx-prod .mols span{font-size:.64rem;background:var(--surface2,#eef3ee);border:1px solid var(--border,#ccc);
-  padding:1px 7px;border-radius:999px;color:var(--dim,#777)}
-.gx-fit{text-align:center;flex:0 0 auto}
-.gx-fit .pct{font-size:1.4rem;font-weight:800;color:var(--accent,#2E7D57);line-height:1}
-.gx-fit .lbl{font-size:.6rem;text-transform:uppercase;letter-spacing:.08em;color:var(--dim,#777);margin-top:3px}
-.gx-badge{display:inline-block;font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;
-  padding:2px 7px;border-radius:999px;margin-top:4px}
-.gx-badge.strong{background:var(--accent,#2E7D57);color:#fff}
-.gx-why{margin-top:5px;font-size:.72rem;color:var(--accent,#2E7D57);font-weight:600;line-height:1.35}
-
-.dj-select{margin-top:8px;width:100%;background:var(--accent,#2E7D57);color:#fff;border:none;
-  border-radius:9px;padding:9px;font-family:inherit;font-size:.84rem;font-weight:800;cursor:pointer}
-
-/* the fallbacks ALREADY SHIPPED in the live build (IOS-02), so specimen A shows today's real state */
-.shipped .gx-opt .ic{display:inline-block;vertical-align:middle}
-.shipped .gx-opt .lab{display:inline-flex;vertical-align:middle;text-align:left}
-.shipped .gx-opt .chk{float:right;vertical-align:middle}
-
-/* ── candidate fixes, each isolated to one wrapper class ── */
-.fixA .gx-cta,.fixA .dj-select{line-height:1.3}
-.fixB .gx-cta,.fixB .dj-select{display:block;line-height:1.3}
-.fixC .gx-cta,.fixC .dj-select{display:block;line-height:1.3;min-height:0;vertical-align:middle;
-  text-align:center}
-.fixD .gx-opt{display:block}
-.fixD .gx-opt .ic{display:inline-block;vertical-align:middle;margin-right:13px}
-.fixD .gx-opt .lab{display:inline-block;vertical-align:middle;text-align:left}
-.fixD .gx-opt .chk{float:right;margin-top:6px}
-.fixE .gx-prod>*+*{margin-left:13px}
-.fixE .gx-prod .mols{margin-bottom:-5px}
-.fixE .gx-prod .mols>*{margin:0 5px 5px 0}
-.fixF .gx-condrow{line-height:1.35}
+/* ── candidate container fixes, one class each ── */
+.ov.cB .gx-wrap{min-height:0}
+.ov.cC .gx-wrap{flex:1 0 auto}
+.ov.cD .gx-wrap{flex:none}
+.ov.cE{-webkit-overflow-scrolling:touch}
+.ov.cF .gx-wrap{flex:1 0 auto}
+.ov.cF{-webkit-overflow-scrolling:touch}
 </style>
 </head>
 <body>
-<!-- ══ THE REAL COMPONENT CSS, COPIED VERBATIM FROM THE LIVE BUILD ═══════════════════════
-     Nothing below is edited. The #gxOverlay prefix is stripped so the rules apply here, and the
-     var() fallbacks baked into the live CSS (#ccc, #fff, #2E7D57 …) supply the colours. -->
-
 
 <div class="page">
+  <div class="eyebrow">The Table · legacy Safari probe · round 2</div>
+  <h1>Can this iPad reach the bottom of a Guided Match screen?</h1>
 
-  <div class="eyebrow">The Table · legacy Safari probe</div>
-  <h1>What this iPad actually does</h1>
-  <p class="sub">This page is separate from The Table. It touches nothing on the live site. It
-  renders the real components with the real CSS, measures them on this device, and prints the
-  numbers on screen.</p>
+  <div id="gapVerdict"><div class="k">Flex gap</div><div class="v">measuring…</div><div class="d"></div></div>
 
   <div class="howto">
-    <b>What I need from you — six steps</b>
+    <b>What I need from you — four steps</b>
     <ol>
-      <li><b>Hold the iPad in portrait.</b> Not landscape. Portrait is where the problems were
-        reported, and it is the narrower case.</li>
-      <li><b>Scroll all the way to the bottom.</b> This page is several screens long. Everything
-        below matters.</li>
-      <li><b>Take 5 screenshots as you scroll:</b> one of the capability table in section 1, then
-        one of each of the four component cards in section 2. Overlapping shots are fine — too many
-        is better than too few.</li>
-      <li><b>For each of the four components, tell me which lettered variant looks best.</b> Just
-        the letter: &ldquo;A&rdquo;, &ldquo;B&rdquo;, and so on. If none of them look right, say so
-        and describe what is wrong — your eyes on the real device beat my numbers.</li>
-      <li><b>Tap &ldquo;Copy all results&rdquo; at the very bottom and paste the text to me.</b>
-        This is the single most useful thing on the page: it carries the exact measurements.</li>
-      <li><b>That is everything.</b> No other taps, no typing, no sign-in. Nothing is saved and
-        nothing is sent anywhere — the page only measures and displays.</li>
+      <li><b>Photograph the big green or red FLEX GAP box above.</b> That one answer settles an
+        open question on its own.</li>
+      <li><b>Photograph the results table in section 1.</b> It fills in by itself, no tapping.</li>
+      <li><b>Open each candidate in turn</b> — tap <b>Look at A</b>, try to scroll to the very
+        bottom, photograph what you see there, then tap <b>Close</b>. Repeat for B, C, D, E and F.
+        <b>The question each time: can you see the whole dashed yellow box marked END OF SCREEN?</b></li>
+      <li><b>Tell me which letters worked</b> and which cut off at the bottom. Letters only — no CSS.</li>
     </ol>
-    <p style="margin:10px 0 0;font-size:13.5px;color:var(--muted)">If the text in step 5 will not
-    copy, screenshot the box above the button instead. Landscape is not needed unless I ask for it
-    later.</p>
+    <p style="margin:10px 0 0;font-size:13.5px;color:var(--muted)">Portrait, as before. If a
+    candidate will not scroll at all, that is a result too — tell me.</p>
   </div>
 
-  <h2>1 · What this browser supports</h2>
-  <table class="caps" id="caps">
-    <thead><tr><th>Capability</th><th>Result</th><th>Measured</th></tr></thead>
-    <tbody id="capsBody"><tr><td colspan="3">Measuring…</td></tr></tbody>
+  <h2>1 · Measured for every candidate, automatically</h2>
+  <p class="sub">Each candidate is opened off-screen, scrolled to its bottom and measured. &ldquo;Last
+  control reachable&rdquo; is the one that matters.</p>
+  <table class="caps" id="contTable">
+    <thead><tr><th>Candidate</th><th>Last control</th><th>Numbers</th></tr></thead>
+    <tbody id="contBody"><tr><td colspan="3">Measuring…</td></tr></tbody>
   </table>
 
-  <h2>2 · The components, as they are today</h2>
-  <p class="sub" style="margin-top:10px">Each specimen is the real markup and the real CSS at a
-  fixed 360&nbsp;px width, so the numbers underneath are comparable between devices. Variant A is
-  exactly what is on the live site right now, fallbacks included.</p>
-  <div id="specimens"></div>
+  <h2>2 · Look at each one yourself</h2>
+  <p class="sub">Each opens the real container chain full-screen with content taller than the
+  display, ending in the three action buttons and a dashed <b>END OF SCREEN</b> marker.</p>
+  <div id="cands"></div>
 
-  <h2>3 · Everything above as text</h2>
-  <p class="sub" style="margin-top:10px">Same data, copyable. If screenshots are awkward, send this
-  instead.</p>
+  <h2>3 · This browser's capabilities</h2>
+  <table class="caps"><thead><tr><th>Capability</th><th>Result</th><th>Measured</th></tr></thead>
+    <tbody id="capsBody"><tr><td colspan="3">Measuring…</td></tr></tbody></table>
+
+  <h2>4 · Everything above as text</h2>
   <textarea id="dump" readonly></textarea>
   <button class="copy" id="copyBtn" type="button">Copy all results</button>
 
-  <footer>
-    Nothing here writes to The Table or to your device. Build under test:
-    <span style="font-family:var(--mono)">607dd85d50c52cd4</span>.
-  </footer>
+  <footer>Separate from The Table. Production build under test:
+    <span style="font-family:var(--mono)">607dd85d50c52cd4</span>.</footer>
 </div>
 
 <script>
-/* ES5 only, on purpose: this must parse on the browser it is diagnosing. No optional chaining,
-   no arrow functions, no template literals, no const/let. */
+/* ES5 only — this must parse on the browser it is diagnosing. */
 (function(){
-  var out = [];
-  function say(s){ out.push(s); }
-
-  /* ── capability probes ───────────────────────────────────────────────────────────── */
-  function sandbox(el, read){
+  var out=[]; function say(s){ out.push(s); }
+  function px(n){ return Math.round(n*10)/10; }
+  function sandbox(el,read){
     el.style.position='absolute'; el.style.left='-9999px'; el.style.top='0';
     document.body.appendChild(el);
     var v=null; try{ v=read(el); }catch(e){ v=null; }
-    if(el.parentNode) el.parentNode.removeChild(el);
-    return v;
-  }
-  function px(n){ return Math.round(n*10)/10; }
-
-  var caps = [];
-  function cap(name, pass, measured, matters){
-    caps.push({name:name, pass:pass, measured:measured, matters:matters});
-  }
-  // Some probes have no right answer — they are numbers to compare against a modern device.
-  function info(name, measured, matters){
-    caps.push({name:name, pass:'info', measured:measured, matters:matters});
+    if(el.parentNode) el.parentNode.removeChild(el); return v;
   }
 
-  // flex gap: two 10px rows with row-gap:10px measure 30 tall when honoured
-  var d=document.createElement('div');
-  d.style.cssText='display:flex;flex-direction:column;row-gap:10px;width:50px;margin:0;padding:0';
-  d.innerHTML='<div style="height:10px"></div><div style="height:10px"></div>';
-  var gapH=sandbox(d,function(el){return el.scrollHeight;});
-  cap('flex gap', gapH>=25, gapH+'px (30 = yes, 20 = no)', 'Best Matches card spacing');
+  /* ── 1. FLEX GAP, front and centre ─────────────────────────────────────────────── */
+  var g=document.createElement('div');
+  g.style.cssText='display:flex;flex-direction:column;row-gap:10px;width:50px;margin:0;padding:0';
+  g.innerHTML='<div style="height:10px"></div><div style="height:10px"></div>';
+  var gapH=sandbox(g,function(el){return el.scrollHeight;});
+  var gapOK = gapH!==null && gapH>=25;
+  var gv=document.getElementById('gapVerdict');
+  gv.className = gapOK ? 'yes' : 'no';
+  gv.getElementsByTagName('div')[1].innerHTML = 'FLEX GAP: ' + (gapOK ? 'YES' : 'NO');
+  gv.getElementsByTagName('div')[2].innerHTML =
+    'two 10px rows with a 10px gap measured ' + gapH + 'px &middot; 30 = supported, 20 = not';
+  say('FLEX GAP: ' + (gapOK?'YES':'NO') + '   (measured ' + gapH + 'px; 30 = yes, 20 = no)');
+  say('viewport ' + window.innerWidth + ' x ' + window.innerHeight +
+      '   dpr ' + (window.devicePixelRatio||1));
+  say('UA ' + navigator.userAgent); say('');
 
-  // <button> as a flex CONTAINER: column flex stacks two inline-blocks when honoured
-  var b=document.createElement('button');
-  b.style.cssText='display:flex;flex-direction:column;width:200px;margin:0;padding:0;border:0';
-  b.innerHTML='<span style="display:inline-block;width:20px;height:10px"></span>'+
-              '<span style="display:inline-block;width:20px;height:10px"></span>';
-  var stacked=sandbox(b,function(el){
-    var k=el.getElementsByTagName('span');
-    return k[1].getBoundingClientRect().top-k[0].getBoundingClientRect().top;
-  });
-  cap('&lt;button&gt; as flex container', stacked!==null&&stacked>1,
-      px(stacked)+'px apart (10 = yes, 0 = no)', 'Guided Match option rows');
+  /* ── 2. the container candidates ───────────────────────────────────────────────── */
+  var CANDS=[
+    {k:'A', cls:'',   what:'live site today — .gx-wrap{flex:1}, no other change'},
+    {k:'B', cls:'cB', what:'.gx-wrap{min-height:0}'},
+    {k:'C', cls:'cC', what:'.gx-wrap{flex:1 0 auto}'},
+    {k:'D', cls:'cD', what:'.gx-wrap{flex:none}'},
+    {k:'E', cls:'cE', what:'overlay gets -webkit-overflow-scrolling:touch'},
+    {k:'F', cls:'cF', what:'.gx-wrap{flex:1 0 auto} + -webkit-overflow-scrolling:touch'}
+  ];
 
-  // <button> as a flex ITEM: does it stretch to the column width?
-  var w=document.createElement('div');
-  w.style.cssText='display:flex;flex-direction:column;width:300px;margin:0;padding:0';
-  w.innerHTML='<button style="margin:0;padding:0;border:0">x</button>';
-  var stretch=sandbox(w,function(el){
-    return el.getElementsByTagName('button')[0].getBoundingClientRect().width;
-  });
-  cap('&lt;button&gt; stretches as flex item', stretch!==null&&stretch>250,
-      px(stretch)+'px of 300 (300 = yes)', 'Explore / Print / Start over');
+  function filler(){
+    var p='', i;
+    for(i=0;i<9;i++){
+      p += '<p>Research-linked molecules for your health topic. Primary and supporting tiers are '+
+           'ranked by the strength of the published evidence, not by potency. Paragraph '+(i+1)+' of 9, '+
+           'here only to make this screen taller than the display so the scrolling behaviour is real.</p>';
+    }
+    return p;
+  }
+  function screenHTML(){
+    return '<div class="gx-wrap"><div class="gx-stage">'+
+      '<h2 class="q">Research-Linked Molecules for Your Health Topic</h2>'+
+      filler()+
+      '<button class="gx-cta" id="brownBtn">&#128300; Explore these in the Periodic Table &#8594;</button>'+
+      '<button class="gx-cta ghost">&#128424; Print this summary</button>'+
+      '<button class="gx-cta ghost" id="lastBtn">Start over</button>'+
+      '<div class="endmark" id="endMark">END OF SCREEN &mdash; can you see this whole box?</div>'+
+      '<div class="spacer"></div>'+
+      '</div></div>';
+  }
 
-  // where does a button's text sit vertically inside fixed padding?
-  var vb=document.createElement('button');
-  vb.style.cssText='margin:0;padding:16px;border:0;font-size:16px;width:200px;-webkit-appearance:none;appearance:none';
-  vb.innerHTML='<span id="vbs">Hg</span>';
-  var vcentre=sandbox(vb,function(el){
-    var s=el.getElementsByTagName('span')[0];
-    var br=el.getBoundingClientRect(), sr=s.getBoundingClientRect();
-    return {top:sr.top-br.top, bottom:br.bottom-sr.bottom, h:br.height, sh:sr.height};
-  });
-  var vdelta = vcentre ? px(Math.abs(vcentre.top-vcentre.bottom)) : null;
-  cap('button text vertically centred', vdelta!==null&&vdelta<=1.5,
-      vcentre? ('gap above '+px(vcentre.top)+'px, below '+px(vcentre.bottom)+'px, box '+px(vcentre.h)+'px') : 'n/a',
-      'SEE THE RESEARCH sitting low');
+  var results={};
+  function buildOv(cls, visible){
+    var ov=document.createElement('div');
+    ov.className='ov open '+cls;
+    if(!visible){ ov.style.visibility='hidden'; ov.style.zIndex='-1'; }
+    ov.innerHTML=screenHTML();
+    document.body.appendChild(ov);
+    return ov;
+  }
+  function measureOv(ov){
+    var wrap=ov.getElementsByTagName('div')[0];
+    var stage=wrap.getElementsByTagName('div')[0];
+    var end=ov.querySelector('#endMark');
+    var brown=ov.querySelector('#brownBtn');
+    var before={client:ov.clientHeight, scroll:ov.scrollHeight,
+                wrap:Math.round(wrap.getBoundingClientRect().height),
+                stage:Math.round(stage.getBoundingClientRect().height)};
+    ov.scrollTop = ov.scrollHeight;               // drive it to the very bottom
+    var ovr=ov.getBoundingClientRect();
+    var er=end.getBoundingClientRect(), br=brown.getBoundingClientRect();
+    var endClipped = Math.max(0, Math.round(er.bottom - ovr.bottom));
+    var brownClipped = Math.max(0, Math.round(br.bottom - ovr.bottom));
+    var scrolledTo = Math.round(ov.scrollTop);
+    var maxScroll = Math.max(0, ov.scrollHeight - ov.clientHeight);
+    return {client:before.client, scroll:before.scroll, wrap:before.wrap, stage:before.stage,
+            scrolledTo:scrolledTo, maxScroll:maxScroll,
+            canScrollToBottom:(maxScroll - scrolledTo) <= 2,
+            endClipped:endClipped, brownClipped:brownClipped,
+            reachable:(endClipped===0)};
+  }
 
-  // line-height:normal resolved on a button vs a div, same font
-  var lb=document.createElement('button');
-  lb.style.cssText='margin:0;padding:0;border:0;font-size:16px;-webkit-appearance:none;appearance:none';
-  lb.appendChild(document.createTextNode('Hg'));
-  var lbh=sandbox(lb,function(el){return el.getBoundingClientRect().height;});
-  var ld=document.createElement('div');
-  ld.style.cssText='margin:0;padding:0;font-size:16px;display:inline-block';
-  ld.appendChild(document.createTextNode('Hg'));
-  var ldh=sandbox(ld,function(el){return el.getBoundingClientRect().height;});
-  // No pass/fail: a <button> uses line-height:normal while the div inherits the page's, so these
-  // differ on every browser. The NUMBER is the point — compare it against a modern device.
-  info('line-height:normal on a button',
-       'button '+px(lbh)+'px vs div '+px(ldh)+'px at 16px font',
-       'how tall a button line box is here');
+  var tb=document.getElementById('contBody'); tb.innerHTML='';
+  var host=document.getElementById('cands');
+  say('=== CONTAINER CANDIDATES ===');
+  say('"reachable" = the END OF SCREEN marker is fully visible after scrolling to the bottom.');
+  say('');
+  for(var i=0;i<CANDS.length;i++){
+    var c=CANDS[i];
+    var ov=buildOv(c.cls,false);
+    var r;
+    try{ r=measureOv(ov); }catch(e){ r=null; }
+    if(ov.parentNode) ov.parentNode.removeChild(ov);
+    results[c.k]=r;
 
-  // appearance:none honoured?
-  var ab=document.createElement('button');
-  ab.style.cssText='-webkit-appearance:none;appearance:none;margin:0;padding:0;border:0;background:#123456;width:60px;height:20px';
-  var abg=sandbox(ab,function(el){return getComputedStyle(el).backgroundColor;});
-  cap('appearance:none honoured', (abg||'').replace(/\s/g,'')==='rgb(18,52,86)', abg||'n/a',
-      'custom button backgrounds');
+    var tag = r ? (r.reachable?'<span class="tag ok">reachable</span>'
+                              :'<span class="tag no">clipped '+r.endClipped+'px</span>')
+                : '<span class="tag hm">n/a</span>';
+    var nums = r ? ('client '+r.client+' / scroll '+r.scroll+'<br>wrap '+r.wrap+' &middot; stage '+r.stage+
+                    '<br>scrolled '+r.scrolledTo+' of '+r.maxScroll+
+                    '<br>brown bar clipped '+r.brownClipped+'px') : '—';
+    tb.innerHTML += '<tr><td><b style="color:var(--ink)">'+c.k+'</b><br>'+
+      '<span style="font-size:12px;color:var(--muted)">'+c.what+'</span></td>'+
+      '<td>'+tag+'</td><td class="v">'+nums+'</td></tr>';
 
+    say(c.k+'  '+c.what);
+    if(r){
+      say('    client '+r.client+'  scrollHeight '+r.scroll+'  wrap '+r.wrap+'  stage '+r.stage);
+      say('    scrolled to '+r.scrolledTo+' of a possible '+r.maxScroll+
+          '   can reach bottom: '+(r.canScrollToBottom?'yes':'NO'));
+      say('    END marker clipped by '+r.endClipped+'px   brown bar clipped by '+r.brownClipped+'px'+
+          '   -> '+(r.reachable?'REACHABLE':'CLIPPED'));
+    } else { say('    measurement failed'); }
+    say('');
+
+    var card=document.createElement('div'); card.className='cand';
+    card.innerHTML='<div class="hd">Candidate '+c.k+'</div><div class="what">'+c.what+'</div>'+
+      '<div class="res">'+(r? ('client '+r.client+' / scrollHeight '+r.scroll+
+        '  ·  END clipped '+r.endClipped+'px  ·  brown bar clipped '+r.brownClipped+'px') : 'n/a')+'</div>'+
+      (r? ('<span class="verd '+(r.reachable?'ok':'no')+'">'+
+           (r.reachable?'bottom reachable':'bottom clipped')+'</span>') : '');
+    var btn=document.createElement('button');
+    btn.className='look'; btn.type='button';
+    btn.appendChild(document.createTextNode('Look at '+c.k));
+    btn.setAttribute('data-cls', c.cls); btn.setAttribute('data-k', c.k);
+    btn.onclick=function(){ openLook(this.getAttribute('data-cls'), this.getAttribute('data-k')); };
+    card.appendChild(btn);
+    host.appendChild(card);
+  }
+
+  var liveOv=null;
+  function openLook(cls,k){
+    if(liveOv && liveOv.parentNode) liveOv.parentNode.removeChild(liveOv);
+    liveOv=buildOv(cls,true);
+    var bar=document.createElement('div');
+    bar.className='closebar';
+    bar.innerHTML='Candidate '+k+' — scroll to the bottom';
+    var cb=document.createElement('button');
+    cb.type='button'; cb.appendChild(document.createTextNode('Close'));
+    cb.onclick=function(){ if(liveOv&&liveOv.parentNode) liveOv.parentNode.removeChild(liveOv); liveOv=null; };
+    bar.appendChild(cb);
+    liveOv.insertBefore(bar, liveOv.firstChild);
+    liveOv.scrollTop=0;
+  }
+
+  /* ── 3. capability reference ───────────────────────────────────────────────────── */
+  var caps=[];
+  function cap(n,p,m){ caps.push({n:n,p:p,m:m}); }
   function supports(prop,val){
     try{ if(window.CSS&&CSS.supports) return CSS.supports(prop,val); }catch(e){}
     var t=document.createElement('div'); try{ t.style[prop]=val; return t.style[prop]!==''; }catch(e){ return false; }
   }
-  cap('position: sticky', supports('position','sticky'), supports('position','sticky')?'yes':'no',
-      'panel headers');
-  cap('inset shorthand', supports('inset','0'), supports('inset','0')?'yes':'no', 'full-screen overlays');
+  cap('flex gap', gapOK, gapH+'px');
+  var b=document.createElement('button');
+  b.style.cssText='display:flex;flex-direction:column;width:200px;margin:0;padding:0;border:0';
+  b.innerHTML='<span style="display:inline-block;width:20px;height:10px"></span>'+
+              '<span style="display:inline-block;width:20px;height:10px"></span>';
+  var st=sandbox(b,function(el){var k=el.getElementsByTagName('span');
+    return k[1].getBoundingClientRect().top-k[0].getBoundingClientRect().top;});
+  cap('&lt;button&gt; as flex container', st!==null&&st>1, px(st)+'px apart');
+  cap('position: sticky', supports('position','sticky'), supports('position','sticky')?'yes':'no');
+  cap('inset shorthand', supports('inset','0'), supports('inset','0')?'yes':'no');
   cap('clamp()', supports('font-size','clamp(1rem,2vw,2rem)'),
-      supports('font-size','clamp(1rem,2vw,2rem)')?'yes':'no', 'Guided Match headings');
-  cap('min-width:0 flex shrink', supports('min-width','0'), 'n/a', 'card text wrapping');
-
-  var tb=document.getElementById('capsBody'); tb.innerHTML='';
+      supports('font-size','clamp(1rem,2vw,2rem)')?'yes':'no');
+  cap('-webkit-overflow-scrolling', supports('-webkit-overflow-scrolling','touch'),
+      supports('-webkit-overflow-scrolling','touch')?'yes':'no');
+  var cb2=document.getElementById('capsBody'); cb2.innerHTML='';
   say('=== CAPABILITIES ===');
-  say('viewport ' + window.innerWidth + ' x ' + window.innerHeight +
-      '  dpr ' + (window.devicePixelRatio||1));
-  say('UA ' + navigator.userAgent);
-  say('');
-  for(var i=0;i<caps.length;i++){
-    var c=caps[i];
-    var tag = (c.pass==='info') ? '<span class="tag hm">compare</span>'
-            : (c.pass ? '<span class="tag ok">yes</span>' : '<span class="tag no">no</span>');
-    tb.innerHTML += '<tr><td><b style="color:var(--ink)">'+c.name+'</b><br>'+
-      '<span style="font-size:12.5px;color:var(--muted)">'+c.matters+'</span></td>'+
-      '<td>'+tag+'</td><td class="v">'+c.measured+'</td></tr>';
-    say(((c.pass==='info')?'[cmp] ':(c.pass?'[yes] ':'[NO ] ')) + c.name.replace(/&lt;/g,'<').replace(/&gt;/g,'>') +
-        '  ->  ' + c.measured);
+  for(var j=0;j<caps.length;j++){
+    var c2=caps[j];
+    cb2.innerHTML += '<tr><td><b style="color:var(--ink)">'+c2.n+'</b></td><td>'+
+      (c2.p?'<span class="tag ok">yes</span>':'<span class="tag no">no</span>')+
+      '</td><td class="v">'+c2.m+'</td></tr>';
+    say((c2.p?'[yes] ':'[NO ] ')+c2.n.replace(/&lt;/g,'<').replace(/&gt;/g,'>')+'  ->  '+c2.m);
   }
 
-  /* ── component specimens ─────────────────────────────────────────────────────────── */
-  var OPT = '<button class="gx-opt"><span class="ic">&#129517;</span>'+
-            '<span class="lab">Pain relief<small>aches, inflammation, nerve pain</small></span>'+
-            '<span class="chk"></span></button>';
-  var ROW = '<button class="gx-condrow">Neuropathic Pain</button>'+
-            '<button class="gx-condrow alias">Causalgia &#8594; Neuropathic Pain</button>';
-  var CTA = '<button class="gx-cta">&#128300; Explore these in the Periodic Table &#8594;</button>'+
-            '<button class="gx-cta ghost">&#128424; Print this summary</button>'+
-            '<button class="gx-cta ghost">Start over</button>';
-  var PROD= '<div class="gx-prod"><div class="sw">&#127807;</div><div class="info">'+
-            '<b>Calm Balance 1:1</b><div class="meta">Verdant &middot; Tincture &middot; $42 &middot; 7 in stock</div>'+
-            '<div class="mols"><span>CBD</span><span>Myrcene</span><span>Linalool</span><span>Limonene</span></div>'+
-            '<div class="gx-why">&#10003; Matches 3 of 4 recommended</div>'+
-            '<span class="gx-badge strong">strong match</span>'+
-            '<button class="dj-select">Select this product &#8594;</button>'+
-            '</div><div class="gx-fit"><div class="pct">88%</div><div class="lbl">fit</div></div></div>';
-
-  var SPECS = [
-    {id:'gx-opt', title:'Guided Match option rows', cls:'.gx-opt',
-     note:'"Why are you here today?" and the Quick Safety Check are the same component.',
-     html:OPT, variants:[
-       {name:'A — live site today', css:'shipped', desc:'includes the IOS-02 fallback already shipped'},
-       {name:'B — candidate', css:'fixD', desc:'.gx-opt{display:block} + inline-block children'}]},
-    {id:'gx-condrow', title:'Condition list rows', cls:'.gx-condrow',
-     note:'Already display:block — included to see whether anything is wrong at all.',
-     html:ROW, variants:[
-       {name:'A — live site today', css:'', desc:'no fallback applied'},
-       {name:'B — candidate', css:'fixF', desc:'+ line-height:1.35'}]},
-    {id:'gx-cta', title:'Action buttons', cls:'.gx-cta',
-     note:'SEE THE RESEARCH, Explore these…, Print this summary, Start over — all one class.',
-     html:CTA, variants:[
-       {name:'A — live site today', css:'', desc:'includes the IOS-03 width:100%'},
-       {name:'B — candidate', css:'fixA', desc:'+ line-height:1.3'},
-       {name:'C — candidate', css:'fixB', desc:'+ display:block; line-height:1.3'},
-       {name:'D — candidate', css:'fixC', desc:'+ display:block; line-height:1.3; text-align:center'}]},
-    {id:'gx-prod', title:'Best Matches card (Demo version)', cls:'.gx-prod + .dj-select',
-     note:'This is the DEMO card, with the .dj-select button the earlier analysis missed.',
-     html:PROD, variants:[
-       {name:'A — live site today', css:'', desc:'IOS-04 margins are NOT applied here, to isolate'},
-       {name:'B — candidate', css:'fixE', desc:'+ the IOS-04 gap fallback margins'},
-       {name:'C — candidate', css:'fixE fixB', desc:'+ IOS-04 margins and display:block on .dj-select'}]}
-  ];
-
-  function measure(root, label){
-    var lines=[];
-    function walk(el, depth, path){
-      var r=el.getBoundingClientRect(), rr=root.getBoundingClientRect();
-      var name=el.className ? ('.'+String(el.className).split(' ').join('.')) : el.tagName.toLowerCase();
-      lines.push(new Array(depth+1).join('  ') + name +
-        '  x' + Math.round(r.left-rr.left) + ' y' + Math.round(r.top-rr.top) +
-        '  ' + Math.round(r.width) + 'x' + Math.round(r.height));
-      for(var i=0;i<el.children.length && depth<2;i++) walk(el.children[i], depth+1, path);
-    }
-    for(var i=0;i<root.children.length;i++) walk(root.children[i],0,'');
-    return lines.join('\n');
-  }
-
-  var host=document.getElementById('specimens');
-  say(''); say('=== COMPONENTS (x/y from the specimen box, then width x height) ===');
-  for(var s=0;s<SPECS.length;s++){
-    var sp=SPECS[s];
-    var card=document.createElement('div'); card.className='card';
-    card.innerHTML='<h3>'+sp.title+'</h3><div class="cls">'+sp.cls+'</div><p class="note">'+sp.note+'</p>'+
-      '<p class="ask">&#128071; Which of these looks right on this iPad? Tell me the letter.</p>';
-    say(''); say('--- '+sp.title+'  ('+sp.cls+') ---');
-    for(var v=0;v<sp.variants.length;v++){
-      var va=sp.variants[v];
-      var wrap=document.createElement('div'); wrap.className='variant';
-      wrap.innerHTML='<div class="vname">'+va.name+'</div><div class="vcss">'+va.desc+'</div>';
-      var stage=document.createElement('div');
-      stage.className='stage '+va.css;
-      // .gx-stage stays flex on purpose: the .gx-cta problem is about a <button> as a flex
-      // ITEM in this column, so forcing display:block here would hide what we are measuring.
-      stage.innerHTML='<div class="gx-stage">'+sp.html+'</div>';
-      wrap.appendChild(stage);
-      var mm=document.createElement('div'); mm.className='m';
-      wrap.appendChild(mm);
-      card.appendChild(wrap);
-      if(!card.parentNode) host.appendChild(card);   // in the DOM before measuring
-      var txt=measure(stage.firstChild, va.name);
-      mm.appendChild(document.createTextNode(txt));
-      say('  '+va.name+'  ['+(va.desc)+']');
-      say('    '+txt.split('\n').join('\n    '));
-    }
-  }
-
-  var dump=document.getElementById('dump');
-  dump.value=out.join('\n');
+  var dump=document.getElementById('dump'); dump.value=out.join('\n');
   document.getElementById('copyBtn').onclick=function(){
     var btn=this;
     function done(ok){ btn.innerHTML = ok ? 'Copied' : 'Select the text above and copy'; }
     try{
       if(navigator.clipboard && navigator.clipboard.writeText){
-        navigator.clipboard.writeText(dump.value).then(function(){done(true);},function(){
-          dump.focus(); dump.select(); done(false);
-        });
+        navigator.clipboard.writeText(dump.value).then(function(){done(true);},
+          function(){ dump.focus(); dump.select(); done(false); });
         return;
       }
     }catch(e){}
