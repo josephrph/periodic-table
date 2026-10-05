@@ -11528,6 +11528,66 @@ document.addEventListener('keydown', function(e) {
    later phases have a reliable, already-tested signal to build on.
    window.__v3MobileDetect exposes getBreakpoint()/isMobile()/refresh()
    for manual console verification. ──────────────────────────────── */
+
+/* ── IOS-04: LEGACY CSS CAPABILITY DETECTION ──────────────────────────────────────────
+   Two capabilities the older iPads lack, both detected by MEASURING what the browser
+   actually does — no version check, no user-agent string:
+
+     flex `gap`                      Safari 14.1   -> body.no-flex-gap
+     <button> as a flex container    Safari 14     -> body.no-button-flex
+
+   Demo Mode is where this surfaced: every gap in the Best Matches cards and the Refine
+   controls collapsed to zero at once, so the icon abutted the text and the molecule pills
+   ran together. The IOS-04 CSS block carries the fallbacks and is scoped to these classes.
+
+   ⚠ The fallbacks are NOT inert on a modern browser — margin and gap would both apply and
+   double the spacing. A FALSE POSITIVE HERE IS A VISIBLE BUG FOR EVERYONE, so both tests
+   are written to fail closed: anything unexpected (no body yet, a throw) leaves the class
+   OFF, which is the current, correct behaviour for a capable browser. */
+(function(){
+  function probe(el, read){
+    if (!document.body) return null;
+    el.style.position = 'absolute'; el.style.left = '-9999px'; el.style.top = '0';
+    el.style.margin = '0'; el.style.padding = '0'; el.style.border = '0';
+    document.body.appendChild(el);
+    var v;
+    try { v = read(el); } catch (e) { v = null; }
+    if (el.parentNode) el.parentNode.removeChild(el);
+    return v;
+  }
+  // Two 10px rows in a column with row-gap:10px measure 30px tall when gap is honoured, 20 when not.
+  function flexGapOK(){
+    var d = document.createElement('div');
+    d.style.display = 'flex'; d.style.flexDirection = 'column'; d.style.rowGap = '10px';
+    d.style.width = '50px';
+    d.appendChild(document.createElement('div'));
+    d.appendChild(document.createElement('div'));
+    d.children[0].style.height = '10px'; d.children[1].style.height = '10px';
+    var h = probe(d, function(el){ return el.scrollHeight; });
+    return h === null ? true : h >= 25;
+  }
+  // Two inline-block spans in a COLUMN flex <button>: stacked when flex is honoured, side by
+  // side when it is ignored. A row test would pass either way, which is why this uses a column.
+  function buttonFlexOK(){
+    var b = document.createElement('button');
+    b.style.display = 'flex'; b.style.flexDirection = 'column'; b.style.width = '200px';
+    var a = document.createElement('span'), c = document.createElement('span');
+    a.style.cssText = 'display:inline-block;width:20px;height:10px';
+    c.style.cssText = 'display:inline-block;width:20px;height:10px';
+    b.appendChild(a); b.appendChild(c);
+    var stacked = probe(b, function(){
+      return c.getBoundingClientRect().top - a.getBoundingClientRect().top;
+    });
+    return stacked === null ? true : stacked > 1;
+  }
+  try {
+    var gapOK = flexGapOK(), btnOK = buttonFlexOK();
+    document.body.classList.toggle('no-flex-gap', !gapOK);
+    document.body.classList.toggle('no-button-flex', !btnOK);
+    window.__v3LegacyCss = { flexGap: gapOK, buttonFlex: btnOK };
+  } catch (e) { /* fail closed: no class, modern behaviour */ }
+})();
+
 (function(){
   var MOBILE_BREAKPOINT = 900;
   function computeIsMobile(){ return window.innerWidth <= MOBILE_BREAKPOINT; }
@@ -13869,6 +13929,44 @@ function djToast(msg){try{var t=document.getElementById('djToastEl');if(!t){t=do
   .fb-login-ov.open{display:flex}
   .fb-login-box{background:var(--surface,#fff);color:var(--text,#1a1a1a);border-radius:12px;max-width:360px;width:100%;padding:22px 24px;box-shadow:0 20px 60px rgba(0,0,0,.45)}
   @media print{.fb-ov,.fb-adm-ov,.fb-login-ov{display:none !important}}
+
+/* ══ IOS-04: LEGACY-SAFARI FALLBACKS ══════════════════════════════════════════════════════
+   EVERY rule below is scoped to body.no-flex-gap or body.no-button-flex. Those classes are set
+   ONLY by the runtime feature tests in the "legacy CSS capability detection" block — never by a
+   version check, never by user-agent sniffing — and a browser that supports the feature never
+   receives them.
+
+   ⚠ UNLIKE the IOS-02/IOS-03 fallbacks, THESE ARE NOT INERT BY CSS SEMANTICS. `gap` and `margin`
+   both apply where both are supported, so if one of these rules ever appears UNSCOPED, or the
+   detection wrongly fires, a modern browser gets DOUBLE spacing. Measured: .info moves from x=74
+   to x=87. check_legacy_fallback_scoping in preflight.py fails the build if any rule here loses
+   its body.no-* prefix. Do not "simplify" these selectors.
+
+   Verified before shipping, on the real rules: with the legacy behaviour simulated, these restore
+   the modern layout EXACTLY across all 10 measured properties — including wrapped rows, which is
+   why the chips carry margin-right plus a negative margin-bottom on the container rather than a
+   plain margin-left. ══════════════════════════════════════════════════════════════════════ */
+
+/* flex gap — unsupported before Safari 14.1 */
+body.no-flex-gap #gxOverlay .gx-prod>*+*{margin-left:13px}
+body.no-flex-gap #gxOverlay .gx-prod .mols{margin-bottom:-5px}
+body.no-flex-gap #gxOverlay .gx-prod .mols>*{margin:0 5px 5px 0}
+body.no-flex-gap #gxOverlay .gx-chips{margin-bottom:-7px}
+body.no-flex-gap #gxOverlay .gx-chips>*{margin:0 7px 7px 0}
+body.no-flex-gap #gxOverlay .gx-catrow{margin-bottom:-6px}
+body.no-flex-gap #gxOverlay .gx-catrow>.gx-catbtn{margin:0 6px 6px 0}
+body.no-flex-gap #gxOverlay .gx-catrow>.gx-catbtn:first-of-type{margin-left:6px}
+body.no-flex-gap .cat-btn>*+*{margin-left:9px}
+body.no-flex-gap.is-mobile-view .mtb-btn>*+*{margin-left:5px}
+/* the toggle chip's own gap, whichever of the two capabilities is missing */
+body.no-flex-gap #gxOverlay .gx-tog .x,
+body.no-button-flex #gxOverlay .gx-tog .x{margin-left:5px}
+
+/* <button> as a flex container — unsupported before Safari 14 */
+body.no-button-flex #gxOverlay .gx-tog .x{vertical-align:middle}
+body.no-button-flex .cat-btn>*{display:inline-block;vertical-align:middle}
+body.no-button-flex .mtb-btn>*{display:inline-block;vertical-align:middle}
+/* ══ END IOS-04 ══════════════════════════════════════════════════════════════════════════ */
 </style>
 
 <!-- Feedback capture modal -->

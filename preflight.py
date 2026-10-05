@@ -1584,6 +1584,70 @@ def check_tablet_default_view(src):
              'reader override and rotation cleanup all present')
 
 
+
+def check_legacy_fallback_scoping(src):
+    """IOS-04: a legacy fallback that loses its scope is a visible bug for EVERYONE.
+
+    The IOS-02/IOS-03 fallbacks were inert by construction — `float`, `vertical-align` and
+    `width:100%` are ignored by flex layout, so a modern browser could not be affected. The IOS-04
+    gap fallbacks are NOT like that: `gap` and `margin` both apply where both are supported, so an
+    unscoped rule double-spaces every modern browser. Measured: .info moves from x=74 to x=87.
+
+    Safety therefore rests entirely on two things, and this guard asserts both:
+      1. every rule inside the IOS-04 block is scoped to body.no-flex-gap or body.no-button-flex;
+      2. those classes are set only by runtime MEASUREMENT — the two feature probes are present,
+         and nothing in the build sets them from a version or user-agent check.
+    """
+    # start AFTER the opening comment closes, or its own prose is parsed as selectors
+    m = re.search(r'/\* ══ IOS-04: LEGACY-SAFARI FALLBACKS.*?\*/(.*?)/\* ══ END IOS-04', src, re.S)
+    if not m:
+        fail('legacy fallback scoping',
+             'the IOS-04 fallback block is gone or its markers were renamed (zero-match tripwire)')
+        return
+    block = re.sub(r'/\*.*?\*/', ' ', m.group(1), flags=re.S)
+
+    rules = re.findall(r'([^{}]+)\{[^}]*\}', block)
+    if not rules:
+        fail('legacy fallback scoping', 'the IOS-04 block contains no rules (zero-match tripwire)')
+        return
+    unscoped = []
+    for sel in rules:
+        for part in sel.split(','):
+            part = part.strip()
+            if not part:
+                continue
+            if not re.match(r'body\.(no-flex-gap|no-button-flex)\b', part):
+                unscoped.append(part)
+    for part in unscoped:
+        fail('legacy fallback scoping',
+             'IOS-04 selector "%s" is NOT scoped to body.no-flex-gap / body.no-button-flex — it '
+             'would double-space every modern browser' % part[:90])
+
+    probes = [
+        (r'function flexGapOK\(\)', 'the flex-gap probe'),
+        (r'function buttonFlexOK\(\)', 'the <button>-flex probe'),
+        (r"classList\.toggle\('no-flex-gap'", 'the no-flex-gap class toggle'),
+        (r"classList\.toggle\('no-button-flex'", 'the no-button-flex class toggle'),
+    ]
+    missing = [name for pat, name in probes if not re.search(pat, src)]
+    for name in missing:
+        fail('legacy fallback scoping',
+             'IOS-04: %s is missing — the fallback classes would never be set, or would be set by '
+             'something other than measurement' % name)
+
+    # the fallbacks must never be driven by a version or UA check
+    for bad in re.finditer(r"(userAgent|appVersion|vendor)\s*[.\[]?\s*(match|indexOf|test|includes)", src):
+        ctx = src[max(0, bad.start() - 220):bad.start() + 80]
+        if 'no-flex-gap' in ctx or 'no-button-flex' in ctx:
+            fail('legacy fallback scoping',
+                 'IOS-04 classes appear to be set from a user-agent check — they must come from '
+                 'the feature probes only')
+
+    if not unscoped and not missing:
+        note('legacy fallback scoping: %d IOS-04 rule(s), all scoped to a measured capability '
+             'class; both feature probes present' % len(rules))
+
+
 # ── driver ─────────────────────────────────────────────────────────────────────
 def main():
     online = '--online' in sys.argv
@@ -1619,6 +1683,7 @@ def main():
     check_cross_listed(src, data)
     check_legacy_safari(src)
     check_tablet_default_view(src)
+    check_legacy_fallback_scoping(src)
     check_evidence_attribution(data)
     check_backlog()
 
