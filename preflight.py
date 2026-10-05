@@ -1648,110 +1648,6 @@ def check_legacy_fallback_scoping(src):
              'class; both feature probes present' % len(rules))
 
 
-
-def check_ios04b_derived(src):
-    """IOS-04b: the fallback numbers are copies of other rules, so recompute them from source.
-
-    Three values are hardcoded in the IOS-04b block and every one is derived from a rule elsewhere
-    in the stylesheet: .gx-stage's gap, .gx-prod's own margin-bottom plus that gap, and .gx-opt's
-    gap. Change the source rule and the fallback drifts silently — nothing on a modern browser would
-    show it, because none of these rules ever apply there.
-
-    The exception list is itself load-bearing. An earlier draft carried exceptions for .gx-rec and
-    .gx-opt on the belief that they had their own margin-bottom. Neither does, so those rules added
-    space where modern adds none and measured WORSE than having no exception at all. This check
-    therefore also fails if any .gx-stage child gains a margin-bottom without a matching exception.
-    """
-    css = ''.join(re.findall(r'<style[^>]*>([\s\S]*?)</style>', src))
-    css = re.sub(r'/\*[\s\S]*?\*/', ' ', css)
-
-    def rule(sel):
-        # the subject may carry an element qualifier (#gxOverlay h2.gx-q), which a literal
-        # match misses — that blind spot hid .gx-q from an earlier version of this check
-        m = re.search(re.escape(sel) + r'\{([^}]*)\}', css)
-        if m:
-            return m.group(1)
-        cls = sel.rsplit('.', 1)[-1]
-        m = re.search(r'#gxOverlay [\w]*\.' + re.escape(cls) + r'\{([^}]*)\}', css)
-        return m.group(1) if m else None
-
-    stage = rule('#gxOverlay .gx-stage')
-    opt = rule('#gxOverlay .gx-opt')
-    prod = rule('#gxOverlay .gx-prod')
-    if not (stage and opt and prod):
-        fail('ios04b derived', 'cannot find .gx-stage / .gx-opt / .gx-prod — the selectors were '
-                               'renamed, or this parser no longer matches (zero-match tripwire)')
-        return
-
-    def num(body, prop):
-        m = re.search(r'(?<![-\w])' + prop + r'\s*:\s*(-?\d+)px', body)
-        return int(m.group(1)) if m else 0
-
-    stage_gap = num(stage, 'gap')
-    opt_gap = num(opt, 'gap')
-    prod_mb = num(prod, 'margin-bottom')
-
-    want = [
-        (r'\.gx-stage>\*:not\(:last-child\)\{margin-bottom:(\d+)px\}', stage_gap,
-         '.gx-stage child spacing == .gx-stage gap'),
-        (r'\.gx-stage>\.gx-prod\{margin-bottom:(\d+)px\}', prod_mb + stage_gap,
-         '.gx-prod exception == its own margin-bottom (%d) + the gap (%d)' % (prod_mb, stage_gap)),
-        (r'\.gx-opt>\.lab\{margin-left:(\d+)px', opt_gap,
-         '.gx-opt label spacing == .gx-opt gap'),
-    ]
-    bad = False
-    for pat, expected, what in want:
-        m = re.search(pat, css)
-        if not m:
-            bad = True
-            fail('ios04b derived', 'the IOS-04b rule for "%s" is missing (zero-match tripwire)' % what)
-            continue
-        got = int(m.group(1))
-        if got != expected:
-            bad = True
-            fail('ios04b derived',
-                 'IOS-04b has %dpx where the source rules give %dpx — %s' % (got, expected, what))
-
-    # .gx-prod must remain the ONLY direct child of .gx-stage carrying its own margin-bottom
-    carriers = []
-    for cls in ('gx-q', 'gx-rec', 'gx-hint', 'gx-opt', 'gx-condrow', 'gx-cta', 'gx-express',
-                'gx-prod', 'gx-summary', 'gx-filtered'):
-        b = rule('#gxOverlay .' + cls) or ''
-        mb = num(b, 'margin-bottom')
-        sh = re.search(r'(?<![-\w])margin\s*:\s*([^;]+)', b)
-        if sh:
-            # 1-, 2-, 3- and 4-value shorthand all set margin-bottom. Only handling the 3+ form
-            # hid .gx-q (margin:2px 0) from this check entirely.
-            parts = sh.group(1).split()
-            idx = {1: 0, 2: 0, 3: 2, 4: 2}.get(len(parts))
-            if idx is not None:
-                mm = re.match(r'(-?\d+)px', parts[idx])
-                if mm:
-                    mb = int(mm.group(1))
-        if mb:
-            carriers.append((cls, mb))
-    # every carrier must have its own exception, and each exception must equal own + gap
-    for cls, mb in carriers:
-        m = re.search(r'\.gx-stage>\.' + re.escape(cls) + r'\{margin-bottom:(\d+)px\}', css)
-        if not m:
-            bad = True
-            fail('ios04b derived',
-                 '.%s carries margin-bottom:%dpx and is a .gx-stage child, but IOS-04b has no '
-                 'exception for it — add margin-bottom:%dpx or its spacing collapses on Safari 12'
-                 % (cls, mb, mb + stage_gap))
-        elif int(m.group(1)) != mb + stage_gap:
-            bad = True
-            fail('ios04b derived',
-                 'IOS-04b gives .%s %dpx but its own margin-bottom (%d) plus the gap (%d) is %dpx'
-                 % (cls, int(m.group(1)), mb, stage_gap, mb + stage_gap))
-
-    if not bad:
-        note('ios04b derived: .gx-stage spacing %dpx, .gx-opt label %dpx, and %d child '
-             'exception(s) (%s) — every value recomputed from its source rule'
-             % (stage_gap, opt_gap, len(carriers),
-                ', '.join('%s=%d' % (c, mb + stage_gap) for c, mb in carriers)))
-
-
 # ── driver ─────────────────────────────────────────────────────────────────────
 def main():
     online = '--online' in sys.argv
@@ -1788,7 +1684,6 @@ def main():
     check_legacy_safari(src)
     check_tablet_default_view(src)
     check_legacy_fallback_scoping(src)
-    check_ios04b_derived(src)
     check_evidence_attribution(data)
     check_backlog()
 

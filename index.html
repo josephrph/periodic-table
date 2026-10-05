@@ -13966,43 +13966,6 @@ body.no-button-flex #gxOverlay .gx-tog .x{margin-left:5px}
 body.no-button-flex #gxOverlay .gx-tog .x{vertical-align:middle}
 body.no-button-flex .cat-btn>*{display:inline-block;vertical-align:middle}
 body.no-button-flex .mtb-btn>*{display:inline-block;vertical-align:middle}
-
-/* ── IOS-04b: the gap rules the first pass missed ──────────────────────────────────────
-   .gx-stage{gap:12px} is the vertical rhythm of EVERY Guided Match and Demo screen — every
-   heading, block, card and button is a direct child of it. The first IOS-04 pass patched 5 of the
-   28 flex-gap rules in this overlay and missed this one, so on Safari 12 every screen lost 12px
-   between every block at once. Measured on the device's own screens: spacing fell from
-   20/18/22/20/20 to 8/6/10/8/8. That, not any button rule, is why the brown action bar read as
-   "almost invisible" — it had lost its separation from its neighbours, not its size or position.
-
-   margin-BOTTOM on the previous sibling, not margin-top on the next, because it preserves each
-   child's OWN top margin — and that is where the deliberate relationships live: .gx-hint carries
-   margin-top:-6px to sit tight under its heading, and margin-top on the next child would discard
-   it. Measured across three real screens at the real 424px width: mean error 0.6px, worst 2px,
-   against 12px today.
-
-   .gx-prod is the ONLY direct child of .gx-stage with its own margin-bottom (10px), so it is the
-   only exception: 10 + 12 = 22. An earlier draft also carried exceptions for .gx-rec and .gx-opt;
-   both were wrong — neither has any margin in production, so those rules ADDED space where modern
-   adds none and made the option rows worse than no fallback at all. check_ios04b_derived below
-   recomputes 22 from the source rule so it cannot drift.
-
-   .gx-opt{gap:13px} is horizontal and has TWO gaps — icon→label and label→tick. Restoring only the
-   first leaves the label 13px too wide when it wraps, so .lab takes the gap on both sides. This
-   reproduces modern EXACTLY on both a short and a wrapping label, and .chk{margin-left:auto} is
-   untouched so the tick stays pinned right. ──────────────────────────────────────────────── */
-body.no-flex-gap #gxOverlay .gx-stage>*:not(:last-child){margin-bottom:12px}
-/* Same specificity as the rule above, so these MUST stay after it. One line per direct child of
-   .gx-stage that carries its OWN margin-bottom: each is that margin plus the 12px gap, and
-   check_ios04b_derived recomputes every one of them from its source rule and FAILS if a new
-   carrier appears without an exception. That check found .gx-hint and .gx-condrow after a first
-   draft had only .gx-prod. */
-body.no-flex-gap #gxOverlay .gx-stage>.gx-q{margin-bottom:14px}        /*  2 own + 12 gap */
-body.no-flex-gap #gxOverlay .gx-stage>.gx-hint{margin-bottom:14px}     /*  2 own + 12 gap */
-body.no-flex-gap #gxOverlay .gx-stage>.gx-condrow{margin-bottom:17px}  /*  5 own + 12 gap */
-body.no-flex-gap #gxOverlay .gx-stage>.gx-prod{margin-bottom:22px}     /* 10 own + 12 gap */
-body.no-flex-gap #gxOverlay .gx-opt>.lab{margin-left:13px;margin-right:13px}
-
 /* ══ END IOS-04 ══════════════════════════════════════════════════════════════════════════ */
 </style>
 
