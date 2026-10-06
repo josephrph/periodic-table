@@ -2865,35 +2865,6 @@ body.is-mobile-view .demo-ribbon img{display:none}
 body.is-mobile-view .demo-ribbon .dr-short{display:block;white-space:nowrap;
   text-transform:uppercase;letter-spacing:.05em;font-weight:700}
 body.is-mobile-view .demo-ribbon .dr-exit{padding:5px 8px;font-size:9.5px}
-
-/* IOS-06: the Demo banner carries a compliance statement — "DEMO — NOT A LICENSED STORE" — and
-   position:fixed is the author's way of saying it must stay on screen regardless of scroll. On a
-   modern iPhone it did not. Two things compound:
-     1. env(safe-area-inset-bottom) is INERT in this build. The viewport meta is
-        "width=device-width, initial-scale=1" with no viewport-fit=cover, so every env() inset
-        resolves to 0 — measured: body computes padding-bottom:56px, not 56+34. The rule above is
-        therefore a flat 64px, and the safe-area clearance its author intended never materialises.
-        viewport-fit=cover would fix that but changes the layout model for the WHOLE app on every
-        platform, including the protected iPad. Deliberately NOT done.
-     2. On iOS a position:fixed element is laid out against the LARGE viewport, while the visible
-        bottom edge sits at the dynamic one. Measured at the iPhone 16's 393x852: the ribbon occupies
-        y 752.5-788, and Safari's expanded bottom bar covers roughly the last 95-110pt — so on entry
-        the banner is painted behind it. One pinch collapses the bar and it reads correctly from then
-        on, which is the signature of exactly this.
-   100lvh - 100dvh IS the height of the browser chrome currently showing, computed by the browser:
-   bar expanded -> the banner lifts just clear of it; bar collapsed -> the term is 0 and the banner
-   returns to its designed 64px. No magic number, and it holds its intended position whenever the
-   chrome is out of the way. (100lvh - 100svh was considered and rejected: svh is the worst case, so
-   it would lift the banner by the full chrome height permanently, floating it over demo content
-   during the very scrolling this fixes.)
-   The @supports gate is load-bearing: dvh/lvh are Safari 15.4+, so Safari 12.1.2 cannot see this
-   block at all and the protected iPad baseline is untouched. env() is kept in the sum so this
-   override never falls behind the base rule if viewport-fit is ever revisited.
-   Scope: .demo-ribbon only, which exists solely in Demo Mode. #imDoneBtn carries the same latent
-   pattern and is deliberately NOT changed here. Verified a no-op where the chrome does not retract. */
-@supports (bottom: 1dvh){
-  body.is-mobile-view .demo-ribbon{bottom:calc(100lvh - 100dvh + 64px + env(safe-area-inset-bottom))}
-}
 /* UX-122: the demo ribbon is position:fixed, and nothing reserved room for it — so on the taller
    demo screens the last control in the stage (Exit Demo Mode, Refine again) ended up underneath the
    green ribbon. Both stayed clickable, because the ribbon container is pointer-events:none and only

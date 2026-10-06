@@ -1,6 +1,6 @@
 # Acannability’s Cannabis Periodic Table of Molecules · Project Handoff  _(internal build: V2)_
 _Last updated: **2026-10-05** · Baseline commit: **`135d300`** (HEAD == origin/main, live byte-identical, sha256 `96f38d244268b63a`)_
-_Build: 2.2 MB · 64 molecules · **65 health conditions** / 10 groups · 3 cross-listed · **838 NCBI-verified PMIDs** · **289 drugs · 104 drug–drug pairs** · backlog 278 rows · preflight: **32 guards**, all passing `--online`_
+_Build: 2.2 MB · 64 molecules · **65 health conditions** / 10 groups · 3 cross-listed · **838 NCBI-verified PMIDs** · **289 drugs · 104 drug–drug pairs** · backlog 278 rows · preflight: **31 guards**, all passing `--online`_
 _**LEGACY-iPAD REPAIR COMPLETE. IOS-05 passed final physical-device acceptance on iOS 12.4.2 / Safari 12.1.2 on 2026-10-05. Build `96f38d244268b63a` is the known-good legacy-iPad baseline. IOS-01 through IOS-05 are CLOSED; IOS-04b remains recorded as FAILED AND REVERTED. Next phase: structured cross-platform QA on modern devices.**_
 
 _**Pre-release audit COMPLETE: waves 2–6 ALL SHIPPED. Wave 1 (the release blocker) needs the owner. Drug tranches A–E ALL SHIPPED; severity-sort bug FIXED; the CYP2D6 sweep is COMPLETE across all 21 records; prostate evidence recalibrated; three Men's Health topics added; a V2-wide count guard now blocks stale numbers; Demo Mode and Guided Match are ALIGNED and share one data source, guarded. Tranche E is now COMPLETE and the four discovered gaps are closed (DRUG-24); the CBD→Δ⁹-THC exposure finding is in the build; `hasRisk` is enforced rather than dead.**_
@@ -46,10 +46,45 @@ current Windows Chrome/Edge, it is an obsolete-browser limitation — record it 
 it also fails on either, it is a real defect that this device merely found first. No fix is to be
 proposed on an XP/Mypal result alone.
 
-## 0000000000000. IOS-06 — DEMO BANNER BEHIND iOS SAFARI'S BOTTOM BAR — SHIPPED, PROVISIONAL
+## 0000000000000. IOS-06 — DEMO BANNER FIX — **REVERTED**, acceptance failed on a cross-device Entourage regression
 
-**Provisional until the owner's physical iPhone 16 acceptance test.** Backup:
-`index_BACKUP_20261006_pre_IOS06.html` (`96f38d244268b63a`).
+**Shipped `2247d1e` (build `a3be7c2a16367614`), REVERTED to `96f38d244268b63a`.**
+**The banner fix itself WORKED** on the physical iPhone 16 — the complete banner became visible and
+obstructed nothing. It was reverted because, after deployment, the owner reproduced an **Entourage
+Effect failure on three physical devices** (iPhone 16, legacy iPad mini 2, iMac). IOS-06 was
+provisional; acceptance failed; it was removed rather than repaired in place.
+
+### The forensics say IOS-06 cannot be the mechanism — recorded because it matters next time
+
+- The complete diff was one comment plus one `@supports` block holding **one** `bottom` declaration
+  on `.demo-ribbon`. Inline JavaScript **byte-identical**.
+- **`#ent-ov.open{display:flex}` sits at source offset 54,580. The IOS-06 block sits at 338,588** —
+  284,000 characters *later*. CSS parsed earlier cannot be affected by text added after it.
+- Brace balance was **identical** before and after: 0 across all five `<style>` blocks. Depth at the
+  insertion point was 0 — top level, not nested in any at-rule.
+- On the **deployed IOS-06 build**, Entourage opened from both the condition picker and the header
+  button, rendered 4,732 characters of analysis, closed cleanly, **zero console errors**.
+
+So the revert is not an admission that IOS-06 broke Entourage. It restores a protected baseline and
+buys the only evidence that counts: a clean A/B on the owner's own devices.
+
+### What to weigh when this is picked up again
+
+This is the **second** cross-device Entourage report, and the first one — 2026-10-06 on the iPad —
+was **not reproducible after a refresh** and was classified transient (session/cache). GitHub Pages
+serves `index.html` with `cache-control: max-age=600`. Three devices tested shortly after a deploy is
+consistent with that same transient condition. If Entourage returns after this revert, IOS-06 is
+implicated and a different banner solution should be designed from the known-good baseline. **If it
+does not return, IOS-06 was never the cause** and the regression must be investigated on its own.
+
+The banner diagnosis itself stands and is worth keeping: `env(safe-area-inset-bottom)` is inert
+without `viewport-fit=cover` (measured: `body` computes `padding-bottom:56px`, not 56+34), and a
+`position:fixed` element is laid out against the large viewport while the visible bottom edge sits at
+the dynamic one — measured at 393×852, the banner occupies y 752.5–788 while Safari's expanded bar
+covers the last 95–110pt. `100lvh - 100dvh` was the right expression (`100lvh - 100svh` was proposed
+first and rejected: `svh` is the worst case and would float the banner permanently high).
+`viewport-fit=cover` was considered and deliberately not added. Guard 32 was removed with the code it
+protected. Backup: `index_BACKUP_20261006_pre_IOS06.html` (`96f38d244268b63a`).
 
 ### One declaration, inside a gate that Safari 12 cannot see
 
