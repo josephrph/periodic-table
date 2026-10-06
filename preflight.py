@@ -1284,6 +1284,81 @@ def check_gxwrap_flex(src):
                            ' — NOTE: the IOS-05 comment is gone; HANDOFF IOS-05 has the rationale'))
 
 
+
+def check_demo_ribbon_offset(src):
+    """IOS-07 (guard 32): the Demo banner's phone-only offset, and the overlay reservation that
+    must move with it.
+
+    The banner carries a compliance statement — "DEMO — NOT A LICENSED STORE" — and position:fixed
+    is how the author said it must stay on screen regardless of scroll. On a physical iPhone 16 only
+    a sliver showed, because a fixed element is laid out against iOS's large viewport while the
+    visible bottom edge sits above Safari's bottom bar, and env(safe-area-inset-bottom) is inert
+    here (no viewport-fit=cover, so every env() inset resolves to 0).
+
+    IOS-06 solved this with @supports + calc(100lvh - 100dvh) and was reverted after a cross-device
+    Entourage report whose mechanism was never proven. IOS-07 therefore uses NO viewport units, NO
+    @supports and NO viewport-fit — a static offset inside media queries already present in V2 — and
+    this guard keeps it that way.
+
+    The two values are COUPLED: 164 = 112 + the banner's ~35.5px height + a 16px margin, the same
+    arithmetic the author used for 116 = 64 + 35.5 + 16. Raising the banner without raising the
+    overlay's reservation would let it cover demo content, which is an explicit acceptance failure.
+    Scope is by NUMBER, not feature detection: the legacy iPad is 768px portrait and 1024x768
+    landscape, so it matches neither query and Safari 12 has nothing here to evaluate.
+    """
+    css = re.sub(r'/\*.*?\*/', ' ', src, flags=re.S)   # the IOS-07 comment names these on purpose
+
+    m = re.search(r'@media\s*\(\s*max-width:\s*620px\s*\)\s*,\s*\(\s*orientation:\s*landscape\s*\)'
+                  r'\s*and\s*\(\s*max-height:\s*500px\s*\)\s*\{(.*?)\}\s*\}', css, re.S)
+    if not m:
+        fail('demo ribbon offset',
+             'the IOS-07 phone-scoped @media block is gone — the Demo banner will show only a sliver '
+             "behind iOS Safari's bottom bar again")
+        return
+    inner = m.group(1)
+
+    rb = re.search(r'\.demo-ribbon\s*\{[^{}]*bottom\s*:\s*(\d+)px', inner)
+    ov = re.search(r'#gxOverlay\s*\{[^{}]*padding-bottom\s*:\s*(\d+)px', inner)
+    if not rb or not ov:
+        fail('demo ribbon offset',
+             'the IOS-07 block no longer carries BOTH the .demo-ribbon bottom and the #gxOverlay '
+             'padding-bottom — these two values are coupled and must move together')
+        return
+    banner, reserve = int(rb.group(1)), int(ov.group(1))
+    if reserve <= banner + 35:
+        fail('demo ribbon offset',
+             'IOS-07 reserves only %dpx for a banner sitting %dpx up — the banner is ~35.5px tall, so '
+             'it would cover demo content; the reservation must exceed bottom + height'
+             % (reserve, banner))
+
+    # the base rules must survive OUTSIDE the block, for the iPad and every non-matching viewport
+    outside = css[:m.start()] + css[m.end():]
+    if not re.search(r'body\.is-mobile-view\s+\.demo-ribbon\s*\{[^{}]*bottom\s*:', outside):
+        fail('demo ribbon offset',
+             'the base body.is-mobile-view .demo-ribbon bottom rule is gone — the protected legacy '
+             'iPad would lose the banner offset entirely')
+    if not re.search(r'body\.demo-mode\.is-mobile-view\s+#gxOverlay\s*\{[^{}]*padding-bottom\s*:', outside):
+        fail('demo ribbon offset',
+             'the base body.demo-mode.is-mobile-view #gxOverlay reservation is gone — the protected '
+             'legacy iPad would lose its demo overlay padding')
+
+    # IOS-07 is deliberately free of the mechanisms IOS-06 was reverted for
+    live = re.sub(r'/\*.*?\*/', ' ', ''.join(re.findall(r'<style[^>]*>(.*?)</style>', src, re.S)), flags=re.S)
+    if re.search(r'\d(?:dvh|svh|lvh)\b', live):
+        fail('demo ribbon offset',
+             'a dynamic viewport unit (dvh/svh/lvh) appeared in live CSS — IOS-06 was reverted for '
+             'exactly this and IOS-07 is deliberately static')
+    meta = re.search(r'<meta\s+name=["\']viewport["\'][^>]*>', src, re.I)
+    if meta and 'viewport-fit' in meta.group(0):
+        fail('demo ribbon offset',
+             'viewport-fit=cover was added to the viewport meta — that changes the layout model for '
+             'the whole app on every platform including the protected iPad')
+
+    note('demo ribbon offset: IOS-07 lifts .demo-ribbon to %dpx with a matching %dpx overlay '
+         'reservation, phone-scoped; base rules intact for the legacy iPad, no viewport units, no '
+         'viewport-fit' % (banner, reserve))
+
+
 def check_evidence_attribution(data):
     """DRUG-26: an A- or B-graded entry ASSERTS human evidence, so it must say where that comes from.
 
@@ -1744,6 +1819,7 @@ def main():
     check_tablet_default_view(src)
     check_legacy_fallback_scoping(src)
     check_gxwrap_flex(src)
+    check_demo_ribbon_offset(src)
     check_evidence_attribution(data)
     check_backlog()
 

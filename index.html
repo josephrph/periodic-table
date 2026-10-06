@@ -2873,6 +2873,36 @@ body.is-mobile-view .demo-ribbon .dr-exit{padding:5px 8px;font-size:9.5px}
    Mobile needs more clearance because there the ribbon is deliberately raised above the tab bar. */
 body.demo-mode #gxOverlay{padding-bottom:64px}
 body.demo-mode.is-mobile-view #gxOverlay{padding-bottom:116px}
+
+/* IOS-07: the Demo banner carries a compliance statement — "DEMO — NOT A LICENSED STORE" — and
+   position:fixed is the author's way of saying it must stay on screen regardless of scroll. On a
+   physical iPhone 16 only a sliver showed until the user scrolled further or pinched, because on iOS
+   a fixed element is laid out against the large viewport while the visible bottom edge sits above
+   Safari's bottom bar, and env(safe-area-inset-bottom) is INERT here (no viewport-fit=cover, so every
+   env() inset resolves to 0 — measured: body computes padding-bottom:56px, not 56+34).
+
+   This is the SECOND attempt. IOS-06 solved it with @supports + calc(100lvh - 100dvh) and was
+   reverted: the banner fix itself passed on the device, but the owner then reproduced an Entourage
+   Effect failure on three physical devices. The mechanism was never proven — the Entourage overlay's
+   open rule sits 284,000 characters EARLIER in this file, brace balance was identical, and Entourage
+   worked on the deployed build in Blink — but the temporal A/B was real and the baseline was restored. So this
+   attempt deliberately uses NO viewport units, NO @supports, NO viewport-fit and NO JavaScript:
+   just a static offset inside media queries that already exist in this build.
+
+   Both values move together. 116px was the author's own coordination of the banner's 64px offset +
+   its ~35.5px height + a 16px margin; 164px is the same arithmetic for 112px. Raising the banner
+   without raising the overlay's reservation would let it cover demo content.
+
+   Scope is by NUMBER, not by feature detection, which is what keeps the protected legacy iPad out:
+   the iPad mini 2 is 768px portrait and 1024x768 landscape, so it matches neither query in either
+   orientation, and Safari 12 has nothing here to evaluate. The iPhone 16 matches max-width:620px in
+   portrait and the landscape pair at 852x393. Both queries are already used elsewhere in V2.
+
+   112/164 are PROVISIONAL acceptance values, not values to tune through production deploys. */
+@media (max-width: 620px), (orientation: landscape) and (max-height: 500px){
+  body.is-mobile-view .demo-ribbon{bottom:112px}
+  body.demo-mode.is-mobile-view #gxOverlay{padding-bottom:164px}
+}
 /* Demo banner Exit button (only interactive part of the otherwise pass-through banner) */
 .demo-ribbon .dr-txt{min-width:0;flex:1}
 .demo-ribbon .dr-menu,.demo-ribbon .dr-exit{pointer-events:auto;flex:0 0 auto;background:rgba(255,255,255,.16);color:#fff;

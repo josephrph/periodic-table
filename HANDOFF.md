@@ -1,6 +1,6 @@
 # Acannability’s Cannabis Periodic Table of Molecules · Project Handoff  _(internal build: V2)_
 _Last updated: **2026-10-05** · Baseline commit: **`135d300`** (HEAD == origin/main, live byte-identical, sha256 `96f38d244268b63a`)_
-_Build: 2.2 MB · 64 molecules · **65 health conditions** / 10 groups · 3 cross-listed · **838 NCBI-verified PMIDs** · **289 drugs · 104 drug–drug pairs** · backlog 278 rows · preflight: **31 guards**, all passing `--online`_
+_Build: 2.2 MB · 64 molecules · **65 health conditions** / 10 groups · 3 cross-listed · **838 NCBI-verified PMIDs** · **289 drugs · 104 drug–drug pairs** · backlog 278 rows · preflight: **32 guards**, all passing `--online`_
 _**LEGACY-iPAD REPAIR COMPLETE. IOS-05 passed final physical-device acceptance on iOS 12.4.2 / Safari 12.1.2 on 2026-10-05. Build `96f38d244268b63a` is the known-good legacy-iPad baseline. IOS-01 through IOS-05 are CLOSED; IOS-04b remains recorded as FAILED AND REVERTED. Next phase: structured cross-platform QA on modern devices.**_
 
 _**Pre-release audit COMPLETE: waves 2–6 ALL SHIPPED. Wave 1 (the release blocker) needs the owner. Drug tranches A–E ALL SHIPPED; severity-sort bug FIXED; the CYP2D6 sweep is COMPLETE across all 21 records; prostate evidence recalibrated; three Men's Health topics added; a V2-wide count guard now blocks stale numbers; Demo Mode and Guided Match are ALIGNED and share one data source, guarded. Tranche E is now COMPLETE and the four discovered gaps are closed (DRUG-24); the CBD→Δ⁹-THC exposure finding is in the build; `hasRisk` is enforced rather than dead.**_
@@ -45,6 +45,52 @@ is the only way to settle D1.
 current Windows Chrome/Edge, it is an obsolete-browser limitation — record it and leave it alone. If
 it also fails on either, it is a real defect that this device merely found first. No fix is to be
 proposed on an XP/Mypal result alone.
+
+## 0000000000000. IOS-07 — DEMO BANNER, PHONE-SCOPED STATIC OFFSET — SHIPPED, PROVISIONAL
+
+**Provisional until the owner's physical iPhone 16 acceptance test.** Backup:
+`index_BACKUP_20261006_pre_IOS07.html` (`96f38d244268b63a`). This is the **second** attempt at this
+issue; IOS-06 is below and was reverted.
+
+```css
+@media (max-width: 620px), (orientation: landscape) and (max-height: 500px){
+  body.is-mobile-view .demo-ribbon{bottom:112px}
+  body.demo-mode.is-mobile-view #gxOverlay{padding-bottom:164px}
+}
+```
+
+**Deliberately uses no viewport units, no `@supports`, no `viewport-fit` and no JavaScript** — only a
+static offset inside two media queries that already existed in V2. IOS-06 was reverted after a
+cross-device Entourage report whose mechanism was never proven, so this attempt avoids asking the
+engine to evaluate anything.
+
+**The two values are coupled.** `164 = 112 + 35.5 + 16`, the same arithmetic the author used for
+`116 = 64 + 35.5 + 16`. Raising the banner without raising the overlay's reservation would let it
+cover demo content — an explicit acceptance failure.
+
+**Scope is by NUMBER, not feature detection**, which is what protects the legacy iPad. Measured at
+four viewports before deployment:
+
+| viewport | `is-mobile-view` | ribbon `bottom` | overlay `padding-bottom` |
+|---|---|---|---|
+| iPhone 16 portrait 393×852 | true | **112px** | **164px** |
+| iPhone 16 landscape 852×393 | true | **112px** | **164px** |
+| **legacy iPad portrait 768×1024** | true | **64px — unchanged** | **116px — unchanged** |
+| **legacy iPad landscape 1024×768** | false | 12px — unchanged | 64px — unchanged |
+
+**Audit of the change**, comments stripped: inline JS byte-identical; everything outside `<style>`
+identical; the Entourage, `#ent-box`, `#imDoneBtn` and `.gx-wrap` rules byte-identical; no
+`@supports` added; brace balance 0 across all five style blocks before and after. The only live-CSS
+difference is the block above. Entourage verified working on the built file before deployment.
+
+**Guard 32, `check_demo_ribbon_offset`** asserts the block exists; that it carries **both** coupled
+declarations; that the reservation exceeds banner offset + height; that the base rules survive
+outside the block for the iPad; and that no viewport unit or `viewport-fit` has crept back. All six
+regressions caught in negative testing.
+
+**112/164 are provisional acceptance values, not values to tune through production deploys.**
+
+---
 
 ## 0000000000000. IOS-06 — DEMO BANNER FIX — **REVERTED**, acceptance failed on a cross-device Entourage regression
 
