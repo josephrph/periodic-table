@@ -5,20 +5,22 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <title>Table Legacy Probe — Guided Match — Why are you here today?</title>
-<!-- ROUND 4. Diagnostic page, NOT part of The Table. Stores nothing, sends nothing.
-     Unlike Round 3, this reproduces the COMPLETE production overlay hierarchy for ONE screen:
+<!-- ROUND 4b. Diagnostic page, NOT part of The Table. Stores nothing, sends nothing.
+     Reproduces the COMPLETE production overlay hierarchy for ONE screen:
      #gxOverlay (position:fixed; inset:0; display:flex; flex-direction:column; align-items:center;
      overflow-y:auto) -> .gx-wrap (flex:1 1 0%) -> .gx-top / .gx-dots / .gx-stage / .gx-disc.
 
-     CSS: the production :root custom properties, then the ENTIRE Guided Finder stylesheet from
-     index.html verbatim (232 #gxOverlay rules, untouched), then every #gxOverlay / no-flex-gap /
-     no-button-flex rule from the later block, verbatim. Nothing is rewritten.
+     CSS: the production :root custom properties, the production base reset (including
+     html{font-size:14px}), the ENTIRE Guided Finder stylesheet from index.html verbatim
+     (232 #gxOverlay rules, untouched), then every #gxOverlay / no-flex-gap / no-button-flex
+     rule from the later block, verbatim. Nothing is rewritten.
      Markup: captured verbatim from the rendered production build.
      Body capability classes are applied at runtime by the same measurements production uses.
 
-     The only additions are the fixed readout panel (z-index above the overlay, so it cannot
-     affect the layout under test) and an off-screen absolutely-positioned reference host inside
-     #gxOverlay, used to measure a row's NATURAL height on this same engine. -->
+     Round 4b adds ONE candidate fix, toggled by the FIX button, nothing else:
+         #gxOverlay .gx-wrap{flex:1 0 auto}
+     It is injected at the end of <body> so it wins on document order, exactly as it would in
+     production if placed in the IOS-04 block. -->
 <style>:root{--bg:#F5F0E6;--surface:#FDFAF4;--surface2:#EDE8DC;--text:#1C1A14;--dim:#5A5446;--mute:#948A7C;--border:#D5CCC0;--accent:#8B6914;--accent2:#C4930E;--c-canna:#1A4020;--c-rare:#2D1858;--c-terp:#6A4200;--c-flav:#074A5A;--c-acid:#6B1E2E;--ev-a:#0E7A36;--ev-b:#1050A0;--ev-c:#906800;--ev-d:#A03000;--rc-cb1:#B04018;--rc-cb2:#1A6A3A;--rc-trp:#156880;--rc-sht:#6A1A80;--rc-ppar:#706800;--tw:108px;--th:96px;--gap:5px;--pw:380px}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;outline:none}
 html{font-size:14px}
@@ -431,14 +433,19 @@ body.no-button-flex .cat-btn>*{display:inline-block;vertical-align:middle}
 body.no-button-flex .mtb-btn>*{display:inline-block;vertical-align:middle}</style>
 <style>
 /* probe chrome only — deliberately avoids flex gap / clamp() / inset / flex-on-button */
-html,body{margin:0;padding:0;background:#F5F0E6}
+html,body{margin:0;padding:0}
 #rp{position:fixed;left:0;right:0;bottom:0;z-index:10001;background:#12201A;color:#E8EFE9;
     font-family:ui-monospace,Menlo,Monaco,"Courier New",monospace;font-size:12px;line-height:1.5;
-    border-top:3px solid #6CBE92;max-height:72%;overflow-y:auto;
+    border-top:3px solid #6CBE92;max-height:74%;overflow-y:auto;
     padding-bottom:env(safe-area-inset-bottom, 0px)}
-#rpbar{padding:10px 12px;cursor:pointer;background:#173024}
-#rphead{font-size:15px;font-weight:800;letter-spacing:.5px;font-family:system-ui,-apple-system,sans-serif}
+#rpbar{padding:10px 12px;background:#173024}
+#rphead{font-size:16px;font-weight:800;letter-spacing:.5px;font-family:system-ui,-apple-system,sans-serif}
 #rpsub{margin-top:3px;opacity:.8}
+#rpbtns{margin-top:9px}
+#rp button{font-family:system-ui,-apple-system,sans-serif;font-size:14px;font-weight:800;
+  border:2px solid #6CBE92;background:#0D1813;color:#9FE3BE;border-radius:7px;
+  padding:11px 14px;margin-right:8px;min-height:44px;cursor:pointer}
+#rp button.on{background:#6CBE92;color:#0D1813}
 #rpbody{display:none;padding:2px 12px 16px;white-space:pre-wrap;word-wrap:break-word}
 #rp.open #rpbody{display:block}
 .ok{color:#6CBE92} .bad{color:#FF9C85} .warn{color:#E3C07B}
@@ -464,7 +471,11 @@ html,body{margin:0;padding:0;background:#F5F0E6}
 <div id="rp">
   <div id="rpbar">
     <div id="rphead">measuring&hellip;</div>
-    <div id="rpsub">tap this bar to show or hide the numbers</div>
+    <div id="rpsub">Guided Match — Why are you here today?</div>
+    <div id="rpbtns">
+      <button type="button" id="bFix">FIX: OFF</button>
+      <button type="button" id="bNum">Show numbers</button>
+    </div>
   </div>
   <div id="rpbody"></div>
 </div>
@@ -473,11 +484,13 @@ html,body{margin:0;padding:0;background:#F5F0E6}
 (function(){
   "use strict";
   var KIND = "opt";                     /* "opt" or "prod" */
+  var CANDIDATE = "#gxOverlay .gx-wrap{flex:1 0 auto}";
   function $(id){return document.getElementById(id);}
   function R(el){return el.getBoundingClientRect();}
   function p1(n){return Math.round(n*10)/10;}
   function sgn(n){return (n>0?"+":"")+p1(n);}
   function cs(el){return window.getComputedStyle?window.getComputedStyle(el):{};}
+  function tag(good,yes,no){return '<span class="'+(good?"ok":"bad")+'">'+(good?yes:no)+'</span>';}
   function sandbox(el,read){
     el.style.position="absolute"; el.style.left="-9999px"; el.style.top="0";
     document.body.appendChild(el);
@@ -493,140 +506,157 @@ html,body{margin:0;padding:0;background:#F5F0E6}
   var gapOK = gapH!==null && gapH>=25;
   var cls=[];
   if(!gapOK) cls.push("no-flex-gap");
-  var b=document.createElement("button");
-  b.style.cssText="display:flex;flex-direction:column;width:200px;margin:0;padding:0;border:0";
-  b.innerHTML='<span style="display:inline-block;width:20px;height:10px"></span>'+
-              '<span style="display:inline-block;width:20px;height:10px"></span>';
-  var bf=sandbox(b,function(el){var k=el.getElementsByTagName("span");
+  var bb=document.createElement("button");
+  bb.style.cssText="display:flex;flex-direction:column;width:200px;margin:0;padding:0;border:0";
+  bb.innerHTML='<span style="display:inline-block;width:20px;height:10px"></span>'+
+               '<span style="display:inline-block;width:20px;height:10px"></span>';
+  var bf=sandbox(bb,function(el){var k=el.getElementsByTagName("span");
     return k[1].getBoundingClientRect().top-k[0].getBoundingClientRect().top;});
   if(!(bf!==null&&bf>1)) cls.push("no-button-flex");
-  var shorter=Math.min(window.innerWidth,window.innerHeight);
   if(window.innerWidth<900) cls.push("is-mobile-view");
   document.body.className=cls.join(" ");
 
-  /* ── the chain ────────────────────────────────────────────────────────────── */
   var ov=$("gxOverlay"), wrap=ov.querySelector(".gx-wrap"), stage=$("gxStage"),
       disc=ov.querySelector(".gx-disc"), ref=$("refStage");
-  var rows=stage.querySelectorAll(KIND==="prod" ? ".gx-prod" : ".gx-opt");
-  var row0=rows.length?rows[0]:null;
+  var fixEl=null, fixOn=false;
 
-  /* natural height of the same element, same engine, outside the flex chain */
-  var nat=null, natEl=null;
-  if(row0){ natEl=row0.cloneNode(true); ref.appendChild(natEl); nat=R(natEl).height; }
+  function setFix(on){
+    if(on && !fixEl){ fixEl=document.createElement("style"); fixEl.id="candidate";
+      fixEl.appendChild(document.createTextNode(CANDIDATE)); document.body.appendChild(fixEl); }
+    else if(!on && fixEl){ fixEl.parentNode.removeChild(fixEl); fixEl=null; }
+    fixOn=on;
+  }
 
-  /* sum of .gx-wrap's in-flow children, i.e. the height it needs */
-  var need=0, wk=wrap.childNodes, i, r;
-  for(i=0;i<wk.length;i++){ if(wk[i].nodeType!==1) continue; need+=R(wk[i]).height; }
-  var wrapH=R(wrap).height, ovH=ov.clientHeight;
+  /* ── one full measurement pass ────────────────────────────────────────────── */
+  function measure(){
+    var rows=stage.querySelectorAll(KIND==="prod" ? ".gx-prod" : ".gx-opt");
+    var row0=rows.length?rows[0]:null, i, j, r;
 
-  /* automatic minimum size: did .gx-wrap grow past its flexed 0-basis to fit content? */
-  var autoMin = wrapH >= need-1;
+    /* natural height of the same element, same engine, outside the flex chain */
+    var nat=null, natEl=null;
+    if(row0){ natEl=row0.cloneNode(true); ref.appendChild(natEl); nat=R(natEl).height;
+              natEl.parentNode.removeChild(natEl); }
 
-  /* reachability: can the overlay actually scroll to its own last element? */
-  var lastEl = disc || stage.lastChild;
-  var before=ov.scrollTop; ov.scrollTop=999999; var maxScroll=ov.scrollTop; ov.scrollTop=0;
-  var lastBottomDoc = R(lastEl).bottom + ov.scrollTop;
-  var reachable = (maxScroll + ovH) >= (lastBottomDoc - 2);
+    var need=0, wk=wrap.childNodes;
+    for(i=0;i<wk.length;i++){ if(wk[i].nodeType!==1) continue; need+=R(wk[i]).height; }
+    var wrapH=R(wrap).height, ovH=ov.clientHeight;
+    var pinned = Math.abs(wrapH - ovH) < 1.5;
 
-  /* shrink */
-  var liveH = row0?R(row0).height:0;
-  var shrink = (nat!==null && row0) ? (nat-liveH) : 0;
+    var lastEl = disc || stage.lastChild;
+    var keep=ov.scrollTop; ov.scrollTop=999999; var maxScroll=ov.scrollTop; ov.scrollTop=keep;
+    var lastBottomDoc = R(lastEl).bottom + ov.scrollTop;
+    var reachable = (maxScroll + ovH) >= (lastBottomDoc - 2);
+    var scrollable = ov.scrollHeight > ov.clientHeight;
 
-  /* in-chain vertical centring — the Round 3 measurement, now inside the real hierarchy */
-  var centre=[], worstC=0;
-  if(row0 && KIND==="opt"){
-    var keys=["ic","lab","chk"], j, k, kid, d, rb, c;
-    for(j=0;j<rows.length && j<6;j++){
-      rb=R(rows[j]); c=rb.top+rb.height/2; var parts=[], mx=0;
-      for(k=0;k<keys.length;k++){
-        kid=rows[j].querySelector("."+keys[k]); if(!kid) continue;
-        d=(R(kid).top+R(kid).height/2)-c; if(Math.abs(d)>mx) mx=Math.abs(d);
-        parts.push(keys[k]+" "+sgn(d));
+    var liveH = row0?R(row0).height:0;
+    var shrink = (nat!==null && row0) ? (nat-liveH) : 0;
+
+    /* clipping: does any child stick out of its row's padding box? */
+    /* overlap: does any child start above the previous child's bottom? */
+    var clipped=0, overlap=0, detail=[], worstC=0;
+    for(j=0;j<rows.length;j++){
+      var row=rows[j], rr=R(row), host = (KIND==="prod") ? row.querySelector(".info") : row;
+      var pad = (KIND==="prod") ? 14 : 16;
+      var kids=host.childNodes, prevBottom=null, k, kr;
+      for(k=0;k<kids.length;k++){
+        if(kids[k].nodeType!==1) continue;
+        kr=R(kids[k]);
+        if(kr.top < rr.top+pad-1.5 || kr.bottom > rr.bottom-pad+1.5) clipped++;
+        if(KIND==="prod" && prevBottom!==null && kr.top < prevBottom-1.5) overlap++;
+        prevBottom=kr.bottom;
       }
-      if(mx>worstC) worstC=mx;
-      centre.push("  h"+p1(rb.height)+"  "+parts.join("  "));
+      if(KIND==="opt" && j<6){
+        var keys=["ic","lab","chk"], parts=[], mx=0, kid, d, c=rr.top+rr.height/2;
+        for(k=0;k<keys.length;k++){
+          kid=row.querySelector("."+keys[k]); if(!kid) continue;
+          d=(R(kid).top+R(kid).height/2)-c; if(Math.abs(d)>mx) mx=Math.abs(d);
+          parts.push(keys[k]+" "+sgn(d));
+        }
+        if(mx>worstC) worstC=mx;
+        detail.push("  h"+p1(rr.height)+"  "+parts.join("  "));
+      }
+      if(KIND==="prod"){
+        var info=row.querySelector(".info"), fit=row.querySelector(".gx-fit"), ri=R(info);
+        detail.push("  card "+(j+1)+"  h"+p1(rr.height)+"   .info h"+p1(ri.height)+
+                    "  needs "+info.scrollHeight+
+                    ((info.scrollHeight-ri.height)>1?"  OVERFLOWS by "+p1(info.scrollHeight-ri.height):"  fits"));
+      }
     }
+
+    var broken = (!reachable) || (shrink>2) || (worstC>3) || clipped>0 || overlap>0;
+    return {rows:rows.length, nat:nat, liveH:liveH, shrink:shrink, pinned:pinned,
+            reachable:reachable, scrollable:scrollable, wrapH:wrapH, need:need, ovH:ovH,
+            maxScroll:maxScroll, lastBottomDoc:lastBottomDoc, clipped:clipped, overlap:overlap,
+            worstC:worstC, detail:detail, broken:broken, stageH:R(stage).height};
   }
 
-  /* card-specific geometry */
-  var cardTxt="";
-  if(KIND==="prod"){
-    var over=0, ovl=0, worstShrink=0, n;
-    for(n=0;n<rows.length;n++){
-      var card=rows[n], rc=R(card), info=card.querySelector(".info"),
-          fit=card.querySelector(".gx-fit"), dj=card.querySelector(".dj-select");
-      var innerR=rc.right-14, innerL=rc.left+14;
-      var kids=card.childNodes, q;
-      for(q=0;q<kids.length;q++){ if(kids[q].nodeType!==1) continue; r=R(kids[q]);
-        if(r.right-innerR>over) over=r.right-innerR;
-        if(innerL-r.left>over) over=innerL-r.left; }
-      var ri=R(info), rf=R(fit);
-      if(ri.right-rf.left>ovl) ovl=ri.right-rf.left;
-      var infoOver = info.scrollHeight - ri.height;
-      cardTxt += "\n  card "+(n+1)+"  h"+p1(rc.height)+"   .info h"+p1(ri.height)+
-                 "  content needs "+info.scrollHeight+
-                 (infoOver>1?("  OVERFLOWS by "+p1(infoOver)):"  fits")+
-                 (dj?("   .dj-select w"+p1(R(dj).width)):"");
-    }
-    cardTxt = "\ncards: "+rows.length+cardTxt+
-      "\n  worst horizontal overflow past the card padding box: "+p1(over<0?0:over)+"px"+
-      "\n  worst .info / .gx-fit overlap: "+(ovl>0.5?p1(ovl)+"px":"none");
-  }
-
-  var reproduced = (!autoMin) || (!reachable) || (shrink>2) || (worstC>3);
-
-  /* ── readout ──────────────────────────────────────────────────────────────── */
   var ua=navigator.userAgent;
   var ios=/OS (\d+)[_.](\d+)(?:[_.](\d+))?/.exec(ua), saf=/Version\/([\d.]+)/.exec(ua);
-  function tag(good,yes,no){return '<span class="'+(good?"ok":"bad")+'">'+(good?yes:no)+'</span>';}
 
-  $("rphead").innerHTML = "REPRODUCED: "+tag(!reproduced,"NO","YES");
-  $("rpsub").innerHTML  = "Guided Match — Why are you here today? &middot; tap to show the numbers";
+  function render(){
+    var m=measure();
+    $("rphead").innerHTML = fixOn
+      ? ("WITH FIX: "+tag(!m.broken,"FIXED","STILL BROKEN"))
+      : ("BEFORE &mdash; REPRODUCED: "+tag(!m.broken,"NO","YES"));
+    $("rpsub").innerHTML = "Guided Match — Why are you here today?";
+    $("bFix").innerHTML = fixOn ? "FIX: ON" : "FIX: OFF";
+    $("bFix").className = fixOn ? "on" : "";
 
-  $("rpbody").innerHTML =
-    "viewport "+window.innerWidth+" x "+window.innerHeight+
-      "   iOS "+(ios?ios[1]+"."+ios[2]+(ios[3]?"."+ios[3]:""):"?")+
-      "   Safari "+(saf?saf[1]:"?")+
-    "\nbody classes: "+(document.body.className||"(none)")+
-    "\nFLEX GAP: "+tag(gapOK,"YES","NO")+"   ("+p1(gapH)+"px)"+
+    $("rpbody").innerHTML =
+      "viewport "+window.innerWidth+" x "+window.innerHeight+
+        "   iOS "+(ios?ios[1]+"."+ios[2]+(ios[3]?"."+ios[3]:""):"?")+
+        "   Safari "+(saf?saf[1]:"?")+
+      "\nbody classes: "+(document.body.className||"(none)")+
+      "\nFLEX GAP: "+tag(gapOK,"YES","NO")+"   ("+p1(gapH)+"px)"+
+      "\ncandidate fix: "+(fixOn?'<span class="ok">ON &mdash; '+CANDIDATE+"</span>":'<span class="warn">OFF</span>')+
 
-    "\n\n1. CONTAINER CHAIN"+
-    "\n  #gxOverlay   "+cs(ov).position+"  "+cs(ov).display+"/"+cs(ov).flexDirection+
-      "  align-items:"+cs(ov).alignItems+"  overflow-y:"+cs(ov).overflowY+
-    "\n               clientH "+ovH+"   scrollH "+ov.scrollHeight+
-    "\n  .gx-wrap     flex:"+cs(wrap).flex+"   min-height:"+cs(wrap).minHeight+
-    "\n               rendered h "+p1(wrapH)+"   needs "+p1(need)+"   width "+p1(R(wrap).width)+
-    "\n  .gx-stage    "+cs(stage).display+"/"+cs(stage).flexDirection+"  gap:"+cs(stage).gap+
-      "   h "+p1(R(stage).height)+"   children "+stage.children.length+
+      "\n\n1. CONTAINER CHAIN"+
+      "\n  #gxOverlay   "+cs(ov).position+"  "+cs(ov).display+"/"+cs(ov).flexDirection+
+        "  overflow-y:"+cs(ov).overflowY+
+      "\n               clientH "+m.ovH+"   scrollH "+ov.scrollHeight+
+        "   scrollH > clientH: "+tag(m.scrollable,"YES","NO")+
+      "\n  .gx-wrap     flex-grow "+cs(wrap).flexGrow+"  flex-shrink "+cs(wrap).flexShrink+
+        "  flex-basis "+cs(wrap).flexBasis+
+      "\n               rendered h "+p1(m.wrapH)+"   needs "+p1(m.need)+
+      "\n  .gx-stage    h "+p1(m.stageH)+"   children "+stage.children.length+
 
-    "\n\n2. AUTOMATIC MINIMUM SIZE (min-height:auto on a column flex item)"+
-    "\n   .gx-wrap grew to fit its content: "+tag(autoMin,"PASS","FAIL")+
-    "\n   (FAIL means .gx-wrap is pinned at the viewport height and everything inside is squeezed)"+
+      "\n\n2. CONTENT KEPT ITS NATURAL HEIGHT: "+tag(m.shrink<=2,"PASS","FAIL")+
+      "\n   .gx-wrap rendered h "+p1(m.wrapH)+" vs viewport "+m.ovH+
+        "   pinned to the viewport: "+(m.pinned?'<span class="bad">YES</span>':'<span class="ok">NO</span>')+
 
-    "\n\n3. IS ALL THE CONTENT REACHABLE?  "+tag(reachable,"YES","NO")+
-    "\n   max scrollTop "+p1(maxScroll)+" + viewport "+ovH+" = "+p1(maxScroll+ovH)+
-    "\n   last element's bottom sits at "+p1(lastBottomDoc)+
-    (reachable?"":"\n   >>> "+p1(lastBottomDoc-(maxScroll+ovH))+"px of this screen CANNOT be scrolled to")+
+      "\n\n3. ALL CONTENT REACHABLE BY SCROLLING: "+tag(m.reachable,"YES","NO")+
+      "\n   max scrollTop "+p1(m.maxScroll)+" + viewport "+m.ovH+" = "+p1(m.maxScroll+m.ovH)+
+      "\n   last element's bottom sits at "+p1(m.lastBottomDoc)+
+      (m.reachable?"":"\n   >>> "+p1(m.lastBottomDoc-(m.maxScroll+m.ovH))+"px CANNOT be scrolled to")+
 
-    "\n\n4. ROW SHRINK  ("+(KIND==="prod"?".gx-prod":".gx-opt")+")"+
-    "\n   natural height off the flex chain: "+p1(nat)+
-    "\n   height inside the real chain:      "+p1(liveH)+
-    "\n   shrink: "+(shrink>2?'<span class="bad">'+p1(shrink)+"px</span>":'<span class="ok">'+p1(shrink)+"px</span>")+
+      "\n\n4. NATURAL "+(KIND==="prod"?".gx-prod":".gx-opt")+" HEIGHT RESTORED"+
+      "\n   natural, off the flex chain: "+p1(m.nat)+
+      "\n   inside the real chain:       "+p1(m.liveH)+
+      "\n   shrink: "+(m.shrink>2?'<span class="bad">'+p1(m.shrink)+"px</span>"
+                                 :'<span class="ok">'+p1(m.shrink)+"px</span>")+
 
-    (KIND==="opt"
-      ? "\n\n5. VERTICAL CENTRING INSIDE THE ROW (Round 3 measured this outside the chain)"+
-        "\n"+centre.join("\n")+
-        "\n   worst offset: "+(worstC>3?'<span class="bad">'+p1(worstC)+"px</span>":'<span class="ok">'+p1(worstC)+"px</span>")
-      : "\n\n5. CARD GEOMETRY"+cardTxt) +
+      "\n\n5. CLIPPING AND OVERLAP"+
+      "\n   children sticking out of their box: "+
+        (m.clipped?'<span class="bad">'+m.clipped+"</span>":'<span class="ok">none</span>')+
+      (KIND==="prod"
+        ? "\n   overlapping children inside cards: "+
+          (m.overlap?'<span class="bad">'+m.overlap+"</span>":'<span class="ok">none</span>')
+        : "\n   worst vertical centring offset: "+
+          (m.worstC>3?'<span class="bad">'+p1(m.worstC)+"px</span>":'<span class="ok">'+p1(m.worstC)+"px</span>"))+
+      "\n"+m.detail.join("\n")+
 
-    "\n\n6. REPRODUCED: "+tag(!reproduced,"NO","YES")+
-    "\n   (YES means this page now shows the same defect the real app shows)";
+      "\n\n6. "+(fixOn ? ("WITH FIX: "+tag(!m.broken,"FIXED","STILL BROKEN"))
+                       : ("REPRODUCED: "+tag(!m.broken,"NO","YES")));
+  }
 
-  if(natEl && natEl.parentNode) natEl.parentNode.removeChild(natEl);
-
-  $("rpbar").onclick=function(){
-    var p=$("rp"); p.className = p.className?"":"open";
+  $("bFix").onclick=function(){ setFix(!fixOn); ov.scrollTop=0; render(); };
+  $("bNum").onclick=function(){
+    var p=$("rp");
+    if(p.className==="open"){ p.className=""; $("bNum").innerHTML="Show numbers"; }
+    else { p.className="open"; $("bNum").innerHTML="Hide numbers"; }
   };
+  ov.scrollTop=0;
+  render();
 })();
 </script>
 </body>
