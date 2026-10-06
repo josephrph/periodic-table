@@ -1,6 +1,6 @@
 # Acannability’s Cannabis Periodic Table of Molecules · Project Handoff  _(internal build: V2)_
 _Last updated: **2026-10-05** · Baseline commit: **`135d300`** (HEAD == origin/main, live byte-identical, sha256 `96f38d244268b63a`)_
-_Build: 2.2 MB · 64 molecules · **65 health conditions** / 10 groups · 3 cross-listed · **838 NCBI-verified PMIDs** · **289 drugs · 104 drug–drug pairs** · backlog 278 rows · preflight: **31 guards**, all passing `--online`_
+_Build: 2.2 MB · 64 molecules · **65 health conditions** / 10 groups · 3 cross-listed · **838 NCBI-verified PMIDs** · **289 drugs · 104 drug–drug pairs** · backlog 278 rows · preflight: **32 guards**, all passing `--online`_
 _**LEGACY-iPAD REPAIR COMPLETE. IOS-05 passed final physical-device acceptance on iOS 12.4.2 / Safari 12.1.2 on 2026-10-05. Build `96f38d244268b63a` is the known-good legacy-iPad baseline. IOS-01 through IOS-05 are CLOSED; IOS-04b remains recorded as FAILED AND REVERTED. Next phase: structured cross-platform QA on modern devices.**_
 
 _**Pre-release audit COMPLETE: waves 2–6 ALL SHIPPED. Wave 1 (the release blocker) needs the owner. Drug tranches A–E ALL SHIPPED; severity-sort bug FIXED; the CYP2D6 sweep is COMPLETE across all 21 records; prostate evidence recalibrated; three Men's Health topics added; a V2-wide count guard now blocks stale numbers; Demo Mode and Guided Match are ALIGNED and share one data source, guarded. Tranche E is now COMPLETE and the four discovered gaps are closed (DRUG-24); the CBD→Δ⁹-THC exposure finding is in the build; `hasRisk` is enforced rather than dead.**_
@@ -45,6 +45,66 @@ is the only way to settle D1.
 current Windows Chrome/Edge, it is an obsolete-browser limitation — record it and leave it alone. If
 it also fails on either, it is a real defect that this device merely found first. No fix is to be
 proposed on an XP/Mypal result alone.
+
+## 0000000000000. IOS-06 — DEMO BANNER BEHIND iOS SAFARI'S BOTTOM BAR — SHIPPED, PROVISIONAL
+
+**Provisional until the owner's physical iPhone 16 acceptance test.** Backup:
+`index_BACKUP_20261006_pre_IOS06.html` (`96f38d244268b63a`).
+
+### One declaration, inside a gate that Safari 12 cannot see
+
+```css
+@supports (bottom: 1dvh){
+  body.is-mobile-view .demo-ribbon{bottom:calc(100lvh - 100dvh + 64px + env(safe-area-inset-bottom))}
+}
+```
+
+### Why
+
+The banner carries a compliance statement — *DEMO — NOT A LICENSED STORE* — and `position:fixed` is
+how the author said it must stay on screen regardless of scroll. On a modern iPhone it did not. Two
+causes compound, both measured at the iPhone 16's exact 393×852:
+
+1. **`env(safe-area-inset-bottom)` is inert in this build.** No `viewport-fit=cover` on the viewport
+   meta, so every `env()` inset resolves to **0** — `body` computes `padding-bottom:56px`, not 56+34.
+   The base rule is therefore a flat 64px and its intended safe-area clearance never materialises.
+2. **A fixed element is laid out against the LARGE viewport on iOS**, while the visible bottom edge
+   sits at the dynamic one. The banner occupies y 752.5–788 of 852; Safari's expanded bottom bar
+   covers roughly the last 95–110pt, so on entry it is painted behind it. One pinch collapses the bar
+   and it reads correctly from then on — the signature of exactly this.
+
+Ruled out by measurement: **not** horizontal overflow. At 393px the banner is 272.9px wide with 112px
+to spare, and `.dr-short` renders its full 202.9px of text inside the box.
+
+`100lvh - 100dvh` is the chrome **currently showing**, computed by the browser: bar expanded → the
+banner lifts just clear of it; bar collapsed → the term is 0 and it returns to its designed 64px. No
+magic number, and it holds its intended position whenever the chrome is out of the way.
+
+**`100lvh - 100svh` was proposed first and rejected on reassessment** — `svh` is the worst case, so it
+would lift the banner by the full chrome height *permanently*, floating it over demo content during
+the very scrolling this fixes.
+
+**`viewport-fit=cover` was considered and deliberately NOT added.** It would fix the `env()` properly
+but changes the layout model for the whole app on every platform, including the protected iPad.
+Guard 32 now refuses it.
+
+### Protection
+
+**Guard 32, `check_demo_ribbon_viewport`.** Asserts the `@supports (bottom: 1dvh)` block exists and
+still derives `bottom` from `100lvh - 100dvh`; that the **base** rule survives *outside* the gate, so
+engines without `dvh` keep their offset; that **no `dvh`/`lvh` appears outside the gate**, which is
+what keeps Safari 12 from ever seeing it; and that `viewport-fit=cover` has not been added. All five
+regressions caught in negative testing.
+
+### Scope and impact
+
+`.demo-ribbon` exists only in Demo Mode. `dvh`/`lvh` are Safari 15.4+, so `@supports` is **false on
+Safari 12.1.2** and the protected iPad cannot see the block at all. Verified a measured no-op where
+the chrome does not retract (before and after both `bottom:64px`, top 752.5). Inline JavaScript
+byte-identical. IOS-01…05, Guard 31, `.gx-wrap`, D1, D2, U1, U2 and all clinical content untouched.
+**`#imDoneBtn` carries the same latent pattern and was deliberately NOT changed.**
+
+---
 
 #### 2026-10-06 — modern cross-platform QA, physical results so far
 

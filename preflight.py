@@ -1284,6 +1284,72 @@ def check_gxwrap_flex(src):
                            ' — NOTE: the IOS-05 comment is gone; HANDOFF IOS-05 has the rationale'))
 
 
+
+def check_demo_ribbon_viewport(src):
+    """IOS-06 (guard 32): the Demo banner must stay clear of iOS Safari's bottom chrome, and the
+    fix must stay invisible to Safari 12.
+
+    The banner carries a compliance statement — "DEMO — NOT A LICENSED STORE" — and position:fixed
+    is how the author said it must stay on screen regardless of scroll. On a modern iPhone it was
+    painted behind Safari's expanded bottom bar on entry, because env(safe-area-inset-bottom) is
+    inert without viewport-fit=cover (measured: body computes padding-bottom:56px, not 56+34) and a
+    fixed element is laid out against the LARGE viewport. 100lvh - 100dvh is the chrome currently
+    showing, so the override lifts the banner exactly as much as it needs and no more.
+
+    Three things are asserted, and the @supports gate is the load-bearing one: dvh/lvh are Safari
+    15.4+, so without it Safari 12.1.2 would drop the declaration and — worse — a future author
+    might "simplify" the gate away and change the protected iPad. The guard also refuses
+    viewport-fit=cover, which would fix the env() properly but changes the layout model for the
+    whole app on every platform; that was considered and deliberately rejected.
+    """
+    css = re.sub(r'/\*.*?\*/', ' ', src, flags=re.S)   # the IOS-06 comment names these on purpose
+
+    m = re.search(r'@supports\s*\(\s*bottom\s*:\s*1dvh\s*\)\s*\{(.*?)\}\s*\}', css, re.S)
+
+    # the base rule must exist OUTSIDE the @supports gate — the override alone would leave every
+    # engine without dvh (Safari 12 included) with no bottom offset at all
+    outside_css = (css[:m.start()] + css[m.end():]) if m else css
+    if not re.search(r'body\.is-mobile-view\s+\.demo-ribbon\s*\{[^{}]*bottom\s*:', outside_css):
+        fail('demo ribbon viewport',
+             'the base body.is-mobile-view .demo-ribbon bottom rule is gone — engines without dvh, '
+             'the protected iPad among them, would lose the banner offset entirely')
+
+    if not m:
+        fail('demo ribbon viewport',
+             'the IOS-06 @supports (bottom: 1dvh) block is gone — the Demo banner will sit behind '
+             "iOS Safari's bottom bar again on entry")
+        return
+    inner = m.group(1)
+    if not re.search(r'\.demo-ribbon\s*\{[^{}]*bottom\s*:[^{}]*100lvh[^{}]*100dvh', inner):
+        fail('demo ribbon viewport',
+             'the IOS-06 block no longer sets .demo-ribbon bottom from 100lvh - 100dvh — the banner '
+             'would no longer track the browser chrome')
+
+    # dvh/lvh outside an @supports gate would reach Safari 12 and change the protected iPad
+    for u in ('dvh', 'lvh'):
+        for hit in re.finditer(r'(?<![\w-])100' + u + r'(?![\w-])', css):
+            before = css[:hit.start()]
+            if before.count('@supports') <= before.count('}') - before.count('{') + before.count('@supports'):
+                pass
+        # cheap structural check: every 100dvh/100lvh in the file must be inside the IOS-06 block
+        outside = [h for h in re.finditer(r'(?<![\w-])100' + u + r'(?![\w-])', css)
+                   if not (m.start() <= h.start() <= m.end())]
+        for h in outside:
+            fail('demo ribbon viewport',
+                 '100%s is used outside the IOS-06 @supports gate — Safari 12 would drop the whole '
+                 'declaration and the protected iPad baseline could shift' % u)
+
+    meta = re.search(r'<meta\s+name=["\']viewport["\'][^>]*>', src, re.I)
+    if meta and 'viewport-fit' in meta.group(0):
+        fail('demo ribbon viewport',
+             'viewport-fit=cover was added to the viewport meta — that changes the layout model for '
+             'the whole app on every platform including the protected iPad, and IOS-06 deliberately '
+             'avoided it')
+
+    note('demo ribbon viewport: IOS-06 lifts .demo-ribbon by 100lvh - 100dvh inside an @supports '
+         '(bottom: 1dvh) gate; base rule intact, no dvh/lvh outside the gate, no viewport-fit=cover')
+
+
 def check_evidence_attribution(data):
     """DRUG-26: an A- or B-graded entry ASSERTS human evidence, so it must say where that comes from.
 
@@ -1744,6 +1810,7 @@ def main():
     check_tablet_default_view(src)
     check_legacy_fallback_scoping(src)
     check_gxwrap_flex(src)
+    check_demo_ribbon_viewport(src)
     check_evidence_attribution(data)
     check_backlog()
 
