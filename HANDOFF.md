@@ -1,7 +1,97 @@
 # Acannability’s Cannabis Periodic Table of Molecules · Project Handoff  _(internal build: V2)_
-_Last updated: **2026-10-05** · Baseline commit: **`67019e9`** (HEAD == origin/main, live byte-identical, sha256 `607dd85d50c52cd4`)_
+_Last updated: **2026-10-05** · Baseline commit: **`135d300`** (HEAD == origin/main, live byte-identical, sha256 `96f38d244268b63a`)_
 _Build: 2.2 MB · 64 molecules · **65 health conditions** / 10 groups · 3 cross-listed · **838 NCBI-verified PMIDs** · **289 drugs · 104 drug–drug pairs** · backlog 278 rows · preflight: 30 guards, all passing `--online`_
+_**LEGACY-iPAD REPAIR COMPLETE. IOS-05 passed final physical-device acceptance on iOS 12.4.2 / Safari 12.1.2 on 2026-10-05. Build `96f38d244268b63a` is the known-good legacy-iPad baseline. IOS-01 through IOS-05 are CLOSED; IOS-04b remains recorded as FAILED AND REVERTED. Next phase: structured cross-platform QA on modern devices.**_
+
 _**Pre-release audit COMPLETE: waves 2–6 ALL SHIPPED. Wave 1 (the release blocker) needs the owner. Drug tranches A–E ALL SHIPPED; severity-sort bug FIXED; the CYP2D6 sweep is COMPLETE across all 21 records; prostate evidence recalibrated; three Men's Health topics added; a V2-wide count guard now blocks stale numbers; Demo Mode and Guided Match are ALIGNED and share one data source, guarded. Tranche E is now COMPLETE and the four discovered gaps are closed (DRUG-24); the CBD→Δ⁹-THC exposure finding is in the build; `hasRisk` is enforced rather than dead.**_
+
+---
+
+## 000000000000. IOS-05 — THE ROOT CAUSE: `.gx-wrap` FLEX-SHRINK — SHIPPED AND **ACCEPTED** 2026-10-05
+
+**Commit `135d300`, build `96f38d244268b63a`. FINAL PHYSICAL-DEVICE ACCEPTANCE: PASS**
+(iPad, iOS 12.4.2 / Safari 12.1.2, owner-tested on the live production site.)
+`local = origin = live`. **This is the known-good legacy-iPad baseline.**
+
+### The whole fix is one declaration
+
+```css
+#gxOverlay .gx-wrap{ … flex:1 0 auto}   /* was flex:1 */
+```
+
+### Why
+
+`flex:1` is `1 1 0%` — a **zero basis that is free to shrink** — on an element inside `#gxOverlay`,
+which is `position:fixed; inset:0` and therefore has a **definite viewport height**. Modern engines
+rescue this with the *automatic minimum size* (`min-height:auto`), so `.gx-wrap` quietly grows to its
+content. **Safari 12.1.2 does not apply that rescue.** `.gx-wrap` was pinned at the viewport height
+and the deficit cascaded down the chain: `.gx-stage` shrank, then every row and card shrank.
+
+Measured with the automatic minimum size disabled, reproducing Safari 12 in a modern engine:
+
+| | normal | shrink unleashed |
+|---|---|---|
+| `.gx-opt` | 62.5px | **35.0px** — 24 children clipped out of their box |
+| `.gx-prod` | 170.2px | **30.0px** — 36 children clipped, card content overlapping |
+| `#gxOverlay.scrollHeight` | 1189 | **collapses to `clientHeight`** |
+
+That last row is why **IOS-04b was catastrophic rather than cosmetic**: the vertical spacing it added
+pushed the Entourage expander past a scroll limit that had silently collapsed to one viewport.
+
+`1 0 auto` keeps `flex-grow:1`, so short screens still fill the viewport exactly as before, and
+replaces the zero basis with the content height while removing shrink — the same result modern
+engines already reach, by a route Safari 12 implements correctly. **No capability gate**: it is
+correct everywhere, which is why it carries no `body.no-*` class.
+
+**Do not restore `flex:1`.** A preflight guard for this is proposed but not yet implemented.
+
+### How it was found — the method matters more than the fix
+
+Four rounds of `legacy-probe*.html` on the physical device. Rounds 1–3 tested **components in
+isolation** (`.gx-opt`, `.gx-cta`, `.gx-prod`) and every one of them **passed**, which killed four
+successive component-level hypotheses — `no-button-align`, the inline-block option row, the absolute
+checkmark, `.gx-cta{text-align:center}` and `.info{flex:1 1 auto;width:1%}`, all correctly rejected
+by the owner on device evidence. **Round 4 reproduced the complete production hierarchy for one
+screen** — real `#gxOverlay`, real `.gx-wrap`, real `.gx-stage`, the entire 232-rule overlay
+stylesheet verbatim, the production base reset including `html{font-size:14px}` — and both screens
+reported `REPRODUCED: YES` on the first try. The defect was never in the components. It was in the
+container, and only a full-hierarchy reproduction could show that.
+
+*Round 3 also omitted `html{font-size:14px}`, so every `rem` in that probe rendered 14% too large.
+Any future probe must lift the production base reset, not only the component rules.*
+
+### QA
+
+`preflight --online` **30/30**, 838 PMIDs resolved. Inline JavaScript **byte-identical** to the
+backup. Modern regression run as an A/B of the old and new declaration on the same page at
+**375×812, 768×1024, 1024×768 and 1440×900**, short and long screens: `.gx-wrap`, `.gx-stage`,
+`.gx-opt`, `scrollHeight` and the disclaimer position are **identical**. **IOS-01/02/03/04 verified
+intact** (preflight still counts 14 capability-scoped IOS-04 rules). No IOS-04b rule reintroduced.
+
+**Entourage Effect — the mandatory regression check since IOS-04b:** header/tab-bar
+`showEntourage()` renders `#ent-ov` at z-index 9100 with full content; the Guided
+`<details class="gx-ent">` expander opens on the clinical recommendation screen; its ghost CTA opens
+the full overlay. Verified on the deployed build, and confirmed by the owner on the device.
+
+Backup: `index_BACKUP_20261005_pre_IOS05.html` (`607dd85d50c52cd4`).
+
+### Owner's acceptance list — all PASS on the physical iPad
+
+Guided Match *Why are you here today?* · *Quick Safety Check* · *Research-Linked Molecules* with
+*Plain Language / Research Detail* · *Explore / Print Summary / Start Over* · Demo Mode *Why are you
+here today?* · *Quick Safety Check* · *Best Matches in Stock* · scrolling and reachability on long
+screens · **Entourage Effect**.
+
+### Still open, deliberately not done
+
+- **`is-mobile-view` touch sizing for Plain language / Research detail** — supported by Round 3
+  (11.52px text in a 24px button at 768px, because `@media(max-width:620px)` never fires on this
+  iPad), owner-approved in principle, **deliberately excluded from this close-out**.
+- The 23 unpatched flex-`gap` rules in the overlay, the inert IOS-02/IOS-03 button fallbacks, and
+  `clamp()` on `h2.gx-q` remain catalogued and unaddressed. None is now causing a reported defect.
+
+**IOS-01 / IOS-02 / IOS-03 / IOS-04 / IOS-05 are CLOSED.
+IOS-04b is CLOSED as FAILED AND REVERTED — never reintroduce its six `.gx-stage` margin rules.**
 
 ---
 
@@ -71,7 +161,8 @@ size) left alone — not required. Entourage Effect untouched.
 same offsets, `#sideRight` 184×642, grid 1017px. **IOS-01/02/03 verified intact.** Backup:
 `index_BACKUP_20261005_pre_IOS04.html`.
 
-**IOS-01 / IOS-02 / IOS-03 / IOS-04 all remain OPEN** pending the owner's comprehensive device test.
+**IOS-01 / IOS-02 / IOS-03 / IOS-04 were OPEN at this point.** They were closed on 2026-10-05 when
+IOS-05 passed final physical-device acceptance — see the IOS-05 section above.
 
 ---
 
