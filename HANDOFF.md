@@ -48,7 +48,7 @@ proposed on an XP/Mypal result alone.
 
 #### 2026-10-06 — modern cross-platform QA, physical results so far
 
-**iPhone 16 · iOS 26.6.1 · Safari — PASS overall, one usability observation.** No feature failed.
+**iPhone 16 · iOS 26.6.1 · Safari — first pass, since superseded. See the targeted retest below.** No feature failed.
 Recorded as a **physical-device usability observation requiring targeted reproduction, NOT a
 confirmed defect**: on some screens the owner had difficulty reaching the bottom of the screen to
 advance or to see results, sometimes needing several scroll attempts.
@@ -71,7 +71,42 @@ are both measured against iOS's *large* viewport; the mobile sheet is a nested s
 also scrolls, with two `position:sticky` elements at its top and a 26px `::after` fade at its bottom;
 and `.panel` handles `env(safe-area-inset-left/right)` but not `-bottom`.
 
-**No fix proposed. No code changed.** Awaiting the targeted iPhone reproduction.
+**That hypothesis was WRONG and the device disproved it.** Recorded because the reasoning pattern
+matters: a plausible source-level asymmetry is not a diagnosis until the device says so.
+
+#### 2026-10-06 — targeted iPhone 16 retest: the Demo Mode green ribbon, root cause found
+
+**Normal Guided Match is fine on the iPhone 16.** No difficulty reaching the bottom or advancing.
+The reproducible issue is **Demo Mode only**: on entry, the green demo ribbon at the bottom is
+present but its wording is not properly visible. One two-finger pinch makes it legible
+("DEMO — NOT A LICENSED STORE · Exit"), and it then stays correct for the rest of the session.
+
+**Root cause — two compounding parts, both measured at the iPhone 16's exact logical size (393×852):**
+
+1. **`env(safe-area-inset-bottom)` is inert in this build.** The viewport meta is
+   `width=device-width, initial-scale=1` with **no `viewport-fit=cover`**, so every `env()` inset
+   resolves to **0**. Measured: `body` computes `padding-bottom: 56px`, not 56 + 34. The rule
+   `body.is-mobile-view .demo-ribbon{bottom:calc(64px + env(safe-area-inset-bottom))}` therefore
+   evaluates to a flat **64px** — the safe-area clearance its author intended never materialises.
+2. **64px does not clear iOS Safari's expanded bottom chrome.** Measured, the ribbon occupies
+   y = 752.5–788 in an 852pt layout viewport. Modern Safari's bottom address bar covers roughly the
+   last 95–110pt of the *visible* area, so on entry the ribbon is painted almost entirely behind it.
+
+Ruled out by measurement: it is **not** horizontal overflow or clipping. At 393px the ribbon is
+272.9px wide (left 8 → right 280.9), with 112px to spare; `.dr-short` renders its full 202.9px of
+text inside the box.
+
+**Why the pinch fixes it, permanently:** the gesture makes Safari collapse the bottom bar to its
+compact state and re-rasterise the fixed layers against the new visual viewport. Once collapsed it
+stays collapsed for the session, and 64px then clears it.
+
+**Also carrying the same latent pattern, deliberately not bundled:** `#imDoneBtn` uses
+`bottom:calc(56px + env(safe-area-inset-bottom) + 10px)`, i.e. a flat 66px by the same reasoning. It
+has not been reported, appears only after inactivity, and is a separate change if it ever matters.
+
+**Legacy iPad mini 2 physical regression retest: PASS — everything worked perfectly.**
+
+**No fix implemented.** D1 and D2 remain open and unimplemented.
 
 **Sony VAIO · Windows XP 32-bit · Mypal 78.1.0 — informational, worked well.** The one difficulty was
 navigating horizontally to the molecules on the right of the full table using the laptop's trackpad.
