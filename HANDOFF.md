@@ -10,7 +10,22 @@ _**Pre-release audit COMPLETE: waves 2–6 ALL SHIPPED. Wave 1 (the release bloc
 ## 000000000000. IOS-05 — THE ROOT CAUSE: `.gx-wrap` FLEX-SHRINK — SHIPPED AND **ACCEPTED** 2026-10-05
 
 **Commit `135d300`, build `96f38d244268b63a`. FINAL PHYSICAL-DEVICE ACCEPTANCE: PASS**
-(iPad, iOS 12.4.2 / Safari 12.1.2, owner-tested on the live production site.)
+(owner-tested on the live production site.)
+
+**Physical legacy regression device — the one that matters for every future legacy check:**
+
+| | |
+|---|---|
+| Device | **iPad mini 2** |
+| Model | MF084LL/A |
+| OS | **iOS 12.4.2** |
+| Browser | **Safari 12.1.2** |
+| Capacity | 32 GB |
+| Portrait CSS viewport | 768 × 1024 |
+
+This is the device the accepted legacy baseline passed on. Any future change that could touch
+legacy layout is retested here before it closes. (No serial number is recorded, by the owner's
+instruction.)
 `local = origin = live`. **This is the known-good legacy-iPad baseline.**
 
 ### The whole fix is one declaration
