@@ -1225,6 +1225,65 @@ def n_ab(data):
                for e in rows if e.get('ev') in ('A', 'B'))
 
 
+
+def check_gxwrap_flex(src):
+    """IOS-05 (guard 31): .gx-wrap must stay flex:1 0 auto, or long Guided/Demo screens collapse
+    on Safari 12.
+
+    `flex:1` is `1 1 0%` — a zero basis free to shrink — on an element inside #gxOverlay, which is
+    position:fixed/inset:0 and so has a definite viewport height. Modern engines rescue that with
+    the automatic minimum size (min-height:auto); Safari 12.1.2 does not. .gx-wrap was pinned at the
+    viewport height and the deficit cascaded: .gx-stage shrank, then every row and card shrank
+    (.gx-opt 62.5->35px, .gx-prod 170->30px, text clipped and overlapping), and
+    #gxOverlay.scrollHeight collapsed to clientHeight, so the bottom of a long screen could not be
+    scrolled to. Validated on a physical iOS 12.4.2 / Safari 12.1.2 iPad; see HANDOFF IOS-05.
+
+    `1 0 auto` is correct on every engine — modern rendering is byte-identical at 375x812, 768x1024,
+    1024x768 and 1440x900 — so it is deliberately NOT gated on a capability class, and it must not
+    be "simplified" back to flex:1.
+
+    This guard protects behaviour, not prose: a missing IOS-05 comment is reported as a note, never
+    a failure.
+    """
+    css = re.sub(r'/\*.*?\*/', ' ', src, flags=re.S)       # the IOS-05 comment says "flex:1" on purpose
+    rules = re.findall(r'#gxOverlay\s+\.gx-wrap\s*\{([^{}]*)\}', css)
+    if not rules:
+        fail('gx-wrap flex sizing',
+             'the #gxOverlay .gx-wrap rule is gone or was renamed (zero-match tripwire)')
+        return
+    if len(rules) > 1:
+        fail('gx-wrap flex sizing',
+             '#gxOverlay .gx-wrap is declared %d times — the last one wins by document order, so '
+             'the IOS-05 value is no longer guaranteed' % len(rules))
+
+    m = re.search(r'(?<![\w-])flex\s*:\s*([^;}]+)', rules[-1])
+    if not m:
+        fail('gx-wrap flex sizing',
+             '#gxOverlay .gx-wrap no longer sets `flex` — it falls back to 0 1 auto and Safari 12 '
+             'will shrink long Guided/Demo screens again (IOS-05)')
+    elif ' '.join(m.group(1).split()) != '1 0 auto':
+        fail('gx-wrap flex sizing',
+             '#gxOverlay .gx-wrap is `flex:%s`, not `flex:1 0 auto` — this reintroduces the Safari '
+             '12 collapse fixed by IOS-05 (.gx-opt 62.5->35px, .gx-prod 170->30px, overlay '
+             'scrollHeight pinned to clientHeight)' % ' '.join(m.group(1).split()))
+
+    # any OTHER rule touching .gx-wrap's flex sizing would override the shorthand
+    for sel, decls in re.findall(r'([^{}]+)\{([^{}]*)\}', css):
+        sel = ' '.join(sel.split())
+        if '.gx-wrap' not in sel or sel == '#gxOverlay .gx-wrap':
+            continue
+        bad = re.search(r'(?<![\w-])(flex|flex-basis|flex-shrink|flex-grow)\s*:', decls)
+        if bad:
+            fail('gx-wrap flex sizing',
+                 'rule "%s" also sets %s on .gx-wrap — it can override the IOS-05 shorthand'
+                 % (sel[:70], bad.group(1)))
+
+    documented = '/* IOS-05:' in src
+    note('gx-wrap flex sizing: #gxOverlay .gx-wrap is flex:1 0 auto, declared once, not '
+         'overridden%s' % ('' if documented else
+                           ' — NOTE: the IOS-05 comment is gone; HANDOFF IOS-05 has the rationale'))
+
+
 def check_evidence_attribution(data):
     """DRUG-26: an A- or B-graded entry ASSERTS human evidence, so it must say where that comes from.
 
@@ -1684,6 +1743,7 @@ def main():
     check_legacy_safari(src)
     check_tablet_default_view(src)
     check_legacy_fallback_scoping(src)
+    check_gxwrap_flex(src)
     check_evidence_attribution(data)
     check_backlog()
 

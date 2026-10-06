@@ -1,6 +1,6 @@
 # Acannability’s Cannabis Periodic Table of Molecules · Project Handoff  _(internal build: V2)_
 _Last updated: **2026-10-05** · Baseline commit: **`135d300`** (HEAD == origin/main, live byte-identical, sha256 `96f38d244268b63a`)_
-_Build: 2.2 MB · 64 molecules · **65 health conditions** / 10 groups · 3 cross-listed · **838 NCBI-verified PMIDs** · **289 drugs · 104 drug–drug pairs** · backlog 278 rows · preflight: 30 guards, all passing `--online`_
+_Build: 2.2 MB · 64 molecules · **65 health conditions** / 10 groups · 3 cross-listed · **838 NCBI-verified PMIDs** · **289 drugs · 104 drug–drug pairs** · backlog 278 rows · preflight: **31 guards**, all passing `--online`_
 _**LEGACY-iPAD REPAIR COMPLETE. IOS-05 passed final physical-device acceptance on iOS 12.4.2 / Safari 12.1.2 on 2026-10-05. Build `96f38d244268b63a` is the known-good legacy-iPad baseline. IOS-01 through IOS-05 are CLOSED; IOS-04b remains recorded as FAILED AND REVERTED. Next phase: structured cross-platform QA on modern devices.**_
 
 _**Pre-release audit COMPLETE: waves 2–6 ALL SHIPPED. Wave 1 (the release blocker) needs the owner. Drug tranches A–E ALL SHIPPED; severity-sort bug FIXED; the CYP2D6 sweep is COMPLETE across all 21 records; prostate evidence recalibrated; three Men's Health topics added; a V2-wide count guard now blocks stale numbers; Demo Mode and Guided Match are ALIGNED and share one data source, guarded. Tranche E is now COMPLETE and the four discovered gaps are closed (DRUG-24); the CBD→Δ⁹-THC exposure finding is in the build; `hasRisk` is enforced rather than dead.**_
@@ -43,7 +43,12 @@ replaces the zero basis with the content height while removing shrink — the sa
 engines already reach, by a route Safari 12 implements correctly. **No capability gate**: it is
 correct everywhere, which is why it carries no `body.no-*` class.
 
-**Do not restore `flex:1`.** A preflight guard for this is proposed but not yet implemented.
+**Do not restore `flex:1`.** **Guard 31, `check_gxwrap_flex`, enforces this.** It asserts the
+rule exists, is declared exactly once, carries `flex:1 0 auto` verbatim, and is not overridden by
+any other `.gx-wrap` rule through `flex` / `flex-basis` / `flex-shrink` / `flex-grow`. It strips CSS
+comments before parsing, because the IOS-05 comment contains the string `flex:1` on purpose. It
+protects **behaviour, not prose**: a missing or reworded IOS-05 comment is reported as a note, never
+a failure — the rationale lives here in HANDOFF either way.
 
 ### How it was found — the method matters more than the fix
 
@@ -81,6 +86,16 @@ Guided Match *Why are you here today?* · *Quick Safety Check* · *Research-Link
 *Plain Language / Research Detail* · *Explore / Print Summary / Start Over* · Demo Mode *Why are you
 here today?* · *Quick Safety Check* · *Best Matches in Stock* · scrolling and reachability on long
 screens · **Entourage Effect**.
+
+### The diagnostic pages are gone — recover them from Git if they are ever needed again
+
+`legacy-probe.html`, `legacy-probe-guided.html` and `legacy-probe-bestmatches.html` were deleted
+from the repository after acceptance, at the owner's direction, to keep it clean. Git history holds
+them: `git show 135d300:legacy-probe-guided.html`. **Do not simply redeploy an old one** — they are
+snapshots of build `96f38d244268b63a` and go stale the moment `index.html` changes. Round 3 is the
+cautionary case: it omitted `html{font-size:14px}` and rendered every `rem` 14% too large. If legacy
+troubleshooting is ever needed again, rebuild a fresh full-hierarchy page against the then-current
+build, following the Round 4 recipe above.
 
 ### Still open, deliberately not done
 
