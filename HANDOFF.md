@@ -27,6 +27,25 @@ This is the device the accepted legacy baseline passed on. Any future change tha
 legacy layout is retested here before it closes. (No serial number is recorded, by the owner's
 instruction.)
 
+#### QA device inventory — the physical devices available for testing
+
+| role | device | OS / browser | notes |
+|---|---|---|---|
+| **legacy regression** | iPad mini 2 (MF084LL/A) | iOS 12.4.2 · Safari 12.1.2 | the accepted legacy baseline device; retest here before closing anything that could touch legacy layout |
+| **primary modern mobile** | iPhone 16 | iOS 26.6.1 · Safari | the modern WebKit reference; runs the full iPhone checklist |
+| **legacy stress / old Gecko** | Sony VAIO PCG-GRS100P | Windows XP 32-bit · Mypal 78.1.0 | **informational only** — establishes no support obligation |
+
+Mypal 78 is a Pale Moon / Firefox-78-lineage fork, so that machine doubles as a (dated) **Gecko**
+data point as well as a low-memory stress test for the 2.2 MB single-file build. Known gaps to
+expect there rather than investigate: `:focus-visible` (Firefox 85+) means no focus rings, and
+anything newer than mid-2020 CSS. It does **not** replace a current Windows Chrome/Edge test, which
+is the only way to settle D1.
+
+**Classification rule for any XP/Mypal failure:** if the same step passes on the iPhone 16 *and* on
+current Windows Chrome/Edge, it is an obsolete-browser limitation — record it and leave it alone. If
+it also fails on either, it is a real defect that this device merely found first. No fix is to be
+proposed on an XP/Mypal result alone.
+
 #### 2026-10-06 — Entourage Effect: NOT REPRODUCIBLE AFTER REFRESH, no code change warranted
 
 During a later regression pass on the same iPad, the header/tab-bar **⬢ Entourage Effect** button
