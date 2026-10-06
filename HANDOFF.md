@@ -26,6 +26,34 @@ _**Pre-release audit COMPLETE: waves 2–6 ALL SHIPPED. Wave 1 (the release bloc
 This is the device the accepted legacy baseline passed on. Any future change that could touch
 legacy layout is retested here before it closes. (No serial number is recorded, by the owner's
 instruction.)
+
+#### 2026-10-06 — Entourage Effect: NOT REPRODUCIBLE AFTER REFRESH, no code change warranted
+
+During a later regression pass on the same iPad, the header/tab-bar **⬢ Entourage Effect** button
+coloured on tap but opened nothing. **After refreshing the live page it worked perfectly**, as did
+the Guided Match → Research detail → Entourage route, and every other focused legacy check.
+
+**This was not a software fix: `index.html` was never changed.** It appears to have been a
+transient Safari/session/cache condition, and is recorded as such unless future testing shows
+otherwise. The investigation established the facts worth keeping:
+
+- The Entourage path has not changed since IOS-01. `showEntourage()` is byte-identical at
+  `135d300`, `815d4d5` and `253e630`; the `#ent-ov` rule changed exactly once, at IOS-01, only to
+  add longhand offsets beside `inset:0`. The failing build was byte-identical to the accepted one.
+- `goEntourage()` calls `showEntourage()` **first** and `setActiveTab()` second, so a *persistent*
+  colour change on the tab-bar button proves the JavaScript ran. And `classList.add('open')` is the
+  second line of `showEntourage()`, so no exception can produce "nothing visible". Both point away
+  from a JavaScript failure — useful if this ever recurs.
+- At 768px **both** Entourage buttons are on screen: `.hdr-ctrl > .btn-filter{display:none}` only
+  fires at ≤620px, and the tab bar shows whenever `is-mobile-view` is set.
+- Candidates, if it returns: a stale cached document (GitHub Pages sends `cache-control:max-age=600`);
+  pinch-zoom offsetting a `position:fixed` overlay outside the visual viewport on iOS; or the
+  `will-change:transform` compositing layer on the scaled `#ptGrid` in portrait fit mode painting
+  over `#ent-ov`. The last is discriminated by switching the table to **Full size** and retrying.
+- **No static guard could have caught this**, and none should be written for it. The 31 guards check
+  source properties; this was a runtime condition on one device. `check_legacy_safari` correctly
+  confirms `#ent-ov` carries its longhand offsets, and did so throughout.
+
 `local = origin = live`. **This is the known-good legacy-iPad baseline.**
 
 ### The whole fix is one declaration
