@@ -2655,7 +2655,21 @@ body.is-mobile-view .panel.panel-condensed .panel-sym{font-size:1.05rem}
 /* ===== V4 Guided Finder overlay (additive; uses the app's own theme variables) ===== */
 #gxOverlay{position:fixed;top:0;right:0;bottom:0;left:0;inset:0;z-index:9000;background:var(--bg,#f5f5f2);color:var(--text,#1a1a1a);
   display:none;flex-direction:column;align-items:center;overflow-y:auto;font-family:inherit}
-#gxOverlay .gx-wrap{width:100%;max-width:460px;padding:0 18px 34px;display:flex;flex-direction:column;flex:1}
+/* IOS-05: flex:1 is 1 1 0% — a zero basis that is free to shrink — inside #gxOverlay, which is
+   position:fixed/inset:0 and therefore has a definite viewport height. Modern engines rescue it with
+   the automatic minimum size (min-height:auto), so .gx-wrap quietly grows to its content. Safari
+   12.1.2 does not: .gx-wrap was pinned at the viewport height and the deficit cascaded — .gx-stage
+   shrank, then every row and card shrank (.gx-opt 62.5->35px, .gx-prod 170->30px), text clipped and
+   overlapped, and #gxOverlay.scrollHeight collapsed to clientHeight so the bottom of a long screen
+   could not be scrolled to. That last effect is also why IOS-04b was catastrophic rather than merely
+   cosmetic: the extra vertical spacing it added pushed the Entourage expander out of reach.
+   1 0 auto keeps flex-grow:1, so short screens still fill the viewport exactly as before, and
+   replaces the zero basis with the content height while removing shrink — the same result modern
+   engines already reach, by a route Safari 12 implements correctly. No capability gate: it is
+   correct everywhere. Verified identical on a modern engine (.gx-wrap 1189.1, .gx-stage 1027.2,
+   scrollHeight 1189) and validated on the physical iPad via legacy-probe-guided.html and
+   legacy-probe-bestmatches.html. Do not restore flex:1. */
+#gxOverlay .gx-wrap{width:100%;max-width:460px;padding:0 18px 34px;display:flex;flex-direction:column;flex:1 0 auto}
 #gxOverlay .gx-top{display:flex;align-items:center;gap:10px;padding:18px 2px 8px}
 #gxOverlay .gx-back,#gxOverlay .gx-close{border:1px solid var(--border,#ccc);background:var(--surface,#fff);
   color:var(--text,#1a1a1a);border-radius:9px;padding:8px 12px;font-size:.8rem;cursor:pointer;font-family:inherit}
