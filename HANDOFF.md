@@ -46,6 +46,40 @@ current Windows Chrome/Edge, it is an obsolete-browser limitation — record it 
 it also fails on either, it is a real defect that this device merely found first. No fix is to be
 proposed on an XP/Mypal result alone.
 
+#### 2026-10-06 — modern cross-platform QA, physical results so far
+
+**iPhone 16 · iOS 26.6.1 · Safari — PASS overall, one usability observation.** No feature failed.
+Recorded as a **physical-device usability observation requiring targeted reproduction, NOT a
+confirmed defect**: on some screens the owner had difficulty reaching the bottom of the screen to
+advance or to see results, sometimes needing several scroll attempts.
+
+Source review of the mobile layout found one asymmetry that fits precisely, and it is the thing to
+test first. The page body reserves room for the fixed tab bar —
+`body.is-mobile-view{padding-bottom:calc(56px + env(safe-area-inset-bottom))}` — but **the overlays
+do not**. The only overlay bottom padding in the build is `body.demo-mode #gxOverlay{padding-bottom:64px}`,
+i.e. **Demo Mode only**. In normal Guided Match, `#gxOverlay` is `position:fixed; inset:0` with no
+allowance for the 57px fixed `#mobileTabBar` or for `env(safe-area-inset-bottom)`; `.gx-wrap`
+contributes only `padding:0 18px 34px`. That leaves roughly 90px of the bottom of a long Guided
+Match screen sitting under the tab bar and the home indicator — exactly where the *Continue*,
+*None of these — skip* and *Explore / Print / Start over* buttons live.
+
+That asymmetry gives a clean A/B: **Demo Mode Guided Match has the padding, normal Guided Match does
+not.** Contributing factors to keep in view: the build uses `100vh` four times and **no `dvh`/`svh`
+units at all**, so `#ent-box{max-height:calc(100vh - 32px)}` and the mobile sheet's `max-height:85vh`
+are both measured against iOS's *large* viewport; the mobile sheet is a nested scroller
+(`overflow-y:auto; -webkit-overflow-scrolling:touch; overscroll-behavior:contain`) inside a page that
+also scrolls, with two `position:sticky` elements at its top and a 26px `::after` fade at its bottom;
+and `.panel` handles `env(safe-area-inset-left/right)` but not `-bottom`.
+
+**No fix proposed. No code changed.** Awaiting the targeted iPhone reproduction.
+
+**Sony VAIO · Windows XP 32-bit · Mypal 78.1.0 — informational, worked well.** The one difficulty was
+navigating horizontally to the molecules on the right of the full table using the laptop's trackpad.
+**Classified as an input-device/user-interface limitation, not a V2 defect**, at the owner's
+direction, pending a repeat of only the full-table navigation test with an attached mouse. If mouse
+navigation is normal, that classification stands. This test remains informational and creates no
+support requirement for Windows XP or Mypal.
+
 #### 2026-10-06 — Entourage Effect: NOT REPRODUCIBLE AFTER REFRESH, no code change warranted
 
 During a later regression pass on the same iPad, the header/tab-bar **⬢ Entourage Effect** button
