@@ -1,7 +1,7 @@
 # Acannability’s Cannabis Periodic Table of Molecules · Project Handoff  _(internal build: V2)_
-_Last updated: **2026-10-05** · Baseline commit: **`135d300`** (HEAD == origin/main, live byte-identical, sha256 `96f38d244268b63a`)_
+_Last updated: **2026-10-06** · **Protected baseline: commit `e3298d3`, sha256 `1b6f1f86b486dcbb`** (HEAD == origin/main, live byte-identical). Pre-IOS-07 rollback/reference baseline: `135d300` / `96f38d244268b63a`._
 _Build: 2.2 MB · 64 molecules · **65 health conditions** / 10 groups · 3 cross-listed · **838 NCBI-verified PMIDs** · **289 drugs · 104 drug–drug pairs** · backlog 278 rows · preflight: **32 guards**, all passing `--online`_
-_**LEGACY-iPAD REPAIR COMPLETE. IOS-05 passed final physical-device acceptance on iOS 12.4.2 / Safari 12.1.2 on 2026-10-05. Build `96f38d244268b63a` is the known-good legacy-iPad baseline. IOS-01 through IOS-05 are CLOSED; IOS-04b remains recorded as FAILED AND REVERTED. Next phase: structured cross-platform QA on modern devices.**_
+_**MODERN CROSS-PLATFORM QA ROUND 1 COMPLETE. IOS-07 passed physical-device acceptance on 2026-10-06 across iPhone 16 (iOS 26.6.1), the legacy iPad mini 2 (iOS 12.4.2) and an iMac. Commit `e3298d3` / build `1b6f1f86b486dcbb` is the new protected application baseline. IOS-01 through IOS-05 and IOS-07 are CLOSED; IOS-04b and IOS-06 remain recorded as FAILED AND REVERTED. Guards 31 and 32 both protect shipped code. D1 and D2 remain OPEN and unimplemented — they are not part of IOS-07.**_
 
 _**Pre-release audit COMPLETE: waves 2–6 ALL SHIPPED. Wave 1 (the release blocker) needs the owner. Drug tranches A–E ALL SHIPPED; severity-sort bug FIXED; the CYP2D6 sweep is COMPLETE across all 21 records; prostate evidence recalibrated; three Men's Health topics added; a V2-wide count guard now blocks stale numbers; Demo Mode and Guided Match are ALIGNED and share one data source, guarded. Tranche E is now COMPLETE and the four discovered gaps are closed (DRUG-24); the CBD→Δ⁹-THC exposure finding is in the build; `hasRisk` is enforced rather than dead.**_
 
@@ -46,9 +46,47 @@ current Windows Chrome/Edge, it is an obsolete-browser limitation — record it 
 it also fails on either, it is a real defect that this device merely found first. No fix is to be
 proposed on an XP/Mypal result alone.
 
-## 0000000000000. IOS-07 — DEMO BANNER, PHONE-SCOPED STATIC OFFSET — SHIPPED, PROVISIONAL
+## 0000000000000. IOS-07 — DEMO BANNER, PHONE-SCOPED STATIC OFFSET — **ACCEPTED, PHYSICAL DEVICE PASS**
 
-**Provisional until the owner's physical iPhone 16 acceptance test.** Backup:
+**Commit `e3298d3`, build `1b6f1f86b486dcbb`. Owner-accepted 2026-10-06. This is now the protected
+application baseline.**
+
+| device | Entourage Effect | Demo banner / layout |
+|---|---|---|
+| iPhone 16 · iOS 26.6.1 · Safari | **PASS** | **PASS** — disclosure clearly visible on arrival |
+| legacy iPad mini 2 · iOS 12.4.2 · Safari 12.1.2 | **PASS** | **PASS** — positioned correctly, unchanged |
+| iMac | **PASS** | — |
+
+All underlying content remains reachable by normal vertical scrolling on the iPhone: **PASS.**
+
+### The accepted behaviour — read this before "fixing" it again
+
+At some **intermediate scroll positions** the fixed green banner may temporarily overlay content
+beneath it. **The owner reviewed this on the physical device, with screenshots, and accepted it.**
+Normal vertical scrolling reveals everything; no pinch, zoom, rotation or special gesture is needed.
+
+This was investigated at length and is recorded so nobody re-opens it from a simulation. Portrait
+measurements at 852, 778, 745, 700 and 640px tall put the third option of the *How much experience*
+screen at y≈348–412 with the banner top at y≈492–704 — **no overlap at any height**, with either the
+old 116px or the new 164px reservation. The behaviour the owner saw is a transient overlap mid-scroll
+on the real device, not a layout defect, and **it is not to be corrected**. A landscape 64px/116px
+override was proposed and **explicitly rejected** by the owner after physical testing disproved
+landscape as the source.
+
+One mechanism found along the way, worth knowing but not acted on: `stage()` calls
+`window.scrollTo(0,0)` on the **window**, which re-expands Safari's bottom bar on every screen
+render, while `#gxOverlay` is its own scroll container — so scrolling inside the overlay never
+collapses that bar again. Also note `.dj-toast` is the only element in the app that outranks the
+banner (z-index 10000 vs 9999), in nearly the same strip.
+
+### Rollback
+
+`96f38d244268b63a` is retained as the pre-IOS-07 rollback/reference baseline — on disk as
+`index_BACKUP_20261006_pre_IOS07.html`, and in git as `135d300:index.html`.
+
+---
+
+**Original implementation notes.** Backup:
 `index_BACKUP_20261006_pre_IOS07.html` (`96f38d244268b63a`). This is the **second** attempt at this
 issue; IOS-06 is below and was reverted.
 
