@@ -1,7 +1,7 @@
 # Acannability’s Cannabis Periodic Table of Molecules · Project Handoff  _(internal build: V2)_
 _Last updated: **2026-10-06** · **Protected baseline: commit `e3298d3`, sha256 `1b6f1f86b486dcbb`** (HEAD == origin/main, live byte-identical). Pre-IOS-07 rollback/reference baseline: `135d300` / `96f38d244268b63a`._
 _Build: 2.2 MB · 64 molecules · **65 health conditions** / 10 groups · 3 cross-listed · **838 NCBI-verified PMIDs** · **289 drugs · 104 drug–drug pairs** · backlog 278 rows · preflight: **32 guards**, all passing `--online`_
-_**MODERN CROSS-PLATFORM QA ROUND 1 COMPLETE. IOS-07 passed physical-device acceptance on 2026-10-06 across iPhone 16 (iOS 26.6.1), the legacy iPad mini 2 (iOS 12.4.2) and an iMac. Commit `e3298d3` / build `1b6f1f86b486dcbb` is the new protected application baseline. IOS-01 through IOS-05 and IOS-07 are CLOSED; IOS-04b and IOS-06 remain recorded as FAILED AND REVERTED. Guards 31 and 32 both protect shipped code. **D2 is CLOSED on physical-device acceptance (2026-10-06); D1 remains OPEN/DEFERRED pending a current Windows Chrome/Edge physical test; U1 and U2 are observations only.**_
+_**MODERN CROSS-PLATFORM QA ROUND 1 COMPLETE. IOS-07 passed physical-device acceptance on 2026-10-06 across iPhone 16 (iOS 26.6.1), the legacy iPad mini 2 (iOS 12.4.2) and an iMac. Commit `e3298d3` / build `1b6f1f86b486dcbb` is the new protected application baseline. IOS-01 through IOS-05 and IOS-07 are CLOSED; IOS-04b and IOS-06 remain recorded as FAILED AND REVERTED. Guards 31 and 32 both protect shipped code. **D2 is CLOSED on physical-device acceptance (2026-10-06); D1 remains OPEN/DEFERRED pending a current Windows Chrome/Edge physical test; U1 and U2 are observations only. Entourage intermittency is recorded as observed session-state behaviour, NOT a confirmed defect — refresh first.**_
 
 _**Pre-release audit COMPLETE: waves 2–6 ALL SHIPPED. Wave 1 (the release blocker) needs the owner. Drug tranches A–E ALL SHIPPED; severity-sort bug FIXED; the CYP2D6 sweep is COMPLETE across all 21 records; prostate evidence recalibrated; three Men's Health topics added; a V2-wide count guard now blocks stale numbers; Demo Mode and Guided Match are ALIGNED and share one data source, guarded. Tranche E is now COMPLETE and the four discovered gaps are closed (DRUG-24); the CBD→Δ⁹-THC exposure finding is in the build; `hasRisk` is enforced rather than dead.**_
 
@@ -127,6 +127,61 @@ outside the block for the iPad; and that no viewport unit or `viewport-fit` has 
 regressions caught in negative testing.
 
 **112/164 are provisional acceptance values, not values to tune through production deploys.**
+
+---
+
+## 0000000000000. ENTOURAGE — INTERMITTENT SESSION-STATE BEHAVIOUR, **NOT A CONFIRMED DEFECT**
+
+**Observation, recorded 2026-10-06. No code change. No root cause assigned.**
+
+On more than one occasion Entourage Effect has appeared nonfunctional in an **existing browser
+session** and has **returned immediately after a normal page refresh** — most recently on the
+iPhone 16 and an iMac, both of which recovered with a plain refresh and **no** code change,
+deployment, cache clear or browser-data clear.
+
+**If it recurs, the first troubleshooting step is a normal page refresh.** Reopen it as a defect
+only if it stays reproducibly nonfunctional *after* a refresh, or if new diagnostic evidence
+arrives. **Do not assign a cause such as caching without evidence** — that label was used early on
+and was never supported.
+
+### What was verified during the investigation
+
+- **Live build is byte-identical to the accepted baseline.** `1b6f1f86b486dcbb` on three separate
+  fetches; local = origin = live. Nothing but `HANDOFF.md` has changed since `e3298d3`.
+- **Every Entourage byte is unchanged** against `e3298d3`: all inline JS, all CSS, `showEntourage`,
+  `hideEntourage`, the `#ent-*` rules, the `#ent-*` markup and the `#entBtn` markup all hash
+  identically.
+- **No external runtime dependencies.** Zero external `src`/`href`, **zero service workers**, no
+  network fetch on this path. Persisted keys are `eg_accepted`, `acann_fb_loc` and the demo keys
+  `acann_demo_on` / `acann_demo_hub` / `acann_demo_review_v1` — the demo keys are **`sessionStorage`**,
+  so they die with the tab but survive a reload in the same tab.
+- **Could not reproduce.** 25 rapid open/close cycles through the real `#entBtn`, a double-open
+  without closing, select-then-clear-then-reopen, and the mobile `goEntourage()` tab path: all
+  rendered correctly, **zero console errors**, and `document.body.style.overflow` was correctly
+  restored every time.
+
+### Three source facts worth knowing before anyone triages this again
+
+1. **`showEntourage()` opens the overlay before it does any content work**, and sets
+   `document.body.style.overflow='hidden'` on line 3 — which only `hideEntourage()` resets. So the
+   overlay appearing, or the button reacting, **proves nothing about whether the analysis rendered**.
+   Judge it by `#entBody` content, never by the button or the overlay.
+2. **`window._activeCondId` is a one-way latch.** It is assigned in the condition-tile handler and
+   **never cleared** — `clearCondition()` does not touch it. Confirmed empirically: after
+   `clearCondition()`, reopening Entourage still showed the previous 4,732-character analysis. The
+   real buttons call `showEntourage()` with **no argument**, so this latch decides what they show.
+3. **`_excludedMols` is a global that Guided Match can write to** (the THC-ceiling path sets
+   `window._excludedMols[id]=true`), and `renderEntourageAnalysis` filters molecules through it.
+   State set in one feature therefore reaches another. Not shown to cause this, but it is the kind
+   of cross-feature state worth checking first.
+
+### A correction to earlier verification in this log
+
+The Entourage checks run during IOS-06 and IOS-07 called **`showEntourage(conditionId)` with an
+explicit argument**, which forces the `preselect` branch and always renders. **The real `#entBtn` and
+mobile tab-bar paths call `showEntourage()` with no argument** and depend on `_activeCondId`. Those
+earlier checks were therefore weaker than they were reported to be. Future Entourage verification
+must go through the **real no-argument button path** and assert on `#entBody` content.
 
 ---
 
