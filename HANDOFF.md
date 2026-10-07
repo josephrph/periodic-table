@@ -1,7 +1,7 @@
 # Acannability’s Cannabis Periodic Table of Molecules · Project Handoff  _(internal build: V2)_
 _Last updated: **2026-10-06** · **Protected baseline: commit `e3298d3`, sha256 `1b6f1f86b486dcbb`** (HEAD == origin/main, live byte-identical). Pre-IOS-07 rollback/reference baseline: `135d300` / `96f38d244268b63a`._
 _Build: 2.2 MB · 64 molecules · **65 health conditions** / 10 groups · 3 cross-listed · **838 NCBI-verified PMIDs** · **289 drugs · 104 drug–drug pairs** · backlog 278 rows · preflight: **32 guards**, all passing `--online`_
-_**MODERN CROSS-PLATFORM QA ROUND 1 COMPLETE. IOS-07 passed physical-device acceptance on 2026-10-06 across iPhone 16 (iOS 26.6.1), the legacy iPad mini 2 (iOS 12.4.2) and an iMac. Commit `e3298d3` / build `1b6f1f86b486dcbb` is the new protected application baseline. IOS-01 through IOS-05 and IOS-07 are CLOSED; IOS-04b and IOS-06 remain recorded as FAILED AND REVERTED. Guards 31 and 32 both protect shipped code. D1 and D2 remain OPEN and unimplemented — they are not part of IOS-07.**_
+_**MODERN CROSS-PLATFORM QA ROUND 1 COMPLETE. IOS-07 passed physical-device acceptance on 2026-10-06 across iPhone 16 (iOS 26.6.1), the legacy iPad mini 2 (iOS 12.4.2) and an iMac. Commit `e3298d3` / build `1b6f1f86b486dcbb` is the new protected application baseline. IOS-01 through IOS-05 and IOS-07 are CLOSED; IOS-04b and IOS-06 remain recorded as FAILED AND REVERTED. Guards 31 and 32 both protect shipped code. **D2 is CLOSED on physical-device acceptance (2026-10-06); D1 remains OPEN/DEFERRED pending a current Windows Chrome/Edge physical test; U1 and U2 are observations only.**_
 
 _**Pre-release audit COMPLETE: waves 2–6 ALL SHIPPED. Wave 1 (the release blocker) needs the owner. Drug tranches A–E ALL SHIPPED; severity-sort bug FIXED; the CYP2D6 sweep is COMPLETE across all 21 records; prostate evidence recalibrated; three Men's Health topics added; a V2-wide count guard now blocks stale numbers; Demo Mode and Guided Match are ALIGNED and share one data source, guarded. Tranche E is now COMPLETE and the four discovered gaps are closed (DRUG-24); the CBD→Δ⁹-THC exposure finding is in the build; `hasRisk` is enforced rather than dead.**_
 
@@ -127,6 +127,43 @@ outside the block for the iPad; and that no viewport unit or `viewport-fit` has 
 regressions caught in negative testing.
 
 **112/164 are provisional acceptance values, not values to tune through production deploys.**
+
+---
+
+## 0000000000000. CROSS-PLATFORM FINDINGS — DISPOSITION
+
+Recorded 2026-10-06 after physical-device testing. **No code change was made for any of these.**
+
+### D2 — no dimmed backdrop behind the mobile bottom sheet — **CLOSED, no code change warranted**
+
+**Physical iPhone 16 / iOS 26.6.1 / Safari, owner-tested 2026-10-06.** A single molecule was opened
+and the mobile information panel reviewed. Everything displayed and functioned normally. There was
+**no dimmed backdrop, and its absence was neither visually nor functionally problematic.** The panel
+was closed normally with the clearly visible **✕** control in the upper right.
+
+**Accepted** because the molecule panel is fully usable and carries a clear, working close control.
+The previously proposed backdrop change is **not to be implemented**.
+
+**Do not reopen D2 from source analysis or simulation.** It may only be reopened if a *reproducible
+physical-device usability problem* is reported. The relevant source facts are already known and are
+not grounds on their own: `body.is-mobile-view .panel` has no dimming pseudo-element or overlay
+sibling, and there is no outside-tap dismiss handler. That was the finding; the device overruled it.
+
+### D1 — horizontal overflow from a scrollbar — **OPEN / DEFERRED**
+
+Still unimplemented and still unverified on the one platform that can settle it. Phase-1 automation
+found that below roughly 900px the page can become fractionally wider than the viewport, producing a
+horizontal scrollbar and a few pixels of sideways drag. macOS uses overlay scrollbars and does not
+show it; **Windows is expected to.**
+
+**Blocked on a physical test on a current Windows PC in Chrome or Edge** — steps W6 and W7 of the
+cross-platform checklist. The Windows XP / Mypal machine does **not** substitute: that test is
+informational only and establishes no support requirement. Do not design a fix before that result
+exists.
+
+### U1 / U2 — **observations only**
+
+Neither is a defect. No action, no implementation, no guard.
 
 ---
 
