@@ -10302,12 +10302,29 @@ function resetToEntryGate() {
   // Removing .open already hides every one of these — #ent-ov and #fullDiscOv are display:none by
   // id, .fb-login-ov / .demo-login-ov / .rc-ov are display:none by class — so clearing the inline
   // style simply hands authority back to the stylesheet. Guard 33 keeps it that way.
-  ['rdInfoOv','fullDiscOv','ent-ov','fbLoginOv','demoLoginOv','refCardOv'].forEach(function(id) {
+  // RESET-02: this list carried two bugs that RESET-01 did not catch.
+  //   'refCardOv' never existed — the Reference Card is 'rcOv'. So nothing closed it on reset, and
+  //   a real inactivity expiry while a reference article was open left the previous customer's
+  //   Scientific References card sitting over the Full Table for the next one. Confirmed through
+  //   the real UI against a genuine 180s idle reset.
+  //   'rdInfoOv' DOES exist, contrary to the RESET-01 note — ResearchData.openInfo() builds it at
+  //   runtime with an inline display:flex and z-index 100000, and there is NO stylesheet rule for
+  //   it. Clearing its inline display therefore does not hide it, it REVEALS it (a bare div falls
+  //   back to display:block) — and above the gate's z-index 10500. RESET-01 turned a panel the user
+  //   had already closed into one that reappeared over the disclaimer gate after any reset.
+  // The two kinds need opposite treatment, so they are no longer in one loop: class-driven overlays
+  // get their inline display CLEARED so the stylesheet can hide them and .open works again, while
+  // the JS-built panel must be hidden EXPLICITLY because it has no rule to fall back to.
+  ['fullDiscOv','ent-ov','fbLoginOv','demoLoginOv','rcOv'].forEach(function(id) {
     try {
       var el = document.getElementById(id);
       if (el) { el.classList.remove('open'); el.style.display = ''; }
     } catch(e) {}
   });
+  try {
+    var _rdInfo = document.getElementById('rdInfoOv');
+    if (_rdInfo) _rdInfo.style.display = 'none';
+  } catch(e) {}
   // Clear the in-progress feedback DRAFT + sign staff out (stored suggestions are KEPT for review)
   try { if (window.Feedback) Feedback.clearDraft(); } catch(e) {}
   // UX-110: the session-scoped demonstration review queue dies with the session. This is the one

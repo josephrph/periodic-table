@@ -1361,61 +1361,96 @@ def check_demo_ribbon_offset(src):
 
 
 def check_reset_overlay_display(src):
-    """RESET-01 (guard 33): resetToEntryGate() must not write an inline display to the
-    class-driven overlays it closes.
+    """RESET-01 + RESET-02 (guard 33): resetToEntryGate() closes two KINDS of overlay, and they
+    need opposite treatment. Getting either backwards has already shipped a defect.
 
-    These overlays open purely by class — #ent-ov{display:none} with #ent-ov.open{display:flex},
-    and the same shape for the disclaimer and the two sign-in dialogs. An inline style beats any
-    stylesheet selector, so an inline display:'none' written during a session reset made .open
-    permanently powerless: Entourage, the Full Disclaimer and the staff sign-in could never open
-    again until the page was refreshed. It was worse than a dead button, because showEntourage()
-    sets body{overflow:hidden} BEFORE it renders, so clicking the dead control also scroll-locked
-    the whole page with no overlay on screen to close. Reproduced on current Chrome and on an
-    El Capitan iMac; refreshing "fixed" it only because inline styles are not persisted.
+    Class-driven overlays — #ent-ov, #fullDiscOv, the two sign-in dialogs and the Reference Card —
+    open by adding .open against a stylesheet that hides them by default. Writing an inline
+    display:'none' onto those beats the stylesheet permanently, so .open stops working and they can
+    never open again until the page is refreshed (RESET-01: Entourage, the Full Disclaimer and the
+    staff sign-in all died after any session reset, and because showEntourage() locks body scroll
+    before it renders, clicking the dead control froze the page too).
 
-    Removing .open already hides all of them, so the loop clears the inline style instead. This
-    guard fails if anyone writes a non-empty inline display back into that loop, and it also
-    fails if the overlays stop being class-driven, since that is the assumption the fix rests on.
+    #rdInfoOv is the opposite case. ResearchData.openInfo() builds it at RUNTIME with an inline
+    display:flex and z-index 100000, and there is NO stylesheet rule for it. CLEARING its inline
+    display does not hide it, it reveals it — a bare div falls back to display:block, above the
+    gate's z-index 10500 (RESET-02: a panel the user had already closed reappeared over the
+    disclaimer gate after every reset). It must be hidden explicitly.
+
+    Also asserted: the loop names the real Reference Card id. 'refCardOv' never existed, so nothing
+    closed the card on reset and a genuine inactivity expiry left the previous customer's
+    Scientific References card over the Full Table for the next one.
     """
     js = ''.join(re.findall(r'<script(?![^>]*\bsrc=)[^>]*>(.*?)</script>', src, re.S))
+    # strip comments first: the RESET-02 note deliberately names 'refCardOv' and 'rdInfoOv' while
+    # explaining them, and the guard must read the CODE, not its own documentation
+    js = re.sub(r'/\*.*?\*/', ' ', re.sub(r'(?m)^\s*//.*$', '', js), flags=re.S)
 
     m0 = re.search(r'function\s+resetToEntryGate\s*\(', js)   # exact name, not a prefix
     if not m0:
         fail('reset overlay display', 'resetToEntryGate() is gone (zero-match tripwire)')
         return
-    body = js[m0.start():m0.start() + 9000]
+    body = js[m0.start():m0.start() + 12000]
 
-    loop = re.search(r"\[\s*'rdInfoOv'.*?\]\s*\.forEach\s*\(function\s*\(id\)\s*\{(.*?)\}\s*\)\s*;",
+    loop = re.search(r"\[\s*'fullDiscOv'.*?\]\s*\.forEach\s*\(function\s*\(id\)\s*\{(.*?)\}\s*\)\s*;",
                      body, re.S)
     if not loop:
         fail('reset overlay display',
-             'the overlay-closing loop in resetToEntryGate() is gone — full-screen surfaces could '
-             'occlude the entry gate again')
+             'the class-driven overlay-closing loop in resetToEntryGate() is gone — full-screen '
+             'surfaces could occlude the entry gate again')
         return
+    arr = body[loop.start():loop.start() + loop.group(0).index(']') + 1]
 
+    # 1. the class-driven overlays must not be poisoned with a persistent inline display
     for m in re.finditer(r"style\.display\s*=\s*(['\"])(.*?)\1", loop.group(1)):
         if m.group(2).strip():
             fail('reset overlay display',
-                 "resetToEntryGate() writes an inline display:'%s' onto its class-driven overlays "
-                 "again — that beats the stylesheet and leaves Entourage, the Full Disclaimer and "
-                 "the staff sign-in permanently dead after any session reset (RESET-01)"
+                 "resetToEntryGate() writes an inline display:'%s' onto its CLASS-DRIVEN overlays "
+                 "again — that beats the stylesheet and leaves Entourage, the Full Disclaimer, the "
+                 "sign-in dialogs and the Reference Card permanently dead after any reset (RESET-01)"
                  % m.group(2))
 
-    # the fix assumes these stay class-driven; if that changes, the reasoning above no longer holds
+    # 2. the Reference Card must be referenced by its real id
+    if 'refCardOv' in body:
+        fail('reset overlay display',
+             "resetToEntryGate() references 'refCardOv', which does not exist — the Reference Card "
+             "is 'rcOv', and naming it wrongly means a session reset never closes it (RESET-02)")
+    if "'rcOv'" not in arr:
+        fail('reset overlay display',
+             "the Reference Card ('rcOv') is not in the class-driven reset list — an inactivity "
+             "expiry would leave the previous session's reference article over the Full Table")
+
+    # 3. rdInfoOv must NOT be cleared with the class-driven group, and MUST be hidden explicitly
+    if 'rdInfoOv' in arr:
+        fail('reset overlay display',
+             "'rdInfoOv' is back in the class-driven list — it is built in JS with an inline "
+             "display:flex and has no stylesheet rule, so clearing its inline display REVEALS it "
+             "over the entry gate instead of hiding it (RESET-02)")
+    if not re.search(r"rdInfoOv[\s\S]{0,240}?style\.display\s*=\s*'none'", body):
+        fail('reset overlay display',
+             "resetToEntryGate() no longer hides #rdInfoOv explicitly — the Research Data & Privacy "
+             "panel has no stylesheet display:none to fall back to, so it would reappear over the "
+             "disclaimer gate (z-index 100000 against the gate's 10500) after a reset")
+
+    # 4. the fix assumes the class-driven overlays stay class-driven
     css = re.sub(r'/\*.*?\*/', ' ', ''.join(re.findall(r'<style[^>]*>(.*?)</style>', src, re.S)), flags=re.S)
-    for sel, base in (('#ent-ov', '#ent-ov'), ('#fullDiscOv', '#fullDiscOv')):
+    for sel in ('#ent-ov', '#fullDiscOv'):
         if not re.search(re.escape(sel) + r'\.open\s*\{[^{}]*display\s*:\s*flex', css):
             fail('reset overlay display',
                  '%s.open no longer sets display:flex — RESET-01 assumed these overlays are opened '
                  'by class alone' % sel)
-        if not re.search(r'(?<![\w.#-])' + re.escape(base) + r'\s*\{[^{}]*display\s*:\s*none', css):
+        if not re.search(r'(?<![\w.#-])' + re.escape(sel) + r'\s*\{[^{}]*display\s*:\s*none', css):
             fail('reset overlay display',
                  '%s no longer defaults to display:none — clearing the inline display would now '
-                 'leave it visible after a reset' % base)
+                 'leave it visible after a reset' % sel)
+    if not re.search(r'\.rc-ov\s*\{[^{}]*display\s*:\s*none', css):
+        fail('reset overlay display',
+             '.rc-ov no longer defaults to display:none — clearing its inline display would leave '
+             'the Reference Card visible after a reset')
 
-    note('reset overlay display: resetToEntryGate() clears the inline display on its class-driven '
-         'overlays rather than writing one; #ent-ov and #fullDiscOv still open by class alone')
-
+    note('reset overlay display: resetToEntryGate() clears the inline display on 5 class-driven '
+         'overlays including the real rcOv, and hides the JS-built rdInfoOv explicitly; #ent-ov, '
+         '#fullDiscOv and .rc-ov all still default to display:none')
 
 def check_evidence_attribution(data):
     """DRUG-26: an A- or B-graded entry ASSERTS human evidence, so it must say where that comes from.

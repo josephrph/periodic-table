@@ -130,6 +130,70 @@ regressions caught in negative testing.
 
 ---
 
+## 0000000000000. RESET-02 — TWO RESET-LIST DEFECTS — SHIPPED, PROVISIONAL
+
+**Provisional until physical acceptance.** Backup: `index_BACKUP_20261007_pre_RESET02.html`
+(`5ee1e392b2360494`). Two bugs in the same list, needing **opposite** treatment.
+
+### 1. `refCardOv` never existed — the Reference Card is `rcOv`
+
+So nothing closed it on reset. Reproduced through the real UI against a **genuine 180s inactivity
+expiry**: reference article open → idle reset → next user clears the gate, closes Guided Match and
+the welcome overlay → **the previous customer's Scientific References card is topmost over the Full
+Table** (`cardIsTheTopmostThingThere: true`). The gate itself is never occluded — `.rc-ov` is z-400
+against the gate's z-10500 — so this is session bleed-through, not a UX-68 occlusion.
+
+With the card open, `#newSessionBtn` is unreachable, so the inactivity expiry is the live path: a
+kiosk user opens a reference article and walks away. Nothing else closes `rcOv` — `closeRefCard()`
+is reachable only from its own ✕ and Escape.
+
+### 2. `rdInfoOv` DOES exist — and RESET-01 turned it into a regression
+
+The RESET-01 note claimed this id was nonexistent. **That was wrong.** `ResearchData.openInfo()`
+builds it at runtime with an inline `display:flex`, **z-index 100000**, and there is **no stylesheet
+rule for it**. RESET-01 changed the loop from writing `display:'none'` to `display:''`, which for
+this element removes the inline `display:none` and lets a bare `<div>` fall back to `display:block`.
+
+Reproduced on the live RESET-01 build: open **📊 Research data & privacy** → close it with its own
+button → session reset → **computed `block`, covering the entry gate** (100000 against 10500). A
+panel the user had already closed was re-revealed by every reset, over the disclaimer gate — the
+exact occlusion failure the loop exists to prevent. It was missed in RESET-01 testing because a
+static search for `id="rdInfoOv"` finds nothing; the element only exists once that panel is opened.
+
+### The fix — the two kinds are no longer in one loop
+
+```js
+['fullDiscOv','ent-ov','fbLoginOv','demoLoginOv','rcOv'].forEach(function(id) {
+  var el = document.getElementById(id);
+  if (el) { el.classList.remove('open'); el.style.display = ''; }      // class-driven: CLEAR
+});
+var _rdInfo = document.getElementById('rdInfoOv');
+if (_rdInfo) _rdInfo.style.display = 'none';                           // JS-built: HIDE explicitly
+```
+
+Class-driven overlays get their inline display cleared so the stylesheet hides them and `.open`
+works again; the JS-built panel must be hidden explicitly because it has no rule to fall back to.
+**All CSS byte-identical; markup identical; clinical blocks identical; `showEntourage()` identical.**
+
+### Regression, real UI only — 16 checks, all passed, zero console errors
+
+Fresh Entourage (6,812 chars) · END SESSION → re-enter → Entourage (RESET-01 intact) · Full
+Disclaimer before and after reset · staff sign-in after reset · demo login opens and hides · Research
+Data closed → reset → **stays hidden** · gate unobstructed · Entourage again after all of it.
+
+Then a **genuine 180s idle reset with BOTH overlays open**: gate appeared at 180s, **gate
+unobstructed**, Research Data hidden, Reference Card closed, and after the next user's full entry
+**neither reappears** — then Entourage still renders 6,812 chars.
+
+### Guard 33 extended
+
+Now distinguishes the two kinds: no non-empty inline display on the class-driven group; `rdInfoOv`
+**not** in that group; an explicit `rdInfoOv` hide present; `rcOv` referenced and `refCardOv` absent;
+and `#ent-ov`, `#fullDiscOv`, `.rc-ov` still defaulting to `display:none`. The guard strips comments
+first, so its own documentation cannot trip it. **Nine regressions caught in negative testing.**
+
+---
+
 ## 0000000000000. RESET-01 — ENTOURAGE DEAD AFTER END SESSION — **ACCEPTED, PHYSICAL DEVICE PASS**
 
 **Commit `59ef593`, build `5ee1e392b2360494`. Owner-accepted 2026-10-07. This is now the protected
