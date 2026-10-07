@@ -1,6 +1,6 @@
 # Acannability’s Cannabis Periodic Table of Molecules · Project Handoff  _(internal build: V2)_
 _Last updated: **2026-10-06** · **Protected baseline: commit `e3298d3`, sha256 `1b6f1f86b486dcbb`** (HEAD == origin/main, live byte-identical). Pre-IOS-07 rollback/reference baseline: `135d300` / `96f38d244268b63a`._
-_Build: 2.2 MB · 64 molecules · **65 health conditions** / 10 groups · 3 cross-listed · **838 NCBI-verified PMIDs** · **289 drugs · 104 drug–drug pairs** · backlog 278 rows · preflight: **32 guards**, all passing `--online`_
+_Build: 2.2 MB · 64 molecules · **65 health conditions** / 10 groups · 3 cross-listed · **838 NCBI-verified PMIDs** · **289 drugs · 104 drug–drug pairs** · backlog 278 rows · preflight: **33 guards**, all passing `--online`_
 _**MODERN CROSS-PLATFORM QA ROUND 1 COMPLETE. IOS-07 passed physical-device acceptance on 2026-10-06 across iPhone 16 (iOS 26.6.1), the legacy iPad mini 2 (iOS 12.4.2) and an iMac. Commit `e3298d3` / build `1b6f1f86b486dcbb` is the new protected application baseline. IOS-01 through IOS-05 and IOS-07 are CLOSED; IOS-04b and IOS-06 remain recorded as FAILED AND REVERTED. Guards 31 and 32 both protect shipped code. **D2 is CLOSED on physical-device acceptance (2026-10-06); D1 remains OPEN/DEFERRED pending a current Windows Chrome/Edge physical test; U1 and U2 are observations only. Entourage intermittency is recorded as observed session-state behaviour, NOT a confirmed defect — refresh first.**_
 
 _**Pre-release audit COMPLETE: waves 2–6 ALL SHIPPED. Wave 1 (the release blocker) needs the owner. Drug tranches A–E ALL SHIPPED; severity-sort bug FIXED; the CYP2D6 sweep is COMPLETE across all 21 records; prostate evidence recalibrated; three Men's Health topics added; a V2-wide count guard now blocks stale numbers; Demo Mode and Guided Match are ALIGNED and share one data source, guarded. Tranche E is now COMPLETE and the four discovered gaps are closed (DRUG-24); the CBD→Δ⁹-THC exposure finding is in the build; `hasRisk` is enforced rather than dead.**_
@@ -127,6 +127,76 @@ outside the block for the iPad; and that no viewport unit or `viewport-fit` has 
 regressions caught in negative testing.
 
 **112/164 are provisional acceptance values, not values to tune through production deploys.**
+
+---
+
+## 0000000000000. RESET-01 — ENTOURAGE DEAD AFTER END SESSION — SHIPPED, PROVISIONAL
+
+**Provisional until physical acceptance.** Backup: `index_BACKUP_20261007_pre_RESET01.html`
+(`1b6f1f86b486dcbb`). **This supersedes the "intermittent session-state behaviour" note below — that
+observation was real, and this is its cause.**
+
+### The defect
+
+`resetToEntryGate()` — the single funnel for New Session, I'm Done and the inactivity expiry — closed
+its full-screen overlays like this:
+
+```js
+if (el) { el.classList.remove('open'); el.style.display = 'none'; }   // the poison
+```
+
+Those overlays open **purely by class** (`#ent-ov{display:none}` / `#ent-ov.open{display:flex}`), and
+**an inline style beats any stylesheet selector**. So after any session reset, `.open` was powerless:
+the button worked, the handler ran, the class landed, and nothing appeared. Worse, `showEntourage()`
+sets `body{overflow:hidden}` **before** it renders, so clicking the dead control also **scroll-locked
+the whole page** with no overlay on screen to close — which is the owner's second report, the El
+Capitan iMac "Full Table renders but will not scroll, no scrollbars".
+
+A refresh "fixed" both only because inline styles are not persisted.
+
+**Reproduced on current Chrome**, not just the legacy iMac, driving the real `#entBtn` and the real
+dropdown:
+
+| step | `.open` | inline | computed | body overflow |
+|---|---|---|---|---|
+| real `#entBtn`, **before** END SESSION | true | (none) | **flex** | hidden |
+| after `newSession()` | — | **none** | none | (none) |
+| real `#entBtn`, **after** END SESSION | true | **none** | **none** | **hidden** |
+
+**Also affected and fixed by the same line:** `#fullDiscOv` (Full Disclaimer) and `#fbLoginOv` (staff
+sign-in) — both class-driven, both verified dead after a reset on the old build.
+
+### The fix — one token
+
+```js
+if (el) { el.classList.remove('open'); el.style.display = ''; }
+```
+
+Removing `.open` already hides every one of them — `#ent-ov` and `#fullDiscOv` are `display:none` by
+id, `.fb-login-ov` / `.demo-login-ov` / `.rc-ov` by class — so clearing the inline style simply hands
+authority back to the stylesheet. **All CSS byte-identical; the only JS change is this token plus its
+comment.** Clinical data blocks byte-identical.
+
+### Regression, via the real UI (never `showEntourage(conditionId)`)
+
+17 checks, **all passed, zero console errors**: fresh session renders 6,812 chars in `#entBody`;
+**three consecutive END SESSION cycles** each render identically; `body.style.overflow` released after
+every close; Full Disclaimer opens before *and* after a reset; staff sign-in opens after a reset; the
+demo login overlay still opens and hides correctly.
+
+### Guard 33 — `check_reset_overlay_display`
+
+Fails if any non-empty inline display is written back into that loop, if the loop is deleted, if
+`resetToEntryGate()` disappears, or if `#ent-ov`/`#fullDiscOv` stop being class-driven — since that
+last assumption is what the fix rests on. Six regressions caught in negative testing.
+
+### Deliberately NOT in this patch — report separately
+
+1. **`refCardOv` does not exist; the reference card's real id is `rcOv`.** So that entry is a no-op
+   and the reference card is **never closed by a session reset** — the opposite failure, and exactly
+   what this loop was written to prevent. `rdInfoOv` does not exist either.
+2. **`showEntourage()` sets `body{overflow:hidden}` before it knows it can render.** That is what
+   turned a dead button into a frozen page. Worth hardening on its own.
 
 ---
 

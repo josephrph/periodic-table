@@ -1359,6 +1359,64 @@ def check_demo_ribbon_offset(src):
          'viewport-fit' % (banner, reserve))
 
 
+
+def check_reset_overlay_display(src):
+    """RESET-01 (guard 33): resetToEntryGate() must not write an inline display to the
+    class-driven overlays it closes.
+
+    These overlays open purely by class — #ent-ov{display:none} with #ent-ov.open{display:flex},
+    and the same shape for the disclaimer and the two sign-in dialogs. An inline style beats any
+    stylesheet selector, so an inline display:'none' written during a session reset made .open
+    permanently powerless: Entourage, the Full Disclaimer and the staff sign-in could never open
+    again until the page was refreshed. It was worse than a dead button, because showEntourage()
+    sets body{overflow:hidden} BEFORE it renders, so clicking the dead control also scroll-locked
+    the whole page with no overlay on screen to close. Reproduced on current Chrome and on an
+    El Capitan iMac; refreshing "fixed" it only because inline styles are not persisted.
+
+    Removing .open already hides all of them, so the loop clears the inline style instead. This
+    guard fails if anyone writes a non-empty inline display back into that loop, and it also
+    fails if the overlays stop being class-driven, since that is the assumption the fix rests on.
+    """
+    js = ''.join(re.findall(r'<script(?![^>]*\bsrc=)[^>]*>(.*?)</script>', src, re.S))
+
+    m0 = re.search(r'function\s+resetToEntryGate\s*\(', js)   # exact name, not a prefix
+    if not m0:
+        fail('reset overlay display', 'resetToEntryGate() is gone (zero-match tripwire)')
+        return
+    body = js[m0.start():m0.start() + 9000]
+
+    loop = re.search(r"\[\s*'rdInfoOv'.*?\]\s*\.forEach\s*\(function\s*\(id\)\s*\{(.*?)\}\s*\)\s*;",
+                     body, re.S)
+    if not loop:
+        fail('reset overlay display',
+             'the overlay-closing loop in resetToEntryGate() is gone — full-screen surfaces could '
+             'occlude the entry gate again')
+        return
+
+    for m in re.finditer(r"style\.display\s*=\s*(['\"])(.*?)\1", loop.group(1)):
+        if m.group(2).strip():
+            fail('reset overlay display',
+                 "resetToEntryGate() writes an inline display:'%s' onto its class-driven overlays "
+                 "again — that beats the stylesheet and leaves Entourage, the Full Disclaimer and "
+                 "the staff sign-in permanently dead after any session reset (RESET-01)"
+                 % m.group(2))
+
+    # the fix assumes these stay class-driven; if that changes, the reasoning above no longer holds
+    css = re.sub(r'/\*.*?\*/', ' ', ''.join(re.findall(r'<style[^>]*>(.*?)</style>', src, re.S)), flags=re.S)
+    for sel, base in (('#ent-ov', '#ent-ov'), ('#fullDiscOv', '#fullDiscOv')):
+        if not re.search(re.escape(sel) + r'\.open\s*\{[^{}]*display\s*:\s*flex', css):
+            fail('reset overlay display',
+                 '%s.open no longer sets display:flex — RESET-01 assumed these overlays are opened '
+                 'by class alone' % sel)
+        if not re.search(r'(?<![\w.#-])' + re.escape(base) + r'\s*\{[^{}]*display\s*:\s*none', css):
+            fail('reset overlay display',
+                 '%s no longer defaults to display:none — clearing the inline display would now '
+                 'leave it visible after a reset' % base)
+
+    note('reset overlay display: resetToEntryGate() clears the inline display on its class-driven '
+         'overlays rather than writing one; #ent-ov and #fullDiscOv still open by class alone')
+
+
 def check_evidence_attribution(data):
     """DRUG-26: an A- or B-graded entry ASSERTS human evidence, so it must say where that comes from.
 
@@ -1820,6 +1878,7 @@ def main():
     check_legacy_fallback_scoping(src)
     check_gxwrap_flex(src)
     check_demo_ribbon_offset(src)
+    check_reset_overlay_display(src)
     check_evidence_attribution(data)
     check_backlog()
 

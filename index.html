@@ -10292,10 +10292,20 @@ function resetToEntryGate() {
   // had happened, until a click closed the overlay and revealed the gate already underneath.
   try { if (window.V4GX && V4GX.close) V4GX.close(); } catch(e) {}
   // Any other full-screen surface that could occlude the gate the same way.
+  // RESET-01: this loop used to write an INLINE display:'none' here. These overlays are opened
+  // purely by class (#ent-ov{display:none} / #ent-ov.open{display:flex}), and an inline style beats
+  // any stylesheet selector — so once a session had been reset, .open was powerless and Entourage,
+  // the Full Disclaimer and the staff sign-in could never open again until a page refresh. Worse,
+  // showEntourage() sets body{overflow:hidden} BEFORE it renders, so a click on a dead Entourage
+  // button left the whole page scroll-locked with no overlay to close. Reproduced on current Chrome
+  // and on an El Capitan iMac; a refresh "fixed" it only because inline styles are not persisted.
+  // Removing .open already hides every one of these — #ent-ov and #fullDiscOv are display:none by
+  // id, .fb-login-ov / .demo-login-ov / .rc-ov are display:none by class — so clearing the inline
+  // style simply hands authority back to the stylesheet. Guard 33 keeps it that way.
   ['rdInfoOv','fullDiscOv','ent-ov','fbLoginOv','demoLoginOv','refCardOv'].forEach(function(id) {
     try {
       var el = document.getElementById(id);
-      if (el) { el.classList.remove('open'); el.style.display = 'none'; }
+      if (el) { el.classList.remove('open'); el.style.display = ''; }
     } catch(e) {}
   });
   // Clear the in-progress feedback DRAFT + sign staff out (stored suggestions are KEPT for review)
