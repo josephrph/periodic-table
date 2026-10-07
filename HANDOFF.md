@@ -1,5 +1,5 @@
 # Acannability’s Cannabis Periodic Table of Molecules · Project Handoff  _(internal build: V2)_
-_Last updated: **2026-10-07** · **Protected baseline: commit `59ef593`, sha256 `5ee1e392b2360494`** (HEAD == origin/main, live byte-identical). Pre-RESET-01 rollback/reference baseline: `e3298d3` / `1b6f1f86b486dcbb`. Earlier reference: `135d300` / `96f38d244268b63a`._
+_Last updated: **2026-10-07** · **Protected baseline: commit `6baf906`, sha256 `5cf72d6e2c66b1fe`** (HEAD == origin/main, live byte-identical). Pre-RESET-02 rollback/reference baseline: `59ef593` / `5ee1e392b2360494`. Earlier references: `e3298d3` / `1b6f1f86b486dcbb`, `135d300` / `96f38d244268b63a`._
 _Build: 2.2 MB · 64 molecules · **65 health conditions** / 10 groups · 3 cross-listed · **838 NCBI-verified PMIDs** · **289 drugs · 104 drug–drug pairs** · backlog 278 rows · preflight: **33 guards**, all passing `--online`_
 _**MODERN CROSS-PLATFORM QA ROUND 1 COMPLETE. IOS-07 passed physical-device acceptance on 2026-10-06 across iPhone 16 (iOS 26.6.1), the legacy iPad mini 2 (iOS 12.4.2) and an iMac. Commit `e3298d3` / build `1b6f1f86b486dcbb` is the new protected application baseline. IOS-01 through IOS-05 and IOS-07 are CLOSED; IOS-04b and IOS-06 remain recorded as FAILED AND REVERTED. Guards 31 and 32 both protect shipped code. **D2 is CLOSED on physical-device acceptance (2026-10-06); D1 remains OPEN/DEFERRED pending a current Windows Chrome/Edge physical test; U1 and U2 are observations only. **RESET-01 passed physical acceptance 2026-10-07 across iPhone 16, legacy iPad mini 2, an El Capitan iMac and a newer iMac — `59ef593` / `5ee1e392b2360494` is the new protected baseline.** D2 is CLOSED; D1 remains OPEN/DEFERRED pending a current Windows Chrome/Edge physical test; U1/U2 are observations only. A residual Entourage intermittency survives RESET-01 and is recorded as an observation with NO root cause — refresh first.**_
 
@@ -130,9 +130,39 @@ regressions caught in negative testing.
 
 ---
 
-## 0000000000000. RESET-02 — TWO RESET-LIST DEFECTS — SHIPPED, PROVISIONAL
+## 0000000000000. RESET-02 — TWO RESET-LIST DEFECTS — **ACCEPTED, PHYSICAL DEVICE PASS**
 
-**Provisional until physical acceptance.** Backup: `index_BACKUP_20261007_pre_RESET02.html`
+**Commit `6baf906`, build `5cf72d6e2c66b1fe`. Owner-accepted 2026-10-07. This is now the protected
+application baseline.** Pre-RESET-02 rollback/reference baseline: `59ef593` / `5ee1e392b2360494`,
+on disk as `index_BACKUP_20261007_pre_RESET02.html`.
+
+| device | result |
+|---|---|
+| iPhone 16 · iOS 26.6.1 | Entourage round-trip **PASS** · Research Data across reset **PASS** |
+| old iMac · OS X El Capitan | Reference Article left open through a **genuine 3-minute idle reset** — returned correctly to the disclaimer, **no previous-session material remained** |
+| legacy iPad mini 2 · iOS 12.4.2 | genuine 3-minute idle reset **PASS**, returned to the disclaimer cleanly |
+
+### Legacy PubMed rendering — EXTERNAL COMPATIBILITY OBSERVATION, no action
+
+PubMed does not render properly on the legacy iPad mini 2 or the El Capitan iMac — content loads but
+is substantially unstyled. It renders correctly on the iPhone 16 and a newer iMac on Tahoe.
+
+**Verified that V2 is not at fault, as the owner required before closeout:**
+
+- **Zero device-conditional branches** anywhere near a PubMed URL — no `userAgent`, `navigator.*`,
+  `innerWidth`, `matchMedia` or capability-class test. Every device is handed the identical string.
+- URLs are built as a constant plus the PMID: `https://pubmed.ncbi.nlm.nih.gov/<pmid>/`.
+- In the live runtime DOM, **18 rendered NCBI links**: 14 PMID links well-formed, the other 4 valid
+  PubMed *search* URLs (`?term=…&sort=relevance`, properly encoded). **All HTTPS**, all
+  `target="_blank" rel="noopener"`, **zero `http://` NCBI links**.
+- preflight `--online` **resolves all 838 PMIDs at NCBI**.
+
+**The destination is identical and valid on every device.** The rendering difference is PubMed's own
+site not supporting Safari 9/11-era browsers. **V2 is not to be modified to compensate.**
+
+---
+
+**Original implementation notes.** Backup: `index_BACKUP_20261007_pre_RESET02.html`
 (`5ee1e392b2360494`). Two bugs in the same list, needing **opposite** treatment.
 
 ### 1. `refCardOv` never existed — the Reference Card is `rcOv`
