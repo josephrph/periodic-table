@@ -1,7 +1,7 @@
 # Acannability’s Cannabis Periodic Table of Molecules · Project Handoff  _(internal build: V2)_
-_Last updated: **2026-10-06** · **Protected baseline: commit `e3298d3`, sha256 `1b6f1f86b486dcbb`** (HEAD == origin/main, live byte-identical). Pre-IOS-07 rollback/reference baseline: `135d300` / `96f38d244268b63a`._
+_Last updated: **2026-10-07** · **Protected baseline: commit `59ef593`, sha256 `5ee1e392b2360494`** (HEAD == origin/main, live byte-identical). Pre-RESET-01 rollback/reference baseline: `e3298d3` / `1b6f1f86b486dcbb`. Earlier reference: `135d300` / `96f38d244268b63a`._
 _Build: 2.2 MB · 64 molecules · **65 health conditions** / 10 groups · 3 cross-listed · **838 NCBI-verified PMIDs** · **289 drugs · 104 drug–drug pairs** · backlog 278 rows · preflight: **33 guards**, all passing `--online`_
-_**MODERN CROSS-PLATFORM QA ROUND 1 COMPLETE. IOS-07 passed physical-device acceptance on 2026-10-06 across iPhone 16 (iOS 26.6.1), the legacy iPad mini 2 (iOS 12.4.2) and an iMac. Commit `e3298d3` / build `1b6f1f86b486dcbb` is the new protected application baseline. IOS-01 through IOS-05 and IOS-07 are CLOSED; IOS-04b and IOS-06 remain recorded as FAILED AND REVERTED. Guards 31 and 32 both protect shipped code. **D2 is CLOSED on physical-device acceptance (2026-10-06); D1 remains OPEN/DEFERRED pending a current Windows Chrome/Edge physical test; U1 and U2 are observations only. Entourage intermittency is recorded as observed session-state behaviour, NOT a confirmed defect — refresh first.**_
+_**MODERN CROSS-PLATFORM QA ROUND 1 COMPLETE. IOS-07 passed physical-device acceptance on 2026-10-06 across iPhone 16 (iOS 26.6.1), the legacy iPad mini 2 (iOS 12.4.2) and an iMac. Commit `e3298d3` / build `1b6f1f86b486dcbb` is the new protected application baseline. IOS-01 through IOS-05 and IOS-07 are CLOSED; IOS-04b and IOS-06 remain recorded as FAILED AND REVERTED. Guards 31 and 32 both protect shipped code. **D2 is CLOSED on physical-device acceptance (2026-10-06); D1 remains OPEN/DEFERRED pending a current Windows Chrome/Edge physical test; U1 and U2 are observations only. **RESET-01 passed physical acceptance 2026-10-07 across iPhone 16, legacy iPad mini 2, an El Capitan iMac and a newer iMac — `59ef593` / `5ee1e392b2360494` is the new protected baseline.** D2 is CLOSED; D1 remains OPEN/DEFERRED pending a current Windows Chrome/Edge physical test; U1/U2 are observations only. A residual Entourage intermittency survives RESET-01 and is recorded as an observation with NO root cause — refresh first.**_
 
 _**Pre-release audit COMPLETE: waves 2–6 ALL SHIPPED. Wave 1 (the release blocker) needs the owner. Drug tranches A–E ALL SHIPPED; severity-sort bug FIXED; the CYP2D6 sweep is COMPLETE across all 21 records; prostate evidence recalibrated; three Men's Health topics added; a V2-wide count guard now blocks stale numbers; Demo Mode and Guided Match are ALIGNED and share one data source, guarded. Tranche E is now COMPLETE and the four discovered gaps are closed (DRUG-24); the CBD→Δ⁹-THC exposure finding is in the build; `hasRisk` is enforced rather than dead.**_
 
@@ -130,11 +130,36 @@ regressions caught in negative testing.
 
 ---
 
-## 0000000000000. RESET-01 — ENTOURAGE DEAD AFTER END SESSION — SHIPPED, PROVISIONAL
+## 0000000000000. RESET-01 — ENTOURAGE DEAD AFTER END SESSION — **ACCEPTED, PHYSICAL DEVICE PASS**
 
-**Provisional until physical acceptance.** Backup: `index_BACKUP_20261007_pre_RESET01.html`
-(`1b6f1f86b486dcbb`). **This supersedes the "intermittent session-state behaviour" note below — that
-observation was real, and this is its cause.**
+**Commit `59ef593`, build `5ee1e392b2360494`. Owner-accepted 2026-10-07. This is now the protected
+application baseline.** Pre-RESET-01 rollback/reference baseline: `e3298d3` / `1b6f1f86b486dcbb`,
+on disk as `index_BACKUP_20261007_pre_RESET01.html`.
+
+| device | result |
+|---|---|
+| iPhone 16 · iOS 26.6.1 | Entourage **PASS** |
+| legacy iPad mini 2 · iOS 12.4.2 | Entourage **PASS** |
+| old iMac · OS X El Capitan 10.11.6 | Entourage **PASS** — the owner's exact refresh → END SESSION → re-enter sequence now works with no second refresh |
+| newer iMac | END SESSION → re-enter → Entourage **continued working without another refresh** |
+
+**The specific RESET-01 defect — END SESSION leaving Entourage unusable until refresh — is
+physically confirmed fixed on four devices.**
+
+**It did NOT account for everything.** On the newer iMac, Entourage first appeared nonfunctional in a
+pre-existing browser session and recovered on a normal refresh. That residual behaviour is recorded
+separately below, still with **no root cause assigned**, and **RESET-01 is not to be reopened on that
+basis alone.** RESET-01 was *a* cause of one reproducible path; it was evidently not the whole story.
+
+### Legacy usability observation — old iMac horizontal scrollbar — NO ACTION
+
+On the El Capitan iMac the Full Table's horizontal scrollbar is **functional but quite faint**, and
+could be easy for an unfamiliar user to miss. **Legacy-device usability observation only. V2 is not
+to be modified for it.**
+
+---
+
+**Original implementation notes.**
 
 ### The defect
 
