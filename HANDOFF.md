@@ -132,7 +132,7 @@ regressions caught in negative testing.
 
 ## 0000000000000. THY-01 — LEVOTHYROXINE ENTRY, EVIDENCE CORRECTION — SHIPPED, PROVISIONAL
 
-**Provisional until physical acceptance.** Backup: `index_BACKUP_20261007_pre_THY01.html`
+**Provisional until physical acceptance.** Backup: `index_BACKUP_20261009_pre_THY01.html`
 (`5cf72d6e2c66b1fe`). **Three fields in one drug entry. No new condition, no new warning.**
 
 ### Why
