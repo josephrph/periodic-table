@@ -130,6 +130,63 @@ regressions caught in negative testing.
 
 ---
 
+## 0000000000000. THY-01 — LEVOTHYROXINE ENTRY, EVIDENCE CORRECTION — SHIPPED, PROVISIONAL
+
+**Provisional until physical acceptance.** Backup: `index_BACKUP_20261007_pre_THY01.html`
+(`5cf72d6e2c66b1fe`). **Three fields in one drug entry. No new condition, no new warning.**
+
+### Why
+
+An owner enquiry — a woman with hypothyroidism whose levothyroxine dose was reduced after she began
+an oral CBD+CBC/CBG product — prompted a focused literature review. **Hypothyroidism was NOT added
+as a Health Condition and no thyroid safety warning was added.** The review found:
+
+- **No human evidence that any cannabinoid improves thyroid function.** The best human clinical
+  evidence is evidence of *absence*: 39 cannabis-dependent subjects had TSH, T3 and fT4 all within
+  reference range with no correlation to serum THC (PMID 22821384).
+- **Zero PubMed records for CBG + thyroid, and zero for CBC + thyroid** — the two molecules that
+  distinguished her product have no thyroid literature at all.
+- The one paper citable for a CBD thyroid benefit (PMID 35872737) is a **rat** study in a
+  vitamin-D-deficiency model, in a food-science journal. Graded **C, preclinical**; not extrapolable.
+- Rodent work consistently points *downward* on thyroid hormones (PMIDs 18755884, 12153749).
+
+### The one real gap, and the correction
+
+V2's existing levothyroxine entry was already careful — it had already rejected the CYP route
+(levothyroxine is deiodinated, not CYP-cleared) and the absorption-timing claim, and already cited
+NHANES accurately. But its `effect` field asserted **"no study of the pair"**, which was out of date.
+
+**PMID 37631333**: among 22 children on purified CBD oil, those also taking levothyroxine had CBD
+trough levels **about 110% higher** — comparable to food (57%) and a ketogenic diet (116%) in the
+same model. Direction is **levothyroxine → more CBD**, not cannabis → thyroid.
+
+**Changed: `effect` rewritten, `ev` D→B, `pmid` gains 37631333.** Nothing else.
+
+### `mols:[]` deliberately NOT changed — this is the load-bearing decision
+
+Adding `mols:['CBD']` was evaluated and **rejected**. It drives four user-visible paths, verified by
+running the source's own badge expression against the live data:
+
+| | levothyroxine | amiodarone (control) |
+|---|---|---|
+| `hasCannabis` → **"💊 cannabis interaction"** badge | **false** | true |
+| `applyDrugHighlighting()` tile highlight | **[]** | CBD |
+| appears in CBD's molecule detail panel | **false** | true |
+
+That three-word badge asserts an interaction with no room for caveats, and a patient on levothyroxine
+would reasonably read it as cannabis affecting their thyroid treatment — **the exact inference the
+entry's text exists to prevent, and the opposite of the study's direction.** 77 DI_DATA entries carry
+an empty `mols`; levothyroxine belongs among them on this evidence.
+
+### QA
+
+preflight `--online` **33/33**; the attribution guard now counts **127** A/B entries (was 126),
+confirming the entry correctly joined the attributed set; both PMIDs resolve at NCBI and both links
+render; **all CSS byte-identical**, markup identical, `CONDITIONS`, `DDI_DATA`, `resetToEntryGate()`
+and `showEntourage()` all byte-identical; Guards 31/32/33 intact.
+
+---
+
 ## 0000000000000. RESET-02 — TWO RESET-LIST DEFECTS — **ACCEPTED, PHYSICAL DEVICE PASS**
 
 **Commit `6baf906`, build `5cf72d6e2c66b1fe`. Owner-accepted 2026-10-07. This is now the protected
