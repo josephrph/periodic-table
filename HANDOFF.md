@@ -1,5 +1,5 @@
 # Acannability’s Cannabis Periodic Table of Molecules · Project Handoff  _(internal build: V2)_
-_Last updated: **2026-10-07** · **Protected baseline: commit `6baf906`, sha256 `5cf72d6e2c66b1fe`** (HEAD == origin/main, live byte-identical). Pre-RESET-02 rollback/reference baseline: `59ef593` / `5ee1e392b2360494`. Earlier references: `e3298d3` / `1b6f1f86b486dcbb`, `135d300` / `96f38d244268b63a`._
+_Last updated: **2026-10-09** · **Protected baseline: commit `a518790`, sha256 `5bf1c70f63098016`** (HEAD == origin/main, live byte-identical; `a6556f3` is a documentation-only HEAD above it). Pre-THY-01 rollback/reference baseline: `6baf906` / `5cf72d6e2c66b1fe`. Earlier references: `59ef593` / `5ee1e392b2360494`, `e3298d3` / `1b6f1f86b486dcbb`, `135d300` / `96f38d244268b63a`._
 _Build: 2.2 MB · 64 molecules · **65 health conditions** / 10 groups · 3 cross-listed · **838 NCBI-verified PMIDs** · **289 drugs · 104 drug–drug pairs** · backlog 278 rows · preflight: **33 guards**, all passing `--online`_
 _**MODERN CROSS-PLATFORM QA ROUND 1 COMPLETE. IOS-07 passed physical-device acceptance on 2026-10-06 across iPhone 16 (iOS 26.6.1), the legacy iPad mini 2 (iOS 12.4.2) and an iMac. Commit `e3298d3` / build `1b6f1f86b486dcbb` is the new protected application baseline. IOS-01 through IOS-05 and IOS-07 are CLOSED; IOS-04b and IOS-06 remain recorded as FAILED AND REVERTED. Guards 31 and 32 both protect shipped code. **D2 is CLOSED on physical-device acceptance (2026-10-06); D1 remains OPEN/DEFERRED pending a current Windows Chrome/Edge physical test; U1 and U2 are observations only. **RESET-01 passed physical acceptance 2026-10-07 across iPhone 16, legacy iPad mini 2, an El Capitan iMac and a newer iMac — `59ef593` / `5ee1e392b2360494` is the new protected baseline.** D2 is CLOSED; D1 remains OPEN/DEFERRED pending a current Windows Chrome/Edge physical test; U1/U2 are observations only. A residual Entourage intermittency survives RESET-01 and is recorded as an observation with NO root cause — refresh first.**_
 
@@ -130,10 +130,22 @@ regressions caught in negative testing.
 
 ---
 
-## 0000000000000. THY-01 — LEVOTHYROXINE ENTRY, EVIDENCE CORRECTION — SHIPPED, PROVISIONAL
+## 0000000000000. THY-01 — LEVOTHYROXINE ENTRY, EVIDENCE CORRECTION — **ACCEPTED, PHYSICAL DEVICE PASS**
 
-**Provisional until physical acceptance.** Backup: `index_BACKUP_20261009_pre_THY01.html`
-(`5cf72d6e2c66b1fe`). **Three fields in one drug entry. No new condition, no new warning.**
+**Commit `a518790`, build `5bf1c70f63098016`. Owner-accepted 2026-10-09. This is now the protected
+application baseline.** Pre-THY-01 rollback/reference baseline: `6baf906` / `5cf72d6e2c66b1fe`, on
+disk as `index_BACKUP_20261009_pre_THY01.html`.
+
+Owner-verified on the live build: entry renders with **Evidence B / Severity Minor**; the revised
+effect text displays with the ~110% figure, the 22-child cohort and its limitations; the obsolete
+*"no study of the pair"* claim is gone; **both PMID links open the correct PubMed articles**;
+levothyroxine in My Medication List shows **no "cannabis interaction" label**; and **amiodarone, as
+the positive control, does** — so the interaction system remains functional while levothyroxine is
+correctly excluded from molecule-level cannabis signalling.
+
+**Hypothyroidism remains NOT a Health Condition. No further thyroid-related changes are authorized.**
+
+**Three fields in one drug entry. No new condition, no new warning.**
 
 ### Why
 
