@@ -1,7 +1,7 @@
 # Acannability’s Cannabis Periodic Table of Molecules · Project Handoff  _(internal build: V2)_
 _Last updated: **2026-10-09** · **Protected baseline: commit `a518790`, sha256 `5bf1c70f63098016`** (HEAD == origin/main, live byte-identical; `a6556f3` is a documentation-only HEAD above it). Pre-THY-01 rollback/reference baseline: `6baf906` / `5cf72d6e2c66b1fe`. Earlier references: `59ef593` / `5ee1e392b2360494`, `e3298d3` / `1b6f1f86b486dcbb`, `135d300` / `96f38d244268b63a`._
 _Build: 2.2 MB · 64 molecules · **65 health conditions** / 10 groups · 3 cross-listed · **838 NCBI-verified PMIDs** · **289 drugs · 104 drug–drug pairs** · backlog 278 rows · preflight: **33 guards**, all passing `--online`_
-_**MODERN CROSS-PLATFORM QA ROUND 1 COMPLETE. IOS-07 passed physical-device acceptance on 2026-10-06 across iPhone 16 (iOS 26.6.1), the legacy iPad mini 2 (iOS 12.4.2) and an iMac. Commit `e3298d3` / build `1b6f1f86b486dcbb` is the new protected application baseline. IOS-01 through IOS-05 and IOS-07 are CLOSED; IOS-04b and IOS-06 remain recorded as FAILED AND REVERTED. Guards 31 and 32 both protect shipped code. **D2 is CLOSED on physical-device acceptance (2026-10-06); D1 remains OPEN/DEFERRED pending a current Windows Chrome/Edge physical test; U1 and U2 are observations only. **RESET-01 passed physical acceptance 2026-10-07 across iPhone 16, legacy iPad mini 2, an El Capitan iMac and a newer iMac — `59ef593` / `5ee1e392b2360494` is the new protected baseline.** D2 is CLOSED; D1 remains OPEN/DEFERRED pending a current Windows Chrome/Edge physical test; U1/U2 are observations only. A residual Entourage intermittency survives RESET-01 and is recorded as an observation with NO root cause — refresh first.**_
+_**MODERN CROSS-PLATFORM QA ROUND 1 COMPLETE. IOS-07 passed physical-device acceptance on 2026-10-06 across iPhone 16 (iOS 26.6.1), the legacy iPad mini 2 (iOS 12.4.2) and an iMac. Commit `e3298d3` / build `1b6f1f86b486dcbb` is the new protected application baseline. IOS-01 through IOS-05 and IOS-07 are CLOSED; IOS-04b and IOS-06 remain recorded as FAILED AND REVERTED. Guards 31 and 32 both protect shipped code. **D2 is CLOSED on physical-device acceptance (2026-10-06); D1 remains OPEN/DEFERRED pending a current Windows Chrome/Edge physical test; U1 and U2 are observations only. **GX-01 + GX-02 (Guided Match) are deployed PROVISIONALLY as `11f687a` / `f12dfc9a1777f36c` and await physical acceptance; the protected baseline remains `a518790` / `5bf1c70f63098016`.** RESET-01 passed physical acceptance 2026-10-07 across iPhone 16, legacy iPad mini 2, an El Capitan iMac and a newer iMac — `59ef593` / `5ee1e392b2360494` is the new protected baseline.** D2 is CLOSED; D1 remains OPEN/DEFERRED pending a current Windows Chrome/Edge physical test; U1/U2 are observations only. A residual Entourage intermittency survives RESET-01 and is recorded as an observation with NO root cause — refresh first.**_
 
 _**Pre-release audit COMPLETE: waves 2–6 ALL SHIPPED. Wave 1 (the release blocker) needs the owner. Drug tranches A–E ALL SHIPPED; severity-sort bug FIXED; the CYP2D6 sweep is COMPLETE across all 21 records; prostate evidence recalibrated; three Men's Health topics added; a V2-wide count guard now blocks stale numbers; Demo Mode and Guided Match are ALIGNED and share one data source, guarded. Tranche E is now COMPLETE and the four discovered gaps are closed (DRUG-24); the CBD→Δ⁹-THC exposure finding is in the build; `hasRisk` is enforced rather than dead.**_
 
@@ -127,6 +127,126 @@ outside the block for the iPad; and that no viewport unit or `viewport-fit` has 
 regressions caught in negative testing.
 
 **112/164 are provisional acceptance values, not values to tune through production deploys.**
+
+---
+
+## 0000000000000. GX-01 + GX-02 — GUIDED MATCH — **PROVISIONAL — AWAITING PHYSICAL ACCEPTANCE**
+
+| | |
+|---|---|
+| **Provisional commit** | **`11f687a`** |
+| **Provisional build** | **`f12dfc9a1777f36c`** |
+| **Protected rollback commit** | **`a518790`** |
+| **Protected rollback build** | **`5bf1c70f63098016`** (on disk: `index_BACKUP_20261010_pre_GX01.html`) |
+
+**This build is NOT accepted and is NOT the protected baseline.** Physical-device acceptance is
+still required. `a518790` / `5bf1c70f63098016` remains the protected baseline until that passes.
+
+### Why this exists
+
+A real-world user said Guided Match had too many screens. The audit found something worse than
+length: **two of the seven standard questions collected an answer that changed nothing the user
+could see, and a third reported a count instead of a fact.**
+
+### Step 3 — THC
+
+The screen promised *"The Table leaves Δ9-THC out of the molecule list"* and **did not do it**.
+`scRec()` builds its list from the condition's own molecule map; the ceiling only ever reached
+`recForConditions()`, which `scRec` stopped using when it moved to Periodic-Table consistency. The
+old `thcNote` contradicted itself in two clauses — *"left out of the list above"* followed by
+*"shown here for completeness"*. The second was true.
+
+**Exclusion uses V2's own existing definition: `THC_INTOX = ['THC9','THC8','THCP']`** — the same list
+`handoffTo()` already applies when entering the Periodic Table. A Δ9-only rule would have listed
+Δ8-THC and THCP for a user who asked to be free of them, then removed them one tap later. **This is
+V2's software definition, not a claim that these are the only intoxicating molecules in cannabis.**
+
+**Four choices, three genuinely different intentions:**
+
+| | Choice | Behaviour |
+|---|---|---|
+| 🚫 | Avoid intoxicating THC | **Removes THC9, THC8, THCP** from the displayed results |
+| 🌙 | Keep the "high" to a minimum | **Does NOT exclude.** Δ9-THC stays where research supports it, with a row-level qualifier. **No mg dosing, ever** |
+| 🌤 | Some THC effects are fine | unchanged — same molecules, product ranking differs |
+| 🙂 | THC isn't a deciding factor | unchanged |
+
+**No Supporting→Primary promotion caused by exclusion.** The existing `if(!primary.length)` fallback
+would have relabelled a weight-6 molecule "Primary" because of a preference about a *different*
+molecule. Promotion is suppressed only when the user's THC choice emptied the tier.
+
+- **Seven conditions** lose their only Primary molecule — Fibromyalgia, Muscle Spasm/Spasticity,
+  Migraine, Tourette, PTSD, HIV/AIDS, Appetite Regulation. They render **Supporting-only** with an
+  honest label and nothing promoted.
+- **Three conditions** have no molecules left — Erectile Dysfunction, Male Fertility, Testicular
+  Cancer. They render an **explicit message**, not a blank screen.
+
+### Step 4 — secondary concerns
+
+Not vestigial: a **working feature whose consumer was replaced**. `scSecond` collected answers and
+`secondCondIds()` fed `recForConditions()`, which `scRec` no longer uses. Each selected concern now
+renders **its own labelled block with its own tiers**, multi-select supported.
+
+**Weights are never blended, averaged or reconciled.** The same molecule legitimately differs by
+condition — CBN is Supporting for pain (w7) and Primary for sleep (w9) — and that difference *is* the
+science. Duplicates carry a quiet `also above` marker.
+
+**`GUIDED_MOL[id] || CONDITIONS.find(id)` precedence is load-bearing, not a detail.**
+`'appetite-stim'` **deliberately excludes THCV and humulene because they SUPPRESS appetite**; using
+the broader `'appetite'` CONDITIONS set would have shown a user who said *"low appetite too"* the
+very molecules working against them. `'nausea-relief'` is likewise a curated set. Both are
+`GUIDED_MOL`-only and carry the customer-facing line *"Focused molecule set used by Guided Match for
+this concern."*
+
+### Step 6 — named medication interactions
+
+`buildCannabisHitsByMol()` **already computed the named pairs** and they were discarded for a count.
+A customer told *"1 with an associated molecule"* cannot act on it. The result now shows
+**`Warfarin (Coumadin) ↔ CBD`** with its existing severity, ordered by existing severity, plus a
+full-detail action. **Existing `DI_DATA` only — no new interaction science.**
+
+### Results hierarchy
+
+Three labelled sections — **Research-linked molecules · Safety cautions · Medication interactions** —
+so a customer can tell them apart. Cautions stay **above** the molecules per UX-109. Restrained
+labelling, not a redesign.
+
+### GX-01 — Express path
+
+**Topic → Refine screen → user taps Skip without setting `refineKey` → THC → Results.**
+
+The Skip control **is on the Refine screen** — the user sees that screen and simply never answers it.
+So the recommendation resolves to the topic's *default* condition (Pain Relief → *Analgesic / Pain*,
+14 molecules) rather than a refined one (*Arthritis / Joint Pain*, 13). That is the user's own
+omission, not a discrepancy. Given the same condition and THC answer, **express and full render
+identically — verified 14 vs 14.**
+
+Before GX-01, Skip bypassed four screens and left `st.ceiling` **undefined**, which behaved exactly
+like *"not a deciding factor"*. Now it bypasses three and the THC question is always answered. The
+disclosure names **both** skipped checks with one-tap actions for each. **Skip's wording and
+prominence are unchanged** — deliberately not promoted until the disclosure was truthful.
+
+### Automated QA — all passing
+
+Four THC choices · THC9/THC8/THCP removed on exclusion and retained on minimise · the seven
+empty-Primary conditions Supporting-only with nothing promoted · the three empty-result conditions
+showing the honest message · express ≡ full for the same condition · Step 4 single and multi-select
+including both `GUIDED_MOL`-only concerns · `appetite-stim` verified free of THCV and humulene ·
+duplicates marked · all seven safety flags · one and three medications named and severity-ordered ·
+mobile 393px with no overflow and all three headings · **preflight `--online` 33/33, Guards 31/32/33
+intact** · JS parses under JavaScriptCore.
+
+### Unchanged — verified byte-identical
+
+`recForConditions()` · `CONDITIONS` · `DI_DATA` · `DDI_DATA` · `GUIDED_MOL` data · `MATCHABLE` ·
+`FUNNEL_STD` · `FUNNEL_DEMO` · **every `dj*` handler and `scDJ*` screen** · `handoffTo()` · the safety
+message builder · all markup outside `<style>`/`<script>`. Demo Mode logic and every protected
+scientific dataset are untouched; the shared `scThc` screen gains the fourth option by approval.
+
+### Still open
+
+**Step 4's visible effect is new and unproven on a device.** Skip-button prominence remains
+deliberately unchanged. **Physical acceptance on iPhone 16, legacy iPad mini 2 and the iMac is
+required before this becomes the protected baseline.**
 
 ---
 
