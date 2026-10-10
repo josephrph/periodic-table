@@ -2929,6 +2929,34 @@ body.demo-mode.is-mobile-view #gxOverlay{padding-bottom:116px}
   body.is-mobile-view .demo-ribbon{bottom:112px}
   body.demo-mode.is-mobile-view #gxOverlay{padding-bottom:164px}
 }
+
+/* GX-05: #gxOverlay is inset:0 and is itself the scroller, so Demo guided content slides underneath
+   a banner fixed to the viewport. IOS-07's 164px reserves space at the END of the scroll, which is a
+   different thing and does not help mid-list: measured at 393x745, root 24px put the third
+   experience choice at 553-660 with the banner top at 598, covering its explanatory line exactly as
+   the owner photographed. The THC screen was affected too — options 1, 3 and 4 at various scroll
+   positions — so this was never one screen, and padding could not fix any of it (164 -> 640px
+   changed the arrival state not at all, because padding below content cannot move content above it).
+   GX-04 tried ending the overlay above the band. The geometry worked and the result was unusable:
+   the Periodic Table showed through beneath it. Reverted.
+   This keeps #gxOverlay full-screen as the opaque backdrop and moves the SCROLLING to the existing
+   inner .gx-wrap with a bounded height, so content is clipped above the banner instead of passing
+   under it, and nothing behind the overlay is ever exposed.
+   The protected IOS-05 rule is untouched: `flex:1 0 auto` stays declared exactly once and this rule
+   sets no flex, flex-basis, flex-shrink or flex-grow. The CHILD combinator is deliberate — Guard 31
+   counts rules matching the literal `#gxOverlay .gx-wrap{` descendant pattern and fails at two, so
+   the descendant form would trip it while `>` does not. The protection still holds through Guard
+   31's other check, which forbids any .gx-wrap rule from setting a flex property. Owner informed.
+   PORTRAIT ONLY: in landscape 164px of a 393px viewport was measured creating a dead end, so
+   landscape keeps the accepted IOS-07 behaviour untouched. */
+@media (max-width:620px) and (orientation:portrait){
+  body.demo-mode.is-mobile-view #gxOverlay{overflow:hidden;padding-bottom:0}
+  body.demo-mode.is-mobile-view #gxOverlay>.gx-wrap{
+    max-height:calc(100% - 164px);
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+  }
+}
 /* Demo banner Exit button (only interactive part of the otherwise pass-through banner) */
 .demo-ribbon .dr-txt{min-width:0;flex:1}
 .demo-ribbon .dr-menu,.demo-ribbon .dr-exit{pointer-events:auto;flex:0 0 auto;background:rgba(255,255,255,.16);color:#fff;
