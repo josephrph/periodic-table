@@ -13108,14 +13108,29 @@ var ROUTE_MAP={
     var irHtml='<details class="gx-ent"><summary>&#x2696; Why the same product affects people differently</summary>'
       +'<div class="gx-ent-body">'+buildIndividualResponseHTML()+'</div></details>';
     // UX-79: never let the express path hide the fact that the medication screen was skipped.
-    var expressNote=st.expressed
-      ? '<div class="gx-express-note">You chose the quick route, so <strong>two checks were not run</strong>. '
-        + 'Your <strong>safety factors</strong> &mdash; such as pregnancy, a heart condition, or a history of '
-        + 'psychosis &mdash; and your <strong>medications</strong> have not been checked against these molecules. '
-        + 'These factors may identify important cautions or potential interactions. '
-        + '<button class="gx-express-run" onclick="V4GX.toSafety()">Run the safety check</button> '
-        + '<button class="gx-express-run" onclick="V4GX.toMeds()">Run the medication check</button></div>'
-      : '';
+    // GX-03: the disclosure used to be driven by st.expressed alone, so it survived the user
+    // actually running the checks — the screen then displayed a safety caution produced by the
+    // safety check while simultaneously saying the safety check had not been run. Clearing
+    // st.expressed would have been worse: completing ONE check would have silently suppressed the
+    // warning about the OTHER. Each check is tracked on its own and the note reports what is
+    // genuinely still outstanding; when both are done it disappears, and the cautions and
+    // interactions they produced stay exactly where they are.
+    var _needSafety=!st.safetyDone, _needMeds=!st.medsDone;
+    var expressNote='';
+    if(st.expressed&&(_needSafety||_needMeds)){
+      var _both=_needSafety&&_needMeds;
+      var _what=_both?'two checks were not run':'one check has still not been run';
+      var _why=_both
+        ? 'Your <strong>safety factors</strong> &mdash; such as pregnancy, a heart condition, or a history of psychosis &mdash; and your <strong>medications</strong> have not been checked against these molecules.'
+        : (_needSafety
+            ? 'Your <strong>safety factors</strong> &mdash; such as pregnancy, a heart condition, or a history of psychosis &mdash; have not been checked against these molecules.'
+            : 'Your <strong>medications</strong> have not been checked against these molecules.');
+      expressNote='<div class="gx-express-note">You chose the quick route, so <strong>'+_what+'</strong>. '+_why+
+        ' These factors may identify important cautions or potential interactions. '+
+        (_needSafety?'<button class="gx-express-run" onclick="V4GX.toSafety()">Run the safety check</button> ':'')+
+        (_needMeds?'<button class="gx-express-run" onclick="V4GX.toMeds()">Run the medication check</button>':'')+
+        '</div>';
+    }
     // ── UX-109: the condition's own cautions belong on THIS screen ────────────────────
     // Until now a documented safety finding was shown on the Periodic Table's condition banner and
     // in the molecule panel's Adverse Findings tab, but NOT on the guided recommendation — which
@@ -13584,7 +13599,7 @@ var ROUTE_MAP={
 
   // ---- public API ----
   window.V4GX={
-    start:function(){st={persona:null,seconds:[],excluded:{},detail:'plain',safetyFlags:[],experience:null,timeOfDay:null,onset:null,route:'any',meds:[],directCond:null};hist=['persona'];condQ='';el('gxOverlay').style.display='flex';scPersona();chrome('persona');},
+    start:function(){st={persona:null,seconds:[],excluded:{},detail:'plain',safetyFlags:[],experience:null,timeOfDay:null,onset:null,route:'any',meds:[],directCond:null,safetyDone:false,medsDone:false};hist=['persona'];condQ='';el('gxOverlay').style.display='flex';scPersona();chrome('persona');},
     demoHub:function(){if(!demoMode())return;st={dj:true,persona:null,djConds:[],excluded:{},meds:[],ceiling:'any',djProduct:null,route:'any'};hist=['demoHub'];el('gxOverlay').style.display='flex';scDemoHub();chrome('demoHub');},
     demoGuided:function(){if(!demoMode())return;if(!hist.length)hist=['demoHub'];go('demoGuidedIntro',scDemoGuidedIntro);},
     djRun:function(){st.dj=true;st.djConds=[];st.excluded={};st.meds=[];st.djProduct=null;st.ceiling='any';st.route='any';if(!hist.length)hist=['demoHub'];go('djConds',scDJConds);},
@@ -13719,7 +13734,12 @@ if(typeof PT_individualResponse==='function')body+=PT_individualResponse();   //
       if(p==='cust'){st.detail='plain';st.safetyFlags=st.safetyFlags||[];go('intent',scIntent);}else if(p==='emp'){go('emp',scEmp);}else{this.close();}},
     runGuide:function(){st.persona='cust';st.safetyFlags=st.safetyFlags||[];go('intent',scIntent);},
     safetyToggle:function(k,btn){st.safetyFlags=st.safetyFlags||[];var i=st.safetyFlags.indexOf(k);if(i>=0){st.safetyFlags.splice(i,1);if(btn)btn.classList.remove('sel');}else{st.safetyFlags.push(k);if(btn)btn.classList.add('sel');}},
-    safetyNext:function(){if(st.dj)return go('djMeds',scDJMeds);go('meds',scMeds);},
+    safetyNext:function(){
+      // GX-03: the ONLY exit from the safety screen — both “Continue” and “None of these — skip”
+      // land here — so this is where the check is genuinely complete. An empty safetyFlags array
+      // cannot serve as the signal: “none of these apply” is a completed answer, not a skipped one.
+      st.safetyDone=true;
+      if(st.dj)return go('djMeds',scDJMeds);go('meds',scMeds);},
     experience:function(v){st.experience=v;
       // GX-THC: the silent `if(v==='new'&&!st.ceiling)st.ceiling='low'` is REMOVED. Being new to
       // cannabis is not a statement about wanting fewer THC effects; the user answers scThc directly.
@@ -13778,7 +13798,11 @@ if(typeof PT_individualResponse==='function')body+=PT_individualResponse();   //
       // UX-79: timeofday/onset/route only inform product matching, so only Demo Mode asks them.
       if(demoMode())go('timeofday',scTimeOfDay);else go('second',scSecond);},
     second:function(k,btn){st.seconds=st.seconds||[];var i=st.seconds.indexOf(k);if(i>=0){st.seconds.splice(i,1);btn.classList.remove('sel');}else{st.seconds.push(k);btn.classList.add('sel');}},
-    toRec:function(){st.excluded={};go('rec',scRec);},
+    toRec:function(){
+      // GX-03: the only exit from the medications screen — “See the research” and “Skip — I take no
+      // medications” both land here. Same reasoning: an empty meds list is a completed answer.
+      st.medsDone=true;
+      st.excluded={};go('rec',scRec);},
     // UX-79: jump straight to the recommendation. refineKey is left unset, so currentCondIds()
     // resolves to the intent's default condition — the same one the table would highlight.
     express:function(){st.expressed=true;st.excluded={};
