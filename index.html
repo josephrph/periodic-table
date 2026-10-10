@@ -2929,6 +2929,25 @@ body.demo-mode.is-mobile-view #gxOverlay{padding-bottom:116px}
   body.is-mobile-view .demo-ribbon{bottom:112px}
   body.demo-mode.is-mobile-view #gxOverlay{padding-bottom:164px}
 }
+
+/* GX-04: IOS-07 lifted the Demo banner to bottom:112px so its compliance line clears Safari's
+   bottom bar. That fixed the disclosure and introduced a second-order problem: #gxOverlay is
+   inset:0, so guided content scrolls UNDERNEATH a banner fixed to the viewport. The 164px above
+   reserves space at the END of the scroll, which is a different thing and does not help mid-scroll.
+   At larger iOS text sizes an option grows into the banner's band: measured at 393x745, root 24px
+   put the third choice at 553-660 with the banner top at 598, covering its explanatory line
+   exactly as the owner photographed. At the old 64px the banner would have cleared that line, so
+   this is a consequence of IOS-07 rather than a pre-existing quirk.
+   Ending the overlay above the band means content is clipped there instead of sliding under it.
+   PORTRAIT ONLY, deliberately: the same rule extended to landscape reserves 164px of a 393px-tall
+   viewport and was measured creating a dead end — the last option could no longer be scrolled
+   fully into view. Landscape therefore keeps the accepted IOS-07 behaviour untouched.
+   Verified no content under the banner at 16/24/28px, every item reachable, landscape unaffected,
+   the legacy iPad excluded by the 620px bound, and the standard (non-demo) flow untouched by the
+   body.demo-mode scope. */
+@media (max-width:620px) and (orientation:portrait){
+  body.demo-mode.is-mobile-view #gxOverlay{bottom:164px}
+}
 /* Demo banner Exit button (only interactive part of the otherwise pass-through banner) */
 .demo-ribbon .dr-txt{min-width:0;flex:1}
 .demo-ribbon .dr-menu,.demo-ribbon .dr-exit{pointer-events:auto;flex:0 0 auto;background:rgba(255,255,255,.16);color:#fff;
