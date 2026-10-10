@@ -2808,6 +2808,32 @@ body.is-mobile-view .demo-ribbon{bottom:calc(64px + env(safe-area-inset-bottom))
    Exit button's fault: Exit is 46x24px, while the two text lines took 65 of the 83px. On a phone
    the long name and note are replaced by one short line, and Menu is dropped because the demo hub
    already offers "Back to demo menu". Result is a ~34px pill instead of an 83px bar. */
+/* GX-02: Guided Match results hierarchy and secondary-concern blocks. Restrained on purpose —
+   headings and left rules so a customer can tell a recommendation from a caution from an
+   interaction, not a redesign of the results screen. */
+.gx-sec-label{font-size:.62rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--dim,#777);margin:16px 0 6px;padding-bottom:3px;border-bottom:1px solid var(--border,#e2e2dc)}
+.gx-sl-safety{color:var(--accent2,#8B6914)}
+.gx-sl-meds{color:var(--accent2,#8B6914)}
+.gx-sec-wrap{margin-top:12px}
+.gx-secblock{border:1px solid var(--border,#e2e2dc);border-radius:12px;padding:11px 13px;margin-top:9px;
+  background:var(--surface,#fff)}
+.gx-sec-hd{font-size:.8rem;font-weight:800;color:var(--accent,#2E7D57);margin-bottom:5px}
+.gx-sec-tier{font-size:.62rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--dim,#888);margin:0 0 5px}
+.gx-sec-dup{font-size:.56rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
+  color:var(--mute,#999);margin-left:6px;opacity:.85}
+.gx-thc-qual{display:block;font-size:.68rem;font-weight:600;color:var(--accent2,#8B6914);margin-top:2px}
+.gx-medpair{display:flex;align-items:center;gap:8px;margin-top:6px;font-size:.78rem}
+.gx-medpair-sev{flex:0 0 auto;font-size:.58rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;
+  padding:2px 7px;border-radius:5px;border:1px solid var(--border,#ccc);color:var(--dim,#666)}
+.gx-medpair-sev.sev-major{background:#FDEDEA;border-color:#E0A090;color:#8B1000}
+.gx-medpair-sev.sev-moderate{background:#FFF8E0;border-color:#C8A800;color:#5A4000}
+.gx-medpair-sev.sev-minor{background:var(--surface2,#f3f2ec)}
+.gx-medpair-txt{font-weight:600;color:var(--text,#1a1a1a)}
+.gx-medpair-arrow{color:var(--dim,#888);font-weight:400;margin:0 2px}
+body.is-mobile-view .gx-medpair{flex-wrap:wrap;gap:5px}
+body.is-mobile-view .gx-secblock{padding:10px 11px}
 .demo-ribbon .dr-short{display:none}
 /* UX-79: the one-line statement of what Guided Match produces. Sits between the question and the
    options, so it is read before the first tap. */
@@ -12710,9 +12736,13 @@ var ROUTE_MAP={
     // describing alcohol or another drug.
     var thcDef='<p class="gx-hint"><strong>THC (&Delta;9-THC)</strong> is the main cannabis compound associated with feeling high and other psychoactive effects &mdash; which can include altered perception, relaxation, or impairment.</p>';
     stage((st.dj?djStepBar(2):'')+'<h2 class="gx-q">How would you like The Table to account for THC&rsquo;s psychoactive effects?</h2>'+thcDef+'<p class="gx-hint">'+hint+'</p>'+
-    optBtn("V4GX.thc('none')",'🚫','I&rsquo;d prefer to avoid THC effects','The Table leaves &Delta;9-THC out of the molecule list and strongly limits THC-dominant product matches',st.ceiling==='none',true)+
-    optBtn("V4GX.thc('low')",'🌤️','I&rsquo;m comfortable with some THC effects','&Delta;9-THC stays eligible where the science supports it; lower-THC products rank higher',st.ceiling==='low',true)+
-    optBtn("V4GX.thc('any')",'🙂','THC effects are not a deciding factor','&Delta;9-THC stays eligible where the science supports it; product ranking is not adjusted for THC',st.ceiling==='any',true));}
+    optBtn("V4GX.thc('none')",'🚫','Avoid intoxicating THC','The Table leaves &Delta;9-THC, &Delta;8-THC and THCP out of your molecule results',st.ceiling==='none',true)+
+    // GX-02: the middle intention most people actually hold — not exclusion, but keeping the
+    // “high” down. Evidence-supported THC stays listed and the preference is carried as wording,
+    // never as a dose. 'min' deliberately does NOT trigger the THC_INTOX exclusion.
+    optBtn("V4GX.thc('min')",'🌙','Keep the &ldquo;high&rdquo; to a minimum','&Delta;9-THC may remain where the research supports it &mdash; lower-THC products may be worth asking about',st.ceiling==='min',true)+
+    optBtn("V4GX.thc('low')",'🌤️','Some THC effects are fine','&Delta;9-THC stays eligible where the science supports it; lower-THC products rank higher',st.ceiling==='low',true)+
+    optBtn("V4GX.thc('any')",'🙂','THC isn&rsquo;t a deciding factor','&Delta;9-THC stays eligible where the science supports it; product ranking is not adjusted for THC',st.ceiling==='any',true));}
   function scSecond(){
     // De-dupe: hide any "anything else" option the user already chose as their primary focus — matched on the
     // RESOLVED condition set (currentCondIds covers intent + refined symptom) plus the intent key, with
@@ -12852,9 +12882,26 @@ var ROUTE_MAP={
     var mols=cond?Object.keys(cond.molecules).filter(function(id){return typeof M!=='undefined'&&M[id];})
       .map(function(id){return {id:id,w:cond.molecules[id]};}).sort(function(a,b){return b.w-a.w;}):[];
     if(!mols.length){var r=currentRec();mols=r.molecules.map(function(m){return {id:m.molId,w:m.weight};});} // safety fallback
+    // GX-02: honour the exclusion the THC screen promises. V2 already defines what "avoid
+    // intoxicating THC" means — THC_INTOX in handoffTo() — and the Periodic Table handoff removes
+    // exactly these three. Using the same list is what keeps Guided Match and the table saying the
+    // same thing; a Δ9-only rule here would have listed Δ8-THC and THCP for a user who asked to be
+    // free of them, then removed them one tap later. This is V2's existing software definition, not
+    // a claim that these are the only intoxicating molecules in cannabis.
+    var THC_INTOX_GX=['THC9','THC8','THCP'];
+    var thcLeftOut=[];
+    if(st.ceiling==='none'){
+      thcLeftOut=mols.filter(function(m){return THC_INTOX_GX.indexOf(m.id)>=0;}).map(function(m){return m.id;});
+      mols=mols.filter(function(m){return THC_INTOX_GX.indexOf(m.id)<0;});
+    }
     var primary=mols.filter(function(m){return m.w>=8;});
     var supporting=mols.filter(function(m){return m.w<8;});
-    if(!primary.length){primary=mols.slice(0,Math.min(4,mols.length));supporting=mols.slice(primary.length);}
+    // GX-02: the existing fallback promotes the top molecules when NOTHING meets the Primary
+    // threshold. That is right for a condition with no high-weight molecule and wrong when the
+    // user's own THC choice emptied the tier — a weight-6 molecule would be relabelled "Primary"
+    // because of a preference about a different molecule. Tiers must mean the same thing whatever
+    // the user chose, so promotion is suppressed in that case only.
+    if(!primary.length && !thcLeftOut.length){primary=mols.slice(0,Math.min(4,mols.length));supporting=mols.slice(primary.length);}
     var primaryChips=primary.map(function(m){return chip(m.id);}).join('');
     var supportingChips=supporting.map(function(m){return chip(m.id);}).join('');
     var detail=st.detail||'plain';
@@ -12885,12 +12932,88 @@ var ROUTE_MAP={
         var ev=(mm&&mm.evidence)?'<span class="gx-ev">Ev '+mm.evidence+'</span>':'';
         return '<div class="gx-clin-row"><div class="mn">'+(mm?(mm.symbol||mm.fullName):m.id)+'</div><div class="dt">'+recs+ev+'</div></div>';}).join('')+
         '<div class="gx-cap" style="padding:8px 12px 10px">Receptor targets &amp; evidence grade (A clinical → D emerging) per recommended molecule.</div></div>';}
-    var thcNote=(st.ceiling==='none'&&cond&&cond.molecules['THC9'])?
-      '<p class="gx-hint">You asked The Table to minimise THC-related psychoactive effects, so &Delta;9-THC is left out of the list above. THC is shown here for completeness so this matches the Periodic Table — but when you open the table below, Δ9-THC, Δ8-THC and THCP are removed automatically via ⚙ Refine Inventory Match. You can re-include any of them there. <strong>This reflects the preference you chose. It is not a guarantee about any particular product &mdash; the product label and COA remain the source of truth for what a product contains.</strong></p>':'';
+    // GX-02: the previous note contradicted itself inside two clauses — it said Δ9-THC was "left out
+    // of the list above" and then that THC "is shown here for completeness". Both could not be true,
+    // and the second one was. Now the exclusion is real, so the note simply reports what happened,
+    // and the honest edge cases are stated rather than left for the reader to infer.
+    // GX-02: a row-level qualifier for the minimise choice. Targeted at the Δ9-THC row only and
+    // written as a string replace so that if V2PLAIN's markup ever changes, nothing breaks — the
+    // qualifier simply does not appear.
+    if(st.ceiling==='min'&&plainBlock){
+      try{var _tn=molNm('THC9');
+        if(_tn&&plainBlock.indexOf(_tn)>=0) plainBlock=plainBlock.replace(_tn,_tn+'<span class="gx-thc-qual">lower-THC options may be worth asking about</span>');
+      }catch(e){}
+    }
+    var thcNote='';
+    if(st.ceiling==='none'&&thcLeftOut.length){
+      // fixed canonical labels in canonical order — molNm() returns display names that vary
+      // (Δ9-THC renders as plain "THC"), and this sentence needs to name exactly what was removed.
+      var _THCLBL={THC9:'&Delta;9-THC',THC8:'&Delta;8-THC',THCP:'THCP'};
+      var leftNames=['THC9','THC8','THCP'].filter(function(id){return thcLeftOut.indexOf(id)>=0;})
+        .map(function(id){return _THCLBL[id];});
+      leftNames=leftNames.length>1?leftNames.slice(0,-1).join(', ')+' and '+leftNames[leftNames.length-1]:leftNames[0];
+      thcNote='<p class="gx-hint">Based on your preference, '+leftNames+' '+(thcLeftOut.length>1?'have':'has')+
+        ' been left out of these results. The remaining molecules keep their existing evidence tiers.'+
+        (!mols.length
+          ? ' <strong>The published research The Table holds for this topic centres on those molecules, so there is nothing else to show here — which is itself worth knowing.</strong>'
+          : (!primary.length
+              ? ' <strong>No molecule for this topic meets The Table\'s Primary evidence threshold once they are excluded, so everything below is Supporting.</strong> Nothing has been promoted to fill the gap.'
+              : ''))+
+        ' <strong>This reflects the preference you chose. It is not a guarantee about any particular product &mdash; the product label and COA remain the source of truth.</strong></p>';
+    } else if(st.ceiling==='min'&&mols.some(function(m){return m.id==='THC9';})){
+      thcNote='<p class="gx-hint">You asked to keep the &ldquo;high&rdquo; to a minimum. &Delta;9-THC is still listed because published research links it to your topic. Lower-THC products exist, and which one suits you is a conversation for a pharmacist or your prescriber — <strong>The Table does not advise on amounts.</strong></p>';
+    }
     // GX-10: secondary conditions become one-tap "explore also" chips that hand off to that condition in the Periodic Table
     // table (the table shows one condition at a time), instead of a passive "you can select those too" note.
     var secBtns=(st.seconds||[]).map(function(k){var s=SECOND.filter(function(x){return x.k===k;})[0];if(!s||!s.cond||!s.cond.length)return null;
       var lbl=s.label.replace(/ too$/,'');return '<button class="gx-chip gx-alsochip" onclick="V4GX.seeAlso(\''+s.cond[0]+'\')">'+s.ic+' '+esc(lbl)+' →</button>';}).filter(Boolean).join('');
+    // GX-02: Step 4 was a working feature whose consumer was replaced. scSecond collects secondary
+    // concerns and secondCondIds() feeds recForConditions() — which scRec stopped using when it moved
+    // to Periodic-Table consistency, so the answer became invisible. Each selected concern now gets
+    // its OWN labelled block with its OWN tiers. Weights are never blended, averaged or reconciled:
+    // the same molecule legitimately carries a different weight per condition (CBN is Supporting for
+    // pain at w7 and Primary for sleep at w9) and that difference IS the science.
+    // Source precedence mirrors recForConditions exactly: guidedMol first, then CONDITIONS. That
+    // matters — 'appetite-stim' deliberately excludes THCV and humulene because they SUPPRESS
+    // appetite, so using the broader 'appetite' CONDITIONS set here would have shown a user who said
+    // "low appetite too" the very molecules that work against them.
+    var secBlocks='';
+    try{
+      var _sel=(st.seconds||[]);
+      if(_sel.length){
+        var _gm=(G()&&G().guidedMol)||{};
+        var _primaryIds=mols.map(function(m){return m.id;});
+        secBlocks=_sel.map(function(k){
+          var se=SECOND.filter(function(x){return x.k===k;})[0];
+          if(!se||!se.cond||!se.cond.length) return '';
+          return se.cond.map(function(cid){
+            var fromGuided=!!_gm[cid];
+            var srcCond=(typeof CONDITIONS!=='undefined')?CONDITIONS.find(function(c){return c.id===cid;}):null;
+            var src=fromGuided?_gm[cid]:(srcCond?srcCond.molecules:null);
+            if(!src) return '';
+            var list=Object.keys(src).filter(function(id){return typeof M!=='undefined'&&M[id];})
+              .map(function(id){return {id:id,w:src[id]};}).sort(function(a,b){return b.w-a.w;});
+            // the THC choice applies to every block on the screen, not just the first
+            if(st.ceiling==='none') list=list.filter(function(m){return THC_INTOX_GX.indexOf(m.id)<0;});
+            if(!list.length) return '';
+            var lbl=(!fromGuided&&srcCond&&srcCond.label)?srcCond.label:se.label.replace(/ too$/,'');
+            var pr=list.filter(function(m){return m.w>=8;});
+            var su=list.filter(function(m){return m.w<8;});
+            var row=function(m){
+              var dup=_primaryIds.indexOf(m.id)>=0?'<span class="gx-sec-dup">also above</span>':'';
+              return '<span class="gx-chip'+(G().terps[m.id]?' terp':'')+'">'+molNm(m.id)+dup+'</span>';
+            };
+            return '<div class="gx-secblock">'+
+              '<div class="gx-sec-hd">Also researched for: '+esc(lbl)+'</div>'+
+              (fromGuided?'<p class="gx-hint" style="margin:0 0 7px">Focused molecule set used by Guided Match for this concern.</p>':'')+
+              (pr.length?'<div class="gx-sec-tier">Primary</div><div class="gx-chips">'+pr.map(row).join('')+'</div>':'')+
+              (su.length?'<div class="gx-sec-tier"'+(pr.length?' style="margin-top:8px"':'')+'>Supporting</div><div class="gx-chips">'+su.map(row).join('')+'</div>':'')+
+              '</div>';
+          }).join('');
+        }).join('');
+        if(secBlocks) secBlocks='<div class="gx-sec-wrap"><p class="gx-hint" style="margin:0 0 8px">Some molecules appear in more than one list. Their evidence tier is specific to each topic.</p>'+secBlocks+'</div>';
+      }
+    }catch(e){secBlocks='';}
     var secNote=secBtns?'<div style="margin-top:10px"><p class="gx-hint" style="margin-bottom:6px">You also mentioned these — open one in the Periodic Table too:</p><div class="gx-chips">'+secBtns+'</div></div>':'';
     // ONB-12: personalized preference recap + plain-language guidance. Educational only — this does NOT alter the
     // table-consistent molecule set above; it adds guidance and carries patient context toward the Periodic Table hand-off.
@@ -12914,7 +13037,24 @@ var ROUTE_MAP={
       var byM=(typeof buildCannabisHitsByMol==='function')?buildCannabisHitsByMol(mIds):{};
       var recSet=stdRecMolIds();var recHitN=Object.keys(byM).filter(function(m){return recSet.indexOf(m)>=0;}).length;
       var anyI=ddiN||recHitN;
-      medSummary='<div class="gx-note" style="margin-top:12px;border-left:3px solid var('+(anyI?'--accent2':'--accent')+')">'+(anyI?'⚠️ ':'✓ ')+'<b>Medication check</b> — '+st.meds.length+' reviewed: '+(ddiN?ddiN+' drug–drug interaction'+(ddiN>1?'s':''):'no drug–drug interactions')+', '+(recHitN?recHitN+' with an associated molecule'+(recHitN>1?'s':''):'none with associated molecules')+'.'+(anyI?' Please review with your Product Specialist (Budtender) or provider before use.':'')+'</div>';}
+      // GX-02: buildCannabisHitsByMol() already returns {molId:[DI_DATA entries]} — the named pairs
+      // were computed and then thrown away in favour of a count. A customer told "1 with an
+      // associated molecule" cannot act on it; told "Warfarin ↔ CBD" they can. Existing DI_DATA
+      // only: no new interaction science, no change to severity.
+      var _sevRank={major:3,moderate:2,minor:1};
+      var _pairs=[];
+      Object.keys(byM).forEach(function(molId){
+        if(recSet.indexOf(molId)<0) return;
+        (byM[molId]||[]).forEach(function(e){
+          _pairs.push({mol:molId,drug:e.drug||e.id,sev:(e.sev||'minor')});
+        });
+      });
+      _pairs.sort(function(a,b){return (_sevRank[b.sev]||0)-(_sevRank[a.sev]||0);});
+      var _pairHtml=_pairs.map(function(p){
+        return '<div class="gx-medpair"><span class="gx-medpair-sev sev-'+p.sev+'">'+p.sev+'</span>'+
+          '<span class="gx-medpair-txt">'+esc(p.drug)+' <span class="gx-medpair-arrow">↔</span> '+molNm(p.mol)+'</span></div>';
+      }).join('');
+      medSummary='<div class="gx-note gx-medblock" style="margin-top:12px;border-left:3px solid var('+(anyI?'--accent2':'--accent')+')">'+(anyI?'⚠️ ':'✓ ')+'<b>Medication check</b> — '+st.meds.length+' reviewed: '+(ddiN?ddiN+' drug–drug interaction'+(ddiN>1?'s':''):'no drug–drug interactions')+', '+(recHitN?recHitN+' with an associated molecule'+(recHitN>1?'s':''):'none with associated molecules')+'.'+_pairHtml+(anyI?'<div style="margin-top:7px">Please review with your Product Specialist (Budtender) or provider before use. <button class="gx-express-run" onclick="V4GX.close();if(typeof toggleDrugPanel===\'function\')toggleDrugPanel();">See full interaction details</button></div>':'')+'</div>';}
     var prefRecap=prefBits.length?'<div class="dj-lbl" style="margin-top:12px">Your preferences</div><div class="gx-chips">'+prefBits.map(function(b){return '<span class="gx-chip">'+b+'</span>';}).join('')+'</div>':'';
     var prefGuide=guide.length?'<ul style="margin:8px 0 0;padding-left:18px;font-size:.72rem;color:var(--dim);line-height:1.6">'+guide.map(function(g){return '<li>'+g+'</li>';}).join('')+'</ul>':'';
     var sf=st.safetyFlags||[]; var sfMsgs=[];
@@ -12969,8 +13109,11 @@ var ROUTE_MAP={
       +'<div class="gx-ent-body">'+buildIndividualResponseHTML()+'</div></details>';
     // UX-79: never let the express path hide the fact that the medication screen was skipped.
     var expressNote=st.expressed
-      ? '<div class="gx-express-note">You skipped the optional questions, so <strong>your medications '
-        + 'have not been checked</strong> against these molecules. '
+      ? '<div class="gx-express-note">You chose the quick route, so <strong>two checks were not run</strong>. '
+        + 'Your <strong>safety factors</strong> &mdash; such as pregnancy, a heart condition, or a history of '
+        + 'psychosis &mdash; and your <strong>medications</strong> have not been checked against these molecules. '
+        + 'These factors may identify important cautions or potential interactions. '
+        + '<button class="gx-express-run" onclick="V4GX.toSafety()">Run the safety check</button> '
         + '<button class="gx-express-run" onclick="V4GX.toMeds()">Run the medication check</button></div>'
       : '';
     // ── UX-109: the condition's own cautions belong on THIS screen ────────────────────
@@ -12985,7 +13128,15 @@ var ROUTE_MAP={
     // a caution the reader has to scroll past the recommendation to find is not a caution.
     var condSafety='';
     try{ if(cond && typeof buildConditionSafetyHTML==='function') condSafety=buildConditionSafetyHTML(cond)||''; }catch(e){}
-    stage('<h2 class="gx-q">Research-Linked Molecules for Your Health Topic</h2>'+safetyNote+condSafety+expressNote+
+    // GX-02: three kinds of information share this screen and previously shared one visual
+    // treatment, so a customer could not tell a molecule recommendation from a caution from an
+    // interaction. Restrained labelling only — no redesign. Cautions stay ABOVE the molecules,
+    // which UX-109 settled deliberately: a caution you must scroll past the recommendation to find
+    // is not a caution.
+    var hdSafety=(safetyNote||condSafety)?'<div class="gx-sec-label gx-sl-safety">Safety cautions</div>':'';
+    var hdMols='<div class="gx-sec-label gx-sl-mols">Research-linked molecules</div>';
+    var hdMeds=medSummary?'<div class="gx-sec-label gx-sl-meds">Medication interactions</div>':'';
+    stage('<h2 class="gx-q">Research-Linked Molecules for Your Health Topic</h2>'+hdSafety+safetyNote+condSafety+expressNote+hdMols+
       '<div class="gx-rec"><div class="kind">'+esc(condLabel)+'</div>'+
       '<div class="because">'+
         // UX-103 made this branch REACHABLE. It used to be insurance only — the evidenceNegative
@@ -13004,8 +13155,8 @@ var ROUTE_MAP={
         ? '<div class="dj-lbl" style="margin-top:10px">Primary</div><div class="gx-chips">'+(primaryChips||'<span class="gx-chip">—</span>')+'</div>'+
           (supporting.length?'<div class="dj-lbl" style="margin-top:12px">Supporting</div><div class="gx-chips">'+supportingChips+'</div>':'')
         : plainBlock)+'</div>'+
-      detailToggle+clin+thcNote+secNote+
-      (detail==='clinical'?prefRecap+prefGuide:'')+medSummary+
+      detailToggle+clin+thcNote+secBlocks+secNote+
+      (detail==='clinical'?prefRecap+prefGuide:'')+hdMeds+medSummary+
       (detail==='clinical'?entHtml+irHtml:'')+
       '<p class="gx-hint" style="margin-top:12px">In the Periodic Table, use <b>⚙ Refine Inventory Match</b> (in the Associated Molecules panel) to remove any molecules — or whole categories — your dispensary doesn’t carry. The recommendation updates instantly.</p>'+
       '<button class="gx-cta" onclick="V4GX.seeScience()">🔬 Explore these in the Periodic Table →</button>'+
@@ -13622,13 +13773,22 @@ if(typeof PT_individualResponse==='function')body+=PT_individualResponse();   //
       // UX-125: inside the demo JOURNEY the safety check is the next shared screen; timeofday/onset/
       // route belong to the standard flow shown from the demo hub, and djRefine already asks route.
       if(st.dj)return go('safety',scSafety);
+      // GX-01: on the express path the THC answer is the last thing asked — straight to results.
+      if(st.expressed)return go('rec',scRec);
       // UX-79: timeofday/onset/route only inform product matching, so only Demo Mode asks them.
       if(demoMode())go('timeofday',scTimeOfDay);else go('second',scSecond);},
     second:function(k,btn){st.seconds=st.seconds||[];var i=st.seconds.indexOf(k);if(i>=0){st.seconds.splice(i,1);btn.classList.remove('sel');}else{st.seconds.push(k);btn.classList.add('sel');}},
     toRec:function(){st.excluded={};go('rec',scRec);},
     // UX-79: jump straight to the recommendation. refineKey is left unset, so currentCondIds()
     // resolves to the intent's default condition — the same one the table would highlight.
-    express:function(){st.expressed=true;st.excluded={};go('rec',scRec);},
+    express:function(){st.expressed=true;st.excluded={};
+      // GX-01: express used to jump straight to the recommendation, which left st.ceiling UNDEFINED.
+      // recForConditions only removes Δ9-THC on `ceiling==='none'`, so an undefined ceiling behaved
+      // exactly like "THC effects are not a deciding factor" — a preference the user never gave.
+      // Express may skip what is ADDITIVE (comorbidities, cautions, interaction checks); it must not
+      // skip what is DETERMINATIVE of which molecules come back. The THC screen is the only one of
+      // the four that decides that, so it is now asked before results. One tap, no assumed answer.
+      go('thc',scThc);},
     toProducts:function(){go('products',demoMode()?scPosQuery:scProducts);},
     handoff:function(){go('handoff',scHandoff);},
     insights:function(){go('insights',scInsights);},
