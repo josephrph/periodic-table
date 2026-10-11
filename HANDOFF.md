@@ -1,7 +1,9 @@
 # Acannability’s Cannabis Periodic Table of Molecules · Project Handoff  _(internal build: V2)_
-_Last updated: **2026-10-09** · **Protected baseline: commit `a518790`, sha256 `5bf1c70f63098016`** (HEAD == origin/main, live byte-identical; `a6556f3` is a documentation-only HEAD above it). Pre-THY-01 rollback/reference baseline: `6baf906` / `5cf72d6e2c66b1fe`. Earlier references: `59ef593` / `5ee1e392b2360494`, `e3298d3` / `1b6f1f86b486dcbb`, `135d300` / `96f38d244268b63a`._
-_Build: 2.2 MB · 64 molecules · **65 health conditions** / 10 groups · 3 cross-listed · **838 NCBI-verified PMIDs** · **289 drugs · 104 drug–drug pairs** · backlog 278 rows · preflight: **33 guards**, all passing `--online`_
+_Last updated: **2026-10-11** · **Protected baseline: commit `4d0d9aa`, sha256 `d2a41bdcae701e82`** (HEAD == origin/main, live byte-identical). Previous protected baseline: `a518790` / `5bf1c70f63098016` (on disk: `index_BACKUP_20261010_pre_GX01.html`). Earlier references: `6baf906` / `5cf72d6e2c66b1fe`, `59ef593` / `5ee1e392b2360494`, `e3298d3` / `1b6f1f86b486dcbb`, `135d300` / `96f38d244268b63a`._
+_Build: 2.2 MB · 64 molecules · **65 health conditions** / 10 groups · 3 cross-listed · **839 NCBI-verified PMIDs** · **289 drug records · 104 drug–drug pairs** · **42 faux Demo products** · backlog 278 rows · preflight: **33 guards**, all passing `--online`_
 _**MODERN CROSS-PLATFORM QA ROUND 1 COMPLETE. IOS-07 passed physical-device acceptance on 2026-10-06 across iPhone 16 (iOS 26.6.1), the legacy iPad mini 2 (iOS 12.4.2) and an iMac. Commit `e3298d3` / build `1b6f1f86b486dcbb` is the new protected application baseline. IOS-01 through IOS-05 and IOS-07 are CLOSED; IOS-04b and IOS-06 remain recorded as FAILED AND REVERTED. Guards 31 and 32 both protect shipped code. **D2 is CLOSED on physical-device acceptance (2026-10-06); D1 remains OPEN/DEFERRED pending a current Windows Chrome/Edge physical test; U1 and U2 are observations only. **GX-01 + GX-02 (Guided Match) are deployed PROVISIONALLY as `11f687a` / `f12dfc9a1777f36c` and await physical acceptance; the protected baseline remains `a518790` / `5bf1c70f63098016`.** RESET-01 passed physical acceptance 2026-10-07 across iPhone 16, legacy iPad mini 2, an El Capitan iMac and a newer iMac — `59ef593` / `5ee1e392b2360494` is the new protected baseline.** D2 is CLOSED; D1 remains OPEN/DEFERRED pending a current Windows Chrome/Edge physical test; U1/U2 are observations only. A residual Entourage intermittency survives RESET-01 and is recorded as an observation with NO root cause — refresh first.**_
+
+_**GUIDED MATCH / DEMO ROUND COMPLETE AND ACCEPTED 2026-10-11 across iPhone 16 and iMac Tahoe.** GX-06, the five non-intoxicating faux products, NAME-01, GX-07, GX-08, the continuous 7-stage Demo indicator and COPY-01 all passed physical acceptance. **`4d0d9aa` / `d2a41bdcae701e82` is the new protected application baseline, replacing `a518790` / `5bf1c70f63098016`.** **F — the dormant standard-customer product pathway — is a future POS-integration architecture item and MUST NOT be deleted or refactored.** An intermittent iPhone 16 scroll/tap behaviour is an OBSERVATION ONLY, not a defect; it did not prevent acceptance and no speculative mobile change was made._
 
 _**Pre-release audit COMPLETE: waves 2–6 ALL SHIPPED. Wave 1 (the release blocker) needs the owner. Drug tranches A–E ALL SHIPPED; severity-sort bug FIXED; the CYP2D6 sweep is COMPLETE across all 21 records; prostate evidence recalibrated; three Men's Health topics added; a V2-wide count guard now blocks stale numbers; Demo Mode and Guided Match are ALIGNED and share one data source, guarded. Tranche E is now COMPLETE and the four discovered gaps are closed (DRUG-24); the CBD→Δ⁹-THC exposure finding is in the build; `hasRisk` is enforced rather than dead.**_
 
@@ -130,7 +132,366 @@ regressions caught in negative testing.
 
 ---
 
-## 0000000000000. GX-01 + GX-02 — GUIDED MATCH — **PROVISIONAL — AWAITING PHYSICAL ACCEPTANCE**
+## 0000000000000. GX-06 → COPY-01 — GUIDED MATCH / DEMO MODE ROUND — **CLOSED AND ACCEPTED**
+
+**Owner-accepted 2026-10-11 on iPhone 16 and iMac Tahoe. Commit `4d0d9aa`, build
+`d2a41bdcae701e82` is the protected application baseline.** Rollback: `a518790` /
+`5bf1c70f63098016` (`index_BACKUP_20261010_pre_GX01.html`).
+
+| Step | Commit | Build | On disk (pre-change) |
+|---|---|---|---|
+| GX-06 exclusion | `0cc8be0` | `1356e489cc20fe08` | `index_BACKUP_20261010_pre_GX06.html` |
+| Five faux products | `e022bb6` | `ae8a477ff75164f9` | `index_BACKUP_20261010_pre_GX06INV.html` |
+| NAME-01 naming | `0fb2fd3` | `2edf4ce73e0163e9` | `index_BACKUP_20261011_pre_NAME01.html` |
+| GX-07 + stage bar | `651c87e` | `541cb089ca103c6b` | `index_BACKUP_20261011_pre_DEMOUX01.html` |
+| GX-08 | `5bb8377` | `621c26d0b3b9998e` | `index_BACKUP_20261011_pre_GX08.html` |
+| COPY-01 | **`4d0d9aa`** | **`d2a41bdcae701e82`** | `index_BACKUP_20261011_pre_COPY01.html` |
+
+Each backup's sha equals the previous accepted build, so any step rolls back exactly.
+
+### THE STANDING DESIGN PRINCIPLE — read this before changing Demo copy
+
+**The science should power the Demo, not dominate the Demo.**
+
+Demo Mode is shown to prospective dispensary owners, pharmacists and staff, but it is **not** a
+professional workflow. Its job is to let that client watch what **one of their own customers**
+would experience, end to end, and then — because there is no live POS yet — show how products
+could populate, filter and rank at the end. The faux inventory exists to demonstrate that future
+benefit.
+
+Most customers will not know the categories of cannabis plant molecules and many will not care.
+Their question is simpler: *"which available product best matches what I am looking for?"* The
+Demo answers that without requiring chemistry first. The depth is not removed — an Acannability
+presenter can open the Periodic Table, the research-linked molecules and the evidence to show how
+much sits underneath. **The interface demonstrates simplicity for the customer; the presenter
+demonstrates the scientific power underneath it.**
+
+So: do not add scientific explanation to the customer path merely because technical wording was
+removed from it, and do not make the Demo more clinical because the person watching may be a
+pharmacist.
+
+### GX-06 — 🚫 "Avoid intoxicating THC" is an exclusion, not a ranking preference
+
+Selecting 🚫 removed Δ9/Δ8/THCP from the **molecule** results but not from the **product** shelf.
+`gate()` scored on the THC:CBD **ratio** and returned `1` unconditionally for topicals, so a
+customer asking to avoid intoxicating THC was still shown a **250 mg Δ9-THC** tincture and a
+THC-containing salve. Confirmed on iPhone 16 and iMac.
+
+**Ratio is the wrong question: 250 mg of Δ9-THC is 250 mg however much CBD sits beside it.**
+
+In `match()`, when `thcCeiling==='none'`, any product whose profile contains `THC9`, `THC8` or
+`THCP` is excluded outright. The check sits **after** the `gate()` call and overrides it, so
+nothing reinstates the product — not the ratio, not a small absolute amount, not the topical
+route, not experience level (which never reached this layer). Same `THC_INTOX` set Guided Match
+and `handoffTo()` already use.
+
+🌙 `'min'` is deliberately untouched, as are `'low'` and `'any'` — verified byte-identical across
+an 8-condition × 4-ceiling matrix.
+
+The zero-match message is preference-aware: when the shelf is empty **because** of the THC
+preference it says so, instead of advising the user to adjust the refine step or restock. **The
+customer's preference is not weakened to keep the Demo populated.**
+
+### The five non-intoxicating faux products
+
+After GX-06 only 5 of 37 products were free of Δ9/Δ8/THCP and **Pain returned nothing**. Five were
+added — five dosage forms, five distinct cannabinoid profiles, deliberately not five variants of
+one CBD product:
+
+| SKU | Name | Form | Composition |
+|---|---|---|---|
+| `TIN-3007` | Four Corners Broad-Spectrum Oil | tincture | CBD 600 · CBC 200 · CBG 200 · CBN 100 mg |
+| `TOP-7004` | Cold Creek Broad-Spectrum Balm | topical | CBD 400 · CBC 100 · CBG 100 · CBN 50 mg |
+| `BEV-6003` | Morning Press Raw CBDA Shot | beverage | CBDA 300 · CBGA 100 · CBG 30 · CBD 50 mg |
+| `CAP-4004` | Moonrise CBN + CBD Softgels | capsule | CBD 25 · CBN 15 mg |
+| `EDB-5005` | Citrus Grove Botanical Chews | edible | CBD 20 · CBG 5 mg + 4 terpenes |
+
+They match **only** through the molecule-condition data already in V2. Nothing in `CONDITIONS`,
+`M`, `GUIDED_MOL`, `recForConditions()`, evidence grades or PMIDs was touched to make them score.
+
+**THCA was deliberately left out of the raw shot**, even though Inflammation (8) and Arthritis (7)
+weight it heavily — it decarboxylates to Δ9-THC under heat, which would undercut the exclusion's
+intent. Those topics are covered by other products anyway.
+
+A THCV vape was proposed and **declined by the owner**: `appetite` (Other → Energy) keeps an
+honest zero result rather than manufacturing inventory to eliminate every empty pathway.
+
+### NAME-01 — faux product names must not make health claims
+
+Fifteen names carried condition, symptom, body-part or outcome language — Calm, Sleep, Relief,
+Seizure Support, Rest, Appetite, Chemo-Comfort, Uplift, Unwind, Warming Muscle, Soothe Muscle &
+Joint. A faux product should not be named for the thing a customer hopes to treat.
+
+**STANDING RULE for all future Demo inventory:** no condition, disease, symptom, body part,
+treatment, support or desired-outcome language in a faux product name. Botanical, geographic,
+mineral, nature, whimsical or strain-style names instead.
+
+Dosage-form, cannabinoid, ratio and strength terms are **deliberately kept** (Tincture, Softgels,
+Gummies, Balm, Salve, Roll-On, 20:1, CBN, Full-Spectrum, 500mg). Those say what a product *is*,
+not what it does.
+
+Two brands were also renamed: Meridian Wellness → **Meridian Leaf Co.**, Clarity Vapors →
+**Kestrel Vapors**.
+
+### GX-07 — `No Δ9 · Δ8 · THCP`, shown only under 🚫
+
+**Do not relabel this "THC-free."** Three reasons: the rule covers Δ9, Δ8 and THCP — not THCA or
+THCV; Charlotte's Web carries **0.3 mg Δ9** and is excluded, so an absolute claim sits on a very
+fine line; and THCA converts to Δ9 on heating, so a future product could make the broader claim
+false. The badge states **the rule**, not a claim. 10 of 42 products qualify. Shown only when 🚫 is
+selected, so it reads as confirmation of the customer's own request.
+
+### GX-08 — the Demo matched against molecules the user had switched off
+
+`djActiveRec()` read `molecules: mols.length ? mols : rec.molecules`. Switching every molecule off
+made the refine screen report **"0 products in stock match this profile"** while `match()` silently
+ran against the **full** recommended set. Measured on Pain + 🚫: **the screen said 0, the matcher
+returned 2.**
+
+The last removal is now refused rather than producing a dead end:
+
+- `djToggleMol` / `djToggleCat` — refuse a removal that would empty the set, and say why
+- `djActiveRec` — fallback **deleted**, so the code cannot silently restore anything
+- `scDJRefine` — honest zero state, and *See Matching Products* disabled
+
+Edits 1–2 make an empty set unreachable by tapping; edit 3 removes the behaviour from the code
+rather than hiding it; edit 4 covers the one path that can still reach zero — going back and
+changing the THC preference so the recommended set shifts entirely into molecules excluded
+earlier.
+
+### The 7-stage Demo progress indicator — the gaps, not the count
+
+Two indicators exist. `chrome()` renders "Step N of M" only when `st.persona === 'cust'`; the Demo
+journey leaves `persona: null`, so **that counter never appears in the Demo**. The Demo uses
+`djStepBar(n)` — 7 pills from `DJ_STEPS`.
+
+`scTimeOfDay`, `scOnset`, `scRoute` and `scSecond` rendered **no stage bar at all**, so the
+indicator vanished for four consecutive screens and reappeared on "3". All seven Preferences
+screens now render `djStepBar(2)`.
+
+### COPY-01 — the customer's voice, and naming the next step
+
+Three screens addressed a clinician about "the patient", one described the engine in its own
+internal vocabulary, and the button out of the medication check promised *"Match these molecules
+to inventory"* on a screen showing **no molecules at all**.
+
+The customer sequence now reads end to end:
+
+> **Medication safety check → Refine Your Product Match → See Matching Products → Product results**
+
+- the medication button stands on its own; **its supporting sentence was deleted, not reworded** —
+  a primary button should not need small text to be understood, that line described only the
+  molecule control and not Preferred Route, and it cost height where mobile scrolling is tight
+- the refine screen's heading matches that button instead of *"Choose the molecules to match"*,
+  which under-described a screen that also sets route
+- **"Product Match" is the customer-facing term, not "Inventory Match"** — "inventory" is the
+  retailer's word, and the Periodic Table already has a *different* feature called
+  **⚙ Refine Inventory Match** with separate state (`window._excludedMols` vs the Demo's
+  `st.excluded`, which do **not** share state). Keeping the names distinct prevents staff
+  expecting exclusions to carry across.
+- *"the molecular profile from The Table's condition-to-molecule evidence base"* → *"based on
+  published research"*. The heading and the note already say "research-linked" twice.
+
+**`scDJPos` keeps its POS vocabulary deliberately** — "Connecting to Demo-POS", "Querying
+inventory — 42 SKUs". That screen is demonstrating the integration concept, so operational
+terminology is the point there. Product Match terminology applies to the customer's navigation and
+actions; it does not require eliminating "inventory" everywhere in Demo Mode.
+
+### Flavonoids and non-COA molecules — verified behaviour, not an assumption
+
+`recForConditions()` holds a `MATCHABLE` whitelist (major cannabinoids + 14 terpenes) and deletes
+everything else **before** matching. Flavonoids, precursor acids and rare cannabinoids are already
+removed automatically. Measured:
+
+| Condition | Shown on molecules screen | Silently dropped | Used to match |
+|---|---|---|---|
+| Pain | 14 | 4 | 4 |
+| Anxiety | 8 | 2 | 4 |
+| Arthritis | 13 | 6 | 4 |
+| **Inflammation** | **27** | **14** | **4** |
+
+The gap was never capability — it was **transparency**. The molecules screen now says the
+narrowing happens, in plain language, without teaching molecule categories. **Flavonoids are not
+implied to lack scientific relevance; they simply are not reported on dispensary labels.**
+
+### QA — all passing at `d2a41bdcae701e82`
+
+- full-file JS parse **OK**; preflight **33 guards** pass; `--online` **839/839 PMIDs** resolved
+- **0 intoxicant leaks** across all **28** demo pathways under 🚫
+- **1165 fit scores** compared, **0 changed** by the naming or copy work
+- exhaustive molecule removal across **112** pathway/ceiling combinations never reaches zero
+- Pain + 🚫 returns exactly `TIN-3007` **84%** and `TOP-7004` **83%**, both THC9 = 0
+
+### Unchanged — verified byte-identical by exact function boundary
+
+`match()`, `recForConditions()`, `gate()`, `profile()`, `djRec()`, `djClinicalGroups()`,
+`djStepBar()`, `chrome()`, `go()`, `scRec()`, and the block regions `INV`, `CONDITIONS`, `M`,
+`GUIDED_MOL`, `FUNNEL_DEMO`, `DJ_STEPS`, GX-05 CSS and IOS-07 CSS.
+
+---
+
+## 0000000000000. V2 STATISTICS SNAPSHOT — `4d0d9aa` / `d2a41bdcae701e82` · 2026-10-11
+
+_Point-in-time measurement of the accepted build, taken directly from `index.html` and the
+preflight tooling. Not estimates. `index.html` was not modified to obtain them._
+
+**Build**
+
+| | |
+|---|---|
+| Total lines | **14,987** |
+| File size | **2,287,685 bytes** (2,234 KB · 2.18 MB) |
+| CSS lines | 1,845 (5 `<style>` blocks) |
+| JavaScript lines | 11,440 (4 inline `<script>` blocks) |
+| HTML / markup lines | 1,702 |
+| Inline JavaScript | ~1,846 KB |
+| JS functions | **395 named declarations** (+642 anonymous function expressions) |
+
+_Line attribution is by `<style>` / `<script>` block boundaries. In a single-file build the tag
+lines themselves count as markup, so the three figures are a reasonable split, not a precise
+language census._
+
+**Science data — records vs user-facing entries**
+
+| | Records | User-facing |
+|---|---|---|
+| `CONDITIONS` array | **66 entries** | **65 health conditions/topics** |
+| | | the 66th, `cancer-adverse` ("⚠ Adverse Findings"), is a **filter entry, not a health condition** |
+| Condition groups | 10 distinct | 3 conditions cross-listed into two groups each |
+| Cancer subtypes | 12 | within the cancer group |
+| Molecules (`M`) | **64** | 64 (9 acid forms, 55 non-acid) |
+| Searchable condition aliases | 8 synonyms | fold into 5 parent labels (not additional conditions) |
+
+**Evidence**
+
+| | |
+|---|---|
+| Distinct PMIDs referenced | **839** — all resolved at NCBI via preflight `--online` |
+| A/B-graded entries with attribution | **127** — each cites a PMID or names a source |
+| Non-PMID citation fields | 3 — theoretical, render no link, by design |
+| PubMed link probe | 380 pairs · 64 molecules · 66 conditions · 559 combinations; 278 verified-empty searches suppressed |
+
+**Drug safety — note what each count means**
+
+| | |
+|---|---|
+| `DI_DATA` drug records | **289** — cannabis–drug interaction records, unique ids |
+| `DDI_DATA` pairs | **104** — drug–drug interaction pairs |
+| Drug-id references across those pairs | 536 — all resolve to a drug record |
+| Route-of-administration entries | 14 across 14 records |
+
+_289 is the count of **drug records**, not distinct marketed products; a record may cover a class
+or group whose members all route to it. 104 counts **pairs**, not individual warnings._
+
+**Demo Mode**
+
+| | |
+|---|---|
+| Faux products (SKUs) | **42** — 40 in stock, 2 deliberately out of stock |
+| By dosage form | flower 12 · tincture 7 · edible 5 · vape 5 · capsule 4 · topical 4 · beverage 3 · concentrate 2 |
+| Free of Δ9/Δ8/THCP | 10 of 42 |
+| Demo conditions resolving | 12 (10 real + 2 curated profiles) |
+| Reachable demo pathways | 28 |
+
+**QA tooling**
+
+| | |
+|---|---|
+| Preflight guards | **33**, all passing `--online` |
+| Backlog rows | 278 |
+| Brand lockups carrying ™ | 28 |
+| `V2FACTS` live-data spans guarded | 27 |
+
+---
+
+## 0000000000000. OPEN / DEFERRED — CLASSIFIED
+
+**None of the items below means this Guided Match / Demo release is incomplete. The round is
+CLOSED AND ACCEPTED.**
+
+### Open / future work
+
+- **D1 — modern Windows Chrome/Edge physical testing.** Still outstanding; needs a current device.
+- **F — future POS / inventory integration architecture.** See below. The dormant standard-customer
+  product pathway **must remain preserved and untouched** until real POS/inventory integration is
+  addressed.
+
+### Observations only — NOT current defects
+
+- **iPhone 16 intermittent scroll/tap behaviour.** Observed during COPY-01 acceptance; a device
+  restart improved it. All tested functionality worked, stage indicators behaved correctly, iMac
+  Tahoe was flawless, and it did not prevent acceptance. **No defect is open and no speculative
+  mobile change was made. Do not reopen GX-05 or other accepted mobile work unless a V2-specific
+  cause is reproduced and isolated.** Needs continued real-world testing.
+- **Entourage intermittency.** No root cause. Refresh first.
+- **U1 / U2.** Legacy usability observations.
+
+### Accepted behaviour — no action
+
+- **`appetite` / Other → Energy returns zero matches.** Correct and deliberate. **Do not
+  manufacture inventory simply to produce a result.**
+- **The 7-stage Demo model.** **Do not convert it to an 11-step journey** merely because several
+  screens sit inside one stage. `djStepBar` is shared across 10 call sites and the stage model is
+  sound; the defect was the gaps, which are fixed.
+
+### Deferred technical observations — low priority, non-blocking
+
+- `showEntourage()` sets `body{overflow:hidden}` before it knows it can render.
+- `scDJRefine` calls `rec.molecules.slice(0,6)` but `recForConditions()` already caps at 4, so at
+  most 4 toggles ever render. Harmless; the `6` is misleading to a future reader.
+
+---
+
+## 0000000000000. F — FUTURE ARCHITECTURE: THE DORMANT CUSTOMER PRODUCT PATHWAY — **DO NOT DELETE OR REFACTOR**
+
+**The standard customer Guided Match terminates at `scRec`.** Its only exits are *Explore these in
+the Periodic Table*, *Print this summary* and *Start over*.
+
+A complete customer product path exists in the code — `V4GX.toProducts()` → `scPosQuery` →
+`scProducts` → `scHandoff`, including a *"🛒 Send to Product Specialist (Budtender)"* action — but:
+
+| Function | Callers |
+|---|---|
+| `V4GX.toProducts()` | **0** |
+| `V4GX.handoff()` | 1 — only from inside `scProducts`, itself unreachable |
+
+`toProducts` already branches for both modes (`demoMode() ? scPosQuery : scProducts`). **Whether
+this was deliberate or unfinished cannot be determined from the code**: there is no feature flag,
+no gate and no explanatory comment.
+
+**Deliberately NOT wired in this round.** Connecting the real customer-facing Guided Match to faux
+inventory would blur the line between the Research Demonstration and a future production POS
+integration. Demo Mode can demonstrate the end-to-end customer experience using faux inventory
+while the real Guided Match stays unchanged until we deliberately decide how it connects to an
+actual dispensary's system.
+
+Verified **byte-identical to the previous protected baseline across this entire round**:
+`scProducts` (20 lines), `scPosQuery` (11 lines), `scHandoff` (12 lines).
+
+**Revisit at real dispensary/POS integration.** Target hierarchy at that point:
+
+> customer's health topic & preferences → product matches from **actual** inventory → molecule
+> science available as supporting evidence for those who want it
+
+The molecule science remains essential to the engine regardless of how much of it any given
+customer wants to read.
+
+### Rollback for the whole round
+
+```
+git revert 4d0d9aa 5bb8377 651c87e 0fb2fd3 e022bb6 0cc8be0   # or
+cp index_BACKUP_20261010_pre_GX01.html index.html            # a518790 / 5bf1c70f63098016
+```
+
+---
+
+
+## 0000000000000. GX-01 + GX-02 — GUIDED MATCH — **ACCEPTED, PHYSICAL DEVICE PASS**
+
+_Physically accepted during the Guided Match / Demo round (2026-10-11). Superseded by the
+Guided Match / Demo Mode section above; the protected baseline is now `4d0d9aa` /
+`d2a41bdcae701e82`. The body below documents reasoning that is still true — the commit and build
+ids in it are historical, not the current baseline._
 
 | | |
 |---|---|
