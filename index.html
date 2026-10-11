@@ -12804,7 +12804,7 @@ var ROUTE_MAP={
     });
     // keep state consistent if a previously-picked secondary is now the primary (e.g. user went Back and changed intent)
     st.seconds=(st.seconds||[]).filter(function(k){return opts.some(function(o){return o.k===k;});});
-    stage('<h2 class="gx-q">Anything else going on?</h2><p class="gx-hint">Choose any — or skip.</p>'+
+    stage((st.dj?djStepBar(2):'')+'<h2 class="gx-q">Anything else going on?</h2><p class="gx-hint">Choose any — or skip.</p>'+
     opts.map(function(o){return optBtn("V4GX.second('"+o.k+"',this)",o.ic,o.label,'',(st.seconds||[]).indexOf(o.k)>=0,true);}).join('')+
     '<button class="gx-cta" onclick="V4GX.toSafety()">Next →</button>'+
     '<button class="gx-cta ghost" onclick="V4GX.toSafety()">Skip</button>');}
@@ -12829,17 +12829,17 @@ var ROUTE_MAP={
     optBtn("V4GX.experience('some')",'🌤️','Some experience','A little goes a long way',e==='some',true)+
     optBtn("V4GX.experience('exp')",'🌟','Experienced','Comfortable with the full range',e==='exp',true));}
   function scTimeOfDay(){var t=st.timeOfDay;
-    stage('<h2 class="gx-q">When do you expect to use it most?</h2><p class="gx-hint">So we can match the feel to your day.</p>'+
+    stage((st.dj?djStepBar(2):'')+'<h2 class="gx-q">When do you expect to use it most?</h2><p class="gx-hint">So we can match the feel to your day.</p>'+
     optBtn("V4GX.timeOfDay('day')",'☀️','Daytime','Stay clear-headed &amp; functional',t==='day',true)+
     optBtn("V4GX.timeOfDay('evening')",'🌙','Evening / night','Wind down &amp; rest',t==='evening',true)+
     optBtn("V4GX.timeOfDay('any')",'🕒','Anytime / not sure','Keep all options open',t==='any',true));}
   function scOnset(){var o=st.onset;
-    stage('<h2 class="gx-q">How do you want it to work?</h2><p class="gx-hint">Onset is how fast you feel it; duration is how long it lasts.</p>'+
+    stage((st.dj?djStepBar(2):'')+'<h2 class="gx-q">How do you want it to work?</h2><p class="gx-hint">Onset is how fast you feel it; duration is how long it lasts.</p>'+
     optBtn("V4GX.onset('fast')",'⚡','Fast &amp; shorter','Relief in minutes (inhaled / sublingual)',o==='fast',true)+
     optBtn("V4GX.onset('balanced')",'⚖️','A balance','Moderate onset &amp; duration',o==='balanced',true)+
     optBtn("V4GX.onset('lasting')",'⏳','Slow &amp; long-lasting','Hours of relief (edible / capsule / tablet / patch)',o==='lasting',true));}
   function scRoute(){var r=st.route||'any';
-    stage('<h2 class="gx-q">Any preferred way to take it?</h2><p class="gx-hint">This helps match the right product formats. Pick one &mdash; or keep all options open. <b>Smoked and vaporised are listed separately because they are different exposures, not different words for the same thing.</b> The same flower can be either, so this asks how you would use it rather than assuming from the product.</p>'+
+    stage((st.dj?djStepBar(2):'')+'<h2 class="gx-q">Any preferred way to take it?</h2><p class="gx-hint">This helps match the right product formats. Pick one &mdash; or keep all options open. <b>Smoked and vaporised are listed separately because they are different exposures, not different words for the same thing.</b> The same flower can be either, so this asks how you would use it rather than assuming from the product.</p>'+
     optBtn("V4GX.route('any')",'🌀','Any route','Show me everything',r==='any',true)+
     optBtn("V4GX.route('inhalation_vapor')",'💨','Inhalation &mdash; vaporised','Vape, vaporised flower, concentrate',r==='inhalation_vapor'||r==='inhalation',true)+
     optBtn("V4GX.route('inhalation_smoked')",'🔥','Inhalation &mdash; smoked','Flower or pre-roll, lit',r==='inhalation_smoked',true)+
@@ -13478,7 +13478,7 @@ var ROUTE_MAP={
     stage(djStepBar(1)+'<h2 class="gx-q">Research-Linked Molecules for Your Health Topic</h2>'+
       '<p class="gx-hint">For <b>'+esc(condNames)+'</b> — the molecular profile from The Table\'s condition-to-molecule evidence base.</p>'+
       grp('🧪 Cannabinoids',g.cannabinoid)+grp('🌿 Terpenes',g.terpene)+grp('🌼 Flavonoids',g.flavonoid)+
-      '<div class="dj-note">Next, a few questions about the patient — tolerance, experience and safety — then their medications, then what\'s in stock.</div>'+
+      '<div class="dj-note">This is the broader research-linked picture for your selected topic. Not every molecule may be represented in available products, so the inventory match will focus on those that can be matched.<br>Next: your preferences, medications, and available products.</div>'+
       '<button class="gx-cta" onclick="V4GX.djToPrefs()">Patient preferences →</button>');
   }
   function djMedResults(recIds){
@@ -13549,7 +13549,8 @@ var ROUTE_MAP={
       '<div class="dj-medsearch"><input id="djMedInput" class="gx-search" type="search" autocomplete="off" placeholder="…or search any medication (e.g. Xanax, Tylenol, metformin)" oninput="V4GX.djSearchMed(this.value)"><div id="djMedSug" class="dj-sugbox" style="display:none"></div></div><button type="button" class="gx-missing-link" onclick="V4GX.suggestMed()">&#128172; Can&rsquo;t find your medication?<small>Tell us what to add &mdash; a reviewer checks every suggestion</small></button>'+
       (list?'<div class="dj-medlist"><span class="dj-lbl" style="margin:0 4px 0 0">Patient\'s list:</span>'+list+'</div>':'')+
       '<div id="djMedResults" class="dj-medresults">'+djMedResults()+'</div>'+
-      '<button class="gx-cta" onclick="V4GX.djToRefine()">Refine to what\'s in stock →</button>');
+      '<p class="gx-hint">Next, choose which research-linked molecules to include in the inventory match and see how many available products fit.</p>'+
+      '<button class="gx-cta" onclick="V4GX.djToRefine()">Match these molecules to inventory →</button>');
   }
   function scDJRefine(){var rec=djRec();var active=djActiveRec();
     var toggles=rec.molecules.slice(0,6).map(function(m){var off=!!(st.excluded&&st.excluded[m.molId]);
@@ -13562,8 +13563,8 @@ var ROUTE_MAP={
       return '<button class="gx-catbtn" style="'+(on?'border-color:var(--accent);color:var(--accent);font-weight:700':'')+'" onclick="V4GX.djSetRoute(\''+k+'\')">'+ROUTE_META[k].ic+' '+ROUTE_META[k].label+'</button>';}).join('');
     var res=G().match(active);var n=res.shown.length;
     var rfNote=res.routeFallback?'<div class="gx-hint" style="margin-top:6px">No '+ROUTE_META[curRoute].label.toLowerCase()+' products are in stock — showing the closest alternatives.</div>':'';
-    stage(djStepBar(4)+'<h2 class="gx-q">Refine to match the shelf</h2>'+
-      '<p class="gx-hint">Tap to remove any molecule, or a whole category, to match what the dispensary stocks. Matching uses the cannabinoids &amp; terpenes disclosed on product COAs.</p>'+
+    stage(djStepBar(4)+'<h2 class="gx-q">Choose the molecules to match</h2>'+
+      '<p class="gx-hint">These research-linked molecules can be compared with the available product information. Tap any you don\'t want included to leave it out — tap again to put it back.</p>'+
       '<div class="gx-refine"><div class="gx-chips">'+toggles+'</div>'+
       (catBtns?'<div class="gx-catrow">Remove a category: '+catBtns+'</div>':'')+
       '<div class="gx-catrow">Preferred route: '+routeBtns+'</div>'+
@@ -13588,13 +13589,19 @@ var ROUTE_MAP={
     html=(rec.thcCeiling==='none')
       ? '<div class="gx-empty"><div style="font-size:2rem">🤝</div><b>No in-stock demo products match your current THC preference and selected health topic.</b><br>You can refine your preferences or return to the previous step.</div>'
       : '<div class="gx-empty"><div style="font-size:2rem">🤝</div><b>Nothing in stock is a strong match.</b><br>Adjust the refine step or restock.</div>';}
-    else{html='<p class="gx-summary">Best matches in stock, ranked by fit</p>'+top.map(function(p){
+    else{html='<p class="gx-summary">In-stock products remaining after your preferences and molecule filters, ranked by how closely their reported composition matches. Educational comparison only — not a medical recommendation.</p>'+top.map(function(p){
       var mols=Object.keys(p.profile).sort(function(a,b){return p.profile[b]-p.profile[a];}).slice(0,4).map(function(m){return '<span>'+(G().names[m]||m)+'</span>';}).join('');
       var matched=recIds.filter(function(id){return p.profile[id]!=null;});
       var why=matched.length?'<div class="gx-why">✓ Matches '+matched.length+' of '+recIds.length+' recommended — '+matched.map(function(id){return G().names[id]||id;}).join(', ')+'</div>':'';
       return '<div class="gx-prod"><div class="sw">'+p.icon+'</div><div class="info"><b>'+esc(p.name)+'</b>'+
         '<div class="meta">'+(p.brand?esc(p.brand)+' · ':'')+cap(p.type)+(p.stype?' · '+esc(p.stype):'')+' · $'+p.price+' · '+p.count+' in stock</div><div class="mols">'+mols+'</div>'+why+
         '<span class="gx-badge '+p.label+'">'+p.label+' match</span>'+
+        // GX-07: when the customer asked to avoid intoxicating THC, say plainly that this product
+        // carries none of the three. Deliberately NOT "THC-free": the rule covers Δ9, Δ8 and THCP,
+        // not THCA or THCV, and an absolute claim would be broader than what GX-06 actually checks.
+        // Shown only under 🚫, so it reads as confirmation of the customer's own request.
+        ((st.ceiling==='none'&&!(p.profile.THC9>0||p.profile.THC8>0||p.profile.THCP>0))
+          ? '<span class="gx-badge" style="background:#e9f6ec;color:#1d6b38;border:1px solid #bfe0c8">No Δ9 · Δ8 · THCP</span>' : '')+
         '<button class="dj-select" onclick="V4GX.djSelect(\''+esc(p.sku)+'\')">Select this product →</button></div>'+
         '<div class="gx-fit"><div class="pct">'+p.fit+'%</div><div class="lbl">fit</div></div></div>';}).join('')+
       '<div class="gx-filtered">'+res.excluded.length+' others filtered out (out of stock, or off-profile).</div>';}
