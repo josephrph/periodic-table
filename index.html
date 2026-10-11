@@ -13407,7 +13407,11 @@ var ROUTE_MAP={
   function djStepBar(active){var h='<div class="dj-steps">';for(var i=0;i<DJ_STEPS.length;i++){h+='<span class="dj-step'+(i===active?' on':(i<active?' done':''))+'">'+(i+1)+'</span>';}return h+'</div>';}
   function djRec(){var conds=(st.djConds&&st.djConds.length)?st.djConds:['seizures'];return G().recForConditions(conds,st.ceiling||'any',[]);}
   function djActiveRec(){var rec=djRec();var mols=rec.molecules.filter(function(m){return !(st.excluded&&st.excluded[m.molId]);});
-    return {molecules:mols.length?mols:rec.molecules,thcCeiling:rec.thcCeiling,conditions:rec.conditions,routeTypes:ROUTE_MAP[st.route||'any']||[]};}
+    // GX-08: this used to fall back to rec.molecules when the user had excluded everything, so the
+    // screen read "0 products match this profile" while matching silently ran against the FULL set.
+    // The screen and the match now agree; scDJRefine() blocks the last removal and disables the
+    // query, so an empty set is only reachable by back-navigation and is shown honestly.
+    return {molecules:mols,thcCeiling:rec.thcCeiling,conditions:rec.conditions,routeTypes:ROUTE_MAP[st.route||'any']||[]};}
   // Full clinical picture (incl. flavonoids/rare, which aren't matched against stock) for the display step.
   function djClinicalGroups(){
     var conds=(st.djConds&&st.djConds.length)?st.djConds:['seizures'];var w={};
@@ -13562,14 +13566,21 @@ var ROUTE_MAP={
       .concat(curRoute==='inhalation'?['inhalation']:[]).map(function(k){var on=curRoute===k;
       return '<button class="gx-catbtn" style="'+(on?'border-color:var(--accent);color:var(--accent);font-weight:700':'')+'" onclick="V4GX.djSetRoute(\''+k+'\')">'+ROUTE_META[k].ic+' '+ROUTE_META[k].label+'</button>';}).join('');
     var res=G().match(active);var n=res.shown.length;
+    var none=!active.molecules.length;
+    var keepNote=st.djKeepOne?'<div class="gx-hint" style="margin-top:6px">Keep at least one molecule selected to continue matching products.</div>':'';
     var rfNote=res.routeFallback?'<div class="gx-hint" style="margin-top:6px">No '+ROUTE_META[curRoute].label.toLowerCase()+' products are in stock — showing the closest alternatives.</div>':'';
     stage(djStepBar(4)+'<h2 class="gx-q">Choose the molecules to match</h2>'+
       '<p class="gx-hint">These research-linked molecules can be compared with the available product information. Tap any you don\'t want included to leave it out — tap again to put it back.</p>'+
       '<div class="gx-refine"><div class="gx-chips">'+toggles+'</div>'+
       (catBtns?'<div class="gx-catrow">Remove a category: '+catBtns+'</div>':'')+
       '<div class="gx-catrow">Preferred route: '+routeBtns+'</div>'+
-      '<div class="gx-matchcount">'+n+' product'+(n===1?'':'s')+' in stock match this profile</div>'+rfNote+'</div>'+
-      '<button class="gx-cta" onclick="V4GX.djToProducts()">Query the inventory →</button>');
+      // GX-08: an empty molecule set can no longer be reached by tapping (the last removal is
+      // refused), but back-navigation can still shift the recommended set entirely into molecules
+      // excluded earlier. Say so and withhold the query rather than matching against nothing.
+      (none?'<div class="gx-matchcount">Select at least one molecule to continue matching products.</div>'
+           :'<div class="gx-matchcount">'+n+' product'+(n===1?'':'s')+' in stock match this profile</div>')+
+      keepNote+rfNote+'</div>'+
+      '<button class="gx-cta" onclick="V4GX.djToProducts()"'+(none?' disabled':'')+'>Query the inventory →</button>');
   }
   function scDJPos(){var active=djActiveRec();var n=G().match(active).shown.length;
     var total=G().inventory.length;var instock=G().inventory.filter(function(p){return p.count>0;}).length;
@@ -13679,8 +13690,20 @@ var ROUTE_MAP={
     toSafety:function(){go('safety',scSafety);},
     djSearchMed:function(v){djRenderMedSearch(v);},
     djToRefine:function(){go('djRefine',scDJRefine);},
-    djToggleMol:function(id){st.excluded=st.excluded||{};if(st.excluded[id])delete st.excluded[id];else st.excluded[id]=1;scDJRefine();},
-    djToggleCat:function(cat){st.excluded=st.excluded||{};var isTerp=(cat==='terp');var inCat=djRec().molecules.filter(function(m){return (!!G().terps[m.molId])===isTerp;});var allOff=inCat.length&&inCat.every(function(m){return st.excluded[m.molId];});inCat.forEach(function(m){if(allOff)delete st.excluded[m.molId];else st.excluded[m.molId]=1;});scDJRefine();},
+    djToggleMol:function(id){st.excluded=st.excluded||{};
+      if(st.excluded[id]){delete st.excluded[id];st.djKeepOne=0;}
+      else{
+        // GX-08: the inventory match needs at least one molecule to compare a product against.
+        var left=djRec().molecules.filter(function(m){return m.molId!==id&&!(st.excluded&&st.excluded[m.molId]);});
+        if(!left.length){st.djKeepOne=1;scDJRefine();return;}
+        st.excluded[id]=1;st.djKeepOne=0;
+      }
+      scDJRefine();},
+    djToggleCat:function(cat){st.excluded=st.excluded||{};var isTerp=(cat==='terp');var inCat=djRec().molecules.filter(function(m){return (!!G().terps[m.molId])===isTerp;});var allOff=inCat.length&&inCat.every(function(m){return st.excluded[m.molId];});      if(!allOff){ // GX-08: removing this category must not empty the set
+        var left=djRec().molecules.filter(function(m){return (!!G().terps[m.molId])!==isTerp&&!(st.excluded&&st.excluded[m.molId]);});
+        if(!left.length){st.djKeepOne=1;scDJRefine();return;}
+      }
+      inCat.forEach(function(m){if(allOff)delete st.excluded[m.molId];else st.excluded[m.molId]=1;});st.djKeepOne=0;scDJRefine();},
     djToProducts:function(){go('djProducts',scDJPos);},
     djSelect:function(sku){var p=G().match(djActiveRec()).shown.filter(function(x){return x.sku===sku;})[0];st.djProduct=p||null;go('djDone',scDJDone);},
     djBack:function(){this.back();},
