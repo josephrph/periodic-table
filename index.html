@@ -12361,6 +12361,21 @@ document.addEventListener('keydown', function(e) {
     var shown=[],excluded=[];(inv||INV).forEach(function(p){var pr=profile(p),mx=0;for(var k in pr)if(pr[k]>mx)mx=pr[k];var base=0;
       for(var mol in W){var pres=(pr[mol]!=null)?(CFG.CONTAINS_BASE+CFG.DOM_WEIGHT*(pr[mol]/mx)):0;base+=W[mol]*pres;}
       var f=(p.thc+p.cbd)>0?p.thc/(p.thc+p.cbd):(p.thc>0?1:0);var g=gate(rec.thcCeiling,p.type,f);
+      // GX-06: "Avoid intoxicating THC" is an EXCLUSION, not a ranking preference. gate() reads the
+      // THC:CBD ratio and lets a topical through unconditionally, so a 250mg-THC 1:3 tincture and a
+      // THC-containing salve both survived a customer asking to avoid intoxicating THC — confirmed
+      // on an iPhone 16 and an iMac. Ratio is the wrong question: 250mg of Δ9-THC is 250mg however
+      // much CBD sits beside it.
+      // The three molecules are the same THC_INTOX set Guided Match already excludes and that
+      // handoffTo() applies to the Periodic Table, so the demo shelf now says what the molecule
+      // results say. Nothing may override it: not the ratio, not a small absolute amount, not the
+      // topical route, and not the experience level (which never reached this layer anyway).
+      // If that leaves nothing in stock, nothing is the honest answer — the customer's preference is
+      // not weakened to keep the shelf populated.
+      if(rec.thcCeiling==='none'){
+        var GX6_INTOX=['THC9','THC8','THCP'];
+        for(var gi=0;gi<GX6_INTOX.length;gi++){ if(pr[GX6_INTOX[gi]]>0){ g=0; break; } }
+      }
       var ff=(rec.format&&rec.format===p.type)?CFG.FORMAT_BONUS:1;var complete=hasMinor(p);
       var fit=Math.round(Math.min(100*base*g*ff,complete?100:CFG.BASIC_CAP));
       var label=fit>=80?'strong':(fit>=65?'good':'basic');
@@ -13562,7 +13577,12 @@ var ROUTE_MAP={
     setTimeout(function(){if(hist[hist.length-1]==='djProducts'&&st._posTok===tok)scDJProducts();},reducedMotion()?0:1900);
   }
   function scDJProducts(){var rec=djActiveRec();var res=G().match(rec);var top=res.shown.slice(0,6);var recIds=rec.molecules.map(function(m){return m.molId;});var html;
-    if(!top.length){html='<div class="gx-empty"><div style="font-size:2rem">🤝</div><b>Nothing in stock is a strong match.</b><br>Adjust the refine step or restock.</div>';}
+    if(!top.length){
+    // GX-06: when the empty shelf is the RESULT of the customer's THC preference, say so plainly.
+    // "restock" would be wrong advice and nudging them to accept THC would be worse.
+    html=(rec.thcCeiling==='none')
+      ? '<div class="gx-empty"><div style="font-size:2rem">🤝</div><b>No in-stock demo products match your current THC preference and selected health topic.</b><br>You can refine your preferences or return to the previous step.</div>'
+      : '<div class="gx-empty"><div style="font-size:2rem">🤝</div><b>Nothing in stock is a strong match.</b><br>Adjust the refine step or restock.</div>';}
     else{html='<p class="gx-summary">Best matches in stock, ranked by fit</p>'+top.map(function(p){
       var mols=Object.keys(p.profile).sort(function(a,b){return p.profile[b]-p.profile[a];}).slice(0,4).map(function(m){return '<span>'+(G().names[m]||m)+'</span>';}).join('');
       var matched=recIds.filter(function(id){return p.profile[id]!=null;});
