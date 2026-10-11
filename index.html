@@ -13465,7 +13465,7 @@ var ROUTE_MAP={
     var extra=sel.filter(function(id){return !quick[id];}).map(function(id){
       var c=(typeof CONDITIONS!=='undefined')?CONDITIONS.filter(function(x){return x.id===id;})[0]:null;
       return optBtn("V4GX.djToggleCond('"+id+"')",'&#x1F50D;',esc(c?c.label:id),'added by name',true,true);}).join('');
-    stage(djStepBar(0)+'<h2 class="gx-q">Why are you here today?</h2><p class="gx-hint">Select one or more — a patient can have more than one concern (try <b>Seizures + Anxiety</b>).</p>'+
+    stage(djStepBar(0)+'<h2 class="gx-q">Why are you here today?</h2><p class="gx-hint">Select one or more — you can select more than one concern (try <b>Seizures + Anxiety</b>).</p>'+
       DJ_CONDS.map(function(c){var on=sel.indexOf(c.id)>=0;return optBtn("V4GX.djToggleCond('"+c.id+"')",c.ic,c.label,'',on,true);}).join('')+
       extra+
       // UX-105: Demo Mode gets the same two doors as the patient-facing flow, so a budtender can
@@ -13480,9 +13480,9 @@ var ROUTE_MAP={
     function grp(title,ids){if(!ids.length)return '';return '<div class="dj-molgrp"><div class="dj-molgrp-h">'+title+' <span style="opacity:.6;font-weight:600">('+ids.length+')</span></div><div class="dj-mols">'+ids.map(function(mid){return '<span class="dj-mol">'+djMolName(mid)+'</span>';}).join('')+'</div></div>';}
     var condNames=(st.djConds||[]).map(djLabelFor).join(' + ');
     stage(djStepBar(1)+'<h2 class="gx-q">Research-Linked Molecules for Your Health Topic</h2>'+
-      '<p class="gx-hint">For <b>'+esc(condNames)+'</b> — the molecular profile from The Table\'s condition-to-molecule evidence base.</p>'+
+      '<p class="gx-hint">For <b>'+esc(condNames)+'</b> — based on published research.</p>'+
       grp('🧪 Cannabinoids',g.cannabinoid)+grp('🌿 Terpenes',g.terpene)+grp('🌼 Flavonoids',g.flavonoid)+
-      '<div class="dj-note">This is the broader research-linked picture for your selected topic. Not every molecule may be represented in available products, so the inventory match will focus on those that can be matched.<br>Next: your preferences, medications, and available products.</div>'+
+      '<div class="dj-note">This is the broader research-linked picture for your selected topic. Not every molecule may be represented in available products, so the product match will focus on those that can be matched.<br>Next: your preferences, medications, and available products.</div>'+
       '<button class="gx-cta" onclick="V4GX.djToPrefs()">Patient preferences →</button>');
   }
   function djMedResults(recIds){
@@ -13548,13 +13548,12 @@ var ROUTE_MAP={
       return '<button class="dj-medchip'+(on?' on':'')+'" onclick="V4GX.djAddMed(\''+id+'\')"><span class="'+(d.cat==='otc'?'otc':'rx')+'">'+(d.cat==='otc'?'OTC':'Rx')+'</span>'+esc(medLabel(d))+(on?' ✓':'')+'</button>';}).join('');
     var list=(st.meds||[]).map(function(m){return '<span class="dj-medpill">'+esc(medLabel(m))+'<button onclick="V4GX.djRemoveMed(\''+m.id+'\')" aria-label="Remove">×</button></span>';}).join('');
     stage(djStepBar(3)+'<h2 class="gx-q">Medication safety check</h2>'+
-      '<p class="gx-hint">Add the patient\'s prescriptions and OTC medicines. The Table screens them against each other <b>and</b> against the cannabis molecules research links to the selected health topic.</p>'+
+      '<p class="gx-hint">Add your prescriptions and OTC medicines. The Table screens them against each other <b>and</b> against the cannabis molecules research links to your selected health topic.</p>'+
       '<div class="dj-medquick"><div class="dj-lbl">Tap common medications</div><div class="dj-chips">'+chips+'</div></div>'+
       '<div class="dj-medsearch"><input id="djMedInput" class="gx-search" type="search" autocomplete="off" placeholder="…or search any medication (e.g. Xanax, Tylenol, metformin)" oninput="V4GX.djSearchMed(this.value)"><div id="djMedSug" class="dj-sugbox" style="display:none"></div></div><button type="button" class="gx-missing-link" onclick="V4GX.suggestMed()">&#128172; Can&rsquo;t find your medication?<small>Tell us what to add &mdash; a reviewer checks every suggestion</small></button>'+
-      (list?'<div class="dj-medlist"><span class="dj-lbl" style="margin:0 4px 0 0">Patient\'s list:</span>'+list+'</div>':'')+
+      (list?'<div class="dj-medlist"><span class="dj-lbl" style="margin:0 4px 0 0">Your medication list:</span>'+list+'</div>':'')+
       '<div id="djMedResults" class="dj-medresults">'+djMedResults()+'</div>'+
-      '<p class="gx-hint">Next, choose which research-linked molecules to include in the inventory match and see how many available products fit.</p>'+
-      '<button class="gx-cta" onclick="V4GX.djToRefine()">Match these molecules to inventory →</button>');
+      '<button class="gx-cta" onclick="V4GX.djToRefine()">Refine Your Product Match →</button>');
   }
   function scDJRefine(){var rec=djRec();var active=djActiveRec();
     var toggles=rec.molecules.slice(0,6).map(function(m){var off=!!(st.excluded&&st.excluded[m.molId]);
@@ -13569,7 +13568,7 @@ var ROUTE_MAP={
     var none=!active.molecules.length;
     var keepNote=st.djKeepOne?'<div class="gx-hint" style="margin-top:6px">Keep at least one molecule selected to continue matching products.</div>':'';
     var rfNote=res.routeFallback?'<div class="gx-hint" style="margin-top:6px">No '+ROUTE_META[curRoute].label.toLowerCase()+' products are in stock — showing the closest alternatives.</div>':'';
-    stage(djStepBar(4)+'<h2 class="gx-q">Choose the molecules to match</h2>'+
+    stage(djStepBar(4)+'<h2 class="gx-q">Refine Your Product Match</h2>'+
       '<p class="gx-hint">These research-linked molecules can be compared with the available product information. Tap any you don\'t want included to leave it out — tap again to put it back.</p>'+
       '<div class="gx-refine"><div class="gx-chips">'+toggles+'</div>'+
       (catBtns?'<div class="gx-catrow">Remove a category: '+catBtns+'</div>':'')+
@@ -13580,7 +13579,7 @@ var ROUTE_MAP={
       (none?'<div class="gx-matchcount">Select at least one molecule to continue matching products.</div>'
            :'<div class="gx-matchcount">'+n+' product'+(n===1?'':'s')+' in stock match this profile</div>')+
       keepNote+rfNote+'</div>'+
-      '<button class="gx-cta" onclick="V4GX.djToProducts()"'+(none?' disabled':'')+'>Query the inventory →</button>');
+      '<button class="gx-cta" onclick="V4GX.djToProducts()"'+(none?' disabled':'')+'>See Matching Products →</button>');
   }
   function scDJPos(){var active=djActiveRec();var n=G().match(active).shown.length;
     var total=G().inventory.length;var instock=G().inventory.filter(function(p){return p.count>0;}).length;
