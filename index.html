@@ -12616,7 +12616,29 @@ var ROUTE_MAP={
   inhalation_smoked:['flower','concentrate'],
   oral:['edible','capsule','tablet','beverage'],
   sublingual:['tincture'],topical:['topical'],transdermal:['patch','transdermal']};
+// ROUTE-04 (multi-select, owner decision 2026-10-12): the customer may choose SEVERAL routes. The one
+// authoritative state is st.routes — an array of ROUTE_KEYS, where [] means 🌀 Any route, so there is
+// no undefined/no-route state. Any is mutually exclusive: choosing it clears the specific routes,
+// choosing a specific route clears Any, and removing the last specific route returns to Any.
+// A product is eligible when its type belongs to AT LEAST ONE selected route (OR); every unselected
+// route stays a hard exclusion. ROUTE_MAP and match() are unchanged — match() simply receives the
+// union of the selected routes' product types. Route never reaches recForConditions(): it decides
+// which products are eligible, never which molecules the research supports.
+//
+// FUTURE POS / INVENTORY (documented, NOT built): each real product should carry its permitted
+// administration routes from authoritative product information supplied by the inventory system, e.g.
+// adminRoutes:['oral','sublingual']. A product qualifies when adminRoutes contains at least one route
+// the customer selected; a product with missing/unknown adminRoutes qualifies ONLY under Any route.
+// Never infer the route from cannabinoid content. Deliberately NOT named `routes`: in DI_DATA that key
+// already means exposure-level interaction mechanisms (ROUTE-01) and is pinned by the ROUTE-03 guard.
+// Tincture is a dosage FORM, not a route, so it is not a route choice.
+var ROUTE_KEYS=['inhalation_vapor','inhalation_smoked','oral','sublingual','topical','transdermal'];
   var st={}, hist=[];
+  function selRoutes(){return (st.routes&&st.routes.length)?st.routes:[];}
+  function routeTypesFor(rs){var o=[];(rs||[]).forEach(function(k){(ROUTE_MAP[k]||[]).forEach(function(t){if(o.indexOf(t)<0)o.push(t);});});return o;}
+  function toggleRoute(k){if(k==='any'){st.routes=[];return;}if(ROUTE_KEYS.indexOf(k)<0)return;
+    var s=selRoutes(),on=s.indexOf(k)>=0;st.routes=ROUTE_KEYS.filter(function(x){return x===k?!on:s.indexOf(x)>=0;});}
+  function routeLabels(withIc){return selRoutes().map(function(k){return (withIc?ROUTE_META[k].ic+' ':'')+ROUTE_META[k].label;}).join(', ');}
   var lastImport=null, browseSort={key:'name',dir:1}, browseQ='';  // INV-02 import/browse state
   function G(){return window.V4Guided;}
   function el(id){return document.getElementById(id);}
@@ -12842,15 +12864,21 @@ var ROUTE_MAP={
     optBtn("V4GX.onset('fast')",'⚡','Fast &amp; shorter','Relief in minutes (inhaled / sublingual)',o==='fast',true)+
     optBtn("V4GX.onset('balanced')",'⚖️','A balance','Moderate onset &amp; duration',o==='balanced',true)+
     optBtn("V4GX.onset('lasting')",'⏳','Slow &amp; long-lasting','Hours of relief (edible / capsule / tablet / patch)',o==='lasting',true));}
-  function scRoute(){var r=st.route||'any';
-    stage((st.dj?djStepBar(2):'')+'<h2 class="gx-q">Any preferred way to take it?</h2><p class="gx-hint">This helps match the right product formats. Pick one &mdash; or keep all options open. It does not change which molecules research links to your health topic. <b>Smoked and vaporised are listed separately because they are different exposures, not different words for the same thing.</b> The same flower can be either, so this asks how you would use it rather than assuming from the product.</p>'+
-    optBtn("V4GX.route('any')",'🌀','Any route','Show me everything',r==='any',true)+
-    optBtn("V4GX.route('inhalation_vapor')",'💨','Inhalation &mdash; vaporised','Vape, vaporised flower, concentrate',r==='inhalation_vapor'||r==='inhalation',true)+
-    optBtn("V4GX.route('inhalation_smoked')",'🔥','Inhalation &mdash; smoked','Flower or pre-roll, lit',r==='inhalation_smoked',true)+
-    optBtn("V4GX.route('oral')",'💊','Oral','Edible, capsule, tablet, beverage',r==='oral',true)+
-    optBtn("V4GX.route('sublingual')",'💧','Sublingual','Tincture / drops under the tongue',r==='sublingual',true)+
-    optBtn("V4GX.route('topical')",'🧴','Topical','Balm, cream, lotion',r==='topical',true)+
-    optBtn("V4GX.route('transdermal')",'🩹','Transdermal patch','Steady release through the skin',r==='transdermal',true));}
+  // ROUTE-04: multi-select. Buttons toggle st.routes in place (syncRouteBtns) rather than re-rendering,
+  // because stage() scrolls to the top and would jump the page on every tap; Continue → advances.
+  function scRoute(){var r=selRoutes();function on(k){return k==='any'?!r.length:r.indexOf(k)>=0;}
+    stage((st.dj?djStepBar(2):'')+'<h2 class="gx-q">Which ways would you consider taking cannabis? Select all that apply.</h2><p class="gx-hint">This helps match the right product formats &mdash; or keep all options open with 🌀 Any route. It does not change which molecules research links to your health topic. If you would consider both oral and sublingual products, select both 💊 Oral and 💧 Sublingual. <b>Smoked and vaporised are listed separately because they are different exposures, not different words for the same thing.</b> The same flower can be either, so this asks how you would use it rather than assuming from the product.</p>'+
+    optBtn("V4GX.routeToggle('any')",'🌀','Any route','Show me everything',on('any'),true)+
+    optBtn("V4GX.routeToggle('inhalation_vapor')",'💨','Inhalation &mdash; vaporised','Vape, vaporised flower, concentrate',on('inhalation_vapor'),true)+
+    optBtn("V4GX.routeToggle('inhalation_smoked')",'🔥','Inhalation &mdash; smoked','Flower or pre-roll, lit',on('inhalation_smoked'),true)+
+    optBtn("V4GX.routeToggle('oral')",'💊','Oral','Edible, capsule, tablet, beverage',on('oral'),true)+
+    optBtn("V4GX.routeToggle('sublingual')",'💧','Sublingual','Tincture / drops under the tongue',on('sublingual'),true)+
+    optBtn("V4GX.routeToggle('topical')",'🧴','Topical','Balm, cream, lotion',on('topical'),true)+
+    optBtn("V4GX.routeToggle('transdermal')",'🩹','Transdermal patch','Steady release through the skin',on('transdermal'),true)+
+    '<button class="gx-cta" onclick="V4GX.routeNext()">Continue &rarr;</button>');}
+  function syncRouteBtns(){var b=el('gxStage');if(!b||!b.querySelectorAll)return;var r=selRoutes();
+    Array.prototype.forEach.call(b.querySelectorAll('.gx-opt'),function(x){var m=(x.getAttribute('onclick')||'').match(/routeToggle\('([a-z_]+)'\)/);
+      if(!m)return;var on=m[1]==='any'?!r.length:r.indexOf(m[1])>=0;if(on)x.classList.add('sel');else x.classList.remove('sel');});}
   // ONB-13: optional medications / drug-interaction step in the STANDARD flow. Reuses the demo meds engine
   // (findDdiInteractions + buildCannabisHitsByMol + djMedResults + djRenderMedSearch), but screens against the
   // molecules THIS flow recommends (table-consistent set), and re-renders screen-aware via reRenderMeds().
@@ -12890,7 +12918,7 @@ var ROUTE_MAP={
   // activeRec = the recommendation minus any molecules the user removed in the guided Refine step.
   // Falls back to the full rec if everything is excluded, so the products screen is never starved.
   function activeRec(){var rec=currentRec();var mols=rec.molecules.filter(function(m){return !(st.excluded&&st.excluded[m.molId]);});
-    return {molecules:mols.length?mols:rec.molecules,thcCeiling:rec.thcCeiling,conditions:rec.conditions,format:rec.format,routeTypes:ROUTE_MAP[st.route||'any']||[]};}
+    return {molecules:mols.length?mols:rec.molecules,thcCeiling:rec.thcCeiling,conditions:rec.conditions,format:rec.format,routeTypes:routeTypesFor(selRoutes())};}
   function kindPhrase(rec){var cann=rec.molecules.filter(function(m){return !G().terps[m.molId];});
     var top=cann[0]?cann[0].molId:'CBD';var nm=G().names[top]||top;var hasTHC=cann.some(function(m){return m.molId==='THC9';});
     if(rec.thcCeiling==='none')return (top==='CBD'?'CBD-forward, without &Delta;9-THC':nm+'-forward, without &Delta;9-THC');
@@ -13073,7 +13101,7 @@ var ROUTE_MAP={
     if(st.experience==='new')prefBits.push('🌱 New to cannabis');else if(st.experience==='some')prefBits.push('🌤️ Some experience');else if(st.experience==='exp')prefBits.push('🌟 Experienced');
     if(st.timeOfDay==='day')prefBits.push('☀️ Daytime');else if(st.timeOfDay==='evening')prefBits.push('🌙 Evening');else if(st.timeOfDay==='any')prefBits.push('🕒 Anytime');
     if(st.onset==='fast')prefBits.push('⚡ Fast onset');else if(st.onset==='balanced')prefBits.push('⚖️ Balanced');else if(st.onset==='lasting')prefBits.push('⏳ Long-lasting');
-    if(st.route&&st.route!=='any'&&ROUTE_META[st.route])prefBits.push(ROUTE_META[st.route].ic+' '+ROUTE_META[st.route].label);
+    prefBits.push(selRoutes().length?routeLabels(true):'🌀 Any route');   // ROUTE-04: every selected route, or Any
     var guide=[];
     if(st.experience==='new')guide.push('Start low and go slow — a small amount, then wait before more.');
     if(st.timeOfDay==='day')guide.push('For daytime, favor clear-headed, lower-sedation options (limonene / pinene-forward, lower CBN).');else if(st.timeOfDay==='evening')guide.push('For evening, CBN- and myrcene-forward options support winding down.');
@@ -13081,7 +13109,7 @@ var ROUTE_MAP={
     if(st.ceiling==='none')guide.push('You asked The Table to minimise THC-related psychoactive effects: &Delta;9-THC is left out of the molecule list, and THC-dominant products are strongly limited in the product match.');
     else if(st.ceiling==='low')guide.push('You are comfortable with some THC effects: &Delta;9-THC stays eligible where the science supports it, and lower-THC products are ranked more favourably in the product match.');
     else if(st.ceiling==='any')guide.push('THC effects are not a deciding factor for you: &Delta;9-THC stays eligible where the science supports it, and the product match is not adjusted for THC content.');
-    if(st.route&&st.route!=='any'&&ROUTE_META[st.route])guide.push('You preferred '+ROUTE_META[st.route].label.toLowerCase()+' ('+ROUTE_META[st.route].forms+'); the dispensary inventory match is limited to these formats.');
+    if(selRoutes().length)guide.push('You selected '+selRoutes().map(function(k){return ROUTE_META[k].label.toLowerCase();}).join(', ')+' ('+selRoutes().map(function(k){return ROUTE_META[k].forms;}).join('; ')+'); the dispensary inventory match is limited to these formats.');
     // ONB-13: compact medication-interaction summary on the recommendation (only if meds were added).
     var medSummary='';
     if((st.meds||[]).length){var mIds=st.meds.map(function(m){return m.id;});
@@ -13415,7 +13443,7 @@ var ROUTE_MAP={
     // screen read "0 products match this profile" while matching silently ran against the FULL set.
     // The screen and the match now agree; scDJRefine() blocks the last removal and disables the
     // query, so an empty set is only reachable by back-navigation and is shown honestly.
-    return {molecules:mols,thcCeiling:rec.thcCeiling,conditions:rec.conditions,routeTypes:ROUTE_MAP[st.route||'any']||[]};}
+    return {molecules:mols,thcCeiling:rec.thcCeiling,conditions:rec.conditions,routeTypes:routeTypesFor(selRoutes())};}
   // Full clinical picture (incl. flavonoids/rare, which aren't matched against stock) for the display step.
   function djClinicalGroups(){
     var conds=(st.djConds&&st.djConds.length)?st.djConds:['seizures'];var w={};
@@ -13564,21 +13592,21 @@ var ROUTE_MAP={
       return '<button class="gx-chip gx-tog'+(G().terps[m.molId]?' terp':'')+(off?' off':'')+'" onclick="V4GX.djToggleMol(\''+m.molId+'\')">'+(G().names[m.molId]||m.molId)+'<span class="x">'+(off?'＋':'×')+'</span></button>';}).join('');
     var hasCann=rec.molecules.some(function(m){return !G().terps[m.molId];});var hasTerp=rec.molecules.some(function(m){return G().terps[m.molId];});
     var catBtns=(hasCann?'<button class="gx-catbtn" onclick="V4GX.djToggleCat(\'cann\')">Cannabinoids</button>':'')+(hasTerp?'<button class="gx-catbtn" onclick="V4GX.djToggleCat(\'terp\')">Terpenes</button>':'');
-    var curRoute=st.route||'any';
-    var routeBtns=['any','inhalation_vapor','inhalation_smoked','oral','sublingual','topical','transdermal']
-      .concat(curRoute==='inhalation'?['inhalation']:[]).map(function(k){var on=curRoute===k;
-      return '<button class="gx-catbtn" style="'+(on?'border-color:var(--accent);color:var(--accent);font-weight:700':'')+'" onclick="V4GX.djSetRoute(\''+k+'\')">'+ROUTE_META[k].ic+' '+ROUTE_META[k].label+'</button>';}).join('');
+    // ROUTE-04: the same multi-select as scRoute(), on the same st.routes — one route state, two views.
+    var curRoutes=selRoutes(),multiR=curRoutes.length>1;
+    var routeBtns=['any'].concat(ROUTE_KEYS).map(function(k){var on=k==='any'?!curRoutes.length:curRoutes.indexOf(k)>=0;
+      return '<button class="gx-catbtn" style="'+(on?'border-color:var(--accent);color:var(--accent);font-weight:700':'')+'" onclick="V4GX.djToggleRoute(\''+k+'\')">'+ROUTE_META[k].ic+' '+ROUTE_META[k].label+'</button>';}).join('');
     var res=G().match(active);var n=res.shown.length;
     var none=!active.molecules.length;
     var keepNote=st.djKeepOne?'<div class="gx-hint" style="margin-top:6px">Keep at least one molecule selected to continue matching products.</div>':'';
     // ROUTE-04: the route filter is hard, so there is no "closest alternatives" fallback to announce.
     // When the chosen route is what leaves the shelf empty, say so and point at the controls below.
-    var rfNote=(!none&&n===0&&curRoute!=='any')?'<div class="gx-hint" style="margin-top:6px">No demo products currently available match your selected route ('+ROUTE_META[curRoute].ic+' '+ROUTE_META[curRoute].label+') and your other preferences. Choose another route below, or 🌀 Any route.</div>':'';
+    var rfNote=(!none&&n===0&&curRoutes.length)?'<div class="gx-hint" style="margin-top:6px">No demo products currently available match your selected route'+(multiR?'s':'')+' ('+routeLabels(true)+') and your other preferences. '+(multiR?'Change the routes below':'Choose another route below')+', or 🌀 Any route.</div>':'';
     stage(djStepBar(4)+'<h2 class="gx-q">Refine Your Product Match</h2>'+
       '<p class="gx-hint">These research-linked molecules can be compared with the available product information. Tap any you don\'t want included to leave it out — tap again to put it back.</p>'+
       '<div class="gx-refine"><div class="gx-chips">'+toggles+'</div>'+
       (catBtns?'<div class="gx-catrow">Remove a category: '+catBtns+'</div>':'')+
-      '<div class="gx-catrow">Preferred route (chosen earlier — tap to change): '+routeBtns+'</div>'+
+      '<div class="gx-catrow">Preferred routes (chosen earlier — tap to add or remove): '+routeBtns+'</div>'+
       // GX-08: an empty molecule set can no longer be reached by tapping (the last removal is
       // refused), but back-navigation can still shift the recommended set entirely into molecules
       // excluded earlier. Say so and withhold the query rather than matching against nothing.
@@ -13602,8 +13630,8 @@ var ROUTE_MAP={
     if(!top.length){
     // ROUTE-04: a specific route is a hard filter, so when one is chosen it must be named as part of
     // the reason — the GX-06 wording alone would blame THC or the shelf. Any route keeps GX-06 as-is.
-    var _rt=st.route||'any',_rm=(_rt!=='any'&&ROUTE_META[_rt])?ROUTE_META[_rt]:null;
-    if(_rm)html='<div class="gx-empty"><div style="font-size:2rem">🤝</div><b>No in-stock demo products match your selected route ('+_rm.ic+' '+_rm.label+')'+(rec.thcCeiling==='none'?', THC preference,':'')+' and other selected preferences.</b><br>You can change the route — or choose 🌀 Any route — on the refine step.</div>';
+    var _rs=selRoutes(),_pl=_rs.length>1;
+    if(_rs.length)html='<div class="gx-empty"><div style="font-size:2rem">🤝</div><b>No in-stock demo products match your selected route'+(_pl?'s':'')+' ('+routeLabels(true)+')'+(rec.thcCeiling==='none'?', THC preference,':'')+' and other selected preferences.</b><br>You can change the route'+(_pl?'s':'')+' — or choose 🌀 Any route — on the refine step.</div>';
     // GX-06: when the empty shelf is the RESULT of the customer's THC preference, say so plainly.
     // "restock" would be wrong advice and nudging them to accept THC would be worse.
     else html=(rec.thcCeiling==='none')
@@ -13679,10 +13707,10 @@ var ROUTE_MAP={
 
   // ---- public API ----
   window.V4GX={
-    start:function(){st={persona:null,seconds:[],excluded:{},detail:'plain',safetyFlags:[],experience:null,timeOfDay:null,onset:null,route:'any',meds:[],directCond:null,safetyDone:false,medsDone:false};hist=['persona'];condQ='';el('gxOverlay').style.display='flex';scPersona();chrome('persona');},
-    demoHub:function(){if(!demoMode())return;st={dj:true,persona:null,djConds:[],excluded:{},meds:[],ceiling:'any',djProduct:null,route:'any'};hist=['demoHub'];el('gxOverlay').style.display='flex';scDemoHub();chrome('demoHub');},
+    start:function(){st={persona:null,seconds:[],excluded:{},detail:'plain',safetyFlags:[],experience:null,timeOfDay:null,onset:null,routes:[],meds:[],directCond:null,safetyDone:false,medsDone:false};hist=['persona'];condQ='';el('gxOverlay').style.display='flex';scPersona();chrome('persona');},
+    demoHub:function(){if(!demoMode())return;st={dj:true,persona:null,djConds:[],excluded:{},meds:[],ceiling:'any',djProduct:null,routes:[]};hist=['demoHub'];el('gxOverlay').style.display='flex';scDemoHub();chrome('demoHub');},
     demoGuided:function(){if(!demoMode())return;if(!hist.length)hist=['demoHub'];go('demoGuidedIntro',scDemoGuidedIntro);},
-    djRun:function(){st.dj=true;st.djConds=[];st.excluded={};st.meds=[];st.djProduct=null;st.ceiling='any';st.route='any';if(!hist.length)hist=['demoHub'];go('djConds',scDJConds);},
+    djRun:function(){st.dj=true;st.djConds=[];st.excluded={};st.meds=[];st.djProduct=null;st.ceiling='any';st.routes=[];if(!hist.length)hist=['demoHub'];go('djConds',scDJConds);},
     djToggleCond:function(id){st.djConds=st.djConds||[];var i=st.djConds.indexOf(id);if(i>=0)st.djConds.splice(i,1);else st.djConds.push(id);scDJConds();},
     djToRec:function(){if(!(st.djConds&&st.djConds.length))return;st.excluded={};go('djMol',scDJMol);},
     djToMeds:function(){go('djMeds',scDJMeds);},
@@ -13772,7 +13800,7 @@ var ROUTE_MAP={
       if(st.experience)prefBits.push('Experience — '+({'new':'New to cannabis',some:'Some experience',exp:'Experienced'}[st.experience]||st.experience));
       if(st.timeOfDay)prefBits.push('Time of day — '+({day:'Daytime',evening:'Evening',any:'Anytime'}[st.timeOfDay]||st.timeOfDay));
       if(st.onset)prefBits.push('Onset/duration — '+({fast:'Fast & shorter',balanced:'Balanced',lasting:'Long-lasting'}[st.onset]||st.onset));
-      if(st.route&&st.route!=='any'&&typeof ROUTE_META!=='undefined'&&ROUTE_META[st.route])prefBits.push('Route — '+ROUTE_META[st.route].label);
+      prefBits.push('Route — '+(selRoutes().length?routeLabels(false):'Any route'));   // ROUTE-04
       if(prefBits.length)body+='<div class="pt-print-sec"><h3>Your preferences</h3><ul style="margin:0;padding-left:18px;font-size:.8rem;line-height:1.6">'+prefBits.map(function(p){return '<li>'+esc(p)+'</li>';}).join('')+'</ul></div>';
       if((st.meds||[]).length){var mIds=st.meds.map(function(m){return m.id;});
         // Full clinical record — rebuild the SAME detailed drug–drug and cannabis–drug interactions shown on the
@@ -13839,12 +13867,13 @@ if(typeof PT_individualResponse==='function')body+=PT_individualResponse();   //
     djSkipPrefs:function(){go('djMeds',scDJMeds);},
     timeOfDay:function(v){st.timeOfDay=v;go('onset',scOnset);},
     onset:function(v){st.onset=v;go('route',scRoute);},
-    route:function(v){st.route=v;
+    routeToggle:function(k){toggleRoute(k);syncRouteBtns();},
+    routeNext:function(){
       // ROUTE-04: one route state, three onward paths — demo journey, express, everything else.
       if(st.dj)return go('safety',scSafety);
       if(st.expressed)return go('rec',scRec);
       go('second',scSecond);},
-    djSetRoute:function(v){st.route=v;scDJRefine();},
+    djToggleRoute:function(k){toggleRoute(k);scDJRefine();},
     intent:function(k){st.intent=k;st.refineKey=null;st.seconds=[];st.directCond=null;
       if(REASONS[k].learn){this.close();try{if(typeof showWelcome==='function')showWelcome();}catch(e){}return;}
       // UX-105: "Something Else" is where someone lands when none of the nine real reasons is

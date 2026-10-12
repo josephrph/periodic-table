@@ -1876,21 +1876,25 @@ def check_legacy_fallback_scoping(src):
 
 
 # ── driver ─────────────────────────────────────────────────────────────────────
-ROUTE04_ENGINE_TEST = r'''
-var routes=['any','inhalation_vapor','inhalation_smoked','oral','sublingual','topical','transdermal'];
+ROUTE04_ENGINE_TEST = r"""
+var st={};
 var ceilings=['any','min','low','none'];var INTOX=['THC9','THC8','THCP'];
+var SETS=[[]].concat(ROUTE_KEYS.map(function(k){return [k];})).concat([
+  ['oral','sublingual'],['inhalation_vapor','inhalation_smoked'],['oral','topical'],ROUTE_KEYS.slice()]);
 var conds=CONDITIONS.map(function(c){return c.id;}).concat(Object.keys(G.guidedMol||{}));
-var r={scenarios:0,sciDiff:0,wrong:0,fallback:0,anyRouteExcl:0,anyDiff:0,thcLeak:0,both:0,fitDiff:0,pools:0};
+var r={scenarios:0,sets:SETS.length,sciDiff:0,wrong:0,fallback:0,anyRouteExcl:0,anyDiff:0,thcLeak:0,both:0,fitDiff:0,pools:0,
+       unionBad:0,toggle:0};
+SETS.forEach(function(sel){var u=routeTypesFor(sel),want={};sel.forEach(function(k){ROUTE_MAP[k].forEach(function(t){want[t]=1;});});
+  if(u.length!==Object.keys(want).length||u.some(function(t){return !want[t];}))r.unionBad++;});
 conds.forEach(function(c){ceilings.forEach(function(ce){
   var base=JSON.stringify(G.recForConditions([c],ce,[]).molecules);
   var noRoute=G.recForConditions([c],ce,[]);var plain=noRoute.molecules.length?G.match(noRoute):null;
   var fit={};if(plain)plain.shown.forEach(function(s){fit[s.sku]=s.fit;});
-  routes.forEach(function(rt){
+  SETS.forEach(function(sel){
     var rec=G.recForConditions([c],ce,[]);if(JSON.stringify(rec.molecules)!==base)r.sciDiff++;
     if(!rec.molecules.length)return;r.scenarios++;
-    rec.routeTypes=ROUTE_MAP[rt];var res=G.match(rec),allowed=ROUTE_MAP[rt];
+    var allowed=routeTypesFor(sel);rec.routeTypes=allowed;var res=G.match(rec);
     if(res.routeFallback)r.fallback++;
-    if(JSON.stringify(rec.molecules)!==base)r.sciDiff++;
     res.shown.forEach(function(s){
       var off=allowed.length&&allowed.indexOf(s.type)<0;if(off)r.wrong++;
       var intox=INTOX.some(function(k){return (s.profile[k]||0)>0;});
@@ -1899,56 +1903,76 @@ conds.forEach(function(c){ceilings.forEach(function(ce){
     if(!allowed.length){
       r.anyRouteExcl+=res.excluded.filter(function(e){return e.reason==='off your preferred route';}).length;
       if(JSON.stringify(res.shown)!==JSON.stringify(plain.shown))r.anyDiff++;}
-    else if(plain){var want=plain.shown.filter(function(s){return allowed.indexOf(s.type)>=0;}).map(function(s){return s.sku;}).join(',');
-      if(res.shown.map(function(s){return s.sku;}).join(',')!==want)r.pools++;}
+    else{var want2=plain.shown.filter(function(s){return allowed.indexOf(s.type)>=0;}).map(function(s){return s.sku;}).join(',');
+      if(res.shown.map(function(s){return s.sku;}).join(',')!==want2)r.pools++;}
   });});});
+// the Any rule, on the app's own toggleRoute(): mutually exclusive, last removal returns to Any
+function t(fn,ok){fn();if(!ok())r.toggle++;}
+st={};t(function(){},function(){return selRoutes().length===0;});
+t(function(){toggleRoute('oral');},function(){return selRoutes().join()==='oral';});
+t(function(){toggleRoute('sublingual');},function(){return selRoutes().join()==='oral,sublingual';});
+t(function(){toggleRoute('any');},function(){return selRoutes().length===0&&routeTypesFor(selRoutes()).length===0;});
+t(function(){toggleRoute('topical');toggleRoute('topical');},function(){return selRoutes().length===0;});
+t(function(){toggleRoute('nonsense');},function(){return selRoutes().length===0;});
+t(function(){toggleRoute('transdermal');toggleRoute('oral');},function(){return selRoutes().join()==='oral,transdermal';});
 print(JSON.stringify(r));
-'''
+"""
 
 
 def check_route_hard_filter(src):
     """ROUTE-04 (guard 34): route of administration is a PRODUCT-ELIGIBILITY input, never a
-    scientific one, and a specific route is a HARD filter. Owner decision 2026-10-12.
+    scientific one, and the customer's route choice is a HARD filter. Owner decisions 2026-10-12.
 
     Before ROUTE-04, match() fell back to every route whenever nothing on the chosen route
     survived ("never zero-out a kiosk result", ONB-11). Measured against the accepted build, that
     put wrong-route products in the displayed top six in 561 of 1,883 scenarios. The owner chose
-    honest zero results instead, and asked for route as a standalone screen in Standard Guided
-    Match, the express path and the Complete Research Demonstration.
+    honest zero results, a standalone route screen in Standard Guided Match, the express path and
+    the Complete Research Demonstration, and then MULTI-SELECT: several routes may be chosen, a
+    product is eligible if it belongs to at least one of them (OR), and every unselected route stays
+    excluded. 🌀 Any route is mutually exclusive with the specific routes and is st.routes = [].
 
-    This is a BEHAVIOURAL guard: it runs the app's own matcher, CONDITIONS, M and ROUTE_MAP in
-    JavaScriptCore across every condition, every THC setting and every route, and asserts:
+    BEHAVIOURAL: runs the app's own matcher, CONDITIONS, M, ROUTE_MAP, ROUTE_KEYS, toggleRoute()
+    and routeTypesFor() in JavaScriptCore — every condition × every THC setting × Any, each single
+    route and the combinations Oral+Sublingual, Vaporised+Smoked, Oral+Topical and all six — and
+    asserts:
       - route never changes the molecule set recForConditions() returns (science is upstream);
-      - no shown product belongs to another route, and routeFallback is never true;
+      - no shown product falls outside the union of the selected routes; routeFallback never true;
       - Any route excludes nothing for route reasons and returns exactly the unfiltered list;
       - with 🚫, no THC9/THC8/THCP product and no wrong-route product — both hold at once;
       - surviving products keep the fit they have with no route at all;
-      - a specific route returns exactly the on-route subset of the unfiltered list.
-    Plus exact-text checks on the navigation: standard, express and demo journey all reach
-    scRoute(); the in-demo standard flow still runs thc → timeofday → onset → route → second.
+      - a selection returns exactly the on-route subset of the unfiltered list;
+      - routeTypesFor() is exactly the union; toggleRoute() keeps Any exclusive and never empty.
+    Plus exact-text checks on the navigation: standard, express and demo journey all reach the
+    route screen; Continue leads on correctly; the in-demo standard flow is intact.
     """
     name = 'route hard filter'
     try:
         conds = js_literal(src, 'CONDITIONS = [', '[')
         mols = js_literal(src, 'const M = {', '{')
         rmap = js_literal(src, 'var ROUTE_MAP={', '{')
+        rmeta = js_literal(src, 'var ROUTE_META={', '{')
         start = src.index('V4 GUIDED EXPERIENCE — production module')
         start = src.index('(function(){', start)
         end_marker = 'guidedMol:GUIDED_MOL};\n})();'
         end = src.index(end_marker, start) + len(end_marker)
+        h0 = src.index('var ROUTE_KEYS=[')
+        h1 = src.index('\n', src.index('function routeLabels(withIc)', h0))
     except ValueError:
-        fail(name, 'matcher module, CONDITIONS, M or ROUTE_MAP not found (zero-match tripwire)')
+        fail(name, 'matcher module, CONDITIONS, M, ROUTE_MAP/ROUTE_META or the route helpers '
+                   'not found (zero-match tripwire)')
         return
+    helpers = src[h0:h1].replace('  var st={}, hist=[];', '')
     prog = '\n'.join([
         'var window={V4DEMO:{key:function(n){return n;}}};',
         'var localStorage={getItem:function(){return null;},setItem:function(){},removeItem:function(){}};',
         'var M=%s;' % mols, 'var CONDITIONS=%s;' % conds, 'var ROUTE_MAP=%s;' % rmap,
-        src[start:end], 'var G=window.V4Guided;', ROUTE04_ENGINE_TEST])
+        'var ROUTE_META=%s;' % rmeta,
+        src[start:end], 'var G=window.V4Guided;', helpers, ROUTE04_ENGINE_TEST])
     tmp = os.path.join(HERE, '_preflight_route04.js')
     with open(tmp, 'w', encoding='utf-8') as fh:
         fh.write(prog)
     try:
-        res = subprocess.run([JSC, tmp], capture_output=True, text=True, timeout=120)
+        res = subprocess.run([JSC, tmp], capture_output=True, text=True, timeout=180)
     finally:
         os.remove(tmp)
     try:
@@ -1956,18 +1980,20 @@ def check_route_hard_filter(src):
     except (ValueError, IndexError):
         fail(name, 'engine test did not run: ' + (res.stderr or res.stdout)[:300])
         return
-    if r['scenarios'] < 1000:
-        fail(name, 'only %d route scenarios ran — expected well over 1,000' % r['scenarios'])
+    if r['scenarios'] < 2500:   # 2,959 on 2026-10-12: 269 non-empty condition×THC cases × 11 selections
+        fail(name, 'only %d route scenarios ran — expected about 2,959' % r['scenarios'])
     for key, msg in [
             ('sciDiff', 'route changed the scientific molecule set'),
-            ('wrong', 'wrong-route products were shown for a specific route'),
+            ('wrong', 'a product outside the selected routes was shown'),
             ('fallback', 'routeFallback was true — the pre-ROUTE-04 fallback is back'),
             ('anyRouteExcl', 'Any route excluded products for route reasons'),
             ('anyDiff', 'Any route did not return the unfiltered list'),
             ('thcLeak', '🚫 showed a THC9/THC8/THCP product'),
-            ('both', '🚫 + a specific route did not satisfy both filters at once'),
+            ('both', '🚫 + selected routes did not satisfy both filters at once'),
             ('fitDiff', 'route changed a surviving product\'s fit value'),
-            ('pools', 'a specific route did not return exactly the on-route subset')]:
+            ('pools', 'a route selection did not return exactly the on-route subset'),
+            ('unionBad', 'routeTypesFor() is not the exact union of the selected routes'),
+            ('toggle', 'toggleRoute() broke the Any rule (exclusive, never empty)')]:
         if r[key]:
             fail(name, '%s (%d case(s))' % (msg, r[key]))
 
@@ -1987,17 +2013,30 @@ def check_route_hard_filter(src):
          'in-demo standard path: timeofday → onset'),
         ("onset:function(v){st.onset=v;go('route',scRoute);},",
          'in-demo standard path: onset → route'),
+        ("routeToggle:function(k){toggleRoute(k);syncRouteBtns();},",
+         'route buttons must toggle the shared state without leaving the screen'),
         ("if(st.dj)return go('safety',scSafety);\n      if(st.expressed)return go('rec',scRec);\n      go('second',scSecond);},",
-         'route handler: demo → safety, express → results, otherwise → second'),
+         'Continue: demo → safety, express → results, otherwise → second'),
+        ('onclick="V4GX.routeNext()">Continue &rarr;</button>',
+         'the route screen must have a Continue → action'),
+        ("djToggleRoute:function(k){toggleRoute(k);scDJRefine();},",
+         'the Refine route row must use the same toggleRoute() state'),
+        ('routeTypes:routeTypesFor(selRoutes())};}',
+         'activeRec()/djActiveRec() must pass the union of the selected routes'),
     ]
     for needle, msg in nav:
         if needle not in src:
             fail(name, msg)
-    if 'showing the closest alternatives' in src:
-        fail(name, 'the old route-fallback wording is back')
-    note('route hard filter: %d condition × THC × route scenarios — molecule set route-invariant, '
-         '0 wrong-route products, Any route unfiltered, 🚫 and route both enforced, fit unchanged; '
-         'standard, express and demo journey all reach the route screen' % r['scenarios'])
+    if src.count('routeTypes:routeTypesFor(selRoutes())};}') != 2:
+        fail(name, 'both activeRec() and djActiveRec() must pass the selected-route union')
+    for gone in ('showing the closest alternatives', 'st.route||', 'djSetRoute'):
+        if gone in src:
+            fail(name, 'pre-multi-select route code is back: %r' % gone)
+    note('route hard filter: %d condition × THC × route-selection scenarios (%d selections incl. '
+         'Oral+Sublingual, Vaporised+Smoked, Oral+Topical, all six) — molecule set route-invariant, '
+         '0 products outside the selected routes, Any route unfiltered, 🚫 and route both enforced, '
+         'fit unchanged, Any rule holds; standard, express and demo journey all reach the route '
+         'screen' % (r['scenarios'], r['sets']))
 
 
 def main():
