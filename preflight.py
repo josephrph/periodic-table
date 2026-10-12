@@ -1876,6 +1876,130 @@ def check_legacy_fallback_scoping(src):
 
 
 # ── driver ─────────────────────────────────────────────────────────────────────
+ROUTE04_ENGINE_TEST = r'''
+var routes=['any','inhalation_vapor','inhalation_smoked','oral','sublingual','topical','transdermal'];
+var ceilings=['any','min','low','none'];var INTOX=['THC9','THC8','THCP'];
+var conds=CONDITIONS.map(function(c){return c.id;}).concat(Object.keys(G.guidedMol||{}));
+var r={scenarios:0,sciDiff:0,wrong:0,fallback:0,anyRouteExcl:0,anyDiff:0,thcLeak:0,both:0,fitDiff:0,pools:0};
+conds.forEach(function(c){ceilings.forEach(function(ce){
+  var base=JSON.stringify(G.recForConditions([c],ce,[]).molecules);
+  var noRoute=G.recForConditions([c],ce,[]);var plain=noRoute.molecules.length?G.match(noRoute):null;
+  var fit={};if(plain)plain.shown.forEach(function(s){fit[s.sku]=s.fit;});
+  routes.forEach(function(rt){
+    var rec=G.recForConditions([c],ce,[]);if(JSON.stringify(rec.molecules)!==base)r.sciDiff++;
+    if(!rec.molecules.length)return;r.scenarios++;
+    rec.routeTypes=ROUTE_MAP[rt];var res=G.match(rec),allowed=ROUTE_MAP[rt];
+    if(res.routeFallback)r.fallback++;
+    if(JSON.stringify(rec.molecules)!==base)r.sciDiff++;
+    res.shown.forEach(function(s){
+      var off=allowed.length&&allowed.indexOf(s.type)<0;if(off)r.wrong++;
+      var intox=INTOX.some(function(k){return (s.profile[k]||0)>0;});
+      if(ce==='none'&&intox)r.thcLeak++;if(ce==='none'&&(off||intox))r.both++;
+      if(fit[s.sku]!==s.fit)r.fitDiff++;});
+    if(!allowed.length){
+      r.anyRouteExcl+=res.excluded.filter(function(e){return e.reason==='off your preferred route';}).length;
+      if(JSON.stringify(res.shown)!==JSON.stringify(plain.shown))r.anyDiff++;}
+    else if(plain){var want=plain.shown.filter(function(s){return allowed.indexOf(s.type)>=0;}).map(function(s){return s.sku;}).join(',');
+      if(res.shown.map(function(s){return s.sku;}).join(',')!==want)r.pools++;}
+  });});});
+print(JSON.stringify(r));
+'''
+
+
+def check_route_hard_filter(src):
+    """ROUTE-04 (guard 34): route of administration is a PRODUCT-ELIGIBILITY input, never a
+    scientific one, and a specific route is a HARD filter. Owner decision 2026-10-12.
+
+    Before ROUTE-04, match() fell back to every route whenever nothing on the chosen route
+    survived ("never zero-out a kiosk result", ONB-11). Measured against the accepted build, that
+    put wrong-route products in the displayed top six in 561 of 1,883 scenarios. The owner chose
+    honest zero results instead, and asked for route as a standalone screen in Standard Guided
+    Match, the express path and the Complete Research Demonstration.
+
+    This is a BEHAVIOURAL guard: it runs the app's own matcher, CONDITIONS, M and ROUTE_MAP in
+    JavaScriptCore across every condition, every THC setting and every route, and asserts:
+      - route never changes the molecule set recForConditions() returns (science is upstream);
+      - no shown product belongs to another route, and routeFallback is never true;
+      - Any route excludes nothing for route reasons and returns exactly the unfiltered list;
+      - with 🚫, no THC9/THC8/THCP product and no wrong-route product — both hold at once;
+      - surviving products keep the fit they have with no route at all;
+      - a specific route returns exactly the on-route subset of the unfiltered list.
+    Plus exact-text checks on the navigation: standard, express and demo journey all reach
+    scRoute(); the in-demo standard flow still runs thc → timeofday → onset → route → second.
+    """
+    name = 'route hard filter'
+    try:
+        conds = js_literal(src, 'CONDITIONS = [', '[')
+        mols = js_literal(src, 'const M = {', '{')
+        rmap = js_literal(src, 'var ROUTE_MAP={', '{')
+        start = src.index('V4 GUIDED EXPERIENCE — production module')
+        start = src.index('(function(){', start)
+        end_marker = 'guidedMol:GUIDED_MOL};\n})();'
+        end = src.index(end_marker, start) + len(end_marker)
+    except ValueError:
+        fail(name, 'matcher module, CONDITIONS, M or ROUTE_MAP not found (zero-match tripwire)')
+        return
+    prog = '\n'.join([
+        'var window={V4DEMO:{key:function(n){return n;}}};',
+        'var localStorage={getItem:function(){return null;},setItem:function(){},removeItem:function(){}};',
+        'var M=%s;' % mols, 'var CONDITIONS=%s;' % conds, 'var ROUTE_MAP=%s;' % rmap,
+        src[start:end], 'var G=window.V4Guided;', ROUTE04_ENGINE_TEST])
+    tmp = os.path.join(HERE, '_preflight_route04.js')
+    with open(tmp, 'w', encoding='utf-8') as fh:
+        fh.write(prog)
+    try:
+        res = subprocess.run([JSC, tmp], capture_output=True, text=True, timeout=120)
+    finally:
+        os.remove(tmp)
+    try:
+        r = json.loads((res.stdout or '').strip().splitlines()[-1])
+    except (ValueError, IndexError):
+        fail(name, 'engine test did not run: ' + (res.stderr or res.stdout)[:300])
+        return
+    if r['scenarios'] < 1000:
+        fail(name, 'only %d route scenarios ran — expected well over 1,000' % r['scenarios'])
+    for key, msg in [
+            ('sciDiff', 'route changed the scientific molecule set'),
+            ('wrong', 'wrong-route products were shown for a specific route'),
+            ('fallback', 'routeFallback was true — the pre-ROUTE-04 fallback is back'),
+            ('anyRouteExcl', 'Any route excluded products for route reasons'),
+            ('anyDiff', 'Any route did not return the unfiltered list'),
+            ('thcLeak', '🚫 showed a THC9/THC8/THCP product'),
+            ('both', '🚫 + a specific route did not satisfy both filters at once'),
+            ('fitDiff', 'route changed a surviving product\'s fit value'),
+            ('pools', 'a specific route did not return exactly the on-route subset')]:
+        if r[key]:
+            fail(name, '%s (%d case(s))' % (msg, r[key]))
+
+    # navigation — exact handler text, not a pattern
+    nav = [
+        ("var FUNNEL_STD=['intent','refine','thc','route','second','safety','meds','rec'];",
+         'FUNNEL_STD must list route between thc and second'),
+        ("var FUNNEL_DEMO=['intent','refine','experience','thc','timeofday','onset','route','second','safety','meds','rec'];",
+         'FUNNEL_DEMO (in-demo standard flow) changed'),
+        ("if(st.dj)return go('route',scRoute);",
+         'demo journey THC must lead to the route screen'),
+        ("if(st.expressed)return go('route',scRoute);",
+         'express THC must lead to the route screen'),
+        ("if(demoMode())go('timeofday',scTimeOfDay);else go('route',scRoute);",
+         'standard THC → route, in-demo standard THC → timeofday'),
+        ("timeOfDay:function(v){st.timeOfDay=v;go('onset',scOnset);},",
+         'in-demo standard path: timeofday → onset'),
+        ("onset:function(v){st.onset=v;go('route',scRoute);},",
+         'in-demo standard path: onset → route'),
+        ("if(st.dj)return go('safety',scSafety);\n      if(st.expressed)return go('rec',scRec);\n      go('second',scSecond);},",
+         'route handler: demo → safety, express → results, otherwise → second'),
+    ]
+    for needle, msg in nav:
+        if needle not in src:
+            fail(name, msg)
+    if 'showing the closest alternatives' in src:
+        fail(name, 'the old route-fallback wording is back')
+    note('route hard filter: %d condition × THC × route scenarios — molecule set route-invariant, '
+         '0 wrong-route products, Any route unfiltered, 🚫 and route both enforced, fit unchanged; '
+         'standard, express and demo journey all reach the route screen' % r['scenarios'])
+
+
 def main():
     online = '--online' in sys.argv
     src = open(SRC, encoding='utf-8').read()
@@ -1914,6 +2038,7 @@ def main():
     check_gxwrap_flex(src)
     check_demo_ribbon_offset(src)
     check_reset_overlay_display(src)
+    check_route_hard_filter(src)
     check_evidence_attribution(data)
     check_backlog()
 

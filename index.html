@@ -12387,14 +12387,16 @@ document.addEventListener('keydown', function(e) {
       var reason=p.count<=0?'out of stock':(g===0?'THC above comfort level':(fit<CFG.FLOOR?'weak match':null));
       if(reason)excluded.push({name:p.name,reason:reason});
       else shown.push({sku:p.sku,name:p.name,brand:p.brand,stype:p.stype,type:p.type,price:p.price,count:p.count,icon:p.icon,fit:fit,label:label,profile:pr,fmt:(rec.format===p.type)?1:0});});
-    // ONB-11: soft route-of-administration preference. If routeTypes is set, keep only products in those
-    // forms — but if that leaves nothing in stock, fall back to all matches (never zero-out a kiosk result)
-    // and flag it so the UI can note "no <route> products; showing closest alternatives".
+    // ROUTE-04: a specific route is a HARD eligibility filter, like GX-06's THC exclusion — both must
+    // hold at once. ONB-11 used to fall back to every route when nothing on the chosen one survived
+    // ("never zero-out a kiosk result"); the owner reversed that on 2026-10-12. A wrong-route product
+    // must not appear because its composition scores well, and an empty shelf is the honest answer.
+    // Runs AFTER scoring and touches only `shown`, so fit values and the molecule set are unchanged.
+    // `routeFallback` stays in the return shape for callers but can no longer be true.
     var routeFallback=false;
     if(rec.routeTypes&&rec.routeTypes.length){
-      var onRoute=shown.filter(function(s){return rec.routeTypes.indexOf(s.type)>=0;});
-      if(onRoute.length){shown.filter(function(s){return rec.routeTypes.indexOf(s.type)<0;}).forEach(function(s){excluded.push({name:s.name,reason:'off your preferred route'});});shown=onRoute;}
-      else{routeFallback=true;}
+      shown.filter(function(s){return rec.routeTypes.indexOf(s.type)<0;}).forEach(function(s){excluded.push({name:s.name,reason:'off your preferred route'});});
+      shown=shown.filter(function(s){return rec.routeTypes.indexOf(s.type)>=0;});
     }
     shown.sort(function(a,b){return (b.fit-a.fit)||(b.fmt-a.fmt)||(b.count-a.count)||(a.price-b.price);});
     return {shown:shown,excluded:excluded,routeFallback:routeFallback};}
@@ -12580,7 +12582,9 @@ document.addEventListener('keydown', function(e) {
     // was"). They stay in the demo funnel, where they do real work.
     // Kept in both: 'thc' (sets the THC-effects preference) and 'second' (adds the
     // "you also mentioned" cross-link) — both verified to change the output.
-    var FUNNEL_STD=['intent','refine','thc','second','safety','meds','rec'];
+    // ROUTE-04: 'route' rejoins the standard flow. It still cannot change the molecules — it is captured
+    // as the product-eligibility input a future POS/inventory integration will need.
+    var FUNNEL_STD=['intent','refine','thc','route','second','safety','meds','rec'];
     var FUNNEL_DEMO=['intent','refine','experience','thc','timeofday','onset','route','second','safety','meds','rec'];
     function funnel(){return demoMode()?FUNNEL_DEMO:FUNNEL_STD;}
     var FUNNEL=FUNNEL_DEMO; // safety check now sits with the medications/drug-interaction step (educational checkpoint, not an entry gate); flow ends at the recommendation, then hands off to the Periodic Table (no faux products)
@@ -12839,7 +12843,7 @@ var ROUTE_MAP={
     optBtn("V4GX.onset('balanced')",'⚖️','A balance','Moderate onset &amp; duration',o==='balanced',true)+
     optBtn("V4GX.onset('lasting')",'⏳','Slow &amp; long-lasting','Hours of relief (edible / capsule / tablet / patch)',o==='lasting',true));}
   function scRoute(){var r=st.route||'any';
-    stage((st.dj?djStepBar(2):'')+'<h2 class="gx-q">Any preferred way to take it?</h2><p class="gx-hint">This helps match the right product formats. Pick one &mdash; or keep all options open. <b>Smoked and vaporised are listed separately because they are different exposures, not different words for the same thing.</b> The same flower can be either, so this asks how you would use it rather than assuming from the product.</p>'+
+    stage((st.dj?djStepBar(2):'')+'<h2 class="gx-q">Any preferred way to take it?</h2><p class="gx-hint">This helps match the right product formats. Pick one &mdash; or keep all options open. It does not change which molecules research links to your health topic. <b>Smoked and vaporised are listed separately because they are different exposures, not different words for the same thing.</b> The same flower can be either, so this asks how you would use it rather than assuming from the product.</p>'+
     optBtn("V4GX.route('any')",'🌀','Any route','Show me everything',r==='any',true)+
     optBtn("V4GX.route('inhalation_vapor')",'💨','Inhalation &mdash; vaporised','Vape, vaporised flower, concentrate',r==='inhalation_vapor'||r==='inhalation',true)+
     optBtn("V4GX.route('inhalation_smoked')",'🔥','Inhalation &mdash; smoked','Flower or pre-roll, lit',r==='inhalation_smoked',true)+
@@ -13077,7 +13081,7 @@ var ROUTE_MAP={
     if(st.ceiling==='none')guide.push('You asked The Table to minimise THC-related psychoactive effects: &Delta;9-THC is left out of the molecule list, and THC-dominant products are strongly limited in the product match.');
     else if(st.ceiling==='low')guide.push('You are comfortable with some THC effects: &Delta;9-THC stays eligible where the science supports it, and lower-THC products are ranked more favourably in the product match.');
     else if(st.ceiling==='any')guide.push('THC effects are not a deciding factor for you: &Delta;9-THC stays eligible where the science supports it, and the product match is not adjusted for THC content.');
-    if(st.route&&st.route!=='any'&&ROUTE_META[st.route])guide.push('You preferred '+ROUTE_META[st.route].label.toLowerCase()+' ('+ROUTE_META[st.route].forms+'); the dispensary inventory match prioritizes these formats.');
+    if(st.route&&st.route!=='any'&&ROUTE_META[st.route])guide.push('You preferred '+ROUTE_META[st.route].label.toLowerCase()+' ('+ROUTE_META[st.route].forms+'); the dispensary inventory match is limited to these formats.');
     // ONB-13: compact medication-interaction summary on the recommendation (only if meds were added).
     var medSummary='';
     if((st.meds||[]).length){var mIds=st.meds.map(function(m){return m.id;});
@@ -13567,12 +13571,14 @@ var ROUTE_MAP={
     var res=G().match(active);var n=res.shown.length;
     var none=!active.molecules.length;
     var keepNote=st.djKeepOne?'<div class="gx-hint" style="margin-top:6px">Keep at least one molecule selected to continue matching products.</div>':'';
-    var rfNote=res.routeFallback?'<div class="gx-hint" style="margin-top:6px">No '+ROUTE_META[curRoute].label.toLowerCase()+' products are in stock — showing the closest alternatives.</div>':'';
+    // ROUTE-04: the route filter is hard, so there is no "closest alternatives" fallback to announce.
+    // When the chosen route is what leaves the shelf empty, say so and point at the controls below.
+    var rfNote=(!none&&n===0&&curRoute!=='any')?'<div class="gx-hint" style="margin-top:6px">No demo products currently available match your selected route ('+ROUTE_META[curRoute].ic+' '+ROUTE_META[curRoute].label+') and your other preferences. Choose another route below, or 🌀 Any route.</div>':'';
     stage(djStepBar(4)+'<h2 class="gx-q">Refine Your Product Match</h2>'+
       '<p class="gx-hint">These research-linked molecules can be compared with the available product information. Tap any you don\'t want included to leave it out — tap again to put it back.</p>'+
       '<div class="gx-refine"><div class="gx-chips">'+toggles+'</div>'+
       (catBtns?'<div class="gx-catrow">Remove a category: '+catBtns+'</div>':'')+
-      '<div class="gx-catrow">Preferred route: '+routeBtns+'</div>'+
+      '<div class="gx-catrow">Preferred route (chosen earlier — tap to change): '+routeBtns+'</div>'+
       // GX-08: an empty molecule set can no longer be reached by tapping (the last removal is
       // refused), but back-navigation can still shift the recommended set entirely into molecules
       // excluded earlier. Say so and withhold the query rather than matching against nothing.
@@ -13594,9 +13600,13 @@ var ROUTE_MAP={
   }
   function scDJProducts(){var rec=djActiveRec();var res=G().match(rec);var top=res.shown.slice(0,6);var recIds=rec.molecules.map(function(m){return m.molId;});var html;
     if(!top.length){
+    // ROUTE-04: a specific route is a hard filter, so when one is chosen it must be named as part of
+    // the reason — the GX-06 wording alone would blame THC or the shelf. Any route keeps GX-06 as-is.
+    var _rt=st.route||'any',_rm=(_rt!=='any'&&ROUTE_META[_rt])?ROUTE_META[_rt]:null;
+    if(_rm)html='<div class="gx-empty"><div style="font-size:2rem">🤝</div><b>No in-stock demo products match your selected route ('+_rm.ic+' '+_rm.label+')'+(rec.thcCeiling==='none'?', THC preference,':'')+' and other selected preferences.</b><br>You can change the route — or choose 🌀 Any route — on the refine step.</div>';
     // GX-06: when the empty shelf is the RESULT of the customer's THC preference, say so plainly.
     // "restock" would be wrong advice and nudging them to accept THC would be worse.
-    html=(rec.thcCeiling==='none')
+    else html=(rec.thcCeiling==='none')
       ? '<div class="gx-empty"><div style="font-size:2rem">🤝</div><b>No in-stock demo products match your current THC preference and selected health topic.</b><br>You can refine your preferences or return to the previous step.</div>'
       : '<div class="gx-empty"><div style="font-size:2rem">🤝</div><b>Nothing in stock is a strong match.</b><br>Adjust the refine step or restock.</div>';}
     else{html='<p class="gx-summary">In-stock products remaining after your preferences and molecule filters, ranked by how closely their reported composition matches. Educational comparison only — not a medical recommendation.</p>'+top.map(function(p){
@@ -13829,7 +13839,11 @@ if(typeof PT_individualResponse==='function')body+=PT_individualResponse();   //
     djSkipPrefs:function(){go('djMeds',scDJMeds);},
     timeOfDay:function(v){st.timeOfDay=v;go('onset',scOnset);},
     onset:function(v){st.onset=v;go('route',scRoute);},
-    route:function(v){st.route=v;go('second',scSecond);},
+    route:function(v){st.route=v;
+      // ROUTE-04: one route state, three onward paths — demo journey, express, everything else.
+      if(st.dj)return go('safety',scSafety);
+      if(st.expressed)return go('rec',scRec);
+      go('second',scSecond);},
     djSetRoute:function(v){st.route=v;scDJRefine();},
     intent:function(k){st.intent=k;st.refineKey=null;st.seconds=[];st.directCond=null;
       if(REASONS[k].learn){this.close();try{if(typeof showWelcome==='function')showWelcome();}catch(e){}return;}
@@ -13874,11 +13888,14 @@ if(typeof PT_individualResponse==='function')body+=PT_individualResponse();   //
     thc:function(v){st.ceiling=v;
       // UX-125: inside the demo JOURNEY the safety check is the next shared screen; timeofday/onset/
       // route belong to the standard flow shown from the demo hub, and djRefine already asks route.
-      if(st.dj)return go('safety',scSafety);
-      // GX-01: on the express path the THC answer is the last thing asked — straight to results.
-      if(st.expressed)return go('rec',scRec);
-      // UX-79: timeofday/onset/route only inform product matching, so only Demo Mode asks them.
-      if(demoMode())go('timeofday',scTimeOfDay);else go('second',scSecond);},
+      // ROUTE-04: the demo journey now asks route inside its Preferences stage (THC → route → safety).
+      if(st.dj)return go('route',scRoute);
+      // GX-01 + ROUTE-04: the express path asks THC, then route, then shows results. Route cannot
+      // change the molecules, but it is the product-eligibility input a POS integration will need.
+      if(st.expressed)return go('route',scRoute);
+      // UX-79: timeofday/onset only inform product matching, so only Demo Mode asks them; the demo's
+      // standard flow still reaches route through onset. ROUTE-04: the standard flow asks route here.
+      if(demoMode())go('timeofday',scTimeOfDay);else go('route',scRoute);},
     second:function(k,btn){st.seconds=st.seconds||[];var i=st.seconds.indexOf(k);if(i>=0){st.seconds.splice(i,1);btn.classList.remove('sel');}else{st.seconds.push(k);btn.classList.add('sel');}},
     toRec:function(){
       // GX-03: the only exit from the medications screen — “See the research” and “Skip — I take no
