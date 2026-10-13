@@ -1,11 +1,158 @@
 # Acannability’s Cannabis Periodic Table of Molecules · Project Handoff  _(internal build: V2)_
-_Last updated: **2026-10-11** · **Protected baseline: commit `4d0d9aa`, sha256 `d2a41bdcae701e82`** (HEAD == origin/main, live byte-identical). Previous protected baseline: `a518790` / `5bf1c70f63098016` (on disk: `index_BACKUP_20261010_pre_GX01.html`). Earlier references: `6baf906` / `5cf72d6e2c66b1fe`, `59ef593` / `5ee1e392b2360494`, `e3298d3` / `1b6f1f86b486dcbb`, `135d300` / `96f38d244268b63a`._
-_Build: 2.2 MB · 64 molecules · **65 health conditions** / 10 groups · 3 cross-listed · **839 NCBI-verified PMIDs** · **289 drug records · 104 drug–drug pairs** · **42 faux Demo products** · backlog 278 rows · preflight: **33 guards**, all passing `--online`_
+_Last updated: **2026-10-13** · **Protected baseline: commit `af8a334`, sha256 `5bbec607a59bbbf3`** (ROUTE-04; live byte-identical to `main`). Previous protected baseline: `4d0d9aa` / `d2a41bdcae701e82` (on disk: `index_BACKUP_20261012_pre_ROUTE04.html`). Earlier references: `a518790` / `5bf1c70f63098016`, `6baf906` / `5cf72d6e2c66b1fe`, `59ef593` / `5ee1e392b2360494`, `e3298d3` / `1b6f1f86b486dcbb`, `135d300` / `96f38d244268b63a`._
+_Build: 2.2 MB · 64 molecules · **65 health conditions** / 10 groups · 3 cross-listed · **839 NCBI-verified PMIDs** · **289 drug records · 104 drug–drug pairs** · **42 faux Demo products** · backlog 280 rows · preflight: **34 guards**, all passing `--online`_
 _**MODERN CROSS-PLATFORM QA ROUND 1 COMPLETE. IOS-07 passed physical-device acceptance on 2026-10-06 across iPhone 16 (iOS 26.6.1), the legacy iPad mini 2 (iOS 12.4.2) and an iMac. Commit `e3298d3` / build `1b6f1f86b486dcbb` is the new protected application baseline. IOS-01 through IOS-05 and IOS-07 are CLOSED; IOS-04b and IOS-06 remain recorded as FAILED AND REVERTED. Guards 31 and 32 both protect shipped code. **D2 is CLOSED on physical-device acceptance (2026-10-06); D1 remains OPEN/DEFERRED pending a current Windows Chrome/Edge physical test; U1 and U2 are observations only. **GX-01 + GX-02 (Guided Match) are deployed PROVISIONALLY as `11f687a` / `f12dfc9a1777f36c` and await physical acceptance; the protected baseline remains `a518790` / `5bf1c70f63098016`.** RESET-01 passed physical acceptance 2026-10-07 across iPhone 16, legacy iPad mini 2, an El Capitan iMac and a newer iMac — `59ef593` / `5ee1e392b2360494` is the new protected baseline.** D2 is CLOSED; D1 remains OPEN/DEFERRED pending a current Windows Chrome/Edge physical test; U1/U2 are observations only. A residual Entourage intermittency survives RESET-01 and is recorded as an observation with NO root cause — refresh first.**_
 
 _**GUIDED MATCH / DEMO ROUND COMPLETE AND ACCEPTED 2026-10-11 across iPhone 16 and iMac Tahoe.** GX-06, the five non-intoxicating faux products, NAME-01, GX-07, GX-08, the continuous 7-stage Demo indicator and COPY-01 all passed physical acceptance. **`4d0d9aa` / `d2a41bdcae701e82` is the new protected application baseline, replacing `a518790` / `5bf1c70f63098016`.** **F — the dormant standard-customer product pathway — is a future POS-integration architecture item and MUST NOT be deleted or refactored.** An intermittent iPhone 16 scroll/tap behaviour is an OBSERVATION ONLY, not a defect; it did not prevent acceptance and no speculative mobile change was made._
 
+_**ROUTE-04 CLOSED AND ACCEPTED 2026-10-13 across iPhone 16, a current iMac and the legacy iPad mini 2.** Route of administration is a multi-select, hard product-eligibility filter asked in Standard Guided Match, the express path and the Complete Research Demonstration; it never changes molecule science. **`af8a334` / `5bbec607a59bbbf3` is the new protected application baseline, replacing `4d0d9aa` / `d2a41bdcae701e82`.** A separate iPhone print issue (PRINT-01) is OPEN and under investigation; it is not a ROUTE-04 defect._
+
 _**Pre-release audit COMPLETE: waves 2–6 ALL SHIPPED. Wave 1 (the release blocker) needs the owner. Drug tranches A–E ALL SHIPPED; severity-sort bug FIXED; the CYP2D6 sweep is COMPLETE across all 21 records; prostate evidence recalibrated; three Men's Health topics added; a V2-wide count guard now blocks stale numbers; Demo Mode and Guided Match are ALIGNED and share one data source, guarded. Tranche E is now COMPLETE and the four discovered gaps are closed (DRUG-24); the CBD→Δ⁹-THC exposure finding is in the build; `hasRisk` is enforced rather than dead.**_
+
+---
+
+## 00000000000000. ROUTE-04 — ROUTE OF ADMINISTRATION: MULTI-SELECT, HARD PRODUCT FILTER — **CLOSED AND ACCEPTED**
+
+**Owner-accepted 2026-10-13 on iPhone 16, a current iMac and the legacy iPad mini 2 (iOS 12.4.2 /
+Safari 12.1.2). Commit `af8a334`, build `5bbec607a59bbbf3` is the protected application baseline.**
+Rollback: `4d0d9aa` / `d2a41bdcae701e82` (`index_BACKUP_20261012_pre_ROUTE04.html`).
+
+| Step | Commit | Build | On disk (pre-change) |
+|---|---|---|---|
+| Single-route hard filter + route screen in every path | `d2f68dc` | `6d24625a8328af8d` | `index_BACKUP_20261012_pre_ROUTE04.html` (`d2a41bdcae701e82`) |
+| Multi-select routes (OR) | **`af8a334`** | **`5bbec607a59bbbf3`** | `index_BACKUP_20261012_pre_ROUTE04_multi.html` (`6d24625a8328af8d`) |
+
+`preflight.py` backups: `preflight_BACKUP_20261012_pre_ROUTE04.py`, `preflight_BACKUP_20261012_pre_ROUTE04_multi.py`.
+
+**Naming.** The owner requested this as "ROUTE-03", but ROUTE-03 already exists (`0f6b055`, the
+route-fingerprint guard and the route-record editing procedure). It is **ROUTE-04**. Do not reuse
+ROUTE-03.
+
+### The principle — carry this forward
+
+> V2 first identifies research-linked cannabis molecules using curated, evidence-informed
+> condition-to-molecule mappings. The customer then selects one or more administration routes they
+> are willing to consider. Those route choices do not change the molecule set, molecule weights,
+> A/B/C/D evidence grades, or Primary/Supporting tiers; they only restrict subsequent product
+> matching to inventory compatible with at least one selected route. Selecting "Any route" applies
+> no route restriction. In the current version, product matching is demonstrated only in Demo Mode
+> using simulated inventory. Standard Guided Match records route preferences for future dispensary
+> inventory/POS integration but does not currently match products.
+
+Scientific evidence decides the molecules. Customer preferences such as route decide which products
+are eligible. A dispensary may tell V2 what is in stock; it must never be able to change the
+molecule selection so that its products match. Route therefore sits **downstream** of
+`recForConditions()` and never reaches it.
+
+### What ROUTE-04 does
+
+- **Hard filter.** In `match()` a route selection removes every product whose type is outside the
+  selected routes, even when that leaves zero. The ONB-11 fallback ("never zero-out a kiosk
+  result"), which restored every route when nothing on the chosen one survived, is **removed** —
+  measured against `4d0d9aa` it put wrong-route products in the displayed top six in **561 of 1,883**
+  scenarios. The filter runs after scoring, so fit values are unchanged. `routeFallback` stays in
+  the return shape and can no longer be true. 🚫 THC (GX-06) and route are both enforced at once.
+- **Multi-select, OR.** `st.routes` is the one authoritative state; `[]` means 🌀 Any route, so there
+  is no undefined/no-route state. Any is mutually exclusive: choosing it clears the specific routes,
+  choosing a specific route clears Any, removing the last specific route returns to Any. A product is
+  eligible if its type belongs to **at least one** selected route; every unselected route stays
+  excluded. `ROUTE_MAP` and `match()` are unchanged — `activeRec()`/`djActiveRec()` pass
+  `routeTypesFor(selRoutes())`, the union of the selected routes' product types.
+- **The route screen** — "Which ways would you consider taking cannabis? Select all that apply." —
+  toggles in place (`syncRouteBtns()`, because `stage()` scrolls to the top) and advances only on
+  **Continue →** (`routeNext()`):
+
+  | Path | Order |
+  |---|---|
+  | Standard Guided Match | intent → refine → THC → **route** → second → safety → meds → results (`FUNNEL_STD`, "Step 4 of 8") |
+  | Express | THC → **route** → results |
+  | Complete Research Demonstration | … experience → THC → **route** → safety … inside the existing **Preferences** stage — still **7 stages** |
+  | Standard Guided Match launched from Demo Mode | **unchanged** (UX-79): … THC → time of day → onset → **route** → second … |
+
+  Experience, time of day and onset remain **excluded** from Standard Guided Match.
+- **Refine Your Product Match** keeps its route row as an editable view of the same `st.routes`
+  ("Preferred routes (chosen earlier — tap to add or remove)"). Two views, one state.
+- **Honest zero results**, with owner-approved singular/plural copy on Refine and Products, e.g.
+  "No in-stock demo products match your selected routes (💊 Oral, 💧 Sublingual), THC preference, and
+  other selected preferences. You can change the routes — or choose 🌀 Any route — on the refine
+  step." The GX-06 copy is kept unchanged for Any route.
+- **Results and print.** Research detail lists every selected route or "🌀 Any route"; the printed
+  report says "Route — Oral, Sublingual" or "Route — Any route". On the plain-language results screen
+  route is not shown — existing behaviour, deliberately left as it was.
+- **Standard Guided Match still never calls `match()`** and stays off the faux inventory.
+- **The dormant POS pathway** (`V4GX.toProducts`, `scPosQuery`, `scProducts`, `scHandoff`) is
+  byte-identical; because it calls `match()`, it inherits the hard filter. That is intended.
+
+### Owner decisions recorded
+
+- Zero-result combinations are **accepted**. **Do not add faux products** (THC-free vape/flower, a
+  patch, anything) to avoid them. With 🚫, both inhalation routes return zero for every Demo
+  condition, and Transdermal is always zero — the Demo shelf has no patch.
+- **Tincture is a dosage form, not a route**, and is not a route choice. Demo tinctures stay mapped
+  to Sublingual. The approved hint is: "If you would consider both oral and sublingual products,
+  select both 💊 Oral and 💧 Sublingual." — it explains the interface without asserting how any
+  individual product is labelled.
+- **Future POS (documented, not built).** Each real product should carry its permitted administration
+  routes from authoritative product information, e.g. `adminRoutes:['oral','sublingual']`. It
+  qualifies when `adminRoutes` contains at least one selected route; a product with missing/unknown
+  route information qualifies **only under Any route**. Never infer route from cannabinoid content.
+  **Do not name it `routes`** — in `DI_DATA` that key means exposure-level interaction mechanisms
+  (ROUTE-01) and is pinned by the ROUTE-03 fingerprint guard. The design is also written as a code
+  comment beside `ROUTE_MAP`.
+- Today, compatibility is decided from the simulated product's **form** via `ROUTE_MAP`, not from
+  any manufacturer label.
+
+### Testing — keep this distinction exact
+
+- **Guard 34 (`check_route_hard_filter`) — permanent, re-runs on every build.** Behavioural: it runs
+  the app's own matcher, `CONDITIONS`, `M`, `ROUTE_MAP`, `ROUTE_KEYS`, `toggleRoute()` and
+  `routeTypesFor()` in JavaScriptCore across **2,959 condition × THC-setting × route-selection
+  combinations** (Any, each single route, Oral+Sublingual, Vaporised+Smoked, Oral+Topical, all six).
+  It asserts route never changes the molecule set; no product outside the selected routes; no
+  fallback; Any is exactly the unfiltered list; 🚫 and route hold together; fit unchanged; the union
+  is exact; the Any rule holds. Plus exact-text navigation checks for every path, Continue, and the
+  shared Refine state. **Mutation-tested**: it fails when the fallback is restored, when only the
+  first selected route is used, when the Any rule is broken, and when Continue is removed.
+- **Development navigation testing — NOT a permanent test.** During development, an additional
+  **116 click-by-click navigation checks** (39 standard-mode, 77 Demo-mode) were run across Standard
+  Guided Match, Express, the Complete Research Demonstration, Standard Guided Match launched from
+  Demo Mode, and Express inside Demo Mode, using a development test harness against a stub DOM.
+  **They are not stored in the repository and do not re-run on every build.** Whether to make that
+  harness a permanent regression script is a separate, later decision.
+- Protected regions were compared by exact function boundary against `4d0d9aa`: `CONDITIONS`, `M`,
+  `DI_DATA`, `DDI_DATA`, `ADVERSE_FINDINGS`, `recForConditions()`, `GUIDED_MOL`, `CFG`, the GX-06
+  block, `ROUTE_MAP`, `ROUTE_META`, `DJ_STEPS`, `FUNNEL_DEMO`, the dormant pathway, `scSafety`,
+  `scMeds`, `scDJMeds`, `scDJPos`, `scDJDone`, `resetToEntryGate()` and more — **all identical**.
+  `activeRec()`/`djActiveRec()` (GX-08) differ only in the `routeTypes` line.
+
+### Physical acceptance — 2026-10-13
+
+| Device | Result |
+|---|---|
+| iPhone 16 · Safari | **PASS** — standard, express, demo journey, in-demo standard, reset, layout |
+| Current iMac · Safari | **PASS** |
+| iPad mini 2 · iOS 12.4.2 · Safari 12.1.2 | **PASS** — legacy layout, in-place toggles, Continue, empty states |
+
+Modern Windows remains D1. The optional Print check exposed a **separate** iPhone issue — PRINT-01,
+not a ROUTE-04 failure.
+
+### Do not do this
+
+- Do not restore a route fallback, or "soften" route into a ranking preference.
+- Do not add faux inventory to remove an honest zero.
+- Do not pass route into `recForConditions()` or let it touch weights, grades or tiers.
+- Do not add Tincture as a route, or reclassify dosage forms, without a separate decision.
+- Do not create a second route state; the route screen and Refine share `st.routes`.
+- Do not convert the Demo into an 8-stage journey — route lives inside Preferences.
+
+### Correction to the GX round record (the 7-stage indicator note)
+
+The GX round says four Preferences screens — `scTimeOfDay`, `scOnset`, `scRoute`, `scSecond` —
+"rendered no stage bar" in the Demo and were fixed. A static trace during ROUTE-04 analysis found
+that **none of those four was reachable with `st.dj` set** at the time: the demo journey went
+THC → safety. Their `(st.dj?djStepBar(2):'')` prefixes were therefore dead code. ROUTE-04 made
+`scRoute` reachable in the demo journey, where it now shows stage 3 of 7 correctly. `scTimeOfDay`,
+`scOnset` and `scSecond` remain unreachable with `st.dj` set. Static analysis, not device-verified.
 
 ---
 
@@ -415,6 +562,11 @@ CLOSED AND ACCEPTED.**
 - **F — future POS / inventory integration architecture.** See below. The dormant standard-customer
   product pathway **must remain preserved and untouched** until real POS/inventory integration is
   addressed.
+- **PRINT-01 — iPhone Safari print (found 2026-10-13, during ROUTE-04 acceptance).** Tapping Print on
+  the Guided Match results showed Safari's "This website has been blocked from automatically printing"
+  prompt; after ALLOW, a second print showed a black preview and printed a blank page. The results
+  themselves were correct. **Separate from ROUTE-04.** Read-only investigation in progress; no fix
+  approved.
 
 ### Observations only — NOT current defects
 
@@ -439,6 +591,8 @@ CLOSED AND ACCEPTED.**
 - `showEntourage()` sets `body{overflow:hidden}` before it knows it can render.
 - `scDJRefine` calls `rec.molecules.slice(0,6)` but `recForConditions()` already caps at 4, so at
   most 4 toggles ever render. Harmless; the `6` is misleading to a future reader.
+- `Project_Backlog.xlsx` Dashboard: its `COUNTIF` ranges stop at `Backlog!$H$200`, but the sheet now
+  holds 280 rows, so the newest items are not counted. Pre-existing; not changed (noted 2026-10-13).
 
 ---
 
