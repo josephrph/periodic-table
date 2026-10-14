@@ -2039,6 +2039,46 @@ def check_route_hard_filter(src):
          'screen' % (r['scenarios'], r['sets']))
 
 
+def check_print_reset(src):
+    """PRINT-01 (guard 35): a printed report must reach the printer, and must not outlive the session.
+
+    PT_doPrint() writes the report into #printRoot and calls window.print(). It used to EMPTY
+    #printRoot on afterprint. On iOS Safari print() returns immediately and the print sheet renders its
+    pages afterwards, so an early afterprint emptied the report first: the owner saw a black preview
+    and printed a blank page on an iPhone 16 (2026-10-13; the timing is the likely cause, not
+    instrumented). The report is now cleared by resetToEntryGate() instead — the one funnel for New
+    Session, I'm Done and the inactivity expiry — because it can carry the previous customer's
+    condition and medications.
+
+    Asserts, by exact text inside the real function bodies:
+      - PT_doPrint() OVERWRITES #printRoot with the new report (=, never +=) and never empties it;
+      - no afterprint handler anywhere empties #printRoot;
+      - resetToEntryGate() empties #printRoot.
+    """
+    name = 'print reset'
+    try:
+        dp = js_literal(src, 'function PT_doPrint(', '{')
+        rs = js_literal(src, 'function resetToEntryGate(', '{')
+    except ValueError:
+        fail(name, 'PT_doPrint() or resetToEntryGate() not found (zero-match tripwire)')
+        return
+    if "root.innerHTML=PT_shell(titleText, ctxLine, bodyHtml, opts);" not in dp:
+        fail(name, 'PT_doPrint() no longer overwrites #printRoot with the new report')
+    if "root.innerHTML+=" in dp.replace(' ', ''):
+        fail(name, 'PT_doPrint() appends to #printRoot — consecutive reports would accumulate')
+    if re.search(r"root\.innerHTML\s*=\s*''", dp):
+        fail(name, 'PT_doPrint() empties #printRoot again — on iOS that can blank the printed page')
+    for m in re.finditer(r"addEventListener\(\s*'afterprint'", src):
+        if 'printRoot' in src[m.start():m.start() + 400] or "innerHTML=''" in src[m.start() - 300:m.start()].replace(' ', ''):
+            fail(name, 'an afterprint handler empties report content — PRINT-01 regression')
+            break
+    if "var _pr = document.getElementById('printRoot'); if (_pr) _pr.innerHTML = '';" not in rs:
+        fail(name, 'resetToEntryGate() no longer empties #printRoot — the previous customer\'s '
+                   'printed report (which may list medications) would survive into the next session')
+    note('print reset: PT_doPrint overwrites #printRoot and never clears it on afterprint; '
+         'resetToEntryGate() empties it')
+
+
 def main():
     online = '--online' in sys.argv
     src = open(SRC, encoding='utf-8').read()
@@ -2078,6 +2118,7 @@ def main():
     check_demo_ribbon_offset(src)
     check_reset_overlay_display(src)
     check_route_hard_filter(src)
+    check_print_reset(src)
     check_evidence_attribution(data)
     check_backlog()
 

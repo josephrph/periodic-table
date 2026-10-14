@@ -9683,8 +9683,14 @@ function PT_doPrint(titleText, ctxLine, bodyHtml, opts){
   // activity and restart the idle timer both when the dialog opens and when it closes, so the kiosk session
   // does not silently time out while the user prints or reads the printout.
   try{ if(typeof resetInactivityTimer==='function') resetInactivityTimer(); }catch(e){}
+  // PRINT-01: each print OVERWRITES #printRoot (never appends). The report is no longer emptied on
+  // afterprint: on iOS Safari print() returns at once and the print sheet renders its pages later, so
+  // an afterprint that fires early emptied the report first — black preview, blank page (likely cause;
+  // not instrumented). It is cleared instead by resetToEntryGate(), so a report that may carry the
+  // previous customer's medications never survives into the next session. afterprint only restarts
+  // the idle timer now.
   root.innerHTML=PT_shell(titleText, ctxLine, bodyHtml, opts);
-  var cleanup=function(){root.innerHTML='';window.removeEventListener('afterprint',cleanup);try{ if(typeof resetInactivityTimer==='function') resetInactivityTimer(); }catch(e){}};
+  var cleanup=function(){window.removeEventListener('afterprint',cleanup);try{ if(typeof resetInactivityTimer==='function') resetInactivityTimer(); }catch(e){}};
   window.addEventListener('afterprint',cleanup);
   window.print();
 }
@@ -10379,6 +10385,9 @@ function resetToEntryGate() {
     var _rdInfo = document.getElementById('rdInfoOv');
     if (_rdInfo) _rdInfo.style.display = 'none';
   } catch(e) {}
+  // PRINT-01: empty the last printed report. It may hold the previous customer's condition and
+  // medications, and afterprint no longer clears it (see PT_doPrint).
+  try { var _pr = document.getElementById('printRoot'); if (_pr) _pr.innerHTML = ''; } catch(e) {}
   // Clear the in-progress feedback DRAFT + sign staff out (stored suggestions are KEPT for review)
   try { if (window.Feedback) Feedback.clearDraft(); } catch(e) {}
   // UX-110: the session-scoped demonstration review queue dies with the session. This is the one
