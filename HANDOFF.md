@@ -1,13 +1,81 @@
 # Acannability’s Cannabis Periodic Table of Molecules · Project Handoff  _(internal build: V2)_
-_Last updated: **2026-10-13** · **Protected baseline: commit `af8a334`, sha256 `5bbec607a59bbbf3`** (ROUTE-04; live byte-identical to `main`). Previous protected baseline: `4d0d9aa` / `d2a41bdcae701e82` (on disk: `index_BACKUP_20261012_pre_ROUTE04.html`). Earlier references: `a518790` / `5bf1c70f63098016`, `6baf906` / `5cf72d6e2c66b1fe`, `59ef593` / `5ee1e392b2360494`, `e3298d3` / `1b6f1f86b486dcbb`, `135d300` / `96f38d244268b63a`._
-_Build: 2.2 MB · 64 molecules · **65 health conditions** / 10 groups · 3 cross-listed · **839 NCBI-verified PMIDs** · **289 drug records · 104 drug–drug pairs** · **42 faux Demo products** · backlog 280 rows · preflight: **34 guards**, all passing `--online`_
+_Last updated: **2026-10-14** · **Protected baseline: commit `7d2ee24`, sha256 `d4693daa1dbd268a`** (PRINT-01; live byte-identical to `main`). Previous protected baseline: `af8a334` / `5bbec607a59bbbf3` (ROUTE-04; on disk: `index_BACKUP_20261014_pre_PRINT01.html`). Earlier references: `4d0d9aa` / `d2a41bdcae701e82`, `a518790` / `5bf1c70f63098016`, `6baf906` / `5cf72d6e2c66b1fe`, `59ef593` / `5ee1e392b2360494`, `e3298d3` / `1b6f1f86b486dcbb`, `135d300` / `96f38d244268b63a`._
+_Build: 2.2 MB · 64 molecules · **65 health conditions** / 10 groups · 3 cross-listed · **839 NCBI-verified PMIDs** · **289 drug records · 104 drug–drug pairs** · **42 faux Demo products** · backlog 280 rows · preflight: **35 guards**, all passing `--online`_
 _**MODERN CROSS-PLATFORM QA ROUND 1 COMPLETE. IOS-07 passed physical-device acceptance on 2026-10-06 across iPhone 16 (iOS 26.6.1), the legacy iPad mini 2 (iOS 12.4.2) and an iMac. Commit `e3298d3` / build `1b6f1f86b486dcbb` is the new protected application baseline. IOS-01 through IOS-05 and IOS-07 are CLOSED; IOS-04b and IOS-06 remain recorded as FAILED AND REVERTED. Guards 31 and 32 both protect shipped code. **D2 is CLOSED on physical-device acceptance (2026-10-06); D1 remains OPEN/DEFERRED pending a current Windows Chrome/Edge physical test; U1 and U2 are observations only. **GX-01 + GX-02 (Guided Match) are deployed PROVISIONALLY as `11f687a` / `f12dfc9a1777f36c` and await physical acceptance; the protected baseline remains `a518790` / `5bf1c70f63098016`.** RESET-01 passed physical acceptance 2026-10-07 across iPhone 16, legacy iPad mini 2, an El Capitan iMac and a newer iMac — `59ef593` / `5ee1e392b2360494` is the new protected baseline.** D2 is CLOSED; D1 remains OPEN/DEFERRED pending a current Windows Chrome/Edge physical test; U1/U2 are observations only. A residual Entourage intermittency survives RESET-01 and is recorded as an observation with NO root cause — refresh first.**_
 
 _**GUIDED MATCH / DEMO ROUND COMPLETE AND ACCEPTED 2026-10-11 across iPhone 16 and iMac Tahoe.** GX-06, the five non-intoxicating faux products, NAME-01, GX-07, GX-08, the continuous 7-stage Demo indicator and COPY-01 all passed physical acceptance. **`4d0d9aa` / `d2a41bdcae701e82` is the new protected application baseline, replacing `a518790` / `5bf1c70f63098016`.** **F — the dormant standard-customer product pathway — is a future POS-integration architecture item and MUST NOT be deleted or refactored.** An intermittent iPhone 16 scroll/tap behaviour is an OBSERVATION ONLY, not a defect; it did not prevent acceptance and no speculative mobile change was made._
 
-_**ROUTE-04 CLOSED AND ACCEPTED 2026-10-13 across iPhone 16, a current iMac and the legacy iPad mini 2.** Route of administration is a multi-select, hard product-eligibility filter asked in Standard Guided Match, the express path and the Complete Research Demonstration; it never changes molecule science. **`af8a334` / `5bbec607a59bbbf3` is the new protected application baseline, replacing `4d0d9aa` / `d2a41bdcae701e82`.** A separate iPhone print issue (PRINT-01) is OPEN and under investigation; it is not a ROUTE-04 defect._
+_**ROUTE-04 CLOSED AND ACCEPTED 2026-10-13 across iPhone 16, a current iMac and the legacy iPad mini 2.** Route of administration is a multi-select, hard product-eligibility filter asked in Standard Guided Match, the express path and the Complete Research Demonstration; it never changes molecule science. **`af8a334` / `5bbec607a59bbbf3` is the new protected application baseline, replacing `4d0d9aa` / `d2a41bdcae701e82`.** A separate iPhone print issue (PRINT-01) was found during ROUTE-04 acceptance; it was not a ROUTE-04 defect._
+
+_**PRINT-01 CLOSED AND ACCEPTED 2026-10-14 across iPhone 16, the legacy iPad mini 2 and a current iMac.** Printed reports no longer come out blank on iOS; the report is cleared on session reset instead of on `afterprint`. **`7d2ee24` / `d4693daa1dbd268a` is the new protected application baseline, replacing `af8a334` / `5bbec607a59bbbf3`.**_
 
 _**Pre-release audit COMPLETE: waves 2–6 ALL SHIPPED. Wave 1 (the release blocker) needs the owner. Drug tranches A–E ALL SHIPPED; severity-sort bug FIXED; the CYP2D6 sweep is COMPLETE across all 21 records; prostate evidence recalibrated; three Men's Health topics added; a V2-wide count guard now blocks stale numbers; Demo Mode and Guided Match are ALIGNED and share one data source, guarded. Tranche E is now COMPLETE and the four discovered gaps are closed (DRUG-24); the CBD→Δ⁹-THC exposure finding is in the build; `hasRisk` is enforced rather than dead.**_
+
+---
+
+## 000000000000000. PRINT-01 — iPHONE PRINT CAME OUT BLANK — **CLOSED AND ACCEPTED**
+
+**Owner-accepted 2026-10-14 on iPhone 16 / Safari (the device where the defect was observed), the
+legacy iPad mini 2 (iOS 12.4.2 / Safari 12.1.2) and a current iMac (macOS Tahoe). Commit `7d2ee24`,
+build `d4693daa1dbd268a` is the protected application baseline.** Rollback: `af8a334` /
+`5bbec607a59bbbf3` (`index_BACKUP_20261014_pre_PRINT01.html`; `preflight_BACKUP_20261014_pre_PRINT01.py`).
+
+### What was observed (iPhone 16, 2026-10-13, during ROUTE-04 acceptance)
+
+Print from the Guided Match results showed Safari's "This website has been blocked from automatically
+printing" (IGNORE / ALLOW). After ALLOW, printing again showed a **black preview** and printed a
+**blank page**. The results on screen were correct.
+
+### Cause — classified, keep the distinction
+
+- **Verified mechanism (from code):** all four report generators (`V4GX.printRec`, `printDrugReport`,
+  `printRecoReport`, `printMoleculeReport`) call `PT_doPrint()`, which writes the report into
+  `#printRoot` (a direct child of `<body>`), calls `window.print()` synchronously from the tap, and
+  **used to empty `#printRoot` on `afterprint`**. `#ptPrintStyles` hides everything except
+  `#printRoot` in print mode.
+- **Likely cause — NOT device-verified:** on iOS Safari `print()` returns at once and the print sheet
+  renders its pages afterwards; an `afterprint` that fires early emptied the report before iOS rendered
+  it. The owner chose not to instrument this (no Web Inspector timing check). The black colour of the
+  empty preview is a hypothesis about iOS, not V2 (V2's print CSS forces white).
+- **Browser behaviour outside V2's control:** the "blocked from automatically printing" prompt. V2 calls
+  `print()` directly from the tap and no V2 code re-dispatches taps. **The prompt was intentionally
+  not modified or suppressed**; PRINT-01 is successful even though Safari may still show it.
+- **Not caused by ROUTE-04:** the print mechanism dates from UX-06 (`1a23dcf`, 2026-08-04) and was
+  byte-identical to `4d0d9aa`; ROUTE-04 only added the "Route — …" line to the report body.
+
+### The change (two places)
+
+1. `PT_doPrint()` no longer empties `#printRoot` on `afterprint`. Each print still **overwrites**
+   `#printRoot` with the current report; `afterprint` only restarts the idle timer, as before.
+2. `resetToEntryGate()` empties `#printRoot`, so a report that can carry the previous customer's
+   condition and medications never survives into the next session (New Session, I'm Done and the
+   inactivity expiry all funnel there).
+
+Expected side effect, accepted: after a report has been printed, the browser's own Print (⌘P,
+Share → Print) prints that report until the session resets; before, it printed a blank page.
+
+### Guard 35 — `check_print_reset` (permanent, every build)
+
+Exact text inside the real function bodies: `PT_doPrint()` overwrites (`=`, never `+=`) and never
+empties `#printRoot`; no `afterprint` handler empties report content; `resetToEntryGate()` empties
+`#printRoot`. Mutation-tested: fails on the pre-PRINT-01 build (3 failures), on append-instead-of-
+overwrite, and with the reset line removed.
+
+**Development-only behavioural checks (one-time harness, not a repository test):** 32 checks — all
+four generators populate `#printRoot`; consecutive reports replace each other; a fired `afterprint`
+leaves the report intact; direct reset, New Session, I'm Done and inactivity expiry each empty it; a
+blocked print whose `afterprint` never fires is still cleared by New Session. ROUTE-04 unchanged
+(navigation suite 39/39 and 77/77; Guard 34 passing).
+
+### Physical acceptance — 2026-10-14
+
+| Device | Result |
+|---|---|
+| iPhone 16 · Safari | **PASS** — preview and output contain the report; second print correct; New Session removes it |
+| iPad mini 2 · iOS 12.4.2 · Safari 12.1.2 | **PASS** |
+| Current iMac · macOS Tahoe | **PASS** |
+
+Modern Windows printing will be covered by D1.
 
 ---
 
@@ -562,11 +630,10 @@ CLOSED AND ACCEPTED.**
 - **F — future POS / inventory integration architecture.** See below. The dormant standard-customer
   product pathway **must remain preserved and untouched** until real POS/inventory integration is
   addressed.
-- **PRINT-01 — iPhone Safari print (found 2026-10-13, during ROUTE-04 acceptance).** Tapping Print on
-  the Guided Match results showed Safari's "This website has been blocked from automatically printing"
-  prompt; after ALLOW, a second print showed a black preview and printed a blank page. The results
-  themselves were correct. **Separate from ROUTE-04.** Read-only investigation in progress; no fix
-  approved.
+- ~~**PRINT-01 — iPhone Safari print.**~~ **CLOSED AND ACCEPTED 2026-10-14** (`7d2ee24` /
+  `d4693daa1dbd268a`) — see the PRINT-01 section.
+- **Shared-kiosk session isolation (`_medList` and related state).** Static analysis found that
+  `resetToEntryGate()` never clears `_medList`. A read-only investigation is in progress; no fix approved.
 
 ### Observations only — NOT current defects
 
