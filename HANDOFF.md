@@ -1,6 +1,6 @@
 # Acannability’s Cannabis Periodic Table of Molecules · Project Handoff  _(internal build: V2)_
-_Last updated: **2026-10-14** · **Protected baseline: commit `7d2ee24`, sha256 `d4693daa1dbd268a`** (PRINT-01; live byte-identical to `main`). Previous protected baseline: `af8a334` / `5bbec607a59bbbf3` (ROUTE-04; on disk: `index_BACKUP_20261014_pre_PRINT01.html`). Earlier references: `4d0d9aa` / `d2a41bdcae701e82`, `a518790` / `5bf1c70f63098016`, `6baf906` / `5cf72d6e2c66b1fe`, `59ef593` / `5ee1e392b2360494`, `e3298d3` / `1b6f1f86b486dcbb`, `135d300` / `96f38d244268b63a`._
-_Build: 2.2 MB · 64 molecules · **65 health conditions** / 10 groups · 3 cross-listed · **839 NCBI-verified PMIDs** · **289 drug records · 104 drug–drug pairs** · **42 faux Demo products** · backlog 280 rows · preflight: **35 guards**, all passing `--online`_
+_Last updated: **2026-10-14** · **Protected baseline: commit `d5d3a0b`, sha256 `9dc707c5f738c8f4`** (RESET-03; live byte-identical to `main`). Previous protected baseline: `7d2ee24` / `d4693daa1dbd268a` (PRINT-01; on disk: `index_BACKUP_20261014_pre_RESET03.html`). Earlier references: `af8a334` / `5bbec607a59bbbf3`, `4d0d9aa` / `d2a41bdcae701e82`, `a518790` / `5bf1c70f63098016`, `6baf906` / `5cf72d6e2c66b1fe`, `59ef593` / `5ee1e392b2360494`, `e3298d3` / `1b6f1f86b486dcbb`, `135d300` / `96f38d244268b63a`._
+_Build: 2.2 MB · 64 molecules · **65 health conditions** / 10 groups · 3 cross-listed · **839 NCBI-verified PMIDs** · **289 drug records · 104 drug–drug pairs** · **42 faux Demo products** · backlog 281 rows · preflight: **36 guards**, all passing `--online`_
 _**MODERN CROSS-PLATFORM QA ROUND 1 COMPLETE. IOS-07 passed physical-device acceptance on 2026-10-06 across iPhone 16 (iOS 26.6.1), the legacy iPad mini 2 (iOS 12.4.2) and an iMac. Commit `e3298d3` / build `1b6f1f86b486dcbb` is the new protected application baseline. IOS-01 through IOS-05 and IOS-07 are CLOSED; IOS-04b and IOS-06 remain recorded as FAILED AND REVERTED. Guards 31 and 32 both protect shipped code. **D2 is CLOSED on physical-device acceptance (2026-10-06); D1 remains OPEN/DEFERRED pending a current Windows Chrome/Edge physical test; U1 and U2 are observations only. **GX-01 + GX-02 (Guided Match) are deployed PROVISIONALLY as `11f687a` / `f12dfc9a1777f36c` and await physical acceptance; the protected baseline remains `a518790` / `5bf1c70f63098016`.** RESET-01 passed physical acceptance 2026-10-07 across iPhone 16, legacy iPad mini 2, an El Capitan iMac and a newer iMac — `59ef593` / `5ee1e392b2360494` is the new protected baseline.** D2 is CLOSED; D1 remains OPEN/DEFERRED pending a current Windows Chrome/Edge physical test; U1/U2 are observations only. A residual Entourage intermittency survives RESET-01 and is recorded as an observation with NO root cause — refresh first.**_
 
 _**GUIDED MATCH / DEMO ROUND COMPLETE AND ACCEPTED 2026-10-11 across iPhone 16 and iMac Tahoe.** GX-06, the five non-intoxicating faux products, NAME-01, GX-07, GX-08, the continuous 7-stage Demo indicator and COPY-01 all passed physical acceptance. **`4d0d9aa` / `d2a41bdcae701e82` is the new protected application baseline, replacing `a518790` / `5bf1c70f63098016`.** **F — the dormant standard-customer product pathway — is a future POS-integration architecture item and MUST NOT be deleted or refactored.** An intermittent iPhone 16 scroll/tap behaviour is an OBSERVATION ONLY, not a defect; it did not prevent acceptance and no speculative mobile change was made._
@@ -9,7 +9,78 @@ _**ROUTE-04 CLOSED AND ACCEPTED 2026-10-13 across iPhone 16, a current iMac and 
 
 _**PRINT-01 CLOSED AND ACCEPTED 2026-10-14 across iPhone 16, the legacy iPad mini 2 and a current iMac.** Printed reports no longer come out blank on iOS; the report is cleared on session reset instead of on `afterprint`. **`7d2ee24` / `d4693daa1dbd268a` is the new protected application baseline, replacing `af8a334` / `5bbec607a59bbbf3`.**_
 
+_**RESET-03 CLOSED AND ACCEPTED 2026-10-14 across iPhone 16, the legacy iPad mini 2 and a current iMac.** A session reset now deletes the previous customer's medication list, interaction report, typed search text, Entourage condition and hidden Guided Match screen instead of only hiding them. **`d5d3a0b` / `9dc707c5f738c8f4` is the new protected application baseline, replacing `7d2ee24` / `d4693daa1dbd268a`.** Six related findings remain OPEN for the AI/QA Global review — see OPEN / DEFERRED._
+
 _**Pre-release audit COMPLETE: waves 2–6 ALL SHIPPED. Wave 1 (the release blocker) needs the owner. Drug tranches A–E ALL SHIPPED; severity-sort bug FIXED; the CYP2D6 sweep is COMPLETE across all 21 records; prostate evidence recalibrated; three Men's Health topics added; a V2-wide count guard now blocks stale numbers; Demo Mode and Guided Match are ALIGNED and share one data source, guarded. Tranche E is now COMPLETE and the four discovered gaps are closed (DRUG-24); the CBD→Δ⁹-THC exposure finding is in the build; `hasRisk` is enforced rather than dead.**_
+
+---
+
+## 0000000000000000. RESET-03 — SHARED-KIOSK SESSION ISOLATION — **CLOSED AND ACCEPTED**
+
+**Owner-accepted 2026-10-14 on iPhone 16 / Safari, the legacy iPad mini 2 (iOS 12.4.2 / Safari
+12.1.2) and a current iMac (macOS Tahoe / Safari). Commit `d5d3a0b`, build `9dc707c5f738c8f4` is the
+protected application baseline.** Rollback: `7d2ee24` / `d4693daa1dbd268a`
+(`index_BACKUP_20261014_pre_RESET03.html`; `preflight_BACKUP_20261014_pre_RESET03.py`).
+
+### Terminology — use it exactly
+
+- **End Session** — the phone-width label of the floating **"I'm Done — End My Session"** button
+  (`imDone()`). This is the control the owner uses on the iPhone; use "End Session" in physical-test
+  instructions.
+- **"↩ New Session"** — the separate desktop header button (`newSession()`).
+- Both, and the 3-minute **inactivity expiry**, funnel into `resetToEntryGate()`.
+
+### The defect — found by code execution, then confirmed on a device
+
+The reset **closed** panels, which hid the previous customer's data without deleting it. A
+Customer A → reset → Customer B harness running the real app code showed, identically on all three
+paths, that the next customer inherited: the **Drug Interactions → My Medication List** (`_medList`)
+with its drug–drug / cannabis report and an enabled Check All, because the panel's list mode was not
+reset either; a **Drug Interactions Print** that rebuilt a report from that list; the **Entourage
+condition and analysis** (`entCondSelect`, plus `window._activeCondId`, which `showEntourage()`
+re-opens on); and **typed but un-added medication-search text**. The hidden Guided Match screen
+(`#gxStage`) also kept the previous results, including medication names, though no on-screen path
+reached it.
+
+**Owner physical confirmation, iPhone 16 (2026-10-14):** Warfarin added → End Session → re-entered →
+Drug Interactions still showed Warfarin. Fibromyalgia Entourage viewed → End Session → re-entered →
+Entourage still showed Fibromyalgia.
+
+Not affected (verified in the same runs): the single-medication search, the Table condition, filters
+and drug highlighting, Guided Match state (rebuilt on every start), `#printRoot` (PRINT-01), opt-in
+form fields, the feedback draft, disclaimer acceptance and the Demo review queue.
+
+### The change — one block in `resetToEntryGate()`, nothing removed
+
+Directly after the existing Drug Interactions close, each step in its own `try`:
+`clearMedList()` · clear `#medAddInput` · hide and empty `#medSuggestions` · `_medAiQuery = ''` ·
+`switchDiMode('single')` · `clearEntourage()` · `window._activeCondId = null` · empty `#gxStage`.
+
+### Guard 36 — `check_session_isolation` (permanent, every build)
+
+Exact text inside the real `resetToEntryGate()` for all eight protections, plus inside
+`clearMedList()` (still clears `_medList`, the list report and the rendered list) and
+`clearEntourage()` (still clears the select and the analysis). Mutation-tested: fails on the pre-fix
+build (8 failures), on each protection removed in turn, and on either helper weakened.
+
+### Testing
+
+- **Development-only behavioural testing (one-time harness, NOT a repository test):** Customer A →
+  reset → Customer B across End Session, New Session and inactivity expiry — **63/63 PASS**,
+  including the two physically reproduced scenarios (no Warfarin, no Fibromyalgia), Drug Interactions
+  Print not reconstructing the previous report, and Customer B's normal use (add a medication, Check
+  All, own Entourage condition, Guided Match).
+- **Regression (same one-time harness):** ROUTE-04 navigation **39/39 and 77/77**; PRINT-01
+  behaviour **32/32**.
+- Preflight: all **36 guards** pass including 33, 34, 35 and 36; `--online`: all 839 PMIDs resolve.
+
+### Physical acceptance — 2026-10-14
+
+| Device | Result |
+|---|---|
+| iPhone 16 · Safari | **PASS** — Warfarin and Fibromyalgia gone after End Session; normal use intact |
+| iPad mini 2 · iOS 12.4.2 · Safari 12.1.2 | **PASS** |
+| Current iMac · macOS Tahoe · Safari | **PASS** — New Session and the inactivity expiry |
 
 ---
 
@@ -632,8 +703,43 @@ CLOSED AND ACCEPTED.**
   addressed.
 - ~~**PRINT-01 — iPhone Safari print.**~~ **CLOSED AND ACCEPTED 2026-10-14** (`7d2ee24` /
   `d4693daa1dbd268a`) — see the PRINT-01 section.
-- **Shared-kiosk session isolation (`_medList` and related state).** Static analysis found that
-  `resetToEntryGate()` never clears `_medList`. A read-only investigation is in progress; no fix approved.
+- ~~**Shared-kiosk session isolation.**~~ **CLOSED AND ACCEPTED 2026-10-14 as RESET-03** (`d5d3a0b` /
+  `9dc707c5f738c8f4`) — see the RESET-03 section.
+
+### Open findings for the AI/QA Global privacy / security / governance review — NOT RESET-03 defects
+
+Recorded 2026-10-14. **No fix is approved for any of them.**
+
+1. **Disclaimer acceptance survives a browser refresh.** `eg_accepted` lives in `sessionStorage`,
+   which persists across a refresh in the same tab, so a customer who refreshes and walks away leaves
+   the next customer on the Table without accepting the disclaimer. A refresh wipes all customer data
+   in memory, so this is a compliance gap, not a data leak.
+2. **iOS / iPadOS keyboard (QuickType) learning.** The keyboard may learn typed medication names and
+   suggest them to the next customer. This is OS behaviour outside V2; the search fields set
+   `spellcheck="false"` but not `autocorrect="off"`. The reliable control is a locked-down kiosk
+   configuration (e.g. Guided Access with predictive text off).
+3. **Customer-entered feedback retained in `localStorage`** (`acann_feedback_v1`), by design, for
+   staff review. The filter blocks emails, links and phone / date-of-birth patterns but **not
+   condition or medication words** — a harness test stored "I also take warfarin" verbatim. Readable
+   with browser developer tools on the kiosk. Needs a retention policy and possibly form wording.
+4. **Research opt-in retention** (`acann_research_v1`): age group, sex, state and free-text city, up
+   to 500 records per device; anonymous, but the combination can be identifying in small places. The
+   "withdraw" control deletes every response on the device, not one person's.
+5. **Staff/admin authentication and client-side security.** Both the Demo Mode and Staff review
+   sign-ins are client-side `cyrb53` hash gates — described in the code itself as not cryptographic
+   security — and the **Staff review password appears in plaintext in a code comment** beside
+   `AUTH_HASH` in the public `index.html` (line 14469 at build `9dc707c5f738c8f4`; not reproduced
+   here). The budtender console's CSV inventory import has no sign-in. Identified in the 2026-10-12
+   AI/QA Global briefing.
+6. **Future multi-kiosk / POS session and transaction architecture.** Read-only assessment accepted
+   2026-10-14, saved locally (untracked) as `V2_MultiKiosk_Architecture_Assessment_2026-10-14.md` in
+   this folder, with the owner-approved principles: temporary non-identifying technical IDs, never
+   patient identity; kiosk ID, V2 session ID, handoff ID, POS cart/order ID and customer identity
+   kept separate; minimum handoff data, with no conditions, medications, safety or interaction data
+   by default; POS authoritative for cart, stock, identity, payment and dispensing; V2/Acannability
+   authoritative for the science, warnings and exclusions; inventory must never alter science or
+   preferences; handoffs must prevent crossed carts, duplicate submissions, stale sessions and
+   cross-kiosk retrieval. **Nothing in it is approved to build.**
 
 ### Observations only — NOT current defects
 
