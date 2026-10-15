@@ -10338,6 +10338,19 @@ function resetToEntryGate() {
   // Session, I'm Done, inactivity expiry). Routed through the same togglers the close buttons
   // use, so the header button labels and _diOpen stay in sync.
   try { if (typeof _diOpen !== 'undefined' && _diOpen) toggleDrugPanel(); } catch(e) {}
+  // RESET-03 (shared-kiosk session isolation): closing the panels above HIDES the previous customer's
+  // data but does not delete it. Confirmed on an iPhone 16 (2026-10-14): after End Session, Warfarin was
+  // still in Drug Interactions → My Medication List and Fibromyalgia was still in Entourage Effect.
+  // _medList, the list's interaction report, the panel's list mode, typed search text, the Entourage
+  // condition (and the _activeCondId it re-opens on) and the hidden Guided Match screen all survived.
+  try { clearMedList(); } catch(e) {}
+  try { var _ma = document.getElementById('medAddInput'); if (_ma) _ma.value = ''; } catch(e) {}
+  try { var _ms = document.getElementById('medSuggestions'); if (_ms) { _ms.style.display = 'none'; _ms.innerHTML = ''; } } catch(e) {}
+  try { _medAiQuery = ''; } catch(e) {}
+  try { switchDiMode('single'); } catch(e) {}
+  try { clearEntourage(); } catch(e) {}
+  try { window._activeCondId = null; } catch(e) {}
+  try { var _gs = document.getElementById('gxStage'); if (_gs) _gs.innerHTML = ''; } catch(e) {}
   try {
     var _fp = document.getElementById('filterPanel');
     if (_fp && getComputedStyle(_fp).display !== 'none' && typeof toggleFilterPanel === 'function') toggleFilterPanel();

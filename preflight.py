@@ -2079,6 +2079,52 @@ def check_print_reset(src):
          'resetToEntryGate() empties it')
 
 
+def check_session_isolation(src):
+    """RESET-03 (guard 36): a session reset must DELETE the previous customer's data, not just hide it.
+
+    resetToEntryGate() is the one funnel for "↩ New Session", "I'm Done — End My Session" (shown as
+    "End Session" on phones) and the inactivity expiry. Closing panels hid the previous customer's data
+    but left it in place. Reproduced in a code-execution harness on all three paths and confirmed by the
+    owner on an iPhone 16 (2026-10-14): after End Session, Warfarin was still in Drug Interactions → My
+    Medication List (and the panel's Print rebuilt a report from it) and Fibromyalgia was still in
+    Entourage Effect. The typed medication-search text and the hidden Guided Match screen survived too.
+
+    Asserts, by exact text inside the real function bodies, that resetToEntryGate() calls each
+    protection, and that the two helpers it relies on still clear what they are trusted to clear.
+    """
+    name = 'session isolation'
+    try:
+        rs = js_literal(src, 'function resetToEntryGate(', '{')
+        cm = js_literal(src, 'function clearMedList(', '{')
+        ce = js_literal(src, 'function clearEntourage(', '{')
+    except ValueError:
+        fail(name, 'resetToEntryGate(), clearMedList() or clearEntourage() not found (zero-match tripwire)')
+        return
+    need = [
+        ("try { clearMedList(); } catch(e) {}", "the previous customer's medication list and its interaction report"),
+        ("var _ma = document.getElementById('medAddInput'); if (_ma) _ma.value = '';", 'typed medication-search text'),
+        ("var _ms = document.getElementById('medSuggestions'); if (_ms) { _ms.style.display = 'none'; _ms.innerHTML = ''; }", 'medication suggestions'),
+        ("try { _medAiQuery = ''; } catch(e) {}", 'the last medication query'),
+        ("try { switchDiMode('single'); } catch(e) {}", "Drug Interactions' default single-medication mode"),
+        ("try { clearEntourage(); } catch(e) {}", "the previous customer's Entourage condition and analysis"),
+        ("try { window._activeCondId = null; } catch(e) {}", 'the condition Entourage re-opens on'),
+        ("var _gs = document.getElementById('gxStage'); if (_gs) _gs.innerHTML = '';", 'the hidden Guided Match screen'),
+    ]
+    for needle, what in need:
+        if needle not in rs:
+            fail(name, 'resetToEntryGate() no longer clears %s — it would survive into the next '
+                       'customer\'s session on a shared kiosk' % what)
+    for needle, what in [("_medList = [];", '_medList'), ("document.getElementById('medListResults').innerHTML = '';", 'the list report'),
+                         ('renderMedListUI();', 'the rendered list')]:
+        if needle not in cm:
+            fail(name, 'clearMedList() no longer clears %s' % what)
+    for needle, what in [("if (sel) sel.value = '';", 'the Entourage condition'), ("document.getElementById('entBody').innerHTML", 'the Entourage analysis')]:
+        if needle not in ce:
+            fail(name, 'clearEntourage() no longer clears %s' % what)
+    note('session isolation: resetToEntryGate() deletes the medication list, its report and mode, typed '
+         'search text, the Entourage condition and the hidden Guided Match screen')
+
+
 def main():
     online = '--online' in sys.argv
     src = open(SRC, encoding='utf-8').read()
@@ -2119,6 +2165,7 @@ def main():
     check_reset_overlay_display(src)
     check_route_hard_filter(src)
     check_print_reset(src)
+    check_session_isolation(src)
     check_evidence_attribution(data)
     check_backlog()
 
