@@ -1,6 +1,6 @@
 # Acannability’s Cannabis Periodic Table of Molecules · Project Handoff  _(internal build: V2)_
-_Last updated: **2026-10-14** · **Protected baseline: commit `d5d3a0b`, sha256 `9dc707c5f738c8f4`** (RESET-03; live byte-identical to `main`). Previous protected baseline: `7d2ee24` / `d4693daa1dbd268a` (PRINT-01; on disk: `index_BACKUP_20261014_pre_RESET03.html`). Earlier references: `af8a334` / `5bbec607a59bbbf3`, `4d0d9aa` / `d2a41bdcae701e82`, `a518790` / `5bf1c70f63098016`, `6baf906` / `5cf72d6e2c66b1fe`, `59ef593` / `5ee1e392b2360494`, `e3298d3` / `1b6f1f86b486dcbb`, `135d300` / `96f38d244268b63a`._
-_Build: 2.2 MB · 64 molecules · **65 health conditions** / 10 groups · 3 cross-listed · **839 NCBI-verified PMIDs** · **289 drug records · 104 drug–drug pairs** · **42 faux Demo products** · backlog 281 rows · preflight: **36 guards**, all passing `--online`_
+_Last updated: **2026-10-15** · **Protected baseline: commit `07699d3`, sha256 `8a6e58ca6ba57aff`** (COPY-02; live byte-identical to `main`). Previous protected baseline: `d5d3a0b` / `9dc707c5f738c8f4` (RESET-03; on disk: `index_BACKUP_20261015_pre_COPY02.html`). Earlier references: `7d2ee24` / `d4693daa1dbd268a`, `af8a334` / `5bbec607a59bbbf3`, `4d0d9aa` / `d2a41bdcae701e82`, `a518790` / `5bf1c70f63098016`, `6baf906` / `5cf72d6e2c66b1fe`, `59ef593` / `5ee1e392b2360494`, `e3298d3` / `1b6f1f86b486dcbb`, `135d300` / `96f38d244268b63a`._
+_Build: 2.2 MB · 64 molecules · **65 health conditions** / 10 groups · 3 cross-listed · **839 NCBI-verified PMIDs** · **289 drug records · 104 drug–drug pairs** · **42 faux Demo products** · backlog 282 rows · preflight: **36 guards**, all passing `--online`_
 _**MODERN CROSS-PLATFORM QA ROUND 1 COMPLETE. IOS-07 passed physical-device acceptance on 2026-10-06 across iPhone 16 (iOS 26.6.1), the legacy iPad mini 2 (iOS 12.4.2) and an iMac. Commit `e3298d3` / build `1b6f1f86b486dcbb` is the new protected application baseline. IOS-01 through IOS-05 and IOS-07 are CLOSED; IOS-04b and IOS-06 remain recorded as FAILED AND REVERTED. Guards 31 and 32 both protect shipped code. **D2 is CLOSED on physical-device acceptance (2026-10-06); D1 remains OPEN/DEFERRED pending a current Windows Chrome/Edge physical test; U1 and U2 are observations only. **GX-01 + GX-02 (Guided Match) are deployed PROVISIONALLY as `11f687a` / `f12dfc9a1777f36c` and await physical acceptance; the protected baseline remains `a518790` / `5bf1c70f63098016`.** RESET-01 passed physical acceptance 2026-10-07 across iPhone 16, legacy iPad mini 2, an El Capitan iMac and a newer iMac — `59ef593` / `5ee1e392b2360494` is the new protected baseline.** D2 is CLOSED; D1 remains OPEN/DEFERRED pending a current Windows Chrome/Edge physical test; U1/U2 are observations only. A residual Entourage intermittency survives RESET-01 and is recorded as an observation with NO root cause — refresh first.**_
 
 _**GUIDED MATCH / DEMO ROUND COMPLETE AND ACCEPTED 2026-10-11 across iPhone 16 and iMac Tahoe.** GX-06, the five non-intoxicating faux products, NAME-01, GX-07, GX-08, the continuous 7-stage Demo indicator and COPY-01 all passed physical acceptance. **`4d0d9aa` / `d2a41bdcae701e82` is the new protected application baseline, replacing `a518790` / `5bf1c70f63098016`.** **F — the dormant standard-customer product pathway — is a future POS-integration architecture item and MUST NOT be deleted or refactored.** An intermittent iPhone 16 scroll/tap behaviour is an OBSERVATION ONLY, not a defect; it did not prevent acceptance and no speculative mobile change was made._
@@ -11,7 +11,54 @@ _**PRINT-01 CLOSED AND ACCEPTED 2026-10-14 across iPhone 16, the legacy iPad min
 
 _**RESET-03 CLOSED AND ACCEPTED 2026-10-14 across iPhone 16, the legacy iPad mini 2 and a current iMac.** A session reset now deletes the previous customer's medication list, interaction report, typed search text, Entourage condition and hidden Guided Match screen instead of only hiding them. **`d5d3a0b` / `9dc707c5f738c8f4` is the new protected application baseline, replacing `7d2ee24` / `d4693daa1dbd268a`.** Six related findings remain OPEN for the AI/QA Global review — see OPEN / DEFERRED._
 
+_**COPY-02 CLOSED AND ACCEPTED 2026-10-15 on iPhone 16 and a current iMac.** Both disclaimer instructions for shared devices now name **End Session** (shown as **I'm Done — End My Session** on larger screens). Copy only. **`07699d3` / `8a6e58ca6ba57aff` is the new protected application baseline, replacing `d5d3a0b` / `9dc707c5f738c8f4`.**_
+
 _**Pre-release audit COMPLETE: waves 2–6 ALL SHIPPED. Wave 1 (the release blocker) needs the owner. Drug tranches A–E ALL SHIPPED; severity-sort bug FIXED; the CYP2D6 sweep is COMPLETE across all 21 records; prostate evidence recalibrated; three Men's Health topics added; a V2-wide count guard now blocks stale numbers; Demo Mode and Guided Match are ALIGNED and share one data source, guarded. Tranche E is now COMPLETE and the four discovered gaps are closed (DRUG-24); the CBD→Δ⁹-THC exposure finding is in the build; `hasRisk` is enforced rather than dead.**_
+
+---
+
+## 00000000000000000. COPY-02 — SHARED-DEVICE DISCLAIMER WORDING — **CLOSED AND ACCEPTED**
+
+**Owner-accepted 2026-10-15 on iPhone 16 / Safari and a current iMac (macOS Tahoe / Safari). Commit
+`07699d3`, build `8a6e58ca6ba57aff` is the protected application baseline.** Rollback: `d5d3a0b` /
+`9dc707c5f738c8f4` (`index_BACKUP_20261015_pre_COPY02.html`). **Copy only** — two sentences.
+
+### Why the wording is what it is — verified before editing
+
+The owner asked for "select END SESSION". The responsive labels were checked first, and that label is
+**not** universal:
+
+| Width | Floating button (`imDone()`, present at every width) | Header button (`newSession()`) |
+|---|---|---|
+| ≤ 620 px (phone portrait) | **"End Session"** | hidden |
+| > 620 px (phone landscape, iPad mini 2, iMac) | **"I'm Done — End My Session"** | **"↩ New Session"** |
+
+So the instruction names the one control available at every width, in both of its forms (owner's
+Option A). "dispensary kiosk" was kept. **Do not shorten it to "End Session" alone** unless the
+button labels are made universal, which is a separate decision.
+
+### The change
+
+1. **Disclaimer page 2 — "🔒 Privacy, Data Handling & HIPAA":** `select "New Session" or "I'm Done"`
+   → "…(for example, a dispensary kiosk), select **End Session** (shown as **I'm Done — End My
+   Session** on larger screens) when finished so no information you entered remains visible to the
+   next person."
+2. **Full Disclaimer:** the same terminology; its "New Session" reference for this instruction was
+   removed.
+
+Unchanged: every button label, responsive behaviour, `imDone()`, `newSession()`,
+`resetToEntryGate()` and RESET-03. Syntax OK; all 36 guards pass `--online`; 839/839 PMIDs.
+
+### Physical acceptance — 2026-10-15
+
+| Device | Result |
+|---|---|
+| iPhone 16 · Safari | **PASS** |
+| Current iMac · macOS Tahoe · Safari | **PASS** |
+
+**Stale content, not a defect:** the owner first saw the old wording. It was cached browser content
+and disappeared after a refresh on both devices; no further code change was needed. After any
+deploy, refresh before judging copy on a device.
 
 ---
 
