@@ -971,7 +971,7 @@ body.is-mobile-view.is-touch-device #imDoneBtn{right:10px;bottom:calc(56px + env
         </g>
       </svg>
       <h1 class="wg-h1">Understand cannabis by its <em>molecules</em> —<br>not its strain names.</h1>
-      <p class="wg-sub">An educational resource from Acannability covering <strong><span data-v2fact="molecules">64</span> cannabis plant molecules</strong> — cannabinoids, terpenes, and flavonoids — and what published research reports about each, across <strong><span data-v2fact="conditions">65</span> health topics</strong>.</p>
+      <p class="wg-sub">An educational resource from Acannability covering <strong><span data-v2fact="molecules">64</span> cannabis plant molecules</strong> — cannabinoids, terpenes, and flavonoids selected from the hundreds of compounds identified in the cannabis plant — and what published research reports about each, across <strong><span data-v2fact="conditions">65</span> health topics</strong>.</p>
     </div>
     <div class="wg-body">
       <p class="wg-lead">Strain names are inconsistent from grower to grower. Molecules aren’t. The Table organizes the published science around the molecules themselves, so you can see what researchers have actually studied — and how strong that evidence is.</p>
@@ -7921,7 +7921,7 @@ var DI_DATA = [
    effect:'<strong>The plausible consequence is feeling more drowsy or light-headed than either would make you alone</strong> &mdash; most likely soon after the drops go in, and most noticeable on standing. <em>This is inference from a class effect at low exposure, not a measured outcome. It is graded minor because ophthalmic dosing limits how much systemic effect there is to add to, not because the overlap is imaginary.</em> Dry mouth and tiredness are common with this class in their own right.',
    monitor:'<strong>Keep using your drops as prescribed; untreated eye pressure damages sight permanently.</strong> Drowsiness is not a reason to skip a dose. Get up from sitting or lying in stages if you feel light-headed, and take particular care with driving in the hour after the drops go in if you have also used cannabis. <strong>Tell the eye-care team and pharmacist who manage your glaucoma that you use cannabis</strong>, and mention it if you are unusually drowsy or unsteady &mdash; a pharmacist can review everything else you take that sedates, which is often where the larger contribution lies, and your eye team can consider a drop class that does not act systemically.',
    pmid:'6283454'},
-  {id:'oph_cai',drug:'Carbonic anhydrase inhibitors &mdash; topical eye drops (dorzolamide, brinzolamide)',brands:['Dorzolamide','Trusopt','Brinzolamide','Azopt','Cosopt','Simbrinza'],cls:'Carbonic Anhydrase Inhibitor &mdash; topical (glaucoma)',group:'Ophthalmic',cat:'rx',
+  {id:'oph_cai',drug:'Carbonic anhydrase inhibitors — topical eye drops (dorzolamide, brinzolamide)',brands:['Dorzolamide','Trusopt','Brinzolamide','Azopt','Cosopt','Simbrinza'],cls:'Carbonic Anhydrase Inhibitor &mdash; topical (glaucoma)',group:'Ophthalmic',cat:'rx',
    mols:[],sev:'minor',ev:'D',
    mech:'<strong>Applied to the eye, and acting there.</strong> Dorzolamide and brinzolamide inhibit carbonic anhydrase in the ciliary epithelium to reduce the production of aqueous fluid. Systemic absorption is small: dorzolamide does accumulate in red blood cells over months of use, but plasma concentrations stay low, and the systemic effects that characterise <em>oral</em> carbonic anhydrase inhibition &mdash; metabolic acidosis, tingling in the hands and feet, brisk diuresis &mdash; are not features of the drops. <em>These drugs are not cleared by CYP enzymes, and there is no established cannabinoid pathway for them to interact through. No study has tested cannabis with a topical carbonic anhydrase inhibitor, so the record stays Grade D; what supports the conclusion is the pharmacology rather than the literature.</em> <strong>How this record changed.</strong> <em>An earlier version covered topical dorzolamide and brinzolamide <strong>together with oral acetazolamide</strong> under a single &ldquo;minimal systemic absorption&rdquo; rationale. That was wrong in structure: an eye drop and a systemically dosed sulfonamide diuretic are not the same exposure and cannot share one rationale or one rating. Oral acetazolamide and methazolamide now have their own record.</em>',
    effect:'<strong>No meaningful systemic interaction is expected, and the pharmacology supports that rather than leaving it unexamined:</strong> no CYP route, no transporter dependence that cannabis is known to affect, and low systemic exposure. <em>Stinging on instillation and a bitter taste as the drop drains into the throat are the drug acting where it is applied.</em> <strong>Cannabis is not a treatment for glaucoma and is not a substitute for these drops.</strong>',
@@ -13539,6 +13539,11 @@ var ROUTE_KEYS=['inhalation_vapor','inhalation_smoked','oral','sublingual','topi
       '<div class="dj-note">This is the broader research-linked picture for your selected topic. Not every molecule may be represented in available products, so the product match will focus on those that can be matched.<br>Next: your preferences, medications, and available products.</div>'+
       '<button class="gx-cta" onclick="V4GX.djToPrefs()">Patient preferences →</button>');
   }
+  // RENDER-01: the effect / mech text below is V2's OWN curated DI_DATA / DDI_DATA markup (&mdash;,
+  // <strong>, <em>, <br>, <sub>) and is inserted as HTML, exactly as the Table's Drug Interactions panel
+  // and the printed report already insert it, and as molecule names are (see scRec). It used to pass
+  // through esc(), so customers saw literal "&mdash;" and "<strong>" on this screen. Drug NAMES (medLabel)
+  // stay escaped, and so does everything a customer types. Guard 37 restricts this markup to safe tags.
   function djMedResults(recIds){
     var meds=st.meds||[];
     if(!meds.length)return '<div class="dj-med-empty">No medications added yet — tap a common one above, or search any drug.</div>';
@@ -13555,7 +13560,7 @@ var ROUTE_KEYS=['inhalation_vapor','inhalation_smoked','oral','sublingual','topi
       '<div>'+(ddi.length?(ddiWorst+' <b>'+ddi.length+'</b> drug–drug interaction'+(ddi.length>1?'s':'')+' within the list'):'✓ No drug–drug interactions within the list')+'</div>'+
       '<div>'+(molHits.length?(molWorst+' Cannabis interactions with <b>'+molHits.length+'</b> molecule'+(molHits.length>1?'s':'')+(recHits.length?' — including <b>'+recHits.length+'</b> we just associated':'')):'✓ No cannabis interactions with the associated molecules')+'</div></div>';
     if(ddi.length){html+='<div class="dj-med-h">Drug–drug interactions in the list</div>'+ddi.map(function(d){
-      return '<div class="dj-di '+d.sev+'"><div class="t">'+(sevIc[d.sev]||'')+' '+esc(d.label||d.drugs.join(' + '))+'<span class="ev">Ev '+esc(d.ev||'?')+'</span></div><div class="m">'+esc(d.effect||d.mech||'')+'</div></div>';}).join('');}
+      return '<div class="dj-di '+d.sev+'"><div class="t">'+(sevIc[d.sev]||'')+' '+esc(d.label||d.drugs.join(' + '))+'<span class="ev">Ev '+esc(d.ev||'?')+'</span></div><div class="m">'+(d.effect||d.mech||'')+'</div></div>';}).join('');}
     if(molHits.length){
       // Split into (1) your recommended molecules and (2) other molecules that also interact (not recommended
       // here, but may be present in full-spectrum products) — kept for safety, clearly separated. molName is
@@ -13565,7 +13570,7 @@ var ROUTE_KEYS=['inhalation_vapor','inhalation_smoked','oral','sublingual','topi
       var otherMols=molHits.filter(function(m){return recIds.indexOf(m)<0;});
       var molCard=function(mid){var isRec=recIds.indexOf(mid)>=0;var entries=byMol[mid];
         return '<div class="dj-di '+entries[0].sev+(isRec?' rec':'')+'"><div class="t">'+(sevIc[entries[0].sev]||'')+' '+djMolName(mid)+(isRec?'<span class="recflag">recommended</span>':'')+'</div>'+
-          entries.map(function(e){return '<div class="m"><b>'+esc(medLabel(e))+':</b> '+esc(e.effect||e.mech||'')+'</div>';}).join('')+'</div>';};
+          entries.map(function(e){return '<div class="m"><b>'+esc(medLabel(e))+':</b> '+(e.effect||e.mech||'')+'</div>';}).join('')+'</div>';};
       // AUDIT-18: was "your recommended molecules".
       if(recMols.length){html+='<div class="dj-med-h">Cannabis ↔ medication — your associated molecules</div>'+recMols.map(molCard).join('');}
       if(otherMols.length){

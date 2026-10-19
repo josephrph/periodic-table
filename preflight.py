@@ -2125,6 +2125,68 @@ def check_session_isolation(src):
          'search text, the Entourage condition and the hidden Guided Match screen')
 
 
+def check_trusted_markup(src, data):
+    """RENDER-01 (guard 37): V2's own medication text is HTML, and must be rendered as HTML.
+
+    DI_DATA and DDI_DATA store mech / effect / monitor as curated markup — &mdash;, <strong>, <em>, <br>,
+    <sub>. The Table's Drug Interactions panel and the printed report insert it as HTML. The Guided
+    Match / Demo medication check (djMedResults) passed the effect text through esc() instead, so
+    customers saw literal "&mdash;" and "<strong>" there (owner, iPhone 16, Albuterol, 2026-10-19;
+    a harness run of SSRI + tramadol showed 20 literal <strong>, 8 <em> and 14 &mdash; on one screen —
+    263 of 289 DI records and 22 of 104 DDI pairs were affected).
+
+    Because that text is now inserted as HTML in one more place, this guard also restricts it:
+      - djMedResults() inserts the effect / mech text without esc() (exact text, both lines);
+      - every DI/DDI mech, effect and monitor uses only bare <strong>, <em>, <br>, <sub> tags and no
+        executable markup (script, event handlers, javascript: URLs);
+      - drug names, brands and DDI pair labels carry no HTML entities or tags, because THOSE are
+        still escaped (medLabel) and would otherwise show literally.
+    Escaping of customer-typed text, CSV/imported fields and IDs is not touched by RENDER-01.
+    """
+    name = 'trusted markup'
+    try:
+        fn = js_literal(src, 'function djMedResults(', '{')
+    except ValueError:
+        fail(name, 'djMedResults() not found (zero-match tripwire)')
+        return
+    for needle, what in [("'+(d.effect||d.mech||'')+'", 'drug-drug pair'),
+                         ("'+(e.effect||e.mech||'')+'", 'cannabis-medication')]:
+        if needle not in fn:
+            fail(name, 'djMedResults() no longer inserts the %s effect text as trusted HTML' % what)
+    if re.search(r'esc\(\s*[de]\.(effect|mech)', fn):
+        fail(name, "djMedResults() escapes V2's curated effect/mech markup again — customers would see "
+                   'literal &mdash; and <strong> on the Guided Match / Demo medication check')
+    bare = re.compile(r'</?(?:strong|em|br|sub)\s*/?>')
+    danger = re.compile(r'<\s*script|\son[a-z]+\s*=|javascript\s*:', re.I)
+    bad_tag, bad_exec, bad_name = [], [], []
+    for ds in ('DI_DATA', 'DDI_DATA'):
+        for r in data.get(ds, []):
+            rid = r.get('id', '?')
+            for f in ('mech', 'effect', 'monitor'):
+                v = r.get(f) or ''
+                if danger.search(v):
+                    bad_exec.append('%s.%s' % (rid, f))
+                for t in re.findall(r'<[^>]*>', v):
+                    if not bare.fullmatch(t):
+                        bad_tag.append('%s.%s %s' % (rid, f, t[:30]))
+            names = [r.get('drug') or '', r.get('label') or ''] + list(r.get('brands') or []) + list(r.get('drugs') or [])
+            for n in names:
+                if re.search(r'&[A-Za-z#0-9]+;|<|>', str(n)):
+                    bad_name.append('%s: %s' % (rid, str(n)[:60]))
+    if bad_exec:
+        fail(name, 'executable markup in medication text: %s' % bad_exec[:6])
+    if bad_tag:
+        fail(name, 'medication text uses tags outside strong/em/br/sub (or with attributes): %s' % bad_tag[:6])
+    if bad_name:
+        fail(name, 'drug names / brands / pair labels contain HTML entities or tags, which are escaped '
+                   'and would display literally: %s' % bad_name[:6])
+    if len(data.get('DI_DATA', [])) < 200 or len(data.get('DDI_DATA', [])) < 50:
+        fail(name, 'DI_DATA / DDI_DATA unexpectedly small — the markup scan may not have run')
+    note('trusted markup: djMedResults renders curated effect text as HTML; %d DI + %d DDI records use only '
+         'strong/em/br/sub with no executable markup; names and brands are entity-free'
+         % (len(data.get('DI_DATA', [])), len(data.get('DDI_DATA', []))))
+
+
 def main():
     online = '--online' in sys.argv
     src = open(SRC, encoding='utf-8').read()
@@ -2166,6 +2228,7 @@ def main():
     check_route_hard_filter(src)
     check_print_reset(src)
     check_session_isolation(src)
+    check_trusted_markup(src, data)
     check_evidence_attribution(data)
     check_backlog()
 
