@@ -1,6 +1,6 @@
 # Acannability’s Cannabis Periodic Table of Molecules · Project Handoff  _(internal build: V2)_
-_Last updated: **2026-10-15** · **Protected baseline: commit `07699d3`, sha256 `8a6e58ca6ba57aff`** (COPY-02; live byte-identical to `main`). Previous protected baseline: `d5d3a0b` / `9dc707c5f738c8f4` (RESET-03; on disk: `index_BACKUP_20261015_pre_COPY02.html`). Earlier references: `7d2ee24` / `d4693daa1dbd268a`, `af8a334` / `5bbec607a59bbbf3`, `4d0d9aa` / `d2a41bdcae701e82`, `a518790` / `5bf1c70f63098016`, `6baf906` / `5cf72d6e2c66b1fe`, `59ef593` / `5ee1e392b2360494`, `e3298d3` / `1b6f1f86b486dcbb`, `135d300` / `96f38d244268b63a`._
-_Build: 2.2 MB · 64 molecules · **65 health conditions** / 10 groups · 3 cross-listed · **839 NCBI-verified PMIDs** · **289 drug records · 104 drug–drug pairs** · **42 faux Demo products** · backlog 282 rows · preflight: **36 guards**, all passing `--online`_
+_Last updated: **2026-10-19** · **Protected baseline: commit `747fb2e`, sha256 `4691532ecf63f38b`** (RENDER-01 + COPY-03; live byte-identical to `main`). Previous protected baseline: `07699d3` / `8a6e58ca6ba57aff` (COPY-02; on disk: `index_BACKUP_20261019_pre_RENDER01.html`). Earlier references: `d5d3a0b` / `9dc707c5f738c8f4`, `7d2ee24` / `d4693daa1dbd268a`, `af8a334` / `5bbec607a59bbbf3`, `4d0d9aa` / `d2a41bdcae701e82`, `a518790` / `5bf1c70f63098016`, `6baf906` / `5cf72d6e2c66b1fe`, `59ef593` / `5ee1e392b2360494`, `e3298d3` / `1b6f1f86b486dcbb`, `135d300` / `96f38d244268b63a`._
+_Build: 2.2 MB · 64 molecules · **65 health conditions** / 10 groups · 3 cross-listed · **839 NCBI-verified PMIDs** · **289 drug records · 104 drug–drug pairs** · **42 faux Demo products** · backlog 284 rows · preflight: **37 guards**, all passing `--online`_
 _**MODERN CROSS-PLATFORM QA ROUND 1 COMPLETE. IOS-07 passed physical-device acceptance on 2026-10-06 across iPhone 16 (iOS 26.6.1), the legacy iPad mini 2 (iOS 12.4.2) and an iMac. Commit `e3298d3` / build `1b6f1f86b486dcbb` is the new protected application baseline. IOS-01 through IOS-05 and IOS-07 are CLOSED; IOS-04b and IOS-06 remain recorded as FAILED AND REVERTED. Guards 31 and 32 both protect shipped code. **D2 is CLOSED on physical-device acceptance (2026-10-06); D1 remains OPEN/DEFERRED pending a current Windows Chrome/Edge physical test; U1 and U2 are observations only. **GX-01 + GX-02 (Guided Match) are deployed PROVISIONALLY as `11f687a` / `f12dfc9a1777f36c` and await physical acceptance; the protected baseline remains `a518790` / `5bf1c70f63098016`.** RESET-01 passed physical acceptance 2026-10-07 across iPhone 16, legacy iPad mini 2, an El Capitan iMac and a newer iMac — `59ef593` / `5ee1e392b2360494` is the new protected baseline.** D2 is CLOSED; D1 remains OPEN/DEFERRED pending a current Windows Chrome/Edge physical test; U1/U2 are observations only. A residual Entourage intermittency survives RESET-01 and is recorded as an observation with NO root cause — refresh first.**_
 
 _**GUIDED MATCH / DEMO ROUND COMPLETE AND ACCEPTED 2026-10-11 across iPhone 16 and iMac Tahoe.** GX-06, the five non-intoxicating faux products, NAME-01, GX-07, GX-08, the continuous 7-stage Demo indicator and COPY-01 all passed physical acceptance. **`4d0d9aa` / `d2a41bdcae701e82` is the new protected application baseline, replacing `a518790` / `5bf1c70f63098016`.** **F — the dormant standard-customer product pathway — is a future POS-integration architecture item and MUST NOT be deleted or refactored.** An intermittent iPhone 16 scroll/tap behaviour is an OBSERVATION ONLY, not a defect; it did not prevent acceptance and no speculative mobile change was made._
@@ -12,8 +12,99 @@ _**PRINT-01 CLOSED AND ACCEPTED 2026-10-14 across iPhone 16, the legacy iPad min
 _**RESET-03 CLOSED AND ACCEPTED 2026-10-14 across iPhone 16, the legacy iPad mini 2 and a current iMac.** A session reset now deletes the previous customer's medication list, interaction report, typed search text, Entourage condition and hidden Guided Match screen instead of only hiding them. **`d5d3a0b` / `9dc707c5f738c8f4` is the new protected application baseline, replacing `7d2ee24` / `d4693daa1dbd268a`.** Six related findings remain OPEN for the AI/QA Global review — see OPEN / DEFERRED._
 
 _**COPY-02 CLOSED AND ACCEPTED 2026-10-15 on iPhone 16 and a current iMac.** Both disclaimer instructions for shared devices now name **End Session** (shown as **I'm Done — End My Session** on larger screens). Copy only. **`07699d3` / `8a6e58ca6ba57aff` is the new protected application baseline, replacing `d5d3a0b` / `9dc707c5f738c8f4`.**_
+_**RENDER-01 + COPY-03 CLOSED AND ACCEPTED 2026-10-19 across iPhone 16, the legacy iPad mini 2 and a current iMac.** The Guided Match / Demo medication check now renders V2's curated medication markup instead of showing literal `&mdash;` and `<strong>`, and the opening screen says the 64 molecules are selected from the hundreds of compounds identified in the plant. **`747fb2e` / `4691532ecf63f38b` is the new protected application baseline, replacing `07699d3` / `8a6e58ca6ba57aff`.**_
+
 
 _**Pre-release audit COMPLETE: waves 2–6 ALL SHIPPED. Wave 1 (the release blocker) needs the owner. Drug tranches A–E ALL SHIPPED; severity-sort bug FIXED; the CYP2D6 sweep is COMPLETE across all 21 records; prostate evidence recalibrated; three Men's Health topics added; a V2-wide count guard now blocks stale numbers; Demo Mode and Guided Match are ALIGNED and share one data source, guarded. Tranche E is now COMPLETE and the four discovered gaps are closed (DRUG-24); the CBD→Δ⁹-THC exposure finding is in the build; `hasRisk` is enforced rather than dead.**_
+
+---
+
+## 000000000000000000. RENDER-01 + COPY-03 — MEDICATION MARKUP ON GUIDED MATCH; THE 64 MOLECULES — **CLOSED AND ACCEPTED**
+
+**Owner-accepted 2026-10-19 on iPhone 16 / Safari, the legacy iPad mini 2 (iOS 12.4.2 / Safari 12.1.2)
+and a current iMac. Commit `747fb2e`, build `4691532ecf63f38b` is the protected application
+baseline.** Rollback: `07699d3` / `8a6e58ca6ba57aff` (`index_BACKUP_20261019_pre_RENDER01.html`;
+`preflight_BACKUP_20261019_pre_RENDER01.py`). One commit carries both items.
+
+### RENDER-01 — a systemic rendering path, not an Albuterol record
+
+**Reported:** the owner saw "…in reactive airways &mdash; the very symptoms albuterol is being used to
+relieve" on the Guided Match medication check (iPhone 16), with the entity shown literally.
+
+**Cause (verified by running the real code):** `DI_DATA` and `DDI_DATA` store `mech` / `effect` /
+`monitor` as **curated HTML** — `&mdash;` and other entities, plus `<strong>`, `<em>`, `<br>`, `<sub>`.
+The Table's Drug Interactions panel and the printed report insert that text as HTML. **`djMedResults()`**
+— the medication check shared by standard Guided Match **and** Demo Mode — wrapped both effect lines in
+`esc()`, which turned `&` into `&amp;` and `<` into `&lt;`. Scale: **263 of 289** cannabis–drug records
+and **22 of 104** drug–drug pairs showed raw markup there; SSRI + tramadol alone showed 20 literal
+`<strong>`, 8 `<em>` and 14 `&mdash;`. Albuterol carried only an entity, which is why it was the one
+noticed. One drug **name** — "Carbonic anhydrase inhibitors &mdash; topical eye drops…" — was also
+affected, because names are escaped.
+
+**Fixed at the path, not per record:**
+1. `djMedResults()`: the two effect lines insert the curated text as HTML (no `esc()`), with a comment
+   pointing to the same convention used by the Table, the print report and molecule names.
+2. `oph_cai` drug name: the `&mdash;` entity → a literal "—". (Its `cls` line was left as-is; that field
+   is not escaped anywhere and already rendered correctly.)
+
+**Escaping preserved** for everything untrusted or that V2 does not author as HTML: drug names
+(`medLabel`), drug–drug pair labels, evidence grades, everything a customer types, CSV / imported
+inventory fields and IDs. No interaction wording, severity, grade, molecule association, matching or
+medication logic changed.
+
+**Why rendering it as HTML is safe:** this text is static data inside `index.html`, never customer or
+CSV input. A scan of every `mech`, `effect` and `monitor` in both datasets found only bare `strong`, `em`,
+`br` and `sub` tags and no script, event-handler or `javascript:` patterns — and Guard 37 now keeps it so.
+
+### Guard 37 — `check_trusted_markup` (permanent, every build; 37 guards total)
+
+- `djMedResults()` must insert the drug–drug and cannabis–medication effect text as trusted HTML, and
+  must not `esc()` it again (exact text).
+- Every DI/DDI `mech`, `effect` and `monitor` may use only bare `<strong>`, `<em>`, `<br>`, `<sub>` — no
+  attributes, no script, no event handlers, no `javascript:` URLs.
+- Drug names, brands and drug–drug pair labels must contain **no** HTML entities or tags, because those
+  fields are still escaped and would display literally.
+- Size tripwire: fails if either dataset is unexpectedly small.
+
+**Mutation-tested — 11 mutations caught:** the pre-fix build (4 failures); either effect line re-escaped;
+an injected `<script>`, `onerror=` handler or `javascript:` link; a non-allowlisted `<span>`; a `<strong>`
+with an attribute; an entity in a drug name; a tag in a brand; an entity in a pair label. Passes the
+shipped build.
+
+### COPY-03 — the 64 molecules are a selection, not the whole plant
+
+The opening screen could be read as saying cannabis contains only 64 molecules. **Final approved
+wording** (`.wg-sub`, line 974; the live `data-v2fact` hooks for 64 and 65 and the bold are unchanged):
+
+> An educational resource from Acannability covering **64 cannabis plant molecules** — cannabinoids,
+> terpenes, and flavonoids selected from the hundreds of compounds identified in the cannabis plant —
+> and what published research reports about each, across **65 health topics**.
+
+**Basis:** PMID **28120229** (ElSohly et al. 2017, *Phytochemistry of Cannabis sativa L.*: "more than 560
+constituents have been identified in cannabis") and PMID **33332000** (2021, *Constituents of Cannabis
+Sativa*: "more than 550 chemical compounds", more than 100 phytocannabinoids and more than 100 terpenes —
+consistent with V2's existing "over 100 cannabinoids identified in the cannabis plant"). **"Hundreds" was
+chosen over a number** because inventories count differently and keep growing; "more than 500 compounds"
+is defensible if a figure is ever wanted, and the derived-counts guard accepts it because it is hedged.
+"Selected from" makes the curation clear without implying the other compounds are unresearched.
+
+### Testing
+
+- Syntax OK; all **37 guards** pass; `--online`: 839/839 PMIDs resolve.
+- **Development-only behavioural checks (one-time harness, NOT repository tests):** standard Guided
+  Match 12/12 and Demo Mode 6/6 — Albuterol emits a real em dash; SSRI + tramadol has no literal tags and
+  real bold/italic; the carbonic-anhydrase name shows "—"; the Table panel unchanged; "dorzolamide",
+  "carbonic anhydrase" and "brinzolamide" searches still find the record; the RESET-03 reset and the
+  ROUTE-04 route screen still work. The earlier ROUTE-04 and PRINT-01 harness scripts were no longer
+  available and were not rerun; their permanent guards (34, 35) pass.
+
+### Physical acceptance — 2026-10-19
+
+| Device | Result |
+|---|---|
+| iPhone 16 · Safari | **PASS** — opening wording; Albuterol shows "—"; SSRI + tramadol formatting; normal use |
+| iPad mini 2 · iOS 12.4.2 · Safari 12.1.2 | **PASS** |
+| Current iMac | **PASS** |
 
 ---
 
