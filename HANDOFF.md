@@ -1,6 +1,6 @@
 # Acannability’s Cannabis Periodic Table of Molecules · Project Handoff  _(internal build: V2)_
-_Last updated: **2026-10-19** · **Protected baseline: commit `747fb2e`, sha256 `4691532ecf63f38b`** (RENDER-01 + COPY-03; live byte-identical to `main`). Previous protected baseline: `07699d3` / `8a6e58ca6ba57aff` (COPY-02; on disk: `index_BACKUP_20261019_pre_RENDER01.html`). Earlier references: `d5d3a0b` / `9dc707c5f738c8f4`, `7d2ee24` / `d4693daa1dbd268a`, `af8a334` / `5bbec607a59bbbf3`, `4d0d9aa` / `d2a41bdcae701e82`, `a518790` / `5bf1c70f63098016`, `6baf906` / `5cf72d6e2c66b1fe`, `59ef593` / `5ee1e392b2360494`, `e3298d3` / `1b6f1f86b486dcbb`, `135d300` / `96f38d244268b63a`._
-_Build: 2.2 MB · 64 molecules · **65 health conditions** / 10 groups · 3 cross-listed · **839 NCBI-verified PMIDs** · **289 drug records · 104 drug–drug pairs** · **42 faux Demo products** · backlog 284 rows · preflight: **37 guards**, all passing `--online`_
+_Last updated: **2026-10-19** · **Protected baseline: commit `195aacf`, sha256 `c8e736fbf9d38a2e`** (MEDREVIEW-01; live byte-identical to `main`). Previous protected baseline: `747fb2e` / `4691532ecf63f38b` (RENDER-01 + COPY-03; on disk: `index_BACKUP_20261019_pre_MEDREVIEW01.html`). Earlier references: `07699d3` / `8a6e58ca6ba57aff`, `d5d3a0b` / `9dc707c5f738c8f4`, `7d2ee24` / `d4693daa1dbd268a`, `af8a334` / `5bbec607a59bbbf3`, `4d0d9aa` / `d2a41bdcae701e82`, `a518790` / `5bf1c70f63098016`, `6baf906` / `5cf72d6e2c66b1fe`, `59ef593` / `5ee1e392b2360494`, `e3298d3` / `1b6f1f86b486dcbb`, `135d300` / `96f38d244268b63a`._
+_Build: 2.2 MB · 64 molecules · **65 health conditions** / 10 groups · 3 cross-listed · **841 NCBI-verified PMIDs** · **291 drug records · 104 drug–drug pairs · 1 reviewed-only medication** · **42 faux Demo products** · backlog 286 rows · preflight: **38 guards**, all passing `--online`_
 _**MODERN CROSS-PLATFORM QA ROUND 1 COMPLETE. IOS-07 passed physical-device acceptance on 2026-10-06 across iPhone 16 (iOS 26.6.1), the legacy iPad mini 2 (iOS 12.4.2) and an iMac. Commit `e3298d3` / build `1b6f1f86b486dcbb` is the new protected application baseline. IOS-01 through IOS-05 and IOS-07 are CLOSED; IOS-04b and IOS-06 remain recorded as FAILED AND REVERTED. Guards 31 and 32 both protect shipped code. **D2 is CLOSED on physical-device acceptance (2026-10-06); D1 remains OPEN/DEFERRED pending a current Windows Chrome/Edge physical test; U1 and U2 are observations only. **GX-01 + GX-02 (Guided Match) are deployed PROVISIONALLY as `11f687a` / `f12dfc9a1777f36c` and await physical acceptance; the protected baseline remains `a518790` / `5bf1c70f63098016`.** RESET-01 passed physical acceptance 2026-10-07 across iPhone 16, legacy iPad mini 2, an El Capitan iMac and a newer iMac — `59ef593` / `5ee1e392b2360494` is the new protected baseline.** D2 is CLOSED; D1 remains OPEN/DEFERRED pending a current Windows Chrome/Edge physical test; U1/U2 are observations only. A residual Entourage intermittency survives RESET-01 and is recorded as an observation with NO root cause — refresh first.**_
 
 _**GUIDED MATCH / DEMO ROUND COMPLETE AND ACCEPTED 2026-10-11 across iPhone 16 and iMac Tahoe.** GX-06, the five non-intoxicating faux products, NAME-01, GX-07, GX-08, the continuous 7-stage Demo indicator and COPY-01 all passed physical acceptance. **`4d0d9aa` / `d2a41bdcae701e82` is the new protected application baseline, replacing `a518790` / `5bf1c70f63098016`.** **F — the dormant standard-customer product pathway — is a future POS-integration architecture item and MUST NOT be deleted or refactored.** An intermittent iPhone 16 scroll/tap behaviour is an OBSERVATION ONLY, not a defect; it did not prevent acceptance and no speculative mobile change was made._
@@ -13,9 +13,127 @@ _**RESET-03 CLOSED AND ACCEPTED 2026-10-14 across iPhone 16, the legacy iPad min
 
 _**COPY-02 CLOSED AND ACCEPTED 2026-10-15 on iPhone 16 and a current iMac.** Both disclaimer instructions for shared devices now name **End Session** (shown as **I'm Done — End My Session** on larger screens). Copy only. **`07699d3` / `8a6e58ca6ba57aff` is the new protected application baseline, replacing `d5d3a0b` / `9dc707c5f738c8f4`.**_
 _**RENDER-01 + COPY-03 CLOSED AND ACCEPTED 2026-10-19 across iPhone 16, the legacy iPad mini 2 and a current iMac.** The Guided Match / Demo medication check now renders V2's curated medication markup instead of showing literal `&mdash;` and `<strong>`, and the opening screen says the 64 molecules are selected from the hundreds of compounds identified in the plant. **`747fb2e` / `4691532ecf63f38b` is the new protected application baseline, replacing `07699d3` / `8a6e58ca6ba57aff`.**_
+_**MEDREVIEW-01 CLOSED AND ACCEPTED 2026-10-19 across iPhone 16, the legacy iPad mini 2 and a current iMac.** Desmopressin and meclizine are added as Grade D interaction records, and mirabegron is the first **reviewed-only** medication: recognized and searchable with no interaction record, severity, grade or molecules. **`195aacf` / `c8e736fbf9d38a2e` is the new protected application baseline, replacing `747fb2e` / `4691532ecf63f38b`.**_
+
 
 
 _**Pre-release audit COMPLETE: waves 2–6 ALL SHIPPED. Wave 1 (the release blocker) needs the owner. Drug tranches A–E ALL SHIPPED; severity-sort bug FIXED; the CYP2D6 sweep is COMPLETE across all 21 records; prostate evidence recalibrated; three Men's Health topics added; a V2-wide count guard now blocks stale numbers; Demo Mode and Guided Match are ALIGNED and share one data source, guarded. Tranche E is now COMPLETE and the four discovered gaps are closed (DRUG-24); the CBD→Δ⁹-THC exposure finding is in the build; `hasRisk` is enforced rather than dead.**_
+
+---
+
+## 0000000000000000000. MEDREVIEW-01 — DESMOPRESSIN, MECLIZINE, AND REVIEWED-ONLY MEDICATIONS (MIRABEGRON) — **CLOSED AND ACCEPTED**
+
+**Owner-accepted 2026-10-19 on iPhone 16 / Safari, the legacy iPad mini 2 (iOS 12.4.2 / Safari 12.1.2)
+and a current iMac. Commit `195aacf`, build `c8e736fbf9d38a2e` is the protected application
+baseline.** Rollback: `747fb2e` / `4691532ecf63f38b` (`index_BACKUP_20261019_pre_MEDREVIEW01.html`;
+`preflight_BACKUP_20261019_pre_MEDREVIEW01.py`).
+
+**Counts after MEDREVIEW-01:** **291** cannabis–drug interaction records (+2) · **104** drug–drug pairs
+(unchanged) · **1** reviewed-only medication (mirabegron) · **841** distinct PMIDs, all resolving at NCBI
+(+2: 39158240, 38634131) · **38** preflight guards.
+
+### The architecture decision — recognized is not the same as "has an interaction record"
+
+Until MEDREVIEW-01, V2's searchable medication vocabulary came **only** from `DI_DATA` (plus
+`DI_ALIASES`, which can only point at `DI_DATA`). A medication could be found only if it carried an
+interaction record, so a drug with no cannabis evidence either got a placeholder record or fell through
+to a not-found message. **A medication can now be recognized and reviewed by V2 without an interaction
+record, severity, evidence grade or molecule association.**
+
+- **`DI_REVIEWED`** is a separate registry. Each entry has `id`, `drug`, `brands`, `aliases`, `cls`,
+  `cat`, `reviewed` (date) and `basis` (what was checked), and **may not** carry `sev`, `ev`, `mols`,
+  `mech`, `effect` or `monitor`. It never enters `DI_INDEX`, interaction counts, molecule highlighting,
+  scientific or product matching, or the drug–drug / cannabis matchers (both ignore unknown ids).
+- **Shared wording**, used everywhere the state appears:
+  - label — **"Reviewed — no interaction record"**
+  - message — **"The Table recognizes this medication but hasn't identified a cannabis-specific
+    interaction for it in the evidence reviewed. That isn't proof that no interaction exists. The
+    Table's drug–drug interaction checks cover selected evidence-supported combinations and are not a
+    complete interaction screening."**
+- **First entry: mirabegron (extended-release)** — Myrbetriq, Myrbetriq Granules, "mirabegron er". The
+  evidence review found no cannabis–mirabegron study, case report or labeling statement, and only a
+  small theoretical additive heart-rate effect. A minor/D record would have asserted an interaction the
+  evidence does not support, and A-for-absence requires a human study that does not exist.
+- **Why not the existing pattern:** 77 of the records have no implicated molecules (`mols:[]`), and 76 of
+  those are minor/D — a severity badge and "1 interaction found" attached to "none expected". That
+  pattern was deliberately **not** extended to mirabegron, and those 77 records were not changed.
+
+### Wording that could read as "safe" — corrected
+
+- **Unknown medications:** the Table's "No cannabis drug interactions found for …" — which a mirabegron
+  search showed before this change — and the Guided / Demo not-found lines now read **"Not in The
+  Table's medication database yet — that doesn't mean it has no cannabis interaction. Try the generic
+  name, a brand name or drug class, or ask your pharmacist."** The old Table message also inserted the
+  typed query unescaped; the new one does not echo it.
+- **Every "no interactions" summary** — Table list (summary *and* the detailed section, which a harness
+  run caught after the first pass), Guided / Demo medication step, results screen, and print — is
+  qualified **"among medications with interaction records"** whenever a reviewed-only medication is
+  listed, and the results screen shows ℹ️ rather than ✓. Lists without a reviewed-only medication are
+  unchanged.
+
+### The two new interaction records (both Grade D — no study has tested cannabis with either)
+
+| Record | Names | Sev / Ev | Molecules | Basis |
+|---|---|---|---|---|
+| **Desmopressin** | DDAVP, DESMODA; alias "desmopressin acetate" | moderate / D | Δ9-THC | Water balance / hyponatremia (FDA labels incl. DESMODA NDA219873: excess fluid while urine output is limited can cause water intoxication). Cannabis dry mouth (PMID 26103030). The cannabis-associated hyponatremia case (39158240) **did not involve desmopressin**; the mouse vasopressin study (38634131) is **not** evidence of a harmful interaction — desmopressin overrode the effect. One record covers every form and indication. |
+| **Meclizine** | Antivert, Bonine; aliases meclizine hydrochloride, meclizine hcl, meclozine (NLM MeSH entry term) | moderate / D | Δ9-THC, CBN, CBD (as diphenhydramine) | Additive drowsiness / dizziness (Rx and OTC labels; Epidiolex label for CBD with CNS depressants). **CYP2D6 is explicitly not the basis** — CBD showed no CYP2D6 effect in people (37313955). |
+
+Monitoring text is educational, not prescriptive: no dosing, drinking or testing instructions.
+
+### Dramamine — deliberately NOT an alias for meclizine
+
+Original **Dramamine is dimenhydrinate**; only some Dramamine products ("Less Drowsy") are meclizine.
+V2's search matches a query to the **start of any word** in a key, and each brand also registers its
+first word as a key — so *any* key containing "dramamine", even "Dramamine Less Drowsy (meclizine)",
+would send a plain "Dramamine" search to the meclizine record. **A "Dramamine" search returns the
+not-found state, and on all three devices that is the accepted, correct behaviour.** Guard 38 fails the
+build if any searchable field contains "Dramamine". Desmopressin's historical brands (Stimate, Nocdurna,
+Noctiva, Minirin) were also left out, for later review.
+
+### Guard 38 — `check_reviewed_registry` (permanent, every build; 38 guards total)
+
+Evaluates `DI_REVIEWED` and `DI_ALIASES` in JavaScriptCore and checks: registry shape and the forbidden
+interaction fields; separation from `buildDiIndex` and the matchers; unique, non-colliding ids and
+names; the exact label, the required uncertainty language and the not-found wording; no unsafe
+reassurance ("safe", "does not interact", "no risk", "proven" and similar); every display site using the
+shared wording; every qualified ✓ line; **a generic scan for any new unqualified "✓ No…" line**; and no
+Dramamine anywhere searchable. **Mutation-tested: 22 of 22 caught.**
+
+### Testing
+
+- Syntax OK; all **38 guards** pass; `--online`: **841/841** PMIDs resolve. *(The first online run hit an
+  NCBI server error and skipped the lookup while still printing "passed"; it was not counted, and the
+  retry ran the full lookup.)*
+- **Development-only checks (one-time harness, NOT repository tests):** 62/62 standard and 10/10 Demo
+  behavioural checks; a search regression of **1,826 queries** old-vs-new with **no existing result lost
+  or changed** (20 queries additionally return a new record); RENDER-01 / ROUTE-04 / RESET-03 sanity
+  14/14 and 7/7.
+- **Known, accepted side effect:** desmopressin's class line "(tablets, oral solution, nasal spray,
+  injection)" is searchable, so it also appears — ranked after exact matches — for broad words such as
+  "oral", "nasal", "spray" or "tab".
+
+### Physical acceptance — 2026-10-19
+
+| Device | Result |
+|---|---|
+| iPhone 16 · Safari | **PASS** — DDAVP/DESMODA, Antivert/Bonine, Myrbetriq reviewed-only state, qualified summaries, print; Dramamine not found (expected) |
+| iPad mini 2 · iOS 12.4.2 · Safari 12.1.2 | **PASS** |
+| Current iMac | **PASS** |
+
+### Separate future workstreams — NOT part of MEDREVIEW-01
+
+- **Dimenhydrinate (Dramamine)** — a future medication candidate. It needs its **own read-only
+  cannabis/cannabinoid interaction evidence review** before any addition; only then could "Dramamine"
+  resolve, to dimenhydrinate.
+- **The 77 existing no-molecule records** (76 minor/D) and V2's general "no interaction" presentation —
+  the broader policy question.
+- **Broader drug–drug coverage**, including the label-documented drug–drug interactions of mirabegron
+  (digoxin, CYP2D6 substrates), desmopressin (SSRIs, TCAs, opioids, thiazides, NSAIDs, carbamazepine,
+  lamotrigine and others) and meclizine (other CNS depressants).
+- **The albuterol / decongestant cardiovascular citation** — PMID 6283454 documents orthostatic
+  hypotension "characterized by the absence of tachycardia"; a weak fit for the heart-rate wording.
+- **Desmopressin historical brands** (Stimate — note the Drugs@FDA vs label status conflict — Nocdurna,
+  Noctiva, Minirin).
 
 ---
 
@@ -843,6 +961,14 @@ CLOSED AND ACCEPTED.**
   `d4693daa1dbd268a`) — see the PRINT-01 section.
 - ~~**Shared-kiosk session isolation.**~~ **CLOSED AND ACCEPTED 2026-10-14 as RESET-03** (`d5d3a0b` /
   `9dc707c5f738c8f4`) — see the RESET-03 section.
+- **Dimenhydrinate (Dramamine)** — future medication candidate; needs its own read-only cannabis
+  interaction evidence review before any addition. Until then a "Dramamine" search is deliberately
+  not found (MEDREVIEW-01).
+- **The 77 no-molecule records and V2's "no interaction" presentation** — broader policy question.
+- **Broader drug–drug coverage**, including the label-documented DDIs of mirabegron, desmopressin and
+  meclizine (MEDREVIEW-01).
+- **Albuterol / decongestant cardiovascular citation (PMID 6283454)** — review separately.
+- **Desmopressin historical brands** (Stimate, Nocdurna, Noctiva, Minirin) — later review.
 
 ### Open findings for the AI/QA Global privacy / security / governance review — NOT RESET-03 defects
 
