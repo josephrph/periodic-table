@@ -9251,7 +9251,8 @@ var DI_ALIASES = {
   // MEDREVIEW-01: salt and INN names only (meclozine is the NLM MeSH entry term for meclizine).
   // DRAMAMINE (MED-DIMEN, 2026-10-20): the brand is used on FDA labels for TWO medicines —
   // dimenhydrinate and meclizine. There is NO bare "dramamine" alias and Dramamine is in no `brands` list:
-  // only qualified product names, each label-verified to one active ingredient. Word-start matching then
+  // only qualified names that appear VERBATIM as a brand name on current FDA labels, each with one active
+  // ingredient (owner rule, 2026-10-20: no reconstructed word orders, no truncations). Word-start matching then
   // makes a plain "Dramamine" search reach BOTH records, never guessing, and diAmbiguityNote() explains.
   // Deliberately excluded (ambiguous): Dramamine Orange / Chewable Orange / Chewable, Motion Sickness.
   // Guard 38 holds the allowlist.
@@ -9260,14 +9261,9 @@ var DI_ALIASES = {
   'meclizine hcl':'meclizine',
   'meclozine':'meclizine',
   'dramamine original formula':'dimenhydrinate',
-  'dramamine original':'dimenhydrinate',
   'dramamine for kids':'dimenhydrinate',
-  "children's dramamine":'dimenhydrinate',
   'dramamine less drowsy':'meclizine',
-  'dramamine all day less drowsy':'meclizine',
-  'dramamine all day':'meclizine',
   'dramamine-n':'meclizine',
-  'dramamine nausea':'meclizine',
   'midodrine hcl':'midodrine',
   'ivabradine hydrochloride':'ivabradine',
   'florinef acetate':'fludrocortisone',

@@ -2347,11 +2347,13 @@ def check_reviewed_registry(src, data):
     #    its first word as a key, which would create a bare "dramamine" key) and never stand alone; a
     #    plain "Dramamine" search must reach BOTH records; and the shared ambiguity message must appear
     #    at every medication search.
+    #    Allowlist = names that appear VERBATIM as a brand name on current FDA labels (owner rule,
+    #    2026-10-20): no reconstructed word orders ("All Day Less Drowsy", "Children's") and no truncations
+    #    ("Dramamine Original" exists only inside "Dramamine Original Formula"; prefix matching still finds
+    #    it). "Dramamine Nausea" was also rejected as semantically ambiguous.
     DRAMAMINE_ALLOW = {
-        'dramamine original formula': 'dimenhydrinate', 'dramamine original': 'dimenhydrinate',
-        'dramamine for kids': 'dimenhydrinate', "children's dramamine": 'dimenhydrinate',
-        'dramamine less drowsy': 'meclizine', 'dramamine all day less drowsy': 'meclizine',
-        'dramamine all day': 'meclizine', 'dramamine-n': 'meclizine', 'dramamine nausea': 'meclizine'}
+        'dramamine original formula': 'dimenhydrinate', 'dramamine for kids': 'dimenhydrinate',
+        'dramamine less drowsy': 'meclizine', 'dramamine-n': 'meclizine'}
     for t in ('dimenhydrinate', 'meclizine'):
         if t not in di_ids:
             fail(name, 'the %s record is missing — Dramamine aliases point at it' % t)
