@@ -7497,8 +7497,21 @@ function medAddSearch(query) {
   var matches = hit.idx.map(function(i) { return DI_DATA[i]; })
     .filter(function(d) { return alreadyIds.indexOf(d.id) === -1; })
     .sort(diRankBy(hit.exact, {major:1, moderate:2, minor:3}));
+  // MEDREVIEW-01: recognized medications without an interaction record can be added too, marked as such.
+  var reviewedSug = diReviewedMatches(q).filter(function(r) { return alreadyIds.indexOf(r.id) === -1; });
+  var reviewedRows = reviewedSug.map(function(r) {
+    return '<div class="med-suggestion-item" onmousedown="addMedToList(\'' + r.id + '\')"><span class="di-rx-tag">' + (r.cat === 'otc' ? 'OTC' : 'Rx') + '</span>'
+      + '<span style="font-weight:700;font-size:.75rem">' + r.drug + '</span>'
+      + '<span style="font-size:.6rem;color:var(--mute);margin-left:auto">' + DI_REVIEWED_LABEL + '</span></div>';
+  }).join('');
+  if (!matches.length && reviewedRows) {
+    el.innerHTML = reviewedRows;
+    el.style.display = 'block';
+    if (aiSection) aiSection.style.display = 'none';
+    return;
+  }
   if (!matches.length) {
-    el.innerHTML = '<div class="med-suggestion-item" style="color:var(--dim);font-style:italic;cursor:default">Not found in local database — see tips below</div>'
+    el.innerHTML = '<div class="med-suggestion-item" style="color:var(--dim);font-style:italic;cursor:default">' + DI_NOT_FOUND_MSG + '</div>'
       + '<div class="med-suggestion-item" style="cursor:pointer" onmousedown="Feedback.fromContext(\'missing_med\',\'Drug Interaction Checker\',((document.getElementById(\'medAddInput\')||{}).value)||\'\')"><span style="color:var(--accent);font-weight:700">💬 Can\'t find it? Tell us it\'s missing →</span></div>';
     el.style.display = 'block';
     if (aiSection) aiSection.style.display = 'block';
@@ -7510,13 +7523,13 @@ function medAddSearch(query) {
     return '<div class="med-suggestion-item" onmousedown="addMedToList(\'' + m.id + '\')">'
       + cat + '<span style="font-weight:700;font-size:.75rem">' + m.drug + '</span>'
       + '<span style="font-size:.6rem;color:var(--mute);margin-left:auto">' + m.brands.slice(0,3).join(', ') + '</span></div>';
-  }).join('');
+  }).join('') + reviewedRows;
   el.style.display = 'block';
 }
 
 function addMedToList(diId) {
   if (_medList.find(function(m) { return m.id === diId; })) return;
-  var entry = DI_DATA.find(function(d) { return d.id === diId; });
+  var entry = DI_DATA.find(function(d) { return d.id === diId; }) || diReviewedById(diId);   // MEDREVIEW-01
   if (!entry) return;
   _medList.push(entry);
   document.getElementById('medAddInput').value = '';
@@ -7636,18 +7649,21 @@ function renderMedListResults(ddiHits, cannabisHits) {
 
   // ── Summary ──
   var rows = ['Medications reviewed: <strong>' + _medList.length + '</strong>'];
+  var revList = _medList.filter(diIsReviewed);   // MEDREVIEW-01
+  var revQ = revList.length ? DI_QUALIFIER : '';
   if (ddiHits.length) {
     var majDdi = ddiHits.filter(function(d){return d.sev==='major';}).length;
     rows.push((majDdi?'🔴 ':'🟠 ') + '<strong>' + ddiHits.length + ' drug-drug interaction' + (ddiHits.length>1?'s':'') + '</strong> found within your list' + (majDdi?' — <strong>' + majDdi + ' Major</strong>':''));
   } else {
-    rows.push('✓ No drug-drug interactions found within your medication list');
+    rows.push('✓ No drug-drug interactions found within your medication list' + revQ);
   }
   if (molIds.length) {
     var worst = molIds.reduce(function(a,b){ return cannabisHits[a].length >= cannabisHits[b].length ? a : b; });
     rows.push('💊 Cannabis interactions found with <strong>' + molIds.length + ' molecule' + (molIds.length>1?'s':'') + '</strong>; <strong>' + (M[worst]?cleanMolName(M[worst].symbol):worst) + '</strong> has the most (' + cannabisHits[worst].length + ')');
   } else {
-    rows.push('✓ No cannabis interactions found for any medications in your list');
+    rows.push('✓ No cannabis interactions found' + (revQ || ' for any medications in your list'));
   }
+  revList.forEach(function(r) { rows.push('ℹ️ <strong>' + r.drug + '</strong> — ' + DI_REVIEWED_LABEL + '. ' + DI_REVIEWED_MSG); });
   if (condName) rows.push('Health condition: <strong>' + condName + '</strong>');
 
   var html = '<div class="med-results-summary"><div class="med-results-summary-title">📊 Interaction Summary</div>'
@@ -7680,7 +7696,7 @@ function renderMedListResults(ddiHits, cannabisHits) {
   html += '<div class="cannabis-section-hdr">💊 Cannabis Molecule Interactions with Your Medications</div>';
 
   if (!molIds.length) {
-    html += '<div style="font-size:.76rem;color:#2D6B1A;padding:8px 0">✓ No cannabis interactions found for any medications in your list.</div>';
+    html += '<div style="font-size:.76rem;color:#2D6B1A;padding:8px 0">✓ No cannabis interactions found' + (_medList.some(diIsReviewed) ? DI_QUALIFIER : ' for any medications in your list') + '.</div>';   // MEDREVIEW-01
   } else {
     var sortedMols = molIds.slice().sort(function(a,b) {
       var ra = cannabisHits[a][0] ? {major:3,moderate:2,minor:1}[cannabisHits[a][0].sev]||0 : 0;
@@ -8015,6 +8031,20 @@ var DI_DATA = [
    effect:'More drowsiness than either would cause alone, slower reactions, and next-morning grogginess &mdash; diphenhydramine is long-acting, so the hangover effect is real. Dry mouth, blurred vision and difficulty passing urine are diphenhydramine&rsquo;s own anticholinergic effects rather than products of any interaction, though they add to the general feeling of being impaired.',
    monitor:'The practical concern is impairment: <strong>do not drive or operate machinery</strong> if you have used both, and be careful on stairs and at night, since falls are the everyday harm here. If you are using diphenhydramine as a sleep aid alongside cannabis, mention it to a pharmacist &mdash; it is easy to end up more sedated than intended, and there are usually better long-term options for sleep. This matters more with age, as both sedation and confusion become more likely.',
    pmid:'37313955'},
+  // MEDREVIEW-01 (2026-10-19, owner-approved): desmopressin and meclizine. Both Grade D — no study has
+  // tested cannabis with either drug; each record says so and names the mechanism it rests on.
+  {id:'desmopressin',drug:'Desmopressin',brands:['DDAVP','DESMODA'],cls:'Vasopressin Analog — antidiuretic (tablets, oral solution, nasal spray, injection)',cat:'rx',
+   mols:['THC9'],sev:'moderate',ev:'D',
+   mech:'<strong>No study has looked at cannabis together with desmopressin.</strong> The concern is water balance, not how either drug is broken down &mdash; desmopressin is a peptide and is not cleared by the liver enzymes cannabinoids affect. Desmopressin makes the kidneys hold on to water, and its prescribing information warns that drinking too much while it is working can lead to water intoxication and low blood sodium (hyponatremia), which can be dangerous. Cannabis commonly causes a dry mouth &mdash; one of the most frequent side effects in a large review of cannabinoid trials &mdash; and a dry mouth can lead people to drink more. <em>One 2024 case report described a dangerous fall in sodium after a person drank large amounts of water following a cannabis edible; that person was not taking desmopressin, so it illustrates the cannabis side of the concern only. A 2024 mouse study found that a synthetic cannabinoid lowered the body&rsquo;s own antidiuretic hormone, and desmopressin overrode that effect &mdash; so it is not evidence of a harmful interaction with desmopressin.</em> This record is graded D: the reasoning is pharmacodynamic and has not been tested.',
+   effect:'<strong>The possible risk is drinking more than usual while desmopressin is holding water in the body</strong>, which could lower blood sodium. Early signs can include headache, nausea or vomiting, weight gain, tiredness, restlessness, confusion and muscle cramps; severe cases can cause seizures. <em>This is inference, not a measured outcome.</em>',
+   monitor:'Follow the fluid-intake instructions provided with desmopressin and discuss cannabis use with the clinician or pharmacist managing the medication. Seek medical attention for symptoms that could indicate significant hyponatremia, such as severe headache, repeated vomiting, marked confusion or seizure. <em>This applies to every form of desmopressin &mdash; tablets, oral solution (including DESMODA), nasal spray and injection.</em>',
+   pmid:'26103030, 39158240, 38634131'},
+  {id:'meclizine',drug:'Meclizine',brands:['Antivert','Bonine'],cls:'Antihistamine — motion sickness / vertigo (OTC and Rx)',cat:'otc',
+   mols:['THC9','CBN','CBD'],sev:'moderate',ev:'D',
+   mech:'<strong>No study has tested cannabis together with meclizine.</strong> The concern is added drowsiness and dizziness. Meclizine is a sedating antihistamine, and its prescribing information warns that combining it with other drugs that slow the brain, including alcohol, may increase drowsiness; its over-the-counter labels say the same about alcohol, sedatives and tranquilizers. Drowsiness and dizziness are among the commonest side effects of cannabinoids in clinical trials, with &Delta;9-THC and cannabinol the cannabinoids most associated with sedation, and the prescribing information for purified CBD (Epidiolex) warns that combining it with other drugs that slow the brain may increase sleepiness. Two different routes to the same place, so the effects can add up &mdash; pharmacodynamic inference, graded D. <em>Meclizine is broken down mainly by CYP2D6, but that is not the basis for this warning: in a 2023 human study, CBD did not measurably inhibit CYP2D6.</em> Meclizine&rsquo;s anticholinergic effects (dry mouth, blurred vision, difficulty passing urine) are its own, though cannabis can add to a dry mouth.',
+   effect:'More drowsiness and dizziness than either would cause alone, slower reactions and unsteadiness &mdash; more important because meclizine is often taken for vertigo or motion sickness, when balance is already affected. <em>This is inference, not a measured outcome.</em>',
+   monitor:'Because both can cause drowsiness or dizziness, use caution with activities requiring alertness, including driving. Alcohol and other sedating medications may increase these effects. Discuss cannabis use with your pharmacist or clinician, particularly if you take other medications that cause sedation.',
+   pmid:'26103030, 37313955'},
   {id:'melatonin',drug:'Melatonin',brands:['Natrol','Sundown Naturals','Nature Made','ZzzQuil Pure Zzzs'],cls:'Sleep Supplement (OTC)',cat:'otc',
    mols:['THC9','CBD'],'routes':[{'route':'combustion','target':'CYP1A2','direction':'induction','ev':'D','basis':'mechanism-review','pmid':'27106177'}],sev:'minor',ev:'D',
    mech:'Melatonin and cannabis promote sleep by unrelated routes &mdash; melatonin through MT1 and MT2 receptors, &Delta;9-THC and cannabinol through CB1 &mdash; so their sedative effects can add. <strong>There is also a metabolic angle that this record previously omitted:</strong> melatonin is cleared predominantly by <strong>CYP1A2</strong>. CBD inhibits that enzyme, so CBD could in theory raise melatonin exposure. And <strong>smoking</strong> cannabis pushes the same enzyme the other way, through combustion products rather than through &Delta;9-THC as a molecule, which could in theory lower it. <em>Both directions are theoretical here: no direct cannabis&ndash;melatonin study was identified, which is why this record is graded D.</em> <em><strong>Molecule tags, corrected.</strong> <strong>CBD is now tagged.</strong> Melatonin is cleared predominantly by CYP1A2, and CBD is the one cannabinoid with measured human CYP1A2 inhibition, so it is the molecule this pathway actually implicates &mdash; and it was the one missing. <strong>CBN has been removed.</strong> Its tag rested on CB1-mediated sedation, and the human evidence does not support CBN as a sedative: a controlled trial found no significant effect on its primary sleep endpoint. The Table applies that standard consistently rather than keeping CBN on the strength of its reputation. <strong>&Delta;9-THC keeps its tag</strong> &mdash; but for the pharmacodynamic route only, additive CB1 sedation, and not for CYP1A2, where the induction belongs to combustion rather than to the molecule.</em> <em><strong>What the combustion evidence is, stated precisely.</strong> <strong>Directly studied:</strong> cigarette smoking induces CYP1A2 in people, and a review covering cannabinoids as well as tobacco reports that <strong>both marijuana and tobacco smoking induce CYP1A2 through activation of the aryl hydrocarbon receptor, with an additive effect between the two</strong> (PMID 27106177). <strong>What is inferred for this drug:</strong> that the same induction would speed its clearance. That is an inference from the enzyme &mdash; <strong>no study has measured cannabis smoking together with this drug</strong>. The only drug for which cannabis smoking has been measured directly is theophylline (PMID 688731), and that result is not transferred here. <strong>What the mechanism is:</strong> the inducing agents are the <strong>polycyclic aromatic hydrocarbons produced by combustion</strong> &mdash; not &Delta;9-THC, not CBD, not any other cannabinoid &mdash; which is why vaporised, oral and topical products are not expected to induce this enzyme.</em>',
@@ -9131,6 +9161,49 @@ function diRankBy(exact, sevOrder) {
   };
 }
 
+// ── MEDREVIEW-01: RECOGNIZED MEDICATIONS WITHOUT AN INTERACTION RECORD ─────────────────────────────
+// A medication can be searched, added and named without carrying a cannabis-interaction claim. Entries
+// here have NO severity, NO evidence grade and NO molecules — they never enter DI_INDEX, interaction
+// counts, molecule highlighting, matching or drug-drug checks. Guard 38 (check_reviewed_registry)
+// forbids sev/ev/mols/mech/effect/monitor here, and requires every display of this state to use the
+// shared wording below, which says plainly that the absence of a record is not proof of no interaction.
+var DI_REVIEWED = [
+  {id:'mirabegron',drug:'Mirabegron (extended-release)',brands:['Myrbetriq','Myrbetriq Granules'],
+   aliases:['mirabegron','mirabegron er','mirabegron extended-release','mirabegron extended release'],
+   cls:'Beta-3 Adrenergic Agonist (overactive bladder)',cat:'rx',reviewed:'2026-10-19',
+   basis:'No cannabis–mirabegron study, case report or prescribing-information statement was found (PubMed and FDA labeling reviewed 2026-10-19).'}
+];
+var DI_REVIEWED_LABEL = 'Reviewed — no interaction record';
+var DI_REVIEWED_MSG = 'The Table recognizes this medication but hasn’t identified a cannabis-specific interaction for it in the evidence reviewed. That isn’t proof that no interaction exists. The Table’s drug–drug interaction checks cover selected evidence-supported combinations and are not a complete interaction screening.';
+var DI_NOT_FOUND_MSG = 'Not in The Table’s medication database yet — that doesn’t mean it has no cannabis interaction. Try the generic name, a brand name or drug class, or ask your pharmacist.';
+var DI_QUALIFIER = ' among medications with interaction records';   // appended to every ✓ line when a reviewed-only medication is listed
+function diReviewedById(id) {
+  for (var i = 0; i < DI_REVIEWED.length; i++) if (DI_REVIEWED[i].id === id) return DI_REVIEWED[i];
+  return null;
+}
+function diIsReviewed(m) { return !!(m && diReviewedById(m.id)); }
+function diReviewedMatches(q) {
+  q = String(q || '').toLowerCase().trim();
+  if (q.length < 2) return [];
+  var flat = function(t) { return String(t || '').toLowerCase().replace(/[-\/]+/g, ' ').replace(/\s+/g, ' ').trim(); };
+  return DI_REVIEWED.filter(function(r) {
+    var keys = [r.drug, r.id].concat(r.brands || [], r.aliases || []);
+    (r.brands || []).forEach(function(b) { keys.push(String(b).split(' ')[0]); });
+    return keys.some(function(k) {
+      var key = String(k || '').toLowerCase().trim();
+      return key && (diKeyMatches(key, q) || diKeyMatches(flat(key), flat(q)));
+    });
+  });
+}
+function diReviewedCardHtml(r) {
+  var tag = r.cat === 'otc' ? '<span class="di-otc-tag">OTC</span>' : '<span class="di-rx-tag">Rx</span>';
+  return '<div class="di-card di-reviewed" style="border-left:4px solid var(--mute,#999)">'
+    + '<div class="di-card-hdr"><span class="di-drug-name">' + r.drug + '</span>' + tag
+    + '<span style="font-size:.6rem;font-weight:700;color:var(--dim);border:1px solid var(--border);border-radius:10px;padding:1px 7px">' + DI_REVIEWED_LABEL + '</span>'
+    + '<span class="di-drug-class">' + r.cls + '</span></div>'
+    + ((r.brands && r.brands.length) ? '<div style="font-size:.62rem;color:var(--mute);margin-bottom:6px">Also listed as: ' + r.brands.join(' · ') + '</div>' : '')
+    + '<div class="di-section-body">' + DI_REVIEWED_MSG + '</div></div>';
+}
 var DI_INDEX = {};
 var DI_COVERED = {}; // DRUG-A3: record index -> every generic/brand name that resolves to it
 var DI_ALIASES = {
@@ -9159,6 +9232,13 @@ var DI_ALIASES = {
   // never reaches a shorter key — someone typing the full salt name ("midodrine hydrochloride")
   // misses the "midodrine" key entirely. Name normalisation only; no new interaction claim.
   'midodrine hydrochloride':'midodrine',
+  // MEDREVIEW-01: salt and INN names only (meclozine is the NLM MeSH entry term for meclizine).
+  // Deliberately NO Dramamine alias: word-start matching would send a plain "Dramamine" search —
+  // original Dramamine is dimenhydrinate — to the meclizine record. Guard 38 forbids it.
+  'desmopressin acetate':'desmopressin',
+  'meclizine hydrochloride':'meclizine',
+  'meclizine hcl':'meclizine',
+  'meclozine':'meclizine',
   'midodrine hcl':'midodrine',
   'ivabradine hydrochloride':'ivabradine',
   'florinef acetate':'fludrocortisone',
@@ -10099,8 +10179,12 @@ function diStrands(r, molChips) {
 }
 function renderDrugResults(results, query) {
   var el = document.getElementById('diResults');
+  // MEDREVIEW-01: a recognized medication without an interaction record gets its own neutral card, outside
+  // the interaction count; a genuinely unknown name gets wording that cannot be read as "no interaction".
+  var reviewed = (typeof diReviewedMatches === 'function') ? diReviewedMatches(query) : [];
   if (!results.length) {
-    el.innerHTML = '<div class="di-no-results">No cannabis drug interactions found for "<strong>' + query + '</strong>". Try the generic name, a brand name, or drug class.</div>';
+    el.innerHTML = reviewed.length ? reviewed.map(diReviewedCardHtml).join('')
+      : '<div class="di-no-results">' + DI_NOT_FOUND_MSG + '</div>';
     return;
   }
   var html = '<div class="di-results-lbl">' + results.length + ' interaction' + (results.length !== 1 ? 's' : '') + ' found</div>';
@@ -10139,6 +10223,7 @@ function renderDrugResults(results, query) {
       + '<div style="margin-top:8px;display:flex;align-items:center;gap:10px">' + pmidHtml + '</div>'
       + '</div>';
   });
+  html += reviewed.map(diReviewedCardHtml).join('');   // MEDREVIEW-01: never counted as an interaction
   if (activeCond) {
     var condName = CONDITIONS.find(function(c){return c.id===activeCond;});
     condName = condName ? condName.label : activeCond;
@@ -13156,7 +13241,9 @@ var ROUTE_KEYS=['inhalation_vapor','inhalation_smoked','oral','sublingual','topi
         return '<div class="gx-medpair"><span class="gx-medpair-sev sev-'+p.sev+'">'+p.sev+'</span>'+
           '<span class="gx-medpair-txt">'+esc(p.drug)+' <span class="gx-medpair-arrow">↔</span> '+molNm(p.mol)+'</span></div>';
       }).join('');
-      medSummary='<div class="gx-note gx-medblock" style="margin-top:12px;border-left:3px solid var('+(anyI?'--accent2':'--accent')+')">'+(anyI?'⚠️ ':'✓ ')+'<b>Medication check</b> — '+st.meds.length+' reviewed: '+(ddiN?ddiN+' drug–drug interaction'+(ddiN>1?'s':''):'no drug–drug interactions')+', '+(recHitN?recHitN+' with an associated molecule'+(recHitN>1?'s':''):'none with associated molecules')+'.'+_pairHtml+(anyI?'<div style="margin-top:7px">Please review with your Product Specialist (Budtender) or provider before use. <button class="gx-express-run" onclick="V4GX.close();if(typeof toggleDrugPanel===\'function\')toggleDrugPanel();">See full interaction details</button></div>':'')+'</div>';}
+      var _rev=st.meds.filter(diIsReviewed),_revQ=_rev.length?DI_QUALIFIER:'';   // MEDREVIEW-01
+      medSummary='<div class="gx-note gx-medblock" style="margin-top:12px;border-left:3px solid var('+(anyI?'--accent2':'--accent')+')">'+(anyI?'⚠️ ':(_rev.length?'ℹ️ ':'✓ '))+'<b>Medication check</b> — '+st.meds.length+' reviewed: '+(ddiN?ddiN+' drug–drug interaction'+(ddiN>1?'s':''):'no drug–drug interactions'+_revQ)+', '+(recHitN?recHitN+' with an associated molecule'+(recHitN>1?'s':''):'none with associated molecules'+_revQ)+'.'+_pairHtml
+        +_rev.map(function(r){return '<div style="margin-top:6px"><b>'+esc(r.drug)+'</b> — '+DI_REVIEWED_LABEL+'. '+DI_REVIEWED_MSG+'</div>';}).join('')+(anyI?'<div style="margin-top:7px">Please review with your Product Specialist (Budtender) or provider before use. <button class="gx-express-run" onclick="V4GX.close();if(typeof toggleDrugPanel===\'function\')toggleDrugPanel();">See full interaction details</button></div>':'')+'</div>';}
     var prefRecap=prefBits.length?'<div class="dj-lbl" style="margin-top:12px">Your preferences</div><div class="gx-chips">'+prefBits.map(function(b){return '<span class="gx-chip">'+b+'</span>';}).join('')+'</div>':'';
     var prefGuide=guide.length?'<ul style="margin:8px 0 0;padding-left:18px;font-size:.72rem;color:var(--dim);line-height:1.6">'+guide.map(function(g){return '<li>'+g+'</li>';}).join('')+'</ul>':'';
     var sf=st.safetyFlags||[]; var sfMsgs=[];
@@ -13555,10 +13642,12 @@ var ROUTE_KEYS=['inhalation_vapor','inhalation_smoked','oral','sublingual','topi
     var molHits=Object.keys(byMol);var recHits=molHits.filter(function(m){return recIds.indexOf(m)>=0;});
     var ddiWorst=ddi.some(function(d){return d.sev==='major';})?'🔴':(ddi.some(function(d){return d.sev==='moderate';})?'🟠':'🟡');
     var molWorst=(function(){var s='minor';molHits.forEach(function(m){byMol[m].forEach(function(e){if(e.sev==='major')s='major';else if(e.sev==='moderate'&&s!=='major')s='moderate';});});return s==='major'?'🔴':(s==='moderate'?'🟠':'🟡');})();
+    var revMeds=meds.filter(diIsReviewed),revQ=revMeds.length?DI_QUALIFIER:'';   // MEDREVIEW-01
     var html='<div class="dj-med-sum">'+
       '<div>💊 <b>'+meds.length+'</b> medication'+(meds.length>1?'s':'')+' reviewed</div>'+
-      '<div>'+(ddi.length?(ddiWorst+' <b>'+ddi.length+'</b> drug–drug interaction'+(ddi.length>1?'s':'')+' within the list'):'✓ No drug–drug interactions within the list')+'</div>'+
-      '<div>'+(molHits.length?(molWorst+' Cannabis interactions with <b>'+molHits.length+'</b> molecule'+(molHits.length>1?'s':'')+(recHits.length?' — including <b>'+recHits.length+'</b> we just associated':'')):'✓ No cannabis interactions with the associated molecules')+'</div></div>';
+      '<div>'+(ddi.length?(ddiWorst+' <b>'+ddi.length+'</b> drug–drug interaction'+(ddi.length>1?'s':'')+' within the list'):'✓ No drug–drug interactions within the list'+revQ)+'</div>'+
+      '<div>'+(molHits.length?(molWorst+' Cannabis interactions with <b>'+molHits.length+'</b> molecule'+(molHits.length>1?'s':'')+(recHits.length?' — including <b>'+recHits.length+'</b> we just associated':'')):'✓ No cannabis interactions with the associated molecules'+revQ)+'</div></div>';
+    if(revMeds.length){html+='<div class="dj-med-h">'+DI_REVIEWED_LABEL+'</div>'+revMeds.map(function(r){return '<div class="dj-di"><div class="t">ℹ️ '+esc(r.drug)+'</div><div class="m">'+DI_REVIEWED_MSG+'</div></div>';}).join('');}
     if(ddi.length){html+='<div class="dj-med-h">Drug–drug interactions in the list</div>'+ddi.map(function(d){
       return '<div class="dj-di '+d.sev+'"><div class="t">'+(sevIc[d.sev]||'')+' '+esc(d.label||d.drugs.join(' + '))+'<span class="ev">Ev '+esc(d.ev||'?')+'</span></div><div class="m">'+(d.effect||d.mech||'')+'</div></div>';}).join('');}
     if(molHits.length){
@@ -13590,16 +13679,19 @@ var ROUTE_KEYS=['inhalation_vapor','inhalation_smoked','oral','sublingual','topi
     var hit=(typeof diSearchIndices!=='undefined')?diSearchIndices(q):{idx:[],exact:{}};   // DRUG-30
     var list=hit.idx.map(function(i){return DI_DATA[i];}).filter(function(d){return d&&already.indexOf(d.id)<0;})
       .sort(diRankBy(hit.exact,{major:1,moderate:2,minor:3})).slice(0,6);
-    if(!list.length){
+    // MEDREVIEW-01: recognized medications without an interaction record, offered alongside.
+    var rev=diReviewedMatches(q).filter(function(r){return already.indexOf(r.id)<0;});
+    if(!list.length&&!rev.length){
       // UX-104: this function serves BOTH the standard patient funnel (scMeds) and the Demo Mode
       // journey (scDJMeds). It said "No match in the demo dataset" unconditionally, so a real
       // patient on a real kiosk was told V2's drug database was a demo — and was then offered
       // nothing at all. Two defects in one line: wrong audience, and a dead end.
       box.style.display='block';
-      box.innerHTML='<div class="dj-sug none">'+(demoMode()?'No match in this demonstration dataset':'Not in The Table&rsquo;s medication database yet')+'</div>'
+      box.innerHTML='<div class="dj-sug none">'+DI_NOT_FOUND_MSG+'</div>'
         +'<div class="dj-sug missing" onmousedown="V4GX.suggestMed()">&#128172; Can&rsquo;t find it? Tell us what to add &rarr;</div>';
       return;}
-    box.innerHTML=list.map(function(d){return '<div class="dj-sug" onmousedown="V4GX.djAddMed(\''+d.id+'\')"><span class="'+(d.cat==='otc'?'otc':'rx')+'">'+(d.cat==='otc'?'OTC':'Rx')+'</span>'+esc(medLabel(d))+'</div>';}).join('');
+    box.innerHTML=list.map(function(d){return '<div class="dj-sug" onmousedown="V4GX.djAddMed(\''+d.id+'\')"><span class="'+(d.cat==='otc'?'otc':'rx')+'">'+(d.cat==='otc'?'OTC':'Rx')+'</span>'+esc(medLabel(d))+'</div>';}).join('')
+      +rev.map(function(r){return '<div class="dj-sug" onmousedown="V4GX.djAddMed(\''+r.id+'\')"><span class="'+(r.cat==='otc'?'otc':'rx')+'">'+(r.cat==='otc'?'OTC':'Rx')+'</span>'+esc(r.drug)+' <small style="color:var(--dim)">'+DI_REVIEWED_LABEL+'</small></div>';}).join('');
     box.style.display='block';}
   function scDJMeds(){
     var chips=DJ_MEDS.map(function(id){var d=(typeof DI_DATA!=='undefined')?DI_DATA.find(function(x){return x.id===id;}):null;if(!d)return '';
@@ -13748,7 +13840,7 @@ var ROUTE_KEYS=['inhalation_vapor','inhalation_smoked','oral','sublingual','topi
     // Route and comorbidities are deliberately NOT added: djRefine already offers preferred route,
     // and the demo's multi-select condition picker already covers 'anything else going on'.
     djToPrefs:function(){go('experience',scExperience);},
-    djAddMed:function(id){st.meds=st.meds||[];if(!st.meds.some(function(m){return m.id===id;})){var e=(typeof DI_DATA!=='undefined')?DI_DATA.find(function(d){return d.id===id;}):null;if(e)st.meds.push(e);}reRenderMeds();},
+    djAddMed:function(id){st.meds=st.meds||[];if(!st.meds.some(function(m){return m.id===id;})){var e=((typeof DI_DATA!=='undefined')?DI_DATA.find(function(d){return d.id===id;}):null)||diReviewedById(id);if(e)st.meds.push(e);}reRenderMeds();},
     djRemoveMed:function(id){st.meds=(st.meds||[]).filter(function(m){return m.id!==id;});reRenderMeds();},
     toMeds:function(){go('meds',scMeds);},
     toSafety:function(){go('safety',scSafety);},
@@ -13844,10 +13936,12 @@ var ROUTE_KEYS=['inhalation_vapor','inhalation_smoked','oral','sublingual','topi
         function evTag(ev){return ev?' <span style="font-weight:400;color:#555 !important">(Evidence '+esc(ev)+(evName[ev]?' · '+evName[ev]:'')+')</span>':'';}
         function detRow(lbl,val){return val?'<div style="font-size:.75rem;margin:1px 0"><b>'+lbl+':</b> '+val+'</div>':'';}
         // Summary (lead-in) — counts reflect exactly what is listed below, plus the reviewed medication list.
+        var prRev=st.meds.filter(diIsReviewed),prQ=prRev.length?DI_QUALIFIER:'';   // MEDREVIEW-01
         body+='<div class="pt-print-sec"><h3>Medication check</h3><div style="font-size:.8rem;line-height:1.6">'+st.meds.length+' medication'+(st.meds.length>1?'s':'')+' reviewed: '+
-          (ddiN?ddiN+' drug–drug interaction'+(ddiN>1?'s':''):'no drug–drug interactions')+'; '+
-          (totalMolN?totalMolN+' cannabis molecule'+(totalMolN>1?'s':'')+' interact'+(totalMolN>1?'':'s')+' with these medications'+(recHitN?' ('+recHitN+' recommended for you)':' (none of them recommended for you)'):'no cannabis–medication interactions')+'. Please review with your Product Specialist (Budtender) or provider before use.</div>'+
-          '<div style="font-size:.72rem;color:#555 !important;margin-top:4px">Medications reviewed: '+st.meds.map(function(m){return esc(medLabel(m)||String(m.id));}).join(', ')+'.</div></div>';
+          (ddiN?ddiN+' drug–drug interaction'+(ddiN>1?'s':''):'no drug–drug interactions'+prQ)+'; '+
+          (totalMolN?totalMolN+' cannabis molecule'+(totalMolN>1?'s':'')+' interact'+(totalMolN>1?'':'s')+' with these medications'+(recHitN?' ('+recHitN+' recommended for you)':' (none of them recommended for you)'):'no cannabis–medication interactions'+prQ)+'. Please review with your Product Specialist (Budtender) or provider before use.</div>'+
+          '<div style="font-size:.72rem;color:#555 !important;margin-top:4px">Medications reviewed: '+st.meds.map(function(m){return esc(medLabel(m)||String(m.id));}).join(', ')+'.</div>'+
+          prRev.map(function(r){return '<div style="font-size:.72rem;margin-top:4px"><b>'+esc(r.drug)+'</b> — '+DI_REVIEWED_LABEL+'. '+DI_REVIEWED_MSG+'</div>';}).join('')+'</div>';
         // Detailed drug–drug interactions (each card can break across pages on its own).
         if(ddiN){body+='<div style="font-size:.74rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin:6px 0 5px">Drug–drug interactions within your list</div>'+
           ddiHits.map(function(d){return '<div class="di-card '+(d.sev||'')+'"><div style="font-weight:700;font-size:.82rem;margin-bottom:2px">'+esc(d.label||(d.drugs||[]).join(' + '))+(d.sev?' — '+(sevLbl[d.sev]||d.sev):'')+evTag(d.ev)+'</div>'+

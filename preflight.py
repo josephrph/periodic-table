@@ -2187,6 +2187,169 @@ def check_trusted_markup(src, data):
          % (len(data.get('DI_DATA', [])), len(data.get('DDI_DATA', []))))
 
 
+def check_reviewed_registry(src, data):
+    """MEDREVIEW-01 (guard 38): "recognized, no interaction record" must never read as "safe".
+
+    DI_REVIEWED holds medications The Table recognizes but has no cannabis-interaction record for —
+    first mirabegron (Myrbetriq), owner decision 2026-10-19, after a PubMed + FDA-label review found no
+    cannabis–mirabegron evidence. They are searchable and can be added to a medication list, but must
+    carry no severity, grade or molecules, never feed interaction logic, and every place they appear
+    must say that the absence of a record is not proof that no interaction exists.
+
+    The same change found that every medication view already offered blanket reassurance — "✓ No
+    cannabis interactions found for any medications in your list", "No cannabis drug interactions
+    found for …" for an unknown name — which a recognized-only medication would have inherited. Those
+    lines are now qualified whenever a reviewed-only medication is listed, and an unknown name gets
+    wording that cannot be read as "no interaction". A harness run caught a second, detailed-section
+    "✓" line in the Table list that the first pass missed; the generic scan below exists for that.
+
+    Asserts: registry shape and separation; unique, non-colliding ids and names; the shared wording
+    and its uncertainty language; no unsafe reassurance; the new not-found wording at every search;
+    qualified ✓ lines at every summary; no Dramamine searchable anywhere.
+    """
+    name = 'reviewed registry'
+    try:
+        reg_src = js_literal(src, 'var DI_REVIEWED = [', '[')
+        alias_src = js_literal(src, 'var DI_ALIASES = {', '{')
+        build_iife = src[src.index('(function buildDiIndex() {'):]
+        build_iife = build_iife[:build_iife.index('\n})();') + 6]
+        bodies = {k: js_literal(src, m, '{') for k, m in [
+            ('renderDrugResults', 'function renderDrugResults('), ('medAddSearch', 'function medAddSearch('),
+            ('renderMedListResults', 'function renderMedListResults('), ('djRenderMedSearch', 'function djRenderMedSearch('),
+            ('djMedResults', 'function djMedResults('), ('scRec', '  function scRec('), ('printRec', 'printRec:function('),
+            ('diReviewedCardHtml', 'function diReviewedCardHtml('), ('findDdiInteractions', 'function findDdiInteractions('),
+            ('buildCannabisHitsByMol', 'function buildCannabisHitsByMol(')]}
+    except ValueError:
+        fail(name, 'DI_REVIEWED, DI_ALIASES, buildDiIndex or a medication display function not found '
+                   '(zero-match tripwire)')
+        return
+    tmp = os.path.join(HERE, '_preflight_reviewed.js')
+    with open(tmp, 'w', encoding='utf-8') as fh:
+        fh.write('print(JSON.stringify({reg:%s, alias:%s}));' % (reg_src, alias_src))
+    try:
+        res = subprocess.run([JSC, tmp], capture_output=True, text=True, timeout=60)
+    finally:
+        os.remove(tmp)
+    try:
+        j = json.loads(res.stdout.strip().splitlines()[-1])
+    except (ValueError, IndexError):
+        fail(name, 'could not evaluate DI_REVIEWED / DI_ALIASES: ' + (res.stderr or res.stdout)[:200])
+        return
+    reg, alias = j['reg'], j['alias']
+    di = data.get('DI_DATA', [])
+    if not reg:
+        fail(name, 'DI_REVIEWED is empty — mirabegron would fall back to "not in database"')
+
+    # 1. shape and separation
+    required = ('id', 'drug', 'brands', 'cls', 'cat', 'reviewed', 'basis')
+    forbidden = ('sev', 'ev', 'mols', 'mech', 'effect', 'monitor')
+    di_ids = {r.get('id') for r in di}
+    di_names = set()
+    for r in di:
+        di_names.add(str(r.get('drug', '')).lower())
+        di_names.update(str(b).lower() for b in (r.get('brands') or []))
+    di_names.update(k.lower() for k in alias)
+    seen = set()
+    for r in reg:
+        rid = r.get('id', '?')
+        miss = [k for k in required if not r.get(k)]
+        if miss:
+            fail(name, 'DI_REVIEWED "%s" is missing %s' % (rid, ', '.join(miss)))
+        bad = [k for k in forbidden if k in r]
+        if bad:
+            fail(name, 'DI_REVIEWED "%s" carries interaction field(s) %s — a reviewed-only medication '
+                       'must not have a severity, grade, molecules or interaction text' % (rid, ', '.join(bad)))
+        if rid in seen:
+            fail(name, 'duplicate DI_REVIEWED id "%s"' % rid)
+        seen.add(rid)
+        if rid in di_ids or rid in alias:
+            fail(name, 'DI_REVIEWED id "%s" collides with a DI_DATA record or alias' % rid)
+        for n in [r.get('drug', '')] + list(r.get('brands') or []) + list(r.get('aliases') or []):
+            if str(n).lower() in di_names:
+                fail(name, 'reviewed name "%s" also resolves to an interaction record' % n)
+            if re.search(r'&[A-Za-z#0-9]+;|<|>', str(n)):
+                fail(name, 'reviewed name "%s" contains an HTML entity or tag' % n)
+    if 'DI_REVIEWED' in build_iife:
+        fail(name, 'buildDiIndex reads DI_REVIEWED — reviewed medications would enter the interaction index')
+    for k in ('findDdiInteractions', 'buildCannabisHitsByMol'):
+        if 'DI_REVIEWED' in bodies[k] or 'diReviewed' in bodies[k]:
+            fail(name, '%s() reads the reviewed registry — it must stay interaction-only' % k)
+
+    # 2. shared wording
+    def const(v):
+        m = re.search(r"var %s = '([^']*)';" % v, src)
+        return m.group(1) if m else None
+    msg, lbl, nf, q = const('DI_REVIEWED_MSG'), const('DI_REVIEWED_LABEL'), const('DI_NOT_FOUND_MSG'), const('DI_QUALIFIER')
+    if not all((msg, lbl, nf, q)):
+        fail(name, 'a shared wording constant (DI_REVIEWED_MSG / _LABEL / DI_NOT_FOUND_MSG / DI_QUALIFIER) is missing')
+        return
+    for needle in ('isn’t proof that no interaction exists', 'not a complete interaction screening'):
+        if needle not in msg:
+            fail(name, 'DI_REVIEWED_MSG lost its required uncertainty language: "%s"' % needle)
+    if 'doesn’t mean it has no cannabis interaction' not in nf:
+        fail(name, 'DI_NOT_FOUND_MSG no longer says that absence from the database is not "no interaction"')
+    if lbl != 'Reviewed — no interaction record':
+        fail(name, 'DI_REVIEWED_LABEL changed from the approved "Reviewed — no interaction record"')
+    unsafe = re.compile(r'\bsafe\b|\bsafely\b|(does not|doesn[’\']t|won[’\']t|will not|cannot) interact|'
+                        r'\bno risk\b|\bproven\b|\bno known interaction|\bhas no interaction|\bno interactions? found\b', re.I)
+    for nm, txt in (('DI_REVIEWED_MSG', msg), ('DI_REVIEWED_LABEL', lbl), ('DI_NOT_FOUND_MSG', nf)):
+        m = unsafe.search(txt)
+        if m:
+            fail(name, '%s contains unsafe reassurance: "%s"' % (nm, m.group(0)))
+
+    # 3. every display site uses the shared wording
+    for fn, needles in [('diReviewedCardHtml', ('DI_REVIEWED_MSG', 'DI_REVIEWED_LABEL')),
+                        ('renderDrugResults', ('diReviewedCardHtml', 'DI_NOT_FOUND_MSG')),
+                        ('medAddSearch', ('diReviewedMatches', 'DI_REVIEWED_LABEL', 'DI_NOT_FOUND_MSG')),
+                        ('renderMedListResults', ('DI_REVIEWED_MSG', 'DI_QUALIFIER')),
+                        ('djRenderMedSearch', ('diReviewedMatches', 'DI_REVIEWED_LABEL', 'DI_NOT_FOUND_MSG')),
+                        ('djMedResults', ('DI_REVIEWED_MSG', 'DI_QUALIFIER')),
+                        ('scRec', ('DI_REVIEWED_MSG', 'DI_QUALIFIER')),
+                        ('printRec', ('DI_REVIEWED_MSG', 'DI_QUALIFIER'))]:
+        for nd in needles:
+            if nd not in bodies[fn]:
+                fail(name, '%s() no longer uses %s — the reviewed-medication state could render without its '
+                           'uncertainty wording or qualifier' % (fn, nd))
+    if 'No cannabis drug interactions found' in src:
+        fail(name, 'the old "No cannabis drug interactions found…" wording is back — an unknown medication '
+                   'would read as having no interaction')
+    if 'No match in this demonstration dataset' in src:
+        fail(name, 'the old Demo not-found wording is back')
+
+    # 4. qualified ✓ lines — exact needles, then a generic scan for any unqualified "✓ No" line
+    for fn, nd in [('renderMedListResults', "'✓ No drug-drug interactions found within your medication list' + revQ"),
+                   ('renderMedListResults', "'✓ No cannabis interactions found' + (revQ ||"),
+                   ('renderMedListResults', "✓ No cannabis interactions found' + (_medList.some(diIsReviewed) ? DI_QUALIFIER"),
+                   ('djMedResults', "'✓ No drug–drug interactions within the list'+revQ"),
+                   ('djMedResults', "'✓ No cannabis interactions with the associated molecules'+revQ"),
+                   ('scRec', "'no drug–drug interactions'+_revQ"),
+                   ('scRec', "'none with associated molecules'+_revQ"),
+                   ('scRec', "(_rev.length?'ℹ️ ':'✓ ')"),
+                   ('printRec', "'no drug–drug interactions'+prQ"),
+                   ('printRec', "'no cannabis–medication interactions'+prQ")]:
+        if nd not in bodies[fn]:
+            fail(name, '%s(): a ✓ / "no interactions" line is no longer qualified when a reviewed-only '
+                       'medication is listed (%s…)' % (fn, nd[:48]))
+    for fn in ('renderMedListResults', 'djMedResults'):
+        for m in re.finditer(r"'[^']*✓ No [^']*'", bodies[fn]):
+            tail = bodies[fn][m.end():m.end() + 70]
+            if not re.match(r"\s*\+\s*(revQ|\(revQ|\(_medList\.some\(diIsReviewed\))", tail):
+                fail(name, '%s(): unqualified reassurance %s — it must take the reviewed-medication qualifier'
+                     % (fn, m.group(0)[:60]))
+
+    # 5. Dramamine must not be searchable anywhere (original Dramamine is dimenhydrinate)
+    hay = [k for k in alias] + [n for r in reg for n in [r.get('drug', '')] + list(r.get('brands') or []) + list(r.get('aliases') or [])]
+    for r in di:
+        hay += [r.get('id', ''), r.get('drug', ''), r.get('cls', '')] + list(r.get('brands') or [])
+    hits = sorted({str(h) for h in hay if 'dramamine' in str(h).lower()})
+    if hits:
+        fail(name, 'a searchable field contains "Dramamine" — word-start matching would send a Dramamine '
+                   '(dimenhydrinate) search to the wrong record: %s' % hits[:4])
+    note('reviewed registry: %d reviewed-only medication(s) with no sev/ev/mols; shared wording carries the '
+         'uncertainty language; unknown names use the new not-found text; every ✓ summary is qualified when '
+         'a reviewed-only medication is listed; no Dramamine searchable' % len(reg))
+
+
 def main():
     online = '--online' in sys.argv
     src = open(SRC, encoding='utf-8').read()
@@ -2229,6 +2392,7 @@ def main():
     check_print_reset(src)
     check_session_isolation(src)
     check_trusted_markup(src, data)
+    check_reviewed_registry(src, data)
     check_evidence_attribution(data)
     check_backlog()
 
