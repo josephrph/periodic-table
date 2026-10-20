@@ -2205,7 +2205,9 @@ def check_reviewed_registry(src, data):
 
     Asserts: registry shape and separation; unique, non-colliding ids and names; the shared wording
     and its uncertainty language; no unsafe reassurance; the new not-found wording at every search;
-    qualified ✓ lines at every summary; no Dramamine searchable anywhere.
+    qualified ✓ lines at every summary; and (revised by MED-DIMEN) Dramamine searchable ONLY through a
+    label-verified allowlist of qualified names, reaching both of its medicines, with the ambiguity
+    message at every search.
     """
     name = 'reviewed registry'
     try:
@@ -2337,17 +2339,75 @@ def check_reviewed_registry(src, data):
                 fail(name, '%s(): unqualified reassurance %s — it must take the reviewed-medication qualifier'
                      % (fn, m.group(0)[:60]))
 
-    # 5. Dramamine must not be searchable anywhere (original Dramamine is dimenhydrinate)
-    hay = [k for k in alias] + [n for r in reg for n in [r.get('drug', '')] + list(r.get('brands') or []) + list(r.get('aliases') or [])]
+    # 5. Dramamine (MED-DIMEN, 2026-10-20). FDA labels use the brand for TWO medicines: dimenhydrinate
+    #    (Original Formula, for Kids, Orange) and meclizine (Less Drowsy, All Day, Nausea, Dramamine-N,
+    #    Chewable Orange). MEDREVIEW-01 banned the word outright; MED-DIMEN replaced the ban with a
+    #    stricter rule: only an allowlist of qualified product names, each label-verified to ONE active
+    #    ingredient, may be searchable; Dramamine may never sit in `brands` (each brand also registers
+    #    its first word as a key, which would create a bare "dramamine" key) and never stand alone; a
+    #    plain "Dramamine" search must reach BOTH records; and the shared ambiguity message must appear
+    #    at every medication search.
+    DRAMAMINE_ALLOW = {
+        'dramamine original formula': 'dimenhydrinate', 'dramamine original': 'dimenhydrinate',
+        'dramamine for kids': 'dimenhydrinate', "children's dramamine": 'dimenhydrinate',
+        'dramamine less drowsy': 'meclizine', 'dramamine all day less drowsy': 'meclizine',
+        'dramamine all day': 'meclizine', 'dramamine-n': 'meclizine', 'dramamine nausea': 'meclizine'}
+    for t in ('dimenhydrinate', 'meclizine'):
+        if t not in di_ids:
+            fail(name, 'the %s record is missing — Dramamine aliases point at it' % t)
     for r in di:
-        hay += [r.get('id', ''), r.get('drug', ''), r.get('cls', '')] + list(r.get('brands') or [])
-    hits = sorted({str(h) for h in hay if 'dramamine' in str(h).lower()})
-    if hits:
-        fail(name, 'a searchable field contains "Dramamine" — word-start matching would send a Dramamine '
-                   '(dimenhydrinate) search to the wrong record: %s' % hits[:4])
+        for f in [r.get('id', ''), r.get('drug', ''), r.get('cls', '')] + list(r.get('brands') or []):
+            if 'dramamine' in str(f).lower():
+                fail(name, '"Dramamine" in DI_DATA "%s" name/brand/class (%s) — brands register their first word, '
+                           'creating a bare "dramamine" key; use a qualified alias instead' % (r.get('id'), f))
+    for r in reg:
+        for f in [r.get('drug', '')] + list(r.get('brands') or []) + list(r.get('aliases') or []):
+            if 'dramamine' in str(f).lower():
+                fail(name, '"Dramamine" in the reviewed registry (%s)' % f)
+    for k, v in alias.items():
+        kl = k.lower().strip()
+        if 'dramamine' not in kl:
+            continue
+        if kl == 'dramamine':
+            fail(name, 'a bare "dramamine" alias exists — plain Dramamine must not be mapped to either medicine')
+        elif re.search(r'orange|chewable|motion\s*sickness', kl):
+            fail(name, 'ambiguous Dramamine alias "%s" — orange / chewable / motion-sickness names exist for '
+                       'both dimenhydrinate and meclizine' % k)
+        elif kl not in DRAMAMINE_ALLOW:
+            fail(name, 'Dramamine alias "%s" is not on the label-verified allowlist' % k)
+        elif DRAMAMINE_ALLOW[kl] != v:
+            fail(name, 'Dramamine alias "%s" maps to "%s", but its labels contain %s' % (k, v, DRAMAMINE_ALLOW[kl]))
+    def word_start(key, q):
+        starts = [0] + [i for i in range(1, len(key)) if not key[i - 1].isalnum() and key[i].isalnum()]
+        return any(key.startswith(q, st) for st in starts)
+    reach = {v for k, v in alias.items() if word_start(k.lower(), 'dramamine')}
+    if reach != {'dimenhydrinate', 'meclizine'}:
+        fail(name, 'a plain "Dramamine" search must reach BOTH dimenhydrinate and meclizine; it reaches %s'
+             % (sorted(reach) or 'nothing'))
+    amb = const('DI_AMBIGUOUS_MSG')
+    if not amb:
+        fail(name, 'DI_AMBIGUOUS_MSG (the Dramamine ambiguity message) is missing')
+    else:
+        for needle in ('brand name used for different medicines', 'Check the active ingredient on your package',
+                       'dimenhydrinate', 'meclizine'):
+            if needle not in amb:
+                fail(name, 'DI_AMBIGUOUS_MSG lost "%s"' % needle)
+        if unsafe.search(amb):
+            fail(name, 'DI_AMBIGUOUS_MSG contains unsafe reassurance')
+    try:
+        an = js_literal(src, 'function diAmbiguityNote(', '{')
+    except ValueError:
+        an = ''
+    if "indexOf('dramamine') === 0" not in an or 'DI_AMBIGUOUS_MSG' not in an:
+        fail(name, 'diAmbiguityNote() no longer shows the message for a query that is or begins with "Dramamine"')
+    for fn in ('renderDrugResults', 'medAddSearch', 'djRenderMedSearch'):
+        if 'diAmbiguityNote' not in bodies[fn]:
+            fail(name, '%s() no longer shows the Dramamine ambiguity message' % fn)
     note('reviewed registry: %d reviewed-only medication(s) with no sev/ev/mols; shared wording carries the '
          'uncertainty language; unknown names use the new not-found text; every ✓ summary is qualified when '
-         'a reviewed-only medication is listed; no Dramamine searchable' % len(reg))
+         'a reviewed-only medication is listed; Dramamine only via %d label-verified qualified aliases, reaching '
+         'both dimenhydrinate and meclizine, with the ambiguity message at all 3 searches'
+         % (len(reg), sum(1 for k in alias if 'dramamine' in k.lower())))
 
 
 def main():

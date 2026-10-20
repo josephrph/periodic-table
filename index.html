@@ -7504,21 +7504,22 @@ function medAddSearch(query) {
       + '<span style="font-weight:700;font-size:.75rem">' + r.drug + '</span>'
       + '<span style="font-size:.6rem;color:var(--mute);margin-left:auto">' + DI_REVIEWED_LABEL + '</span></div>';
   }).join('');
+  var ambigRow = diAmbiguityNote(q) ? '<div class="med-suggestion-item" style="cursor:default;color:var(--text);font-size:.68rem;line-height:1.45">&#9888;&#65039; ' + DI_AMBIGUOUS_MSG + '</div>' : '';   // MED-DIMEN
   if (!matches.length && reviewedRows) {
-    el.innerHTML = reviewedRows;
+    el.innerHTML = ambigRow + reviewedRows;
     el.style.display = 'block';
     if (aiSection) aiSection.style.display = 'none';
     return;
   }
   if (!matches.length) {
-    el.innerHTML = '<div class="med-suggestion-item" style="color:var(--dim);font-style:italic;cursor:default">' + DI_NOT_FOUND_MSG + '</div>'
+    el.innerHTML = ambigRow + '<div class="med-suggestion-item" style="color:var(--dim);font-style:italic;cursor:default">' + DI_NOT_FOUND_MSG + '</div>'
       + '<div class="med-suggestion-item" style="cursor:pointer" onmousedown="Feedback.fromContext(\'missing_med\',\'Drug Interaction Checker\',((document.getElementById(\'medAddInput\')||{}).value)||\'\')"><span style="color:var(--accent);font-weight:700">💬 Can\'t find it? Tell us it\'s missing →</span></div>';
     el.style.display = 'block';
     if (aiSection) aiSection.style.display = 'block';
     return;
   }
   if (aiSection) aiSection.style.display = 'none';
-  el.innerHTML = matches.slice(0, 8).map(function(m) {
+  el.innerHTML = ambigRow + matches.slice(0, 8).map(function(m) {
     var cat = m.cat === 'otc' ? '<span class="di-otc-tag">OTC</span>' : '<span class="di-rx-tag">Rx</span>';
     return '<div class="med-suggestion-item" onmousedown="addMedToList(\'' + m.id + '\')">'
       + cat + '<span style="font-weight:700;font-size:.75rem">' + m.drug + '</span>'
@@ -8044,6 +8045,15 @@ var DI_DATA = [
    mech:'<strong>No study has tested cannabis together with meclizine.</strong> The concern is added drowsiness and dizziness. Meclizine is a sedating antihistamine, and its prescribing information warns that combining it with other drugs that slow the brain, including alcohol, may increase drowsiness; its over-the-counter labels say the same about alcohol, sedatives and tranquilizers. Drowsiness and dizziness are among the commonest side effects of cannabinoids in clinical trials, with &Delta;9-THC and cannabinol the cannabinoids most associated with sedation, and the prescribing information for purified CBD (Epidiolex) warns that combining it with other drugs that slow the brain may increase sleepiness. Two different routes to the same place, so the effects can add up &mdash; pharmacodynamic inference, graded D. <em>Meclizine is broken down mainly by CYP2D6, but that is not the basis for this warning: in a 2023 human study, CBD did not measurably inhibit CYP2D6.</em> Meclizine&rsquo;s anticholinergic effects (dry mouth, blurred vision, difficulty passing urine) are its own, though cannabis can add to a dry mouth.',
    effect:'More drowsiness and dizziness than either would cause alone, slower reactions and unsteadiness &mdash; more important because meclizine is often taken for vertigo or motion sickness, when balance is already affected. <em>This is inference, not a measured outcome.</em>',
    monitor:'Because both can cause drowsiness or dizziness, use caution with activities requiring alertness, including driving. Alcohol and other sedating medications may increase these effects. Discuss cannabis use with your pharmacist or clinician, particularly if you take other medications that cause sedation.',
+   pmid:'26103030, 37313955'},
+  // MED-DIMEN (2026-10-20, owner-approved): dimenhydrinate, Grade D like meclizine. It is the
+  // 8-chlorotheophylline salt of diphenhydramine. "Dramamine" is NOT in brands (brands register their
+  // first word, which would create a bare "dramamine" key); see the qualified aliases in DI_ALIASES.
+  {id:'dimenhydrinate',drug:'Dimenhydrinate',brands:['Gravol','Driminate'],cls:'Antihistamine — motion sickness (diphenhydramine salt; OTC, and Rx injection)',cat:'otc',
+   mols:['THC9','CBN','CBD'],sev:'moderate',ev:'D',
+   mech:'<strong>No study has tested cannabis together with dimenhydrinate.</strong> Dimenhydrinate is diphenhydramine &mdash; a sedating antihistamine &mdash; combined with 8-chlorotheophylline, a compound related to theophylline; it is just over half diphenhydramine by weight. The concern is added drowsiness and dizziness. Its labels warn that marked drowsiness may occur and that alcohol, sedatives and tranquilizers may increase dizziness, and the prescribing information for the injection notes an additive effect with alcohol or other drugs that slow the brain. Drowsiness and dizziness are among the commonest side effects of cannabinoids in clinical trials, with &Delta;9-THC and cannabinol the cannabinoids most associated with sedation, and the prescribing information for purified CBD (Epidiolex) warns that combining it with other drugs that slow the brain may increase sleepiness. Two different routes to the same place, so the effects can add up &mdash; pharmacodynamic inference, graded D. <em>Diphenhydramine is broken down mainly by CYP2D6, but that is not the basis for this warning: in a 2023 human study, CBD did not measurably inhibit CYP2D6. That finding concerns one enzyme; it is not evidence that cannabis and dimenhydrinate have been shown not to interact.</em> Dimenhydrinate&rsquo;s anticholinergic effects (dry mouth, blurred vision, difficulty passing urine) are its own, though cannabis can add to a dry mouth.',
+   effect:'More drowsiness and dizziness than either would cause alone, with slower reactions and unsteadiness. Dimenhydrinate&rsquo;s labels warn of marked drowsiness on its own, so the added effect may be more noticeable than with meclizine. <em>This is inference, not a measured outcome.</em>',
+   monitor:'Because both can cause drowsiness or dizziness, use caution with activities requiring alertness, including driving. Alcohol and other sedating medications may increase these effects. Discuss cannabis use with your pharmacist or clinician, particularly if you take other medications that cause sedation. <em>Separately from cannabis: dimenhydrinate contains diphenhydramine, so taking other medications that also contain diphenhydramine can increase the total amount and may increase drowsiness and other side effects. Check active ingredients or ask your pharmacist if you&rsquo;re unsure.</em>',
    pmid:'26103030, 37313955'},
   {id:'melatonin',drug:'Melatonin',brands:['Natrol','Sundown Naturals','Nature Made','ZzzQuil Pure Zzzs'],cls:'Sleep Supplement (OTC)',cat:'otc',
    mols:['THC9','CBD'],'routes':[{'route':'combustion','target':'CYP1A2','direction':'induction','ev':'D','basis':'mechanism-review','pmid':'27106177'}],sev:'minor',ev:'D',
@@ -9177,6 +9187,12 @@ var DI_REVIEWED_LABEL = 'Reviewed — no interaction record';
 var DI_REVIEWED_MSG = 'The Table recognizes this medication but hasn’t identified a cannabis-specific interaction for it in the evidence reviewed. That isn’t proof that no interaction exists. The Table’s drug–drug interaction checks cover selected evidence-supported combinations and are not a complete interaction screening.';
 var DI_NOT_FOUND_MSG = 'Not in The Table’s medication database yet — that doesn’t mean it has no cannabis interaction. Try the generic name, a brand name or drug class, or ask your pharmacist.';
 var DI_QUALIFIER = ' among medications with interaction records';   // appended to every ✓ line when a reviewed-only medication is listed
+// MED-DIMEN: shown at every medication search whenever the query is, or begins with, "Dramamine".
+var DI_AMBIGUOUS_MSG = 'Dramamine is a brand name used for different medicines. Check the active ingredient on your package. Some Dramamine products contain dimenhydrinate and others contain meclizine. Select the medication that matches the active ingredient on your package.';
+function diAmbiguityNote(q) {
+  q = String(q || '').toLowerCase().trim();
+  return q.indexOf('dramamine') === 0 ? DI_AMBIGUOUS_MSG : '';
+}
 function diReviewedById(id) {
   for (var i = 0; i < DI_REVIEWED.length; i++) if (DI_REVIEWED[i].id === id) return DI_REVIEWED[i];
   return null;
@@ -9233,12 +9249,25 @@ var DI_ALIASES = {
   // misses the "midodrine" key entirely. Name normalisation only; no new interaction claim.
   'midodrine hydrochloride':'midodrine',
   // MEDREVIEW-01: salt and INN names only (meclozine is the NLM MeSH entry term for meclizine).
-  // Deliberately NO Dramamine alias: word-start matching would send a plain "Dramamine" search —
-  // original Dramamine is dimenhydrinate — to the meclizine record. Guard 38 forbids it.
+  // DRAMAMINE (MED-DIMEN, 2026-10-20): the brand is used on FDA labels for TWO medicines —
+  // dimenhydrinate and meclizine. There is NO bare "dramamine" alias and Dramamine is in no `brands` list:
+  // only qualified product names, each label-verified to one active ingredient. Word-start matching then
+  // makes a plain "Dramamine" search reach BOTH records, never guessing, and diAmbiguityNote() explains.
+  // Deliberately excluded (ambiguous): Dramamine Orange / Chewable Orange / Chewable, Motion Sickness.
+  // Guard 38 holds the allowlist.
   'desmopressin acetate':'desmopressin',
   'meclizine hydrochloride':'meclizine',
   'meclizine hcl':'meclizine',
   'meclozine':'meclizine',
+  'dramamine original formula':'dimenhydrinate',
+  'dramamine original':'dimenhydrinate',
+  'dramamine for kids':'dimenhydrinate',
+  "children's dramamine":'dimenhydrinate',
+  'dramamine less drowsy':'meclizine',
+  'dramamine all day less drowsy':'meclizine',
+  'dramamine all day':'meclizine',
+  'dramamine-n':'meclizine',
+  'dramamine nausea':'meclizine',
   'midodrine hcl':'midodrine',
   'ivabradine hydrochloride':'ivabradine',
   'florinef acetate':'fludrocortisone',
@@ -10182,12 +10211,14 @@ function renderDrugResults(results, query) {
   // MEDREVIEW-01: a recognized medication without an interaction record gets its own neutral card, outside
   // the interaction count; a genuinely unknown name gets wording that cannot be read as "no interaction".
   var reviewed = (typeof diReviewedMatches === 'function') ? diReviewedMatches(query) : [];
+  var ambig = diAmbiguityNote(query);   // MED-DIMEN
+  var ambigHtml = ambig ? '<div class="di-ambiguous" style="margin:0 0 8px;padding:8px 10px;border:1px solid var(--accent);border-radius:6px;font-size:.7rem;line-height:1.5;color:var(--text)">&#9888;&#65039; ' + ambig + '</div>' : '';
   if (!results.length) {
-    el.innerHTML = reviewed.length ? reviewed.map(diReviewedCardHtml).join('')
-      : '<div class="di-no-results">' + DI_NOT_FOUND_MSG + '</div>';
+    el.innerHTML = ambigHtml + (reviewed.length ? reviewed.map(diReviewedCardHtml).join('')
+      : '<div class="di-no-results">' + DI_NOT_FOUND_MSG + '</div>');
     return;
   }
-  var html = '<div class="di-results-lbl">' + results.length + ' interaction' + (results.length !== 1 ? 's' : '') + ' found</div>';
+  var html = ambigHtml + '<div class="di-results-lbl">' + results.length + ' interaction' + (results.length !== 1 ? 's' : '') + ' found</div>';
   results.forEach(function(r) {
     var molChips = r.mols.map(function(id) {
       var mol = M[id];
@@ -13681,16 +13712,17 @@ var ROUTE_KEYS=['inhalation_vapor','inhalation_smoked','oral','sublingual','topi
       .sort(diRankBy(hit.exact,{major:1,moderate:2,minor:3})).slice(0,6);
     // MEDREVIEW-01: recognized medications without an interaction record, offered alongside.
     var rev=diReviewedMatches(q).filter(function(r){return already.indexOf(r.id)<0;});
+    var amb=diAmbiguityNote(q)?'<div class="dj-sug none" style="font-style:normal;color:var(--text);line-height:1.45">&#9888;&#65039; '+DI_AMBIGUOUS_MSG+'</div>':'';   // MED-DIMEN
     if(!list.length&&!rev.length){
       // UX-104: this function serves BOTH the standard patient funnel (scMeds) and the Demo Mode
       // journey (scDJMeds). It said "No match in the demo dataset" unconditionally, so a real
       // patient on a real kiosk was told V2's drug database was a demo — and was then offered
       // nothing at all. Two defects in one line: wrong audience, and a dead end.
       box.style.display='block';
-      box.innerHTML='<div class="dj-sug none">'+DI_NOT_FOUND_MSG+'</div>'
+      box.innerHTML=amb+'<div class="dj-sug none">'+DI_NOT_FOUND_MSG+'</div>'
         +'<div class="dj-sug missing" onmousedown="V4GX.suggestMed()">&#128172; Can&rsquo;t find it? Tell us what to add &rarr;</div>';
       return;}
-    box.innerHTML=list.map(function(d){return '<div class="dj-sug" onmousedown="V4GX.djAddMed(\''+d.id+'\')"><span class="'+(d.cat==='otc'?'otc':'rx')+'">'+(d.cat==='otc'?'OTC':'Rx')+'</span>'+esc(medLabel(d))+'</div>';}).join('')
+    box.innerHTML=amb+list.map(function(d){return '<div class="dj-sug" onmousedown="V4GX.djAddMed(\''+d.id+'\')"><span class="'+(d.cat==='otc'?'otc':'rx')+'">'+(d.cat==='otc'?'OTC':'Rx')+'</span>'+esc(medLabel(d))+'</div>';}).join('')
       +rev.map(function(r){return '<div class="dj-sug" onmousedown="V4GX.djAddMed(\''+r.id+'\')"><span class="'+(r.cat==='otc'?'otc':'rx')+'">'+(r.cat==='otc'?'OTC':'Rx')+'</span>'+esc(r.drug)+' <small style="color:var(--dim)">'+DI_REVIEWED_LABEL+'</small></div>';}).join('');
     box.style.display='block';}
   function scDJMeds(){
