@@ -1,6 +1,6 @@
 # Acannability’s Cannabis Periodic Table of Molecules · Project Handoff  _(internal build: V2)_
-_Last updated: **2026-10-19** · **Protected baseline: commit `195aacf`, sha256 `c8e736fbf9d38a2e`** (MEDREVIEW-01; live byte-identical to `main`). Previous protected baseline: `747fb2e` / `4691532ecf63f38b` (RENDER-01 + COPY-03; on disk: `index_BACKUP_20261019_pre_MEDREVIEW01.html`). Earlier references: `07699d3` / `8a6e58ca6ba57aff`, `d5d3a0b` / `9dc707c5f738c8f4`, `7d2ee24` / `d4693daa1dbd268a`, `af8a334` / `5bbec607a59bbbf3`, `4d0d9aa` / `d2a41bdcae701e82`, `a518790` / `5bf1c70f63098016`, `6baf906` / `5cf72d6e2c66b1fe`, `59ef593` / `5ee1e392b2360494`, `e3298d3` / `1b6f1f86b486dcbb`, `135d300` / `96f38d244268b63a`._
-_Build: 2.2 MB · 64 molecules · **65 health conditions** / 10 groups · 3 cross-listed · **841 NCBI-verified PMIDs** · **291 drug records · 104 drug–drug pairs · 1 reviewed-only medication** · **42 faux Demo products** · backlog 286 rows · preflight: **38 guards**, all passing `--online`_
+_Last updated: **2026-10-20** · **Protected baseline: commit `38a9583`, sha256 `f3630eeafe257d64`** (MED-DIMEN; live byte-identical to `main`). Previous protected baseline: `195aacf` / `c8e736fbf9d38a2e` (MEDREVIEW-01; on disk: `index_BACKUP_20261020_pre_MEDDIMEN.html`). Earlier references: `747fb2e` / `4691532ecf63f38b`, `07699d3` / `8a6e58ca6ba57aff`, `d5d3a0b` / `9dc707c5f738c8f4`, `7d2ee24` / `d4693daa1dbd268a`, `af8a334` / `5bbec607a59bbbf3`, `4d0d9aa` / `d2a41bdcae701e82`, `a518790` / `5bf1c70f63098016`, `6baf906` / `5cf72d6e2c66b1fe`, `59ef593` / `5ee1e392b2360494`, `e3298d3` / `1b6f1f86b486dcbb`, `135d300` / `96f38d244268b63a`._
+_Build: 2.2 MB · 64 molecules · **65 health conditions** / 10 groups · 3 cross-listed · **841 NCBI-verified PMIDs** · **292 drug records · 104 drug–drug pairs · 1 reviewed-only medication** · **42 faux Demo products** · backlog 286 rows · preflight: **38 guards**, all passing `--online`_
 _**MODERN CROSS-PLATFORM QA ROUND 1 COMPLETE. IOS-07 passed physical-device acceptance on 2026-10-06 across iPhone 16 (iOS 26.6.1), the legacy iPad mini 2 (iOS 12.4.2) and an iMac. Commit `e3298d3` / build `1b6f1f86b486dcbb` is the new protected application baseline. IOS-01 through IOS-05 and IOS-07 are CLOSED; IOS-04b and IOS-06 remain recorded as FAILED AND REVERTED. Guards 31 and 32 both protect shipped code. **D2 is CLOSED on physical-device acceptance (2026-10-06); D1 remains OPEN/DEFERRED pending a current Windows Chrome/Edge physical test; U1 and U2 are observations only. **GX-01 + GX-02 (Guided Match) are deployed PROVISIONALLY as `11f687a` / `f12dfc9a1777f36c` and await physical acceptance; the protected baseline remains `a518790` / `5bf1c70f63098016`.** RESET-01 passed physical acceptance 2026-10-07 across iPhone 16, legacy iPad mini 2, an El Capitan iMac and a newer iMac — `59ef593` / `5ee1e392b2360494` is the new protected baseline.** D2 is CLOSED; D1 remains OPEN/DEFERRED pending a current Windows Chrome/Edge physical test; U1/U2 are observations only. A residual Entourage intermittency survives RESET-01 and is recorded as an observation with NO root cause — refresh first.**_
 
 _**GUIDED MATCH / DEMO ROUND COMPLETE AND ACCEPTED 2026-10-11 across iPhone 16 and iMac Tahoe.** GX-06, the five non-intoxicating faux products, NAME-01, GX-07, GX-08, the continuous 7-stage Demo indicator and COPY-01 all passed physical acceptance. **`4d0d9aa` / `d2a41bdcae701e82` is the new protected application baseline, replacing `a518790` / `5bf1c70f63098016`.** **F — the dormant standard-customer product pathway — is a future POS-integration architecture item and MUST NOT be deleted or refactored.** An intermittent iPhone 16 scroll/tap behaviour is an OBSERVATION ONLY, not a defect; it did not prevent acceptance and no speculative mobile change was made._
@@ -14,10 +14,136 @@ _**RESET-03 CLOSED AND ACCEPTED 2026-10-14 across iPhone 16, the legacy iPad min
 _**COPY-02 CLOSED AND ACCEPTED 2026-10-15 on iPhone 16 and a current iMac.** Both disclaimer instructions for shared devices now name **End Session** (shown as **I'm Done — End My Session** on larger screens). Copy only. **`07699d3` / `8a6e58ca6ba57aff` is the new protected application baseline, replacing `d5d3a0b` / `9dc707c5f738c8f4`.**_
 _**RENDER-01 + COPY-03 CLOSED AND ACCEPTED 2026-10-19 across iPhone 16, the legacy iPad mini 2 and a current iMac.** The Guided Match / Demo medication check now renders V2's curated medication markup instead of showing literal `&mdash;` and `<strong>`, and the opening screen says the 64 molecules are selected from the hundreds of compounds identified in the plant. **`747fb2e` / `4691532ecf63f38b` is the new protected application baseline, replacing `07699d3` / `8a6e58ca6ba57aff`.**_
 _**MEDREVIEW-01 CLOSED AND ACCEPTED 2026-10-19 across iPhone 16, the legacy iPad mini 2 and a current iMac.** Desmopressin and meclizine are added as Grade D interaction records, and mirabegron is the first **reviewed-only** medication: recognized and searchable with no interaction record, severity, grade or molecules. **`195aacf` / `c8e736fbf9d38a2e` is the new protected application baseline, replacing `747fb2e` / `4691532ecf63f38b`.**_
+_**MED-DIMEN CLOSED AND ACCEPTED 2026-10-20.** Dimenhydrinate is added (moderate / D). A plain "Dramamine" search now deliberately returns **both** dimenhydrinate and meclizine, with an active-ingredient ambiguity message, because FDA labels use the brand for both medicines. **`38a9583` / `f3630eeafe257d64` is the new protected application baseline, replacing `195aacf` / `c8e736fbf9d38a2e`.**_
+
 
 
 
 _**Pre-release audit COMPLETE: waves 2–6 ALL SHIPPED. Wave 1 (the release blocker) needs the owner. Drug tranches A–E ALL SHIPPED; severity-sort bug FIXED; the CYP2D6 sweep is COMPLETE across all 21 records; prostate evidence recalibrated; three Men's Health topics added; a V2-wide count guard now blocks stale numbers; Demo Mode and Guided Match are ALIGNED and share one data source, guarded. Tranche E is now COMPLETE and the four discovered gaps are closed (DRUG-24); the CBD→Δ⁹-THC exposure finding is in the build; `hasRisk` is enforced rather than dead.**_
+
+---
+
+## 00000000000000000000. MED-DIMEN — DIMENHYDRINATE, AND DRAMAMINE AS AN AMBIGUOUS BRAND — **CLOSED AND ACCEPTED**
+
+**Owner-accepted 2026-10-20. Commit `38a9583`, build `f3630eeafe257d64` is the protected application
+baseline.** Rollback: `195aacf` / `c8e736fbf9d38a2e` (`index_BACKUP_20261020_pre_MEDDIMEN.html`;
+`preflight_BACKUP_20261020_pre_MEDDIMEN.py`). Intermediate backups:
+`index_BACKUP_20261020_pre_MEDDIMEN_aliasfix.html` (`8bcdd3d3848ac1b3`) and
+`index_BACKUP_20261020_pre_MEDDIMEN_gravol.html` (`383352ea262f417f`).
+
+| Step | Commit | Build |
+|---|---|---|
+| Dimenhydrinate record + Dramamine architecture + Guard 38 revision | `158212f` | `8bcdd3d3848ac1b3` |
+| Aliases tightened to names that appear verbatim on FDA labels | `46c6abe` | `383352ea262f417f` |
+| Gravol removed; Driminate made an alias | **`38a9583`** | **`f3630eeafe257d64`** |
+
+**Counts:** **292** cannabis–drug interaction records (+1) · **104** drug–drug pairs · **1** reviewed-only
+medication (mirabegron) · **841** distinct PMIDs (unchanged — both citations already existed) · **38** guards.
+
+### The dimenhydrinate record
+
+| | |
+|---|---|
+| Names | `drug:'Dimenhydrinate'`; **`brands` is empty**; searchable aliases `driminate` and the qualified Dramamine names below |
+| Class | Antihistamine — motion sickness (diphenhydramine salt; OTC, and Rx injection) · OTC |
+| Severity / grade | **moderate / D** |
+| Molecules | Δ9-THC, CBN, CBD (as diphenhydramine and meclizine) |
+| PMIDs | 26103030, 37313955 |
+
+- **No direct cannabis–dimenhydrinate study was identified** (PubMed + FDA labeling, 2026-10-20). The one
+  dimenhydrinate case with cannabis (PMID 38453220) is chronic misuse confounded by several factors and
+  is not cited.
+- **Rationale: pharmacodynamic additive drowsiness / dizziness / CNS impairment.** It is the
+  8-chlorotheophylline salt of diphenhydramine (53–55.5% diphenhydramine, Rx label). OTC labels warn of
+  "marked drowsiness" and that alcohol, sedatives and tranquilizers may increase dizziness; the Rx
+  injection label notes an additive effect with CNS depressants; the Epidiolex label covers CBD.
+- **Metabolism is not the basis.** Diphenhydramine is cleared by CYP2D6, and CBD showed no measurable
+  CYP2D6 inhibition in people (37313955). The record states plainly that this one-enzyme finding is **not**
+  evidence that cannabis and dimenhydrinate have been shown not to interact.
+- A clearly secondary educational sentence notes that other diphenhydramine-containing medications add to
+  the total amount. It names no consumer products, and no drug–drug pair was added.
+- "Benadryl" was deliberately left out of the wording, because some Benadryl-branded products contain
+  other ingredients.
+
+### Dramamine — the final ambiguity architecture
+
+FDA labels use **"Dramamine" for two medicines**: dimenhydrinate (Original Formula, for Kids, Orange) and
+meclizine (Less Drowsy, All Day Less Drowsy, Nausea, Chewable Orange, Dramamine-N) — and several meclizine
+labels give the brand as plain "Dramamine". V2 therefore does not guess.
+
+- **There is no bare "dramamine" alias, and Dramamine is in neither medication's `brands` list.** Brands
+  register their first word as a search key, which would create a bare "dramamine" key.
+- **Only four qualified aliases**, each appearing **verbatim as a brand name** on current FDA labels with
+  one active ingredient (owner rule, 2026-10-20 — no reconstructed word orders, no truncations):
+
+  | Alias | → |
+  |---|---|
+  | Dramamine Original Formula | dimenhydrinate |
+  | Dramamine for Kids | dimenhydrinate |
+  | Dramamine Less Drowsy | meclizine |
+  | Dramamine-N | meclizine |
+
+- **Excluded:**
+  - *reconstructed or truncated* — Children's Dramamine, Dramamine All Day Less Drowsy, Dramamine All Day,
+    Dramamine Original (it exists only inside "Dramamine Original Formula", and prefix matching still
+    finds it);
+  - *semantically ambiguous* — Dramamine Nausea;
+  - *used for both medicines* — Dramamine Orange, Dramamine Chewable Orange, Dramamine Chewable, and the
+    Motion Sickness / Motion Sickness Relief store brands.
+- **Plain "Dramamine" intentionally returns BOTH dimenhydrinate and meclizine.** Word-start matching
+  reaches the qualified keys for both. The shared message `DI_AMBIGUOUS_MSG` (via `diAmbiguityNote()`)
+  appears at all three medication searches — the Table, the medication list, and Guided / Demo — whenever
+  the query is, or begins with, "Dramamine": *"Dramamine is a brand name used for different medicines.
+  Check the active ingredient on your package. Some Dramamine products contain dimenhydrinate and others
+  contain meclizine. Select the medication that matches the active ingredient on your package."*
+- **Gravol was intentionally excluded** from the final U.S.-focused implementation. **Driminate**, a
+  current U.S. OTC label from Major Pharmaceuticals, is a **search alias, not a displayed brand**, so
+  Guided Match shows plain **"Dimenhydrinate"** rather than "Dimenhydrinate (brand)". The Guided rows for a
+  Dramamine search read "Dimenhydrinate" and "Meclizine (Antivert)" — neither is presented as plain
+  "Dramamine".
+- **Meclizine's scientific record was not changed** — only qualified search aliases were added for it.
+  **Mirabegron's `DI_REVIEWED` behaviour is unchanged.**
+- **Accepted search side effects:** "diphenhydramine" also lists dimenhydrinate, ranked after the exact
+  diphenhydramine record, because the class line names the diphenhydramine salt. Broad class-line words
+  ("anti", "antihistamine", "motion", "otc") also list it.
+
+### Guard 38 — revised and tightened (not weakened)
+
+MEDREVIEW-01's blanket "no Dramamine anywhere" rule was replaced by a stricter allowlist rule:
+- Dramamine may not appear in any `brands` list, record name or class line, or in the reviewed registry;
+- there may be no bare alias;
+- only the four allowlisted aliases are permitted, each mapped to its label-verified ingredient;
+- no orange, chewable or motion-sickness Dramamine alias;
+- a plain "Dramamine" search must reach **both** records (checked by replicating word-start matching);
+- `DI_AMBIGUOUS_MSG` must keep its required sentences and pass the unsafe-wording check;
+- `diAmbiguityNote()` must keep its trigger, and all three search sites must call it.
+
+All MEDREVIEW-01 protections remain. During testing the guard was tightened to require the full
+sentence "Check the active ingredient on your package".
+
+### QA — automated (final accepted build `f3630eeafe257d64`)
+
+- Syntax: **PASS** (both script blocks, JavaScriptCore).
+- Preflight: **all 38 guards PASS**; `--online`: **841/841 PMIDs resolved** (lookup confirmed to have run).
+- **Guard 38 mutation testing: PASS.** 23 mutations on the first build; 18 after the alias tightening,
+  including each of the five removed aliases re-added; 6 relevant ones after the Gravol cleanup. All caught;
+  the unmutated build passes.
+- **Behavioural checks (one-time development harness, NOT repository tests): PASS** — 50/50 standard and
+  9/9 Demo on the final build.
+- **Search regression: PASS.** Over about 1,850 queries old-vs-new: **no result lost** against the
+  protected baseline; at each step only the intended alias or record changes (final cleanup: only "gravol"
+  / "grav" changed). RENDER-01 / ROUTE-04 / RESET-03 sanity suite 14/14 and 7/7. The MEDREVIEW-01 suite's
+  assertions that "Dramamine never reaches meclizine" are **intentionally superseded** by this item.
+
+### QA — physical
+
+- **The initial MED-DIMEN functionality** (`158212f`, then `46c6abe`) was tested successfully on **iPhone 16,
+  iPad mini 2 (iOS 12.4.2 / Safari 12.1.2) and a current iMac**. The only issue found — Gravol not appearing
+  as a medication of its own — led to the owner's decision to drop it.
+- **The Gravol / Driminate cleanup (`38a9583`) was narrowly scoped**, and its final verification was performed
+  on **iPhone 16 only — PASS**: Dimenhydrinate → Moderate / D card with no Gravol; Dramamine → ambiguity
+  message plus both records; Guided Match → Dramamine → message plus "Dimenhydrinate" and "Meclizine
+  (Antivert)". **The cleanup build was not fully retested on all three devices.**
 
 ---
 
@@ -86,7 +212,8 @@ Original **Dramamine is dimenhydrinate**; only some Dramamine products ("Less Dr
 V2's search matches a query to the **start of any word** in a key, and each brand also registers its
 first word as a key — so *any* key containing "dramamine", even "Dramamine Less Drowsy (meclizine)",
 would send a plain "Dramamine" search to the meclizine record. **A "Dramamine" search returns the
-not-found state, and on all three devices that is the accepted, correct behaviour.** Guard 38 fails the
+not-found state, and on all three devices that is the accepted, correct behaviour.** *(Superseded 2026-10-20 by MED-DIMEN:
+a plain "Dramamine" search now returns both dimenhydrinate and meclizine with an ambiguity message.)* Guard 38 fails the
 build if any searchable field contains "Dramamine". Desmopressin's historical brands (Stimate, Nocdurna,
 Noctiva, Minirin) were also left out, for later review.
 
@@ -961,9 +1088,9 @@ CLOSED AND ACCEPTED.**
   `d4693daa1dbd268a`) — see the PRINT-01 section.
 - ~~**Shared-kiosk session isolation.**~~ **CLOSED AND ACCEPTED 2026-10-14 as RESET-03** (`d5d3a0b` /
   `9dc707c5f738c8f4`) — see the RESET-03 section.
-- **Dimenhydrinate (Dramamine)** — future medication candidate; needs its own read-only cannabis
-  interaction evidence review before any addition. Until then a "Dramamine" search is deliberately
-  not found (MEDREVIEW-01).
+- ~~**Dimenhydrinate (Dramamine)**~~ — **CLOSED AND ACCEPTED 2026-10-20 as MED-DIMEN** (`38a9583` /
+  `f3630eeafe257d64`) — see the MED-DIMEN section.
+- **Modern Windows D1** — still outstanding (see D1 above).
 - **The 77 no-molecule records and V2's "no interaction" presentation** — broader policy question.
 - **Broader drug–drug coverage**, including the label-documented DDIs of mirabegron, desmopressin and
   meclizine (MEDREVIEW-01).
