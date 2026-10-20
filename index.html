@@ -8049,7 +8049,10 @@ var DI_DATA = [
   // MED-DIMEN (2026-10-20, owner-approved): dimenhydrinate, Grade D like meclizine. It is the
   // 8-chlorotheophylline salt of diphenhydramine. "Dramamine" is NOT in brands (brands register their
   // first word, which would create a bare "dramamine" key); see the qualified aliases in DI_ALIASES.
-  {id:'dimenhydrinate',drug:'Dimenhydrinate',brands:['Gravol','Driminate'],cls:'Antihistamine — motion sickness (diphenhydramine salt; OTC, and Rx injection)',cat:'otc',
+  // brands is deliberately EMPTY (owner, 2026-10-20): Gravol was removed (V2 is U.S.-focused), and Driminate
+  // is a search alias instead, so the medication displays as plain "Dimenhydrinate" rather than with a brand
+  // in parentheses.
+  {id:'dimenhydrinate',drug:'Dimenhydrinate',brands:[],cls:'Antihistamine — motion sickness (diphenhydramine salt; OTC, and Rx injection)',cat:'otc',
    mols:['THC9','CBN','CBD'],sev:'moderate',ev:'D',
    mech:'<strong>No study has tested cannabis together with dimenhydrinate.</strong> Dimenhydrinate is diphenhydramine &mdash; a sedating antihistamine &mdash; combined with 8-chlorotheophylline, a compound related to theophylline; it is just over half diphenhydramine by weight. The concern is added drowsiness and dizziness. Its labels warn that marked drowsiness may occur and that alcohol, sedatives and tranquilizers may increase dizziness, and the prescribing information for the injection notes an additive effect with alcohol or other drugs that slow the brain. Drowsiness and dizziness are among the commonest side effects of cannabinoids in clinical trials, with &Delta;9-THC and cannabinol the cannabinoids most associated with sedation, and the prescribing information for purified CBD (Epidiolex) warns that combining it with other drugs that slow the brain may increase sleepiness. Two different routes to the same place, so the effects can add up &mdash; pharmacodynamic inference, graded D. <em>Diphenhydramine is broken down mainly by CYP2D6, but that is not the basis for this warning: in a 2023 human study, CBD did not measurably inhibit CYP2D6. That finding concerns one enzyme; it is not evidence that cannabis and dimenhydrinate have been shown not to interact.</em> Dimenhydrinate&rsquo;s anticholinergic effects (dry mouth, blurred vision, difficulty passing urine) are its own, though cannabis can add to a dry mouth.',
    effect:'More drowsiness and dizziness than either would cause alone, with slower reactions and unsteadiness. Dimenhydrinate&rsquo;s labels warn of marked drowsiness on its own, so the added effect may be more noticeable than with meclizine. <em>This is inference, not a measured outcome.</em>',
@@ -9260,6 +9263,7 @@ var DI_ALIASES = {
   'meclizine hydrochloride':'meclizine',
   'meclizine hcl':'meclizine',
   'meclozine':'meclizine',
+  'driminate':'dimenhydrinate',   // MED-DIMEN: U.S. OTC label (Major); an alias, not a brand, so the display stays "Dimenhydrinate"
   'dramamine original formula':'dimenhydrinate',
   'dramamine for kids':'dimenhydrinate',
   'dramamine less drowsy':'meclizine',
