@@ -1,6 +1,6 @@
 # Acannability’s Cannabis Periodic Table of Molecules · Project Handoff  _(internal build: V2)_
-_Last updated: **2026-10-20** · **Protected baseline: commit `38a9583`, sha256 `f3630eeafe257d64`** (MED-DIMEN; live byte-identical to `main`). Previous protected baseline: `195aacf` / `c8e736fbf9d38a2e` (MEDREVIEW-01; on disk: `index_BACKUP_20261020_pre_MEDDIMEN.html`). Earlier references: `747fb2e` / `4691532ecf63f38b`, `07699d3` / `8a6e58ca6ba57aff`, `d5d3a0b` / `9dc707c5f738c8f4`, `7d2ee24` / `d4693daa1dbd268a`, `af8a334` / `5bbec607a59bbbf3`, `4d0d9aa` / `d2a41bdcae701e82`, `a518790` / `5bf1c70f63098016`, `6baf906` / `5cf72d6e2c66b1fe`, `59ef593` / `5ee1e392b2360494`, `e3298d3` / `1b6f1f86b486dcbb`, `135d300` / `96f38d244268b63a`._
-_Build: 2.2 MB · 64 molecules · **65 health conditions** / 10 groups · 3 cross-listed · **841 NCBI-verified PMIDs** · **292 drug records · 104 drug–drug pairs · 1 reviewed-only medication** · **42 faux Demo products** · backlog 286 rows · preflight: **38 guards**, all passing `--online`_
+_Last updated: **2026-10-21** · **Protected baseline: commit `7a58b77`, sha256 `a367d5a6bd48be96`** (COPY-04; live byte-identical to `main`). Previous protected baseline: `38a9583` / `f3630eeafe257d64` (MED-DIMEN; on disk: `index_BACKUP_20261021_pre_COPY04.html`). Earlier references: `195aacf` / `c8e736fbf9d38a2e`, `747fb2e` / `4691532ecf63f38b`, `07699d3` / `8a6e58ca6ba57aff`, `d5d3a0b` / `9dc707c5f738c8f4`, `7d2ee24` / `d4693daa1dbd268a`, `af8a334` / `5bbec607a59bbbf3`, `4d0d9aa` / `d2a41bdcae701e82`, `a518790` / `5bf1c70f63098016`, `6baf906` / `5cf72d6e2c66b1fe`, `59ef593` / `5ee1e392b2360494`, `e3298d3` / `1b6f1f86b486dcbb`, `135d300` / `96f38d244268b63a`._
+_Build: 2.2 MB · 64 molecules · **65 health conditions** / 10 groups · 3 cross-listed · **841 NCBI-verified PMIDs** · **292 drug records · 104 drug–drug pairs · 1 reviewed-only medication** · **42 faux Demo products** · backlog 288 rows · preflight: **39 guards**, all passing `--online`_
 _**MODERN CROSS-PLATFORM QA ROUND 1 COMPLETE. IOS-07 passed physical-device acceptance on 2026-10-06 across iPhone 16 (iOS 26.6.1), the legacy iPad mini 2 (iOS 12.4.2) and an iMac. Commit `e3298d3` / build `1b6f1f86b486dcbb` is the new protected application baseline. IOS-01 through IOS-05 and IOS-07 are CLOSED; IOS-04b and IOS-06 remain recorded as FAILED AND REVERTED. Guards 31 and 32 both protect shipped code. **D2 is CLOSED on physical-device acceptance (2026-10-06); D1 remains OPEN/DEFERRED pending a current Windows Chrome/Edge physical test; U1 and U2 are observations only. **GX-01 + GX-02 (Guided Match) are deployed PROVISIONALLY as `11f687a` / `f12dfc9a1777f36c` and await physical acceptance; the protected baseline remains `a518790` / `5bf1c70f63098016`.** RESET-01 passed physical acceptance 2026-10-07 across iPhone 16, legacy iPad mini 2, an El Capitan iMac and a newer iMac — `59ef593` / `5ee1e392b2360494` is the new protected baseline.** D2 is CLOSED; D1 remains OPEN/DEFERRED pending a current Windows Chrome/Edge physical test; U1/U2 are observations only. A residual Entourage intermittency survives RESET-01 and is recorded as an observation with NO root cause — refresh first.**_
 
 _**GUIDED MATCH / DEMO ROUND COMPLETE AND ACCEPTED 2026-10-11 across iPhone 16 and iMac Tahoe.** GX-06, the five non-intoxicating faux products, NAME-01, GX-07, GX-08, the continuous 7-stage Demo indicator and COPY-01 all passed physical acceptance. **`4d0d9aa` / `d2a41bdcae701e82` is the new protected application baseline, replacing `a518790` / `5bf1c70f63098016`.** **F — the dormant standard-customer product pathway — is a future POS-integration architecture item and MUST NOT be deleted or refactored.** An intermittent iPhone 16 scroll/tap behaviour is an OBSERVATION ONLY, not a defect; it did not prevent acceptance and no speculative mobile change was made._
@@ -15,11 +15,104 @@ _**COPY-02 CLOSED AND ACCEPTED 2026-10-15 on iPhone 16 and a current iMac.** Bot
 _**RENDER-01 + COPY-03 CLOSED AND ACCEPTED 2026-10-19 across iPhone 16, the legacy iPad mini 2 and a current iMac.** The Guided Match / Demo medication check now renders V2's curated medication markup instead of showing literal `&mdash;` and `<strong>`, and the opening screen says the 64 molecules are selected from the hundreds of compounds identified in the plant. **`747fb2e` / `4691532ecf63f38b` is the new protected application baseline, replacing `07699d3` / `8a6e58ca6ba57aff`.**_
 _**MEDREVIEW-01 CLOSED AND ACCEPTED 2026-10-19 across iPhone 16, the legacy iPad mini 2 and a current iMac.** Desmopressin and meclizine are added as Grade D interaction records, and mirabegron is the first **reviewed-only** medication: recognized and searchable with no interaction record, severity, grade or molecules. **`195aacf` / `c8e736fbf9d38a2e` is the new protected application baseline, replacing `747fb2e` / `4691532ecf63f38b`.**_
 _**MED-DIMEN CLOSED AND ACCEPTED 2026-10-20.** Dimenhydrinate is added (moderate / D). A plain "Dramamine" search now deliberately returns **both** dimenhydrinate and meclizine, with an active-ingredient ambiguity message, because FDA labels use the brand for both medicines. **`38a9583` / `f3630eeafe257d64` is the new protected application baseline, replacing `195aacf` / `c8e736fbf9d38a2e`.**_
+_**COPY-04 CLOSED AND ACCEPTED 2026-10-21 on iPhone 16 and a current iMac.** Demo Mode copy no longer implies that a live POS / inventory connection exists today: Best matches, Product selected and its sample lab report now say simulated / in development, and the visible `(INV-05)` / `(INV-06)` codes are gone. Copy only; Guard 39 added. **`7a58b77` / `a367d5a6bd48be96` is the new protected application baseline, replacing `38a9583` / `f3630eeafe257d64`.** Help/FAQ POS wording is recorded as candidate **COPY-05** (not started)._
 
 
 
 
 _**Pre-release audit COMPLETE: waves 2–6 ALL SHIPPED. Wave 1 (the release blocker) needs the owner. Drug tranches A–E ALL SHIPPED; severity-sort bug FIXED; the CYP2D6 sweep is COMPLETE across all 21 records; prostate evidence recalibrated; three Men's Health topics added; a V2-wide count guard now blocks stale numbers; Demo Mode and Guided Match are ALIGNED and share one data source, guarded. Tranche E is now COMPLETE and the four discovered gaps are closed (DRUG-24); the CBD→Δ⁹-THC exposure finding is in the build; `hasRisk` is enforced rather than dead.**_
+
+---
+
+## 000000000000000000000. COPY-04 — DEMO COPY MUST NOT IMPLY A LIVE POS CONNECTION — **CLOSED AND ACCEPTED**
+
+**Owner-accepted 2026-10-21. Commit `7a58b77`, build `a367d5a6bd48be96` is the protected application
+baseline.** Rollback: `38a9583` / `f3630eeafe257d64` (`index_BACKUP_20261021_pre_COPY04.html`;
+`preflight_BACKUP_20261021_pre_COPY04.py`).
+
+**Why.** Found by a narrow read-only Demo copy audit before capture of the MJBizCon video (Las Vegas,
+December 1–4, 2026). The Demo's Best matches screen — the planned climax of the video — said in the present
+tense that The Table "connects to your POS / seed-to-sale system… in real time", with an internal ticket code
+on screen. **Live POS / seed-to-sale / inventory integration is FUTURE work; Demo inventory is simulated.**
+
+**Scope: copy only.** 7 replacements on 7 lines of `index.html`.
+
+| Screen | Before | After |
+|---|---|---|
+| Demo **Best matches in stock** badge — and the identical badge on the dormant standard-flow `scProducts` screen (owner-approved, copy only) | Connected · Demo-POS · live stock | **Demo-POS · simulated inventory** |
+| Best matches caption | Live POS integration (simulated). On a licensed dispensary, The Table connects to your POS / seed-to-sale system to rank in-stock products in real time (INV-05). | **Live POS integration — simulated. In development: in a licensed dispensary, The Table is designed to connect with POS / seed-to-sale inventory to help match research-linked molecules with compatible in-stock products.** |
+| Product selected checks | ✓ Clinical fit · ✓ Meds screened | **✓ Profile match · ✓ Medications reviewed** |
+| Product selected status line | Sent to POS terminal · added to cart *(demonstration)* | **Simulated hand-off to POS · demonstration only** |
+| Product selected journey recap | The full The Table journey: health concern → clinical recommendation → medication safety → refined match → in-stock product, all connected to the dispensary POS. | **The complete journey: health topic → research-linked molecules → safety and medications → refined match → in-stock demo product. Live POS connection is in development.** |
+| Sample lab report (COA) | …On a live POS / lab integration this shows the product's actual COA with measured concentrations (INV-06). | **…With future POS / lab integration, this would show the product's actual COA with measured concentrations.** |
+
+Product selected is **not** filmed for the video; it was corrected because staff or visitors running a live
+booth demonstration at MJBizCon can naturally reach it.
+
+**Unchanged (by owner decision):** scientific evidence, interaction records, medication data, Guided Match
+logic, product matching, fit calculations, simulated inventory, Demo workflow, POS architecture, Help/FAQ
+copy (→ candidate COPY-05), and other dormant / non-filmed copy — the `scHandoff()` line "Sent to POS terminal
+· added to cart", the budtender-console placard "live stock counts" and the Demo insights illustrative figures.
+**The dormant pathway (F) was otherwise untouched:** only the `scProducts` badge string changed; nothing was
+wired, activated or refactored.
+
+### Guard 39 — `check_demo_pos_copy`
+
+- **Scope:** `scDJProducts`, `scDJDone`, `coaCard` and `scProducts`, with comments stripped, so internal
+  notes and explicitly future-facing wording elsewhere do not trip it.
+- **Bans there:** "live stock"; present-tense "connects / is connected / are connected to … POS"; "all
+  connected to"; "Clinical fit"; "added to cart"; "sent to POS"; "in real time"; a "Connected ·" badge.
+- **Bans page-wide:** any user-visible `(INV-n)` ticket reference.
+- **Requires:** the new simulated / in-development wording on each of those screens.
+- **Deliberately not covered:** `scHandoff()`, the budtender placard and the FAQ (see COPY-05).
+
+### QA — automated (accepted build `a367d5a6bd48be96`)
+
+- Syntax: **PASS** (both script blocks, JavaScriptCore).
+- Preflight: **all 39 guards PASS**; `--online`: **841/841 PMIDs resolved** (lookup confirmed to have run).
+- **Guard 39 mutation testing: 23/23.** It fails on the pre-COPY-04 build (20 problems) and on each
+  reintroduced phrase or dropped required sentence; it ignores comments (including ones containing
+  `(INV-05)`), future-facing text ("will connect with your POS") and the out-of-scope `scHandoff()` line;
+  the zero-match tripwire fires if a screen function disappears. One false positive found during testing
+  ("connect with your POS") was fixed by restricting the pattern to the present tense.
+- **Product matching unchanged:** matcher output (products and fit %) identical to the baseline across all
+  **48 Demo topic × THC combinations**; the only harness difference is the caption line.
+- **Approved filming journey unchanged:** same research-linked molecules, "4 products in stock match this
+  profile", the same four matches (Citrus Grove Botanical Chews 79%, Elderflower CBD Tonic 25mg 63%,
+  Stonefield Balm 500mg CBD 59%, Cold Creek Broad-Spectrum Balm 59%).
+- **Existing suites (one-time development harness, NOT repository tests):** RENDER-01 7/7 Demo and 14/14
+  standard; MED-DIMEN 50/50; MEDREVIEW-01's four "Dramamine never reaches meclizine" assertions fail
+  identically on the baseline — intentionally superseded by MED-DIMEN.
+
+### QA — physical
+
+**PASS on iPhone 16 and a current iMac** (owner, 2026-10-21): Warfarin + Ibuprofen / Naproxen shows the
+drug–drug and cannabis–drug information; the DEMO-POS · SIMULATED INVENTORY badge; the new caption readable
+and wrapping cleanly; no `(INV-05)`; the same four products; Product selected shows Profile match, Medications
+reviewed and Simulated hand-off to POS · demonstration only; the revised recap; the future-facing COA line;
+no `(INV-06)`; no crowding, overlap or layout problems on the iMac. **The legacy iPad mini 2 was not
+required:** COPY-04 is text inside existing elements, with no new styling, scripts or characters.
+
+### MJBizCon video — approved filming decisions recorded here (production not started)
+
+The Phase 1 storyboard is approved in principle (about 2:00; one master with an online / in-app version and a
+silent looping booth version). COPY-04 was its prerequisite. Decisions binding on capture:
+
+- **Filmed Demo journey:** Complete Research Demonstration → **Anxiety / stress** → New to it → **🚫 Avoid
+  intoxicating THC** → **🌀 Any route** → Safety check (💊 Taking prescription medication(s)) → **Warfarin
+  (Coumadin) + Ibuprofen / Naproxen** → Refine → Checking the shelf… → **Best matches in stock**.
+- **Why both medications:** Warfarin alone shows "✓ No drug–drug interactions within the list", which would
+  contradict the video's drug–drug message. With Ibuprofen / Naproxen added, the screen truthfully shows both
+  a drug–drug interaction (**Warfarin + Ibuprofen / NSAIDs, Ev A**) and a cannabis–drug interaction (**CBD ·
+  recommended → Warfarin**). Capture decision only; no medication data changed.
+- **Medication segment (about 16 s):** headline "Check for medication interactions." throughout; then
+  "Drug–drug and cannabis–drug interactions to discuss with your pharmacist or physician."; then "Evidence-graded
+  interaction information · not a complete medication screening." — at most two text blocks at once.
+- **Application footage ends at Best matches in stock. Do NOT film Product selected / Done**, and never tap
+  "Select this product →" during capture. Also not filmed: the Demo sign-in, Demo hub, Demo / Research
+  insights, the budtender console, the browser address bar.
+- The future POS / inventory message appears only after the application footage, and only as future-facing.
+- Hosting is undecided; for MJBizCon the booth loop plays from local storage with a USB backup.
 
 ---
 
@@ -1090,6 +1183,15 @@ CLOSED AND ACCEPTED.**
   `9dc707c5f738c8f4`) — see the RESET-03 section.
 - ~~**Dimenhydrinate (Dramamine)**~~ — **CLOSED AND ACCEPTED 2026-10-20 as MED-DIMEN** (`38a9583` /
   `f3630eeafe257d64`) — see the MED-DIMEN section.
+- ~~**Demo copy implying a live POS connection**~~ — **CLOSED AND ACCEPTED 2026-10-21 as COPY-04**
+  (`7a58b77` / `a367d5a6bd48be96`) — see the COPY-04 section.
+- **COPY-05 — CANDIDATE, NOT AUTHORIZED OR STARTED.** The public Help/FAQ "Refine Inventory Match" answers
+  (both FAQ copies) may imply dispensaries are already connected / integrated with The Table's live POS:
+  "Ask your dispensary whether they've connected The Table to their POS" and "…delivers its full benefit when
+  your dispensary has integrated The Table with their live POS or inventory system. Ask your dispensary if
+  they participate in the Acannability platform." Review before MJBizCon. Related dormant / non-filmed copy
+  left unchanged by COPY-04: `scHandoff()` "Sent to POS terminal · added to cart", the budtender placard
+  "live stock counts", the Demo insights illustrative figures.
 - **Modern Windows D1** — still outstanding (see D1 above).
 - **The 77 no-molecule records and V2's "no interaction" presentation** — broader policy question.
 - **Broader drug–drug coverage**, including the label-documented DDIs of mirabegron, desmopressin and
@@ -1185,6 +1287,10 @@ actual dispensary's system.
 
 Verified **byte-identical to the previous protected baseline across this entire round**:
 `scProducts` (20 lines), `scPosQuery` (11 lines), `scHandoff` (12 lines).
+
+**COPY-04 (2026-10-21) exception, owner-approved:** one string in `scProducts` — the Demo badge "Connected ·
+Demo-POS · live stock" → "Demo-POS · simulated inventory". Copy only; the pathway is still unwired, and
+`scPosQuery` and `scHandoff` are unchanged.
 
 **Revisit at real dispensary/POS integration.** Target hierarchy at that point:
 
