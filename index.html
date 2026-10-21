@@ -13400,7 +13400,7 @@ var ROUTE_KEYS=['inhalation_vapor','inhalation_smoked','oral','sublingual','topi
     try{if(window.ResearchData&&document.getElementById('rgState'))ResearchData.fillStates('rgState');}catch(e){}}
   function scProducts(){var rec=activeRec();var res=G().match(rec);var top=res.shown.slice(0,6);
     var recIds=rec.molecules.map(function(m){return m.molId;});var html='';
-    var badge=demoMode()?'<div class="gx-posline"><span class="dot"></span>Connected · Demo-POS · live stock</div>':'';
+    var badge=demoMode()?'<div class="gx-posline"><span class="dot"></span>Demo-POS · simulated inventory</div>':'';
     if(!top.length){html='<div class="gx-empty"><div style="font-size:2rem">🤝</div><b>Nothing on the shelf is a strong match right now.</b><br>A Product Specialist can help you find an alternative.</div>';}
     else{html='<p class="gx-summary">Best matches, ranked by fit</p>'+top.map(function(p){
       var mols=Object.keys(p.profile).sort(function(a,b){return p.profile[b]-p.profile[a];}).slice(0,4).map(function(m){return '<span>'+(G().names[m]||m)+'</span>';}).join('');
@@ -13804,8 +13804,8 @@ var ROUTE_KEYS=['inhalation_vapor','inhalation_smoked','oral','sublingual','topi
         '<button class="dj-select" onclick="V4GX.djSelect(\''+esc(p.sku)+'\')">Select this product →</button></div>'+
         '<div class="gx-fit"><div class="pct">'+p.fit+'%</div><div class="lbl">fit</div></div></div>';}).join('')+
       '<div class="gx-filtered">'+res.excluded.length+' others filtered out (out of stock, or off-profile).</div>';}
-    stage(djStepBar(5)+'<h2 class="gx-q">Best matches in stock</h2><div class="gx-posline"><span class="dot"></span>Connected · Demo-POS · live stock</div>'+
-      '<div class="gx-cap" style="margin:-2px 0 10px">Live POS integration (simulated). On a licensed dispensary, The Table connects to your POS / seed-to-sale system to rank in-stock products in real time (INV-05).</div>'+html+
+    stage(djStepBar(5)+'<h2 class="gx-q">Best matches in stock</h2><div class="gx-posline"><span class="dot"></span>Demo-POS · simulated inventory</div>'+
+      '<div class="gx-cap" style="margin:-2px 0 10px">Live POS integration — simulated. In development: in a licensed dispensary, The Table is designed to connect with POS / seed-to-sale inventory to help match research-linked molecules with compatible in-stock products.</div>'+html+
       '<button class="gx-cta ghost" onclick="V4GX.djBack()">← Refine again</button>'+
       // UX-122: the Exit control was on the hub and the Done screen but on none of the screens in
       // between, so anyone who stopped the demonstration part-way had only the small ribbon button
@@ -13840,17 +13840,17 @@ var ROUTE_KEYS=['inhalation_vapor','inhalation_smoked','oral','sublingual','topi
         '<div style="font-size:.66rem;color:var(--dim);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Cannabinoid profile</div><div class="mols" style="margin-bottom:8px">'+chips(canns,'See product label')+'</div>'+
         '<div style="font-size:.66rem;color:var(--dim);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Terpene profile</div><div class="mols" style="margin-bottom:8px">'+chips(terps,'See product label')+'</div>'+
         '<div style="font-size:.74rem;color:#2E7D32;font-weight:700;margin:8px 0 4px">✓ Passed — Pesticides · Microbials · Heavy Metals · Residual Solvents · Mycotoxins</div>'+
-        '<div class="gx-cap" style="padding:0">Sample lab report for demonstration — cannabinoid/terpene profile reflects the product’s chemotype. On a live POS / lab integration this shows the product’s actual COA with measured concentrations (INV-06).</div>'+
+        '<div class="gx-cap" style="padding:0">Sample lab report for demonstration — cannabinoid/terpene profile reflects the product’s chemotype. With future POS / lab integration, this would show the product’s actual COA with measured concentrations.</div>'+
       '</div></details>';
   }
   function scDJDone(){var p=st.djProduct||G().match(djActiveRec()).shown[0];if(!p){scDJProducts();return;}
     stage(djStepBar(6)+'<h2 class="gx-q">Product selected</h2>'+
       '<div class="gx-handoff"><div class="gx-hpick"><div class="sw">'+p.icon+'</div><div><b>'+esc(p.name)+'</b>'+
         '<div class="meta">'+cap(p.type)+' · $'+p.price+' · '+p.fit+'% fit</div></div></div>'+
-        '<div class="gx-checks"><span>✓ Clinical fit</span><span>✓ Meds screened</span><span>✓ In stock ('+p.count+')</span></div>'+
-        '<div class="gx-sent"><span class="dot"></span>Sent to POS terminal · added to cart <em>(demonstration)</em></div></div>'+
+        '<div class="gx-checks"><span>✓ Profile match</span><span>✓ Medications reviewed</span><span>✓ In stock ('+p.count+')</span></div>'+
+        '<div class="gx-sent"><span class="dot"></span>Simulated hand-off to POS · demonstration only</div></div>'+
       coaCard(p)+
-      '<div class="dj-recap">The full The Table journey: health concern → clinical recommendation → medication safety → refined match → in-stock product, all connected to the dispensary POS.</div>'+
+      '<div class="dj-recap">The complete journey: health topic → research-linked molecules → safety and medications → refined match → in-stock demo product. Live POS connection is in development.</div>'+
       '<button class="gx-cta" onclick="V4GX.djRun()">↻ Run Another Research Demonstration</button>'+
       '<button class="gx-cta ghost" onclick="V4GX.demoHub()">≡ Back to demo menu</button>'+
       '<button class="gx-cta ghost" onclick="window.V4DEMO.exit()">Exit Demo Mode</button>');

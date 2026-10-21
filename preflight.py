@@ -2412,6 +2412,66 @@ def check_reviewed_registry(src, data):
          % (len(reg), sum(1 for k in alias if 'dramamine' in k.lower())))
 
 
+def check_demo_pos_copy(src):
+    """COPY-04 (guard 39): Demo copy must not claim a live POS connection that does not exist yet.
+
+    Found by the 2026-10-21 read-only audit before the MJBizCon video capture. The Demo's Best matches
+    screen said "Connected · Demo-POS · live stock" and "On a licensed dispensary, The Table connects to
+    your POS / seed-to-sale system to rank in-stock products in real time (INV-05)" — present tense, with
+    an internal ticket code on screen. Product selected said "✓ Clinical fit", "Sent to POS terminal ·
+    added to cart" and "…all connected to the dispensary POS", and its sample lab report showed "(INV-06)".
+    Live POS / inventory integration is FUTURE work; the Demo inventory is simulated.
+
+    Scoped to the screens COPY-04 corrected (Demo Best matches, Product selected, its sample lab report,
+    and the dormant standard-flow products screen), with comments stripped, so internal notes and
+    explicitly future-facing wording elsewhere do not trip it. Deliberately NOT covered, and not changed
+    by COPY-04: the dormant scHandoff() line, the budtender-console placard and the Help/FAQ text
+    (candidate COPY-05). The "(INV-" ticket-code check is the one page-wide rule.
+    """
+    name = 'demo POS copy'
+    try:
+        bodies = {k: strip_comments(js_literal(src, 'function %s(' % k, '{'))
+                  for k in ('scDJProducts', 'scDJDone', 'coaCard', 'scProducts')}
+    except ValueError:
+        fail(name, 'scDJProducts(), scDJDone(), coaCard() or scProducts() not found (zero-match tripwire)')
+        return
+    banned = [(r'live stock', '"live stock"'),
+              (r'\b(connects|is connected|are connected)\s+(directly\s+)?(to|with)\s+(your|the|a)\b[^\'<]{0,40}\bPOS\b',
+               'present-tense "connects to … POS"'),
+              (r'\ball connected to\b', '"all connected to …"'),
+              (r'clinical fit', '"Clinical fit"'),
+              (r'added to (the |your )?cart', '"added to cart"'),
+              (r'sent to (the )?POS', '"sent to POS"'),
+              (r'\bin real time\b', '"in real time"'),
+              (r'Connected\s*·', 'a "Connected ·" status badge')]
+    for fn, body in bodies.items():
+        for rx, what in banned:
+            m = re.search(rx, body, re.I)
+            if m:
+                fail(name, '%s() shows %s (%r) — live POS / inventory integration does not exist yet; the '
+                           'Demo inventory is simulated' % (fn, what, m.group(0)))
+    visible = strip_comments(src)
+    for m in re.finditer(r'\(INV-\d+\)', visible):
+        line = src.count('\n', 0, m.start()) + 1
+        fail(name, 'user-visible internal ticket reference %s on line %d' % (m.group(0), line))
+    need = [('scDJProducts', 'Demo-POS · simulated inventory'),
+            ('scDJProducts', 'Live POS integration — simulated. In development: in a licensed dispensary, The Table is '
+                             'designed to connect with POS / seed-to-sale inventory'),
+            ('scProducts', 'Demo-POS · simulated inventory'),
+            ('scDJDone', '✓ Profile match'),
+            ('scDJDone', '✓ Medications reviewed'),
+            ('scDJDone', 'Simulated hand-off to POS · demonstration only'),
+            ('scDJDone', 'Live POS connection is in development.'),
+            ('coaCard', 'Sample lab report for demonstration'),
+            ('coaCard', 'With future POS / lab integration, this would show')]
+    for fn, needle in need:
+        if needle not in bodies[fn]:
+            fail(name, '%s() lost its required simulation / in-development wording: "%s"' % (fn, needle[:70]))
+    note('demo POS copy: Best matches, Product selected and the sample lab report say simulated / in '
+         'development; no "live stock", present-tense POS connection, "Clinical fit", "added to cart" or '
+         'visible (INV-) codes')
+
+
 def main():
     online = '--online' in sys.argv
     src = open(SRC, encoding='utf-8').read()
@@ -2455,6 +2515,7 @@ def main():
     check_session_isolation(src)
     check_trusted_markup(src, data)
     check_reviewed_registry(src, data)
+    check_demo_pos_copy(src)
     check_evidence_attribution(data)
     check_backlog()
 
