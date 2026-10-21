@@ -2425,8 +2425,15 @@ def check_demo_pos_copy(src):
     Scoped to the screens COPY-04 corrected (Demo Best matches, Product selected, its sample lab report,
     and the dormant standard-flow products screen), with comments stripped, so internal notes and
     explicitly future-facing wording elsewhere do not trip it. Deliberately NOT covered, and not changed
-    by COPY-04: the dormant scHandoff() line, the budtender-console placard and the Help/FAQ text
-    (candidate COPY-05). The "(INV-" ticket-code check is the one page-wide rule.
+    by COPY-04: the dormant scHandoff() line and the budtender-console placard.
+
+    COPY-05 (2026-10-21) extended it to the public Help/FAQ Refine Inventory Match answers (both FAQ
+    copies), which said "Ask your dispensary whether they've connected The Table to their POS" and that
+    the feature "delivers its full benefit when your dispensary has integrated The Table with their live
+    POS… Ask your dispensary if they participate in the Acannability platform." Those three answers must
+    say "in development", and two benefit-implying phrases in the same answer ("matches your therapeutic
+    needs", "addresses your therapeutic goals") may not return. Page-wide rules are limited to exact
+    phrases that have no legitimate use, so "therapeutic" alone is never banned.
     """
     name = 'demo POS copy'
     try:
@@ -2467,9 +2474,35 @@ def check_demo_pos_copy(src):
     for fn, needle in need:
         if needle not in bodies[fn]:
             fail(name, '%s() lost its required simulation / in-development wording: "%s"' % (fn, needle[:70]))
+    # COPY-05: the Help/FAQ Refine Inventory Match answers
+    faq = []
+    for q in ('What is Refine Inventory Match?', 'How does Refine Inventory Match help me find the right product'):
+        for m in re.finditer(re.escape(q), visible):
+            end = visible.find('</details>', m.end())
+            faq.append((q, visible[m.end():end if end > 0 else m.end()]))
+    if len(faq) != 3:
+        fail(name, 'expected 3 Refine Inventory Match FAQ answers (2 copies of "What is…", 1 "How does…"), found %d '
+                   '(zero-match tripwire)' % len(faq))
+    for q, body in faq:
+        for rx, what in [(r'is the next step', '"is the next step"'),
+                         (r'\bconnects directly to\b', 'present-tense "connects directly to"'),
+                         (r'delivers its full benefit', '"delivers its full benefit"')]:
+            if re.search(rx, body, re.I):
+                fail(name, 'FAQ "%s" says %s — live POS / inventory integration is in development' % (q[:40], what))
+        need = (['inventory system is in development.', 'is in development and is not yet available.']
+                if q.startswith('How does') else ['is in development, and is previewed today only as a simulation in Demo Mode.'])
+        for nd in need:
+            if nd not in body:
+                fail(name, 'FAQ "%s" lost its required in-development wording: "%s"' % (q[:40], nd))
+    for phrase in ('connected The Table to', 'integrated The Table with', 'participate in the Acannability platform',
+                   'dispensary integration tool', 'matches your therapeutic needs', 'addresses your therapeutic goals'):
+        i = visible.lower().find(phrase.lower())
+        if i >= 0:
+            fail(name, 'user-visible "%s" on line %d — implies a current POS connection or a therapeutic benefit'
+                 % (phrase, src.count('\n', 0, i) + 1))
     note('demo POS copy: Best matches, Product selected and the sample lab report say simulated / in '
          'development; no "live stock", present-tense POS connection, "Clinical fit", "added to cart" or '
-         'visible (INV-) codes')
+         'visible (INV-) codes; the %d Help/FAQ Refine Inventory Match answers say "in development"' % len(faq))
 
 
 def main():
