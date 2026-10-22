@@ -1,5 +1,5 @@
 # Acannability’s Cannabis Periodic Table of Molecules · Project Handoff  _(internal build: V2)_
-_Last updated: **2026-10-21** · **Protected baseline: commit `7a58b77`, sha256 `a367d5a6bd48be96`** (COPY-04; live byte-identical to `main`). Previous protected baseline: `38a9583` / `f3630eeafe257d64` (MED-DIMEN; on disk: `index_BACKUP_20261021_pre_COPY04.html`). Earlier references: `195aacf` / `c8e736fbf9d38a2e`, `747fb2e` / `4691532ecf63f38b`, `07699d3` / `8a6e58ca6ba57aff`, `d5d3a0b` / `9dc707c5f738c8f4`, `7d2ee24` / `d4693daa1dbd268a`, `af8a334` / `5bbec607a59bbbf3`, `4d0d9aa` / `d2a41bdcae701e82`, `a518790` / `5bf1c70f63098016`, `6baf906` / `5cf72d6e2c66b1fe`, `59ef593` / `5ee1e392b2360494`, `e3298d3` / `1b6f1f86b486dcbb`, `135d300` / `96f38d244268b63a`._
+_Last updated: **2026-10-21** · **Protected baseline: commit `f478663`, sha256 `80f9c3b129245506`** (COPY-05; live byte-identical to `main`; **the approved MJBizCon filming baseline**). Previous protected baseline: `7a58b77` / `a367d5a6bd48be96` (COPY-04; on disk: `index_BACKUP_20261021_pre_COPY05.html`). Earlier references: `38a9583` / `f3630eeafe257d64` (on disk: `index_BACKUP_20261021_pre_COPY04.html`), `195aacf` / `c8e736fbf9d38a2e`, `747fb2e` / `4691532ecf63f38b`, `07699d3` / `8a6e58ca6ba57aff`, `d5d3a0b` / `9dc707c5f738c8f4`, `7d2ee24` / `d4693daa1dbd268a`, `af8a334` / `5bbec607a59bbbf3`, `4d0d9aa` / `d2a41bdcae701e82`, `a518790` / `5bf1c70f63098016`, `6baf906` / `5cf72d6e2c66b1fe`, `59ef593` / `5ee1e392b2360494`, `e3298d3` / `1b6f1f86b486dcbb`, `135d300` / `96f38d244268b63a`._
 _Build: 2.2 MB · 64 molecules · **65 health conditions** / 10 groups · 3 cross-listed · **841 NCBI-verified PMIDs** · **292 drug records · 104 drug–drug pairs · 1 reviewed-only medication** · **42 faux Demo products** · backlog 288 rows · preflight: **39 guards**, all passing `--online`_
 _**MODERN CROSS-PLATFORM QA ROUND 1 COMPLETE. IOS-07 passed physical-device acceptance on 2026-10-06 across iPhone 16 (iOS 26.6.1), the legacy iPad mini 2 (iOS 12.4.2) and an iMac. Commit `e3298d3` / build `1b6f1f86b486dcbb` is the new protected application baseline. IOS-01 through IOS-05 and IOS-07 are CLOSED; IOS-04b and IOS-06 remain recorded as FAILED AND REVERTED. Guards 31 and 32 both protect shipped code. **D2 is CLOSED on physical-device acceptance (2026-10-06); D1 remains OPEN/DEFERRED pending a current Windows Chrome/Edge physical test; U1 and U2 are observations only. **GX-01 + GX-02 (Guided Match) are deployed PROVISIONALLY as `11f687a` / `f12dfc9a1777f36c` and await physical acceptance; the protected baseline remains `a518790` / `5bf1c70f63098016`.** RESET-01 passed physical acceptance 2026-10-07 across iPhone 16, legacy iPad mini 2, an El Capitan iMac and a newer iMac — `59ef593` / `5ee1e392b2360494` is the new protected baseline.** D2 is CLOSED; D1 remains OPEN/DEFERRED pending a current Windows Chrome/Edge physical test; U1/U2 are observations only. A residual Entourage intermittency survives RESET-01 and is recorded as an observation with NO root cause — refresh first.**_
 
@@ -15,12 +15,101 @@ _**COPY-02 CLOSED AND ACCEPTED 2026-10-15 on iPhone 16 and a current iMac.** Bot
 _**RENDER-01 + COPY-03 CLOSED AND ACCEPTED 2026-10-19 across iPhone 16, the legacy iPad mini 2 and a current iMac.** The Guided Match / Demo medication check now renders V2's curated medication markup instead of showing literal `&mdash;` and `<strong>`, and the opening screen says the 64 molecules are selected from the hundreds of compounds identified in the plant. **`747fb2e` / `4691532ecf63f38b` is the new protected application baseline, replacing `07699d3` / `8a6e58ca6ba57aff`.**_
 _**MEDREVIEW-01 CLOSED AND ACCEPTED 2026-10-19 across iPhone 16, the legacy iPad mini 2 and a current iMac.** Desmopressin and meclizine are added as Grade D interaction records, and mirabegron is the first **reviewed-only** medication: recognized and searchable with no interaction record, severity, grade or molecules. **`195aacf` / `c8e736fbf9d38a2e` is the new protected application baseline, replacing `747fb2e` / `4691532ecf63f38b`.**_
 _**MED-DIMEN CLOSED AND ACCEPTED 2026-10-20.** Dimenhydrinate is added (moderate / D). A plain "Dramamine" search now deliberately returns **both** dimenhydrinate and meclizine, with an active-ingredient ambiguity message, because FDA labels use the brand for both medicines. **`38a9583` / `f3630eeafe257d64` is the new protected application baseline, replacing `195aacf` / `c8e736fbf9d38a2e`.**_
-_**COPY-04 CLOSED AND ACCEPTED 2026-10-21 on iPhone 16 and a current iMac.** Demo Mode copy no longer implies that a live POS / inventory connection exists today: Best matches, Product selected and its sample lab report now say simulated / in development, and the visible `(INV-05)` / `(INV-06)` codes are gone. Copy only; Guard 39 added. **`7a58b77` / `a367d5a6bd48be96` is the new protected application baseline, replacing `38a9583` / `f3630eeafe257d64`.** Help/FAQ POS wording is recorded as candidate **COPY-05** (not started)._
+_**COPY-04 CLOSED AND ACCEPTED 2026-10-21 on iPhone 16 and a current iMac.** Demo Mode copy no longer implies that a live POS / inventory connection exists today: Best matches, Product selected and its sample lab report now say simulated / in development, and the visible `(INV-05)` / `(INV-06)` codes are gone. Copy only; Guard 39 added. **`7a58b77` / `a367d5a6bd48be96` is the new protected application baseline, replacing `38a9583` / `f3630eeafe257d64`.** Help/FAQ POS wording was recorded as candidate **COPY-05**._
+_**COPY-05 CLOSED AND ACCEPTED 2026-10-21 on iPhone 16 and a current iMac.** The public Help/FAQ Refine Inventory Match answers (both FAQ copies) no longer imply a dispensary is or could already be connected to live POS / inventory — they say it is in development and not yet available — and two benefit-implying phrases in the same answer were made neutral. Copy only; Guard 39 extended (still 39 guards). **`f478663` / `80f9c3b129245506` is the new protected application baseline, replacing `7a58b77` / `a367d5a6bd48be96`, and is the approved MJBizCon filming baseline.**_
 
 
 
 
 _**Pre-release audit COMPLETE: waves 2–6 ALL SHIPPED. Wave 1 (the release blocker) needs the owner. Drug tranches A–E ALL SHIPPED; severity-sort bug FIXED; the CYP2D6 sweep is COMPLETE across all 21 records; prostate evidence recalibrated; three Men's Health topics added; a V2-wide count guard now blocks stale numbers; Demo Mode and Guided Match are ALIGNED and share one data source, guarded. Tranche E is now COMPLETE and the four discovered gaps are closed (DRUG-24); the CBD→Δ⁹-THC exposure finding is in the build; `hasRisk` is enforced rather than dead.**_
+
+---
+
+## 0000000000000000000000. COPY-05 — HELP/FAQ: NO CURRENT POS CONNECTION, NO THERAPEUTIC-BENEFIT PHRASING — **CLOSED AND ACCEPTED**
+
+**Owner-accepted 2026-10-21. Commit `f478663`, build `80f9c3b129245506` is the protected application
+baseline and the approved MJBizCon filming baseline.** Rollback: `7a58b77` / `a367d5a6bd48be96`
+(`index_BACKUP_20261021_pre_COPY05.html`; `preflight_BACKUP_20261021_pre_COPY05.py`). The COPY-04 rollback
+backups (`index_BACKUP_20261021_pre_COPY04.html`, `preflight_BACKUP_20261021_pre_COPY04.py`) are preserved.
+
+**Why.** Found by the COPY-04 audit. The public Help/FAQ "Refine Inventory Match" answers told users to ask
+whether their dispensary had "connected The Table to their POS" or "participate[s] in the Acannability
+platform" — a live POS / inventory connection that does not exist yet.
+
+**Scope: copy only.** 7 replacements on 7 lines of `index.html`, all text inside existing `<p>` elements; all
+`<script>` content byte-identical. No question titles changed.
+
+### Part A — POS / inventory accuracy
+
+| Where | Before | After |
+|---|---|---|
+| Overlay FAQ (guide panel), "What is Refine Inventory Match?" | …where The Table **connects** directly to a dispensary's POS / seed-to-sale system… — **is the next step**, previewed today as a simulation in Demo Mode. **Ask your dispensary whether they've connected The Table to their POS.** | …where The Table **would connect** directly to… — **is in development, and is previewed today only as a simulation in Demo Mode.** |
+| Main FAQ, same question, 1st paragraph | …a dispensary **integration** tool. | …a dispensary **inventory** tool. |
+| Main FAQ, same question, 3rd paragraph | …**connects** directly to… — **is the next step**, and is previewed today as a simulation in Demo Mode. | …**would connect** directly to… — **is in development**, and is previewed today **only** as a simulation in Demo Mode. |
+| Main FAQ, "How does Refine Inventory Match help me find the right product at my dispensary?", opening | When your dispensary has connected The Table to its point-of-sale (POS) and inventory system, The Table can reflect what is actually on the shelves right now — not just what the science recommends in theory. | Refine Inventory Match lets your dispensary narrow the molecules that published research links to your selected health topic to the ones its products can actually provide. Today this is done by hand; an automatic connection to a dispensary's point-of-sale (POS) and inventory system is in development. |
+| Same answer, closing note | *Note: This feature delivers its full benefit when your dispensary has integrated The Table with their live POS or inventory system. Ask your dispensary if they participate in the Acannability platform. For more information, visit acannability.com.* | *Note: Today, Refine Inventory Match relies on dispensary staff keeping exclusions up to date. Automatic, live inventory integration with a dispensary's POS is in development and is not yet available. For more information, visit acannability.com.* (link markup unchanged) |
+
+The owner's terminology refinement was applied: the opening uses "molecules that published research links to
+your selected health topic" in place of the draft's "not just what the science suggests in theory".
+
+### Part B — benefit-implying phrases in the same answer
+
+| Before | After |
+|---|---|
+| …you might leave with a product that is missing a key molecule, reducing how **well it matches your therapeutic needs**. | …reducing how **closely its composition matches the research-linked molecules**. |
+| Step 3: …shows only what your dispensary can actually provide, **improving the likelihood that you leave with a product that meaningfully addresses your therapeutic goals** — even on a day when inventory is limited. | …shows only what your dispensary can actually provide, **so the products you compare are more likely to contain the research-linked molecules** — even on a day when inventory is limited. |
+
+No disclaimer text was added. **Noted, deliberately unchanged (outside the approved scope):** the same answer's
+"the science may recommend five molecules for your condition".
+
+### Guard 39 — extended (still 39 guards)
+
+Guard 39 (`check_demo_pos_copy`) now protects **both COPY-04 and COPY-05**:
+- **The three Refine Inventory Match answers** (two "What is…", one "How does…") may not say "is the next step",
+  present-tense "connects directly to" or "delivers its full benefit", and must keep their in-development
+  sentences ("is in development, and is previewed today only as a simulation in Demo Mode"; "inventory system is
+  in development."; "is in development and is not yet available."). A tripwire fails if any answer disappears.
+- **Page-wide exact-phrase bans** (visible text only): "connected The Table to", "integrated The Table with",
+  "participate in the Acannability platform", "dispensary integration tool", "matches your therapeutic needs",
+  "addresses your therapeutic goals". **The word "therapeutic" on its own is not banned.**
+- All COPY-04 rules are unchanged.
+
+### QA — automated (accepted build `80f9c3b129245506`)
+
+- Syntax: **PASS**. Preflight: **all 39 guards PASS**; `--online`: **841/841 PMIDs resolved**.
+- **Guard 39 extension mutation testing: 20/20**. It fails on the pre-COPY-05 build (15 problems), on each
+  reintroduced phrase or dropped in-development sentence, and on a missing answer; it ignores "therapeutic" in
+  unrelated copy, future-facing "would connect" text and code comments. **COPY-04's 23/23 cases still pass.**
+  Two test-found defects were fixed before deploy: a `\b` in the patch had become a literal control character
+  (so "connects directly to" could not match), and the consumer answer's first in-development sentence was not
+  individually required.
+- **No behaviour changed:** all `<script>` content byte-identical; matcher and approved-journey fingerprint
+  identical to both the pre-COPY-05 and the accepted COPY-04 builds across all 48 Demo topic × THC
+  combinations; FAQ parity unchanged (overlay 33, main 32, 27 shared).
+- **Existing suites (one-time development harness, NOT repository tests):** RENDER-01 14/14 and 7/7; MED-DIMEN
+  50/50 and 9/9.
+
+### QA — physical
+
+**PASS on iPhone 16 and a current iMac** (owner, 2026-10-21): both FAQ locations; the corrected POS / inventory
+language; the research-linked molecule descriptions; the acannability.com link; normal opening, closing and
+display of the answers. No defects observed. The legacy iPad mini 2 was not required (copy only, no new styling
+or scripts).
+
+### MJBizCon filming baseline — RECORDED
+
+**`f478663` / `80f9c3b129245506` is the approved MJBizCon filming baseline.** Do not modify the protected
+baseline merely to accommodate filming. Approved production decisions (recording and editing NOT started):
+
+- About **2:00**; **one master** with an online / in-app export and a **silent booth-loop** export.
+- **Actual screens from The Table.**
+- Journey: health topic → research-linked molecules → preferences → safety → medication interactions →
+  simulated product matching (filming detail in the COPY-04 section).
+- Health topic **Anxiety / stress**; medications **Warfarin (Coumadin) + Ibuprofen / Naproxen**, showing both
+  drug–drug and cannabis–drug interaction information.
+- **Simulated inventory and future POS integration clearly identified.**
+- **Application footage ends at Best matches in stock; Product selected / Done is not filmed.**
+- **No therapeutic-outcome claims, and nothing suggesting actual POS integration is operational.**
 
 ---
 
@@ -1185,13 +1274,11 @@ CLOSED AND ACCEPTED.**
   `f3630eeafe257d64`) — see the MED-DIMEN section.
 - ~~**Demo copy implying a live POS connection**~~ — **CLOSED AND ACCEPTED 2026-10-21 as COPY-04**
   (`7a58b77` / `a367d5a6bd48be96`) — see the COPY-04 section.
-- **COPY-05 — CANDIDATE, NOT AUTHORIZED OR STARTED.** The public Help/FAQ "Refine Inventory Match" answers
-  (both FAQ copies) may imply dispensaries are already connected / integrated with The Table's live POS:
-  "Ask your dispensary whether they've connected The Table to their POS" and "…delivers its full benefit when
-  your dispensary has integrated The Table with their live POS or inventory system. Ask your dispensary if
-  they participate in the Acannability platform." Review before MJBizCon. Related dormant / non-filmed copy
-  left unchanged by COPY-04: `scHandoff()` "Sent to POS terminal · added to cart", the budtender placard
-  "live stock counts", the Demo insights illustrative figures.
+- ~~**Help/FAQ POS wording**~~ — **CLOSED AND ACCEPTED 2026-10-21 as COPY-05** (`f478663` /
+  `80f9c3b129245506`) — see the COPY-05 section.
+- **Dormant / non-filmed copy left unchanged by COPY-04 and COPY-05** (no workstream open):
+  `scHandoff()` "Sent to POS terminal · added to cart", the budtender placard "live stock counts", the Demo
+  insights illustrative figures, and the FAQ's "the science may recommend five molecules for your condition".
 - **Modern Windows D1** — still outstanding (see D1 above).
 - **The 77 no-molecule records and V2's "no interaction" presentation** — broader policy question.
 - **Broader drug–drug coverage**, including the label-documented DDIs of mirabegron, desmopressin and
