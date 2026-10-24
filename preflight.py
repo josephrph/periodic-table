@@ -2505,6 +2505,71 @@ def check_demo_pos_copy(src):
          'visible (INV-) codes; the %d Help/FAQ Refine Inventory Match answers say "in development"' % len(faq))
 
 
+def check_research_association_labels(src, data):
+    """TERM-01 (guard 40): molecule research topics are shown as "[Molecule] | [Topic]" under
+    "[Molecule] — RESEARCH ASSOCIATIONS", with neutral public wording — DISPLAY ONLY.
+
+    Owner-approved 2026-10-24. The 372 molecule accordions read "CBG as Anti-Inflammatory", "CBG as
+    Glioblastoma": "as" is awkward and "Anti-…" / "Analgesic" wording implies an established effect. The
+    stored topic strings in M[id].indications are DATA KEYS — citation matching (findRelevantCites),
+    INDICATION_TERMS, PUBMED_EMPTY pair keys, accordion anchors (indAccId), Guided Match and condition
+    matching all use them — so they are never renamed; IND_DISPLAY maps them for display only.
+
+    Asserts: the heading template uses " | " + indLabel(i) and no "[Molecule] as" heading survives; the
+    section heading and qualifier render; "This indication for", "Therapeutic Indications" and the
+    molecule → topic arrow are gone from the panel; every IND_DISPLAY key is a real stored topic; no
+    molecule gets two identical displayed headings; and the display map never feeds a data key.
+    """
+    name = 'research associations'
+    try:
+        m = re.search(r"const IND_DISPLAY = (\{.*?\n\});", src, re.S)
+        disp = dict(re.findall(r"'([^']+)':\s*'([^']+)'", m.group(1)))
+        bodies = {k: js_literal(src, mk, '{') for k, mk in [
+            ('findRelevantCites', 'function findRelevantCites('), ('indAccId', 'function indAccId('),
+            ('pubmedEmpty', 'function pubmedEmpty(')]}
+        i0 = src.index('const indSections = mol.indications'); panel = src[i0:src.index("+ indSections\n", i0) + 400]
+    except (AttributeError, ValueError):
+        fail(name, 'IND_DISPLAY, the molecule panel or a key function not found (zero-match tripwire)')
+        return
+    visible = strip_comments(src)
+    if "+ ' | ' + indLabel(i) + '</span><span class=\"acc-icon\">" not in panel:
+        fail(name, 'the molecule accordion heading no longer reads "[Molecule] | [Topic]" via indLabel()')
+    if re.search(r"mol\.symbol \+ ' as ' \+ i", visible):
+        fail(name, 'a "[Molecule] as [Topic]" heading is back')
+    for needle, what in [("Research Associations</span></div>", 'the "[Molecule] — RESEARCH ASSOCIATIONS" heading'),
+                         ("'<div class=\"ind-assoc-q\">' + IND_QUALIFIER", 'the qualifier under the heading')]:
+        if needle not in panel:
+            fail(name, '%s is missing from the molecule panel' % what)
+    q = re.search(r"const IND_QUALIFIER = '([^']*)'", src)
+    if not q or 'not evidence of effectiveness' not in q.group(1) or 'preclinical, observational or clinical' not in q.group(1):
+        fail(name, 'IND_QUALIFIER lost its required wording')
+    for bad, what in [('This indication for', '"This indication for…"'), ('>Therapeutic Indications<', '"Therapeutic Indications"'),
+                      ("mol.symbol + ' → ' + i", 'the molecule → topic arrow')]:
+        if bad in visible:
+            fail(name, '%s is back' % what)
+    stored = {}
+    for mid, mol in data['M'].items():
+        for t in (mol.get('indications') or []):
+            stored.setdefault(t, set()).add(mid)
+    for k in disp:
+        if k not in stored:
+            fail(name, 'IND_DISPLAY key "%s" is not a stored research topic (renamed data, or a typo)' % k)
+    for mid, mol in data['M'].items():
+        seen = {}
+        for t in (mol.get('indications') or []):
+            if 'Unknown' in t:
+                continue
+            d = disp.get(t, t)
+            if d in seen:
+                fail(name, '%s would show two identical headings "%s" (%s and %s)' % (mid, d, seen[d], t))
+            seen[d] = t
+    for fn, body in bodies.items():
+        if 'indLabel' in body or 'IND_DISPLAY' in body:
+            fail(name, '%s() reads the display map — display wording must never become a data key' % fn)
+    note('research associations: %d stored topics shown with neutral wording via IND_DISPLAY (display only); '
+         'headings read "[Molecule] | [Topic]" under "[Molecule] — RESEARCH ASSOCIATIONS"' % len(disp))
+
+
 def main():
     online = '--online' in sys.argv
     src = open(SRC, encoding='utf-8').read()
@@ -2549,6 +2614,7 @@ def main():
     check_trusted_markup(src, data)
     check_reviewed_registry(src, data)
     check_demo_pos_copy(src)
+    check_research_association_labels(src, data)
     check_evidence_attribution(data)
     check_backlog()
 

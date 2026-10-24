@@ -372,6 +372,10 @@ body.is-mobile-view.is-touch-device #imDoneBtn{right:10px;bottom:calc(56px + env
 
 /* ACCORDION */
 .acc{border-bottom:1px solid var(--border)}
+.ind-assoc-hd{padding:12px 16px 8px;border-top:1px solid var(--border)}
+.ind-assoc-title{font-size:.74rem;font-weight:700;color:var(--text);letter-spacing:.02em}
+.ind-assoc-title span{text-transform:uppercase;letter-spacing:.08em}
+.ind-assoc-q{font-size:.64rem;color:var(--dim);line-height:1.5;margin-top:3px}
 .acc-btn{width:100%;padding:11px 16px;background:none;border:none;display:flex;align-items:center;justify-content:space-between;cursor:pointer;text-align:left;color:var(--text);font-size:.76rem;font-weight:600;transition:background .1s}
 .acc-btn:hover{background:var(--surface2)}
 .acc-icon{font-size:.75rem;color:var(--mute);transition:transform .2s;flex-shrink:0}
@@ -4822,6 +4826,45 @@ const PUBMED_TERMS = {
   CBE_R:'cannabielsoin',CBND:'cannabinodiol',CBDB:'cannabidibutol',CBLA:'cannabicyclolic acid'
 };
 
+// TERM-01 (owner-approved 2026-10-24): PUBLIC WORDING FOR MOLECULE RESEARCH TOPICS — DISPLAY ONLY.
+// The stored strings in M[id].indications are DATA KEYS: citation matching (findRelevantCites),
+// INDICATION_TERMS, PUBMED_EMPTY pair keys, accordion anchors (indAccId), Guided Match and condition
+// matching all use them. Never rename them; map them here for display. Labels that imply an established
+// effect ("Anti-Inflammatory", "Analgesic") are shown as the research topic. Topics not listed are shown
+// as stored. Labels whose meaning needs scientific review are deliberately NOT in this map (see HANDOFF).
+// Guard 40 checks every key exists, no molecule gets two identical headings, and the map never feeds a key.
+const IND_DISPLAY = {
+  'Anti-Inflammatory': 'Inflammation',
+  'Analgesic': 'Pain',
+  'Anti-Seizure': 'Seizures', 'Anticonvulsant': 'Seizures', 'Epilepsy/Seizures': 'Epilepsy & Seizures',
+  'Anti-Anxiety': 'Anxiety', 'Anxiolytic': 'Anxiety',
+  'Antidepressant': 'Depression',
+  'Antiemetic': 'Nausea & Vomiting',
+  'Anti-Allergy': 'Allergy',
+  'Antibacterial': 'Antibacterial Activity', 'Antiviral': 'Antiviral Activity', 'Antifungal': 'Antifungal Activity',
+  'Anti-Parasitic': 'Antiparasitic Activity', 'Anti-Biofilm': 'Anti-Biofilm Activity', 'Antioxidant': 'Antioxidant Activity',
+  'Anti-Hypertensive': 'Blood Pressure Regulation',
+  'Sedative': 'Sleep & Sedation', 'Sleep Aid/Sedation': 'Sleep & Sedation',
+  'Memory Aid': 'Memory',
+  'Appetite Stimulant': 'Appetite Stimulation', 'Appetite Suppressant': 'Appetite Suppression',
+  'IBD': 'Inflammatory Bowel Disease (IBD)', 'IBS': 'Irritable Bowel Syndrome (IBS)',
+  // second set, owner-approved 2026-10-24 after a check of each label's attached citation(s):
+  'Anti-Tumor': 'Antitumor Activity', 'Cancer/Anti-Tumor': 'Antitumor Activity', 'Cancer/Anti-Tumor Growth': 'Antitumor Activity',
+  'Cancer/Tumor Growth': 'Antitumor Activity', 'Anti-Cancer': 'Anticancer Activity',
+  'Neuroprotective': 'Neuroprotection',
+  'Cardioprotective': 'Cardioprotection', 'Cardiovascular': 'Cardiovascular Health',
+  'Gastro-Protective': 'Gastroprotection',
+  'Blood-Brain Barrier Modulator': 'Blood–Brain Barrier Permeability',   // borneol: the citation concerns BBB permeability
+  'Bronchodilator': 'Bronchodilation', 'Immunomodulatory': 'Immune Modulation', 'Muscle Relaxant': 'Muscle Relaxation',
+  'Antinociceptive': 'Antinociception (Pain Signaling)', 'Anti-Hyperalgesia': 'Hyperalgesia (Pain Sensitivity)',
+  'Skin Penetration Enhancer': 'Skin Penetration Enhancement',
+  'Autism': 'Autism Spectrum Disorder (ASD)'
+  // HELD (not mapped): 'CNS Protection' (borneol — its citation is about BBB permeability, not neuroprotection),
+  // 'Skin Smoothing' (α-bisabolol — citation concerns skin aging), 'PCOS' (nomenclature review pending).
+};
+function indLabel(raw) { return IND_DISPLAY[raw] || raw; }
+const IND_QUALIFIER = 'Published research of varying strength &mdash; preclinical, observational or clinical. An association is not evidence of effectiveness.';
+
 const INDICATION_TERMS = {
   // UX-121
   'Erectile Dysfunction':'erectile dysfunction[tiab] OR impotence[tiab] OR "sexual dysfunction"[tiab] OR testosterone deficiency[tiab] OR hypogonadism[tiab]',
@@ -6333,8 +6376,8 @@ function openPanel(id, tileEl) {
       // '"<term>"[tiab]', which is a different query from the bare-term broad search, so a
       // molecule can have a live broad search and a dead [tiab] one (CBGL is exactly that).
       if (pubmedEmpty('mol', id) || pubmedEmpty('pair', id + '|' + i))
-        return '<span class="ind-tag ind-tag-nocite">' + i + '</span>';
-      return '<a class="ind-tag" href="https://pubmed.ncbi.nlm.nih.gov/?term=' + q + '&sort=relevance" target="_blank" rel="noopener">' + i + '</a>';
+        return '<span class="ind-tag ind-tag-nocite">' + indLabel(i) + '</span>';
+      return '<a class="ind-tag" href="https://pubmed.ncbi.nlm.nih.gov/?term=' + q + '&sort=relevance" target="_blank" rel="noopener">' + indLabel(i) + '</a>';
     }
     // UX-50: filled vs hollow dot shows whether V2 holds an indexed citation for THIS pairing.
     // Deliberately not colour-coded: red already means "documented safety signal" everywhere else in
@@ -6345,7 +6388,7 @@ function openPanel(id, tileEl) {
       ? 'The Table has ' + nCites + ' indexed citation' + (nCites === 1 ? '' : 's') + ' for this — click to read'
       : 'No indexed citation for this pairing yet — click for The Table\'s research notes';
     return '<button type="button" class="ind-tag' + (nCites ? '' : ' ind-tag-nocite') + '"'
-      + ' onclick="openIndication(\'' + indAccId(id, i) + '\')" title="' + tip + '">' + i
+      + ' onclick="openIndication(\'' + indAccId(id, i) + '\')" title="' + tip + '">' + indLabel(i)
       + '<span class="ind-dot" aria-hidden="true">' + (nCites ? '&#9679;' : '&#9675;') + '</span></button>';
   }).join('');
 
@@ -6385,7 +6428,7 @@ function openPanel(id, tileEl) {
       ? relCites.map(renderCiteCard).join('')
       : '<div style="font-size:.64rem;color:var(--dim);padding:9px 12px;margin-bottom:6px;background:var(--surface2);border-radius:5px;border-left:3px solid var(--mute);line-height:1.65">'
         + '<div style="font-weight:700;color:var(--dim);margin-bottom:3px">Citation Not Yet Indexed</div>'
-        + 'A specific study has not yet been added to our citation database for <strong>' + mol.symbol + ' → ' + i + '</strong>. Research on this combination may exist in the scientific literature — use the PubMed links below to explore.'
+        + 'A specific study has not yet been added to our citation database for <strong>' + mol.symbol + ' | ' + indLabel(i) + '</strong>. Research on this combination may exist in the scientific literature — use the PubMed links below to explore.'
         + '<div style="margin-top:7px;display:flex;flex-wrap:wrap;gap:10px">'
         // UX-77: suppress either link when its search is verified empty.
         + (pubmedEmpty('pair', id + '|' + i) ? pubmedNoneMsg('pair')
@@ -6421,12 +6464,12 @@ function openPanel(id, tileEl) {
       : (dir === 'mixed') ? 'shows <strong>mixed results</strong> across ' + cSum.noun + ' &mdash; see the findings below.'
       : cSum.txt;
     var claim = relCites.length
-      ? 'This indication for <strong>' + i + '</strong> ' + claimBody
+      ? 'This research association with <strong>' + indLabel(i) + '</strong> ' + claimBody
       : mol.symbol + '&rsquo;s evidence grade of <strong>' + evGradeLabel[mol.evidence]
         + '</strong> describes its overall research base, <strong>not this specific pairing</strong> '
         + '&mdash; see the note below on indexed citations.';
     var summaryNote = '<div style="font-size:.68rem;color:var(--dim);line-height:1.55;margin-bottom:8px;padding:7px 9px;background:var(--surface2);border-radius:4px;border-left:3px solid ' + stripe + '">'
-      + '<strong>' + mol.symbol + ' &mdash; ' + i + '</strong><br>'
+      + '<strong>' + mol.symbol + ' | ' + indLabel(i) + '</strong><br>'
       + claim + ' ' + mol.description.split('.')[0] + '.'
       + '</div>';
     // UX-77: this is the link that was reported returning zero results for THCP.
@@ -6436,7 +6479,7 @@ function openPanel(id, tileEl) {
       ? '<a class="ind-srch" style="margin-top:6px" href="https://pubmed.ncbi.nlm.nih.gov/?term=' + q + '&sort=relevance" target="_blank" rel="noopener">&#x1F50D; Search PubMed: all ' + mol.symbol + ' ' + i.toLowerCase() + ' research</a>'
       : '';
     return '<div class="acc" id="' + indAccId(id, i) + '"><button class="acc-btn" onclick="toggleAcc(this.parentElement)">'
-      + '<span>' + mol.symbol + ' as ' + i + '</span><span class="acc-icon">&#x25BE;</span></button>'
+      + '<span>' + mol.symbol + ' | ' + indLabel(i) + '</span><span class="acc-icon">&#x25BE;</span></button>'
       + '<div class="acc-body">'
       + summaryNote
       + citesHtml
@@ -6581,6 +6624,8 @@ function openPanel(id, tileEl) {
     + '<div class="acc"><button class="acc-btn" onclick="toggleAcc(this.parentElement)">'
     + '<span>Why the same product affects people differently</span><span class="acc-icon">&#x25BE;</span></button>'
     + '<div class="acc-body">' + buildIndividualResponseHTML() + '</div></div>'
+    + (indSections ? '<div class="ind-assoc-hd"><div class="ind-assoc-title">' + mol.symbol + ' &mdash; <span>Research Associations</span></div>'
+        + '<div class="ind-assoc-q">' + IND_QUALIFIER + '</div></div>' : '')
     + indSections
     + synergyHtml
     + '<div class="acc"><button class="acc-btn" onclick="toggleAcc(this.parentElement)">'
@@ -9876,8 +9921,8 @@ function printMoleculeReport(id) {
       + (mol.receptors.map(function(r) { return rcLabel[r] || r; }).join(' · ') || '—') + '</div>');
 
   var tags = mol.indications.filter(function(i) { return i.indexOf('Unknown') === -1; });
-  body += PT_sec('Researched Areas', tags.length
-    ? tags.map(function(i) { return '<span class="pt-print-chip">' + i + '</span>'; }).join('')
+  body += PT_sec('Research Associations', tags.length
+    ? '<p class="pt-print-p">' + IND_QUALIFIER + '</p>' + tags.map(function(i) { return '<span class="pt-print-chip">' + indLabel(i) + '</span>'; }).join('')
     : '<p class="pt-print-p">No indexed research areas for this molecule yet.</p>');
 
   body += PT_sec('Background', '<p class="pt-print-p">' + mol.description + '</p>');
@@ -11708,7 +11753,7 @@ function openRefCard(molId) {
   var catLabel = V2TERMS.map('singular');   // UX-63
   var evColor  = {A:'#0E7A36',B:'#1050A0',C:'#906800',D:'#A03000'};
   var evLabel  = V2EV.textMap('technical');   // AUDIT-16
-  var tagsHtml = mol.indications.join(', ');
+  var tagsHtml = mol.indications.map(indLabel).join(', ');
 
   var refSectionHtml;
   if (cite) {
@@ -11767,7 +11812,7 @@ function openRefCard(molId) {
     + '</div>'
     + '<div class="rc-mol-desc">'+mol.description+'</div>'
     + '<div>'
-    + '<div class="rc-section-lbl">Therapeutic Indications</div>'
+    + '<div class="rc-section-lbl">Research Associations</div>'
     + '<div class="rc-mol-tags">'+tagsHtml+'</div>'
     + '</div>'
     + refSectionHtml;
