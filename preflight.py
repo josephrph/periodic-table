@@ -2570,6 +2570,548 @@ def check_research_association_labels(src, data):
          'headings read "[Molecule] | [Topic]" under "[Molecule] — RESEARCH ASSOCIATIONS"' % len(disp))
 
 
+def check_evidence_classification(src, data):
+    """SCI-02 (guard 41): a review or meta-analysis is classified by the evidence it pools, not its type.
+
+    Owner-approved 2026-10-24. Zheng 2018 (borneol) is a meta-analysis of animal studies only, yet read
+    "supported by a systematic review or meta-analysis" in the strong-evidence colour. Citations now carry
+    base:'pre' (animal / laboratory only → PreRev: preclinical tier and colour) or base:'mixed' (→ treated
+    as a narrative review). Also holds the SCI-01/SCI-02 citation corrections in place.
+    """
+    name = 'evidence classification'
+    known = {'30334462': 'pre', '40499220': 'mixed', '35459926': 'mixed', '37786751': 'mixed'}
+    # citation records live in several topic blocks merged at runtime, so read them from the source text
+    def records(pm):
+        return re.findall(r"\{[^{}]*pmid:'%s'[^{}]*\}" % pm, src)
+    def field(rec, key):
+        m = re.search(r"\b%s:'([^']*)'" % key, rec)
+        return m.group(1) if m else None
+    def inds(rec):
+        m = re.search(r"indications:\[([^\]]*)\]", rec)
+        return re.findall(r"'([^']*)'", m.group(1)) if m else []
+    for pm, base in known.items():
+        recs = records(pm)
+        if not recs:
+            fail(name, 'PMID %s is no longer in the citation data (zero-match tripwire)' % pm)
+        for r in recs:
+            if field(r, 'base') != base:
+                fail(name, 'PMID %s must carry base:%r — its pooled evidence is %s'
+                     % (pm, base, 'animal / laboratory only' if base == 'pre' else 'mixed'))
+    for r in re.findall(r"\{[^{}]*\bbase:'[^']*'[^{}]*\}", src):
+        if field(r, 'base') not in ('pre', 'mixed', 'human'):
+            fail(name, 'a citation has an unknown base %r' % field(r, 'base'))
+    for r in records('38478773'):
+        if 'Anti-Tumor' in inds(r):
+            fail(name, 'the ASCO guideline is tagged Anti-Tumor again — it recommends AGAINST cancer-directed use')
+    for r in records('35459926'):
+        if 'Opioid Use Disorder' in inds(r):
+            fail(name, 'the opioid-sparing analgesia review is tagged Opioid Use Disorder again')
+    if len(records('37786751')) != 1 or field(records('37786751')[0], 'type') != 'Rev':
+        fail(name, 'the CBD intestinal-motility review must exist once (its CBD copy) — it is attached to Δ9-THC again')
+    thc = records('36452140')
+    if not thc or 'Anti-Tumor' not in inds(thc[0]) or 'PRECLINICAL ONLY' not in thc[0] or 'ASCO' not in thc[0]:
+        fail(name, 'Δ9-THC Antitumor Activity must cite PMID 36452140 with its preclinical / ASCO note')
+    if 'CNS Protection' in (data['M'].get('BO', {}).get('indications') or []):
+        fail(name, 'borneol "CNS Protection" is back — its only citation concerns BBB permeability')
+    try:
+        ev = src[src.index('V2EVID = (function'):]
+        ev = ev[:ev.index('})();')]
+    except ValueError:
+        fail(name, 'V2EVID not found (zero-match tripwire)')
+        return
+    for needle, what in [("PreRev:2", 'PreRev ranked with preclinical evidence'),
+                         ("c.base === 'pre') return 'PreRev'", "base:'pre' → PreRev"),
+                         ("c.base === 'mixed') return 'Rev'", "base:'mixed' → Rev"),
+                         ("var t = effType(list[k]);", 'strongestCiteType() uses effType()'),
+                         ("ct = effType(c);", 'citeDirection() uses effType()')]:
+        if needle not in ev:
+            fail(name, 'the evidence classification lost: %s' % what)
+    if re.search(r"PreRev\s*:\s*\{[^}]*tone:\s*'A'", ev):
+        fail(name, 'a preclinical review is coloured as human-trial evidence')
+    note('evidence classification: %d reviews classified by their pooled evidence; ASCO not antitumor; '
+         'Δ9-THC antitumor = preclinical PMID 36452140; borneol CNS Protection absent' % len(known))
+
+
+def check_lead_attribution(src, data):
+    """SCI-03 (guard 43): a lead sentence may only rest on efficacy studies of the molecule itself.
+
+    Owner-approved 2026-10-24. Phase C found failed trials counted as support (no finding tag), safety,
+    feasibility and laboratory studies read as "supported by randomised controlled trial data", studies
+    of other compounds (olorinab, dexanabinol, rimonabant, nabilone) counted for Δ9-THC, and the lead
+    computed from only the first 4 citations. Holds the record classifications, the vocabularies, the
+    lead logic, the show-all control, the Δ9-THC / OUD qualifier and the dronabinol wording in place,
+    and adds a tripwire: a note that itself says NEGATIVE / INCONCLUSIVE / primary endpoint not met,
+    protocol or safety study must carry the matching tag.
+    """
+    name = 'lead attribution'
+    owners = {}
+    def recs(pm, ind=None):
+        out = []
+        for m in re.finditer(r"\{[^{}]*pmid:'%s'[^{}]*\}" % pm, src):
+            r = m.group(0)
+            if 'indications:[' not in r:
+                continue                      # condition-panel copies carry no topic tags
+            if ind and ("'%s'" % ind.replace("'", "\\'")) not in r:
+                continue
+            out.append(r)
+        return out
+    def field(rec, key):
+        m = re.search(r"\b%s:'((?:[^'\\]|\\.)*)'" % key, rec)
+        return m.group(1) if m else None
+    spec = [  # (pmid, topic or None, field, value)
+        ('36878177', None, 'finding', 'inconc'), ('20855984', None, 'finding', 'inconc'),
+        ('32678452', None, 'finding', 'inconc'), ('40069983', None, 'finding', 'inconc'),
+        ('26560511', None, 'finding', 'neg'), ('25972490', None, 'finding', 'neg'),
+        ('16849753', None, 'finding', 'neg'), ('32770831', None, 'finding', 'neg'), ('40846590', None, 'finding', 'neg'),
+        ('34532852', None, 'finding', 'inconc'), ('19821373', None, 'finding', 'inconc'),
+        ('31672337', None, 'finding', 'inconc'), ('41025421', None, 'finding', 'inconc'),
+        ('41856154', 'Opioid Use Disorder', 'finding', 'inconc'), ('41856154', 'Bipolar Disorder', 'finding', 'inconc'),
+        ('33998882', None, 'finding', 'inconc'), ('35037561', None, 'finding', 'neg'),
+        ('27573936', None, 'findingBy', 'Hyperlipidemia=inconc'),
+        ('40622698', None, 'role', 'safety'), ('36912195', None, 'role', 'safety'), ('30921490', None, 'role', 'pk'),
+        ('12412840', None, 'role', 'safety'), ('38265476', None, 'role', 'safety'), ('26483357', None, 'role', 'safety'),
+        ('36535195', None, 'role', 'safety'), ('39680411', None, 'role', 'supportive'),
+        ('15892090', None, 'role', 'harm'), ('30398032', None, 'role', 'harm'), ('28946762', None, 'role', 'harm'),
+        ('41604381', None, 'role', 'protocol'), ('41005282', None, 'role', 'feasibility'), ('40479610', None, 'role', 'feasibility'),
+        ('22288893', None, 'role', 'mech'), ('31748505', None, 'role', 'mech'),
+        ('27234658', None, 'role', 'related'), ('29976328', None, 'role', 'related'), ('31182592', None, 'role', 'population'),
+        ('36740814', None, 'agent', 'other'), ('16361021', None, 'agent', 'other'),
+        ('28705172', None, 'agent', 'antagonist'), ('27651218', None, 'agent', 'antagonist'),
+        ('35235418', None, 'agent', 'endo'), ('28132572', None, 'agent', 'endo'),
+        ('17974490', None, 'agent', 'analog'), ('20007734', None, 'agent', 'analog'), ('20434606', None, 'agent', 'analog'),
+        ('31182351', None, 'agent', 'analog'), ('27428009', None, 'agent', 'analog'),
+        ('16804518', None, 'design', 'pilot'), ('29444501', None, 'design', 'pilot'), ('40046611', None, 'design', 'pilot'),
+        ('35037561', None, 'design', 'pilot'), ('37540761', None, 'design', 'case')]
+    for pm, ind, key, val in spec:
+        rs = recs(pm, ind)
+        if not rs:
+            fail(name, 'PMID %s%s is no longer tagged in the citation data (zero-match tripwire)' % (pm, ' / ' + ind if ind else ''))
+        for r in rs:
+            if field(r, key) != val:
+                fail(name, 'PMID %s%s must carry %s:%r' % (pm, ' / ' + ind if ind else '', key, val))
+    # the CBD chewing-gum trial tested CBD alone: it lives under CBD, never Δ9-THC
+    for m in re.finditer(r"\{[^{}]*pmid:'33998882'[^{}]*\}", src):
+        if 'indications:[' in m.group(0) and re.findall(r"\n\s*([A-Za-z0-9_]+)\s*:\s*\[", src[:m.start()])[-1] != 'CBD':
+            fail(name, 'the CBD chewing-gum IBS trial (33998882) is filed under a molecule other than CBD')
+    if not recs('7730690', 'Appetite Stimulant'):
+        fail(name, 'the AIDS-anorexia dronabinol trial (7730690) lost its Appetite Stimulant tag')
+    vocab = {'finding': {'neg', 'inconc', 'mixed'},
+             'role': {'safety', 'harm', 'protocol', 'feasibility', 'pk', 'mech', 'population', 'related', 'supportive', 'context'},
+             'agent': {'analog', 'other', 'antagonist', 'endo'}, 'design': {'pilot', 'case'}}
+    tagged = [r for r in re.findall(r"\{[^{}]*pmid:'\d+'[^{}]*\}", src) if 'indications:[' in r]
+    for r in tagged:
+        for key, ok in vocab.items():
+            v = field(r, key)
+            if v is not None and v not in ok:
+                fail(name, 'PMID %s has an unknown %s %r' % (field(r, 'pmid'), key, v))
+        if field(r, 'agent') and not field(r, 'agentName'):
+            fail(name, 'PMID %s names no compound for its agent tag' % field(r, 'pmid'))
+        fb = field(r, 'findingBy')
+        if fb and not re.match(r"^[^=]+=(neg|inconc|mixed)$", fb):
+            fail(name, 'PMID %s has a malformed findingBy %r' % (field(r, 'pmid'), fb))
+        # tripwire: the note itself says what kind of study this is — the tags must agree
+        nt = re.sub(r'<[^>]+>', '', field(r, 'note') or '')
+        if re.match(r'\s*NEGATIVE\b', nt) and field(r, 'finding') != 'neg' and not field(r, 'role'):
+            fail(name, 'PMID %s: its note says NEGATIVE but it carries no finding:\'neg\'' % field(r, 'pmid'))
+        if re.match(r'\s*INCONCLUSIVE\b', nt) and field(r, 'finding') != 'inconc':
+            fail(name, 'PMID %s: its note says INCONCLUSIVE but it carries no finding:\'inconc\'' % field(r, 'pmid'))
+        if re.search(r'did not meet its primary endpoint|did NOT meet its primary endpoint', nt) \
+                and not field(r, 'finding') and not field(r, 'role'):
+            fail(name, 'PMID %s missed its primary endpoint but counts as a positive finding' % field(r, 'pmid'))
+        if re.search(r'THIS IS A PROTOCOL', nt) and field(r, 'role') != 'protocol':
+            fail(name, 'PMID %s is a protocol but is not tagged role:\'protocol\'' % field(r, 'pmid'))
+    for bad, what in [('not a molecule on this table', 'dronabinol described as not a molecule on The Table'),
+                      ('DRONABINOL IS A SYNTHETIC THC', 'dronabinol described as not Δ9-THC'),
+                      ('a synthetic, not a plant molecule', 'dronabinol described as not a plant molecule'),
+                      ('Established proof-of-concept for cannabinoid-based glioblastoma therapy', 'the glioblastoma pilot overstated')]:
+        if bad in src:
+            fail(name, 'wording regressed: %s' % what)
+    try:
+        ev = src[src.index('V2EVID = (function'):]
+        ev = ev[:ev.index('})();')]
+        frc = src[src.index('function findRelevantCites('):]
+        frc = frc[:frc.index('\n}\n')]
+    except ValueError:
+        fail(name, 'V2EVID / findRelevantCites not found (zero-match tripwire)')
+        return
+    for needle, what in [("if (!isEfficacy(list[k], ind)) continue;", 'strongestCiteType() skips non-efficacy / other-compound studies'),
+                         ("!isEfficacy(c, ind)) continue;", 'citeDirection() skips non-efficacy / other-compound studies'),
+                         ("function isEfficacy(c, ind) { return !!c && !roleFor(c, ind) && !c.agent; }", 'isEfficacy() = no role, no agent'),
+                         ("c.design === 'pilot' || c.design === 'case') return 'Prelim'", 'pilots and case reports → Prelim'),
+                         ("if (n.mixed || (n.pos && (n.neg || n.inconc))) return 'mixed';", 'benefit beside any other result reads mixed')]:
+        if needle not in ev:
+            fail(name, 'the lead logic lost: %s' % what)
+    if re.search(r"Prelim\s*:\s*\{[^}]*tone:\s*'[ABC]'", ev):
+        fail(name, 'a small uncontrolled pilot is given an evidence colour')
+    if '.slice(0, 4)' in frc or '.slice(0,4)' in frc:
+        fail(name, 'findRelevantCites() caps the citation set again — the lead must read every citation')
+    for needle, what in [("citeDirection(relCites, strongType, i)", 'the panel lead passes its topic'),
+                         ("V2EVID.citeDirection(cites, strongest, ind)", 'the Guided evidence line passes its topic'),
+                         ("onclick=\"toggleCiteMore(this)\"", 'the panel offers "Show all N studies"'),
+                         ("var q = citeQualifiers(c, null);", 'printed citations carry their qualifiers'),
+                         ("'THC9|Opioid Use Disorder':", 'the Δ9-THC / Opioid Use Disorder qualifier')]:
+        if needle not in src:
+            fail(name, 'missing: %s' % what)
+    if 'No study The Table holds has tested &Delta;9-THC as a treatment for opioid use disorder' not in src:
+        fail(name, 'the Δ9-THC / Opioid Use Disorder qualifier lost its central statement')
+    note('lead attribution: %d classified records hold; %d tagged citations within vocabulary and consistent with '
+         'their notes; leads read every citation, efficacy studies of the molecule only' % (len(spec), len(tagged)))
+
+
+def check_evidence_mapping(src, data):
+    """SCI-04 (guard 44): evidence lines quote the condition's own research, and say what was given.
+
+    Owner-approved 2026-10-24. The Guided Match / condition evidence line picked a molecule's topic by
+    word overlap with the condition name, so "Trauma" sent PTSD to Traumatic Brain Injury, "Disease" sent
+    Parkinson's to Sickle Cell and IBD, "Syndrome" sent IBS and Tourette to PCOS and "Skin" sent Acne to
+    Melanoma — about 40 lines quoting another topic. The keyword citation fallback attached unverified
+    papers (Δ9-THC / Inflammation on a crude extract). Holds: an explicit CONDITION_TOPICS entry for every
+    condition, no known cross-topic pair, specific cancers mapped only to themselves, the keyword fallback
+    retired, a preparation label on every human efficacy study, the narrative-review ordering, the TBI /
+    Appetite / CBD-Anxiety qualifiers and CBN / Sleep = 7.
+    """
+    name = 'evidence mapping'
+    try:
+        cg = js_literal(src, 'var CANCER_GENERAL = [', '[')
+        ct = js_literal(src, 'var CONDITION_TOPICS = {', '{')
+    except Exception:
+        fail(name, 'CONDITION_TOPICS / CANCER_GENERAL not found (zero-match tripwire)')
+        return
+    tmp = os.path.join(HERE, '_preflight_ct.js')
+    with open(tmp, 'w', encoding='utf-8') as fh:
+        fh.write('var CANCER_GENERAL = %s; print(JSON.stringify(%s));' % (cg, ct))
+    try:
+        res = subprocess.run([JSC, tmp], capture_output=True, text=True, timeout=60)
+    finally:
+        os.remove(tmp)
+    try:
+        topics = json.loads(res.stdout)
+    except Exception:
+        fail(name, 'CONDITION_TOPICS did not evaluate: %s' % (res.stderr or res.stdout)[:200])
+        return
+    labels = [c['label'] for c in data['CONDITIONS']]
+    for lab in labels:
+        if lab not in topics:
+            fail(name, 'condition %r has no explicit research-topic entry' % lab)
+    for lab in topics:
+        if lab not in labels:
+            fail(name, 'CONDITION_TOPICS names %r, which is not a condition label' % lab)
+    known = set()
+    for m in data['M'].values():
+        known.update(m.get('indications') or [])
+    for lab, lst in topics.items():
+        for t in lst:
+            if t not in known:
+                fail(name, '%r maps to %r, which no molecule carries (typo?)' % (lab, t))
+    bad = [('PTSD / Trauma', 'Traumatic Brain Injury'), ("Parkinson's Disease", 'Sickle Cell Disease'), ("Parkinson's Disease", 'IBD'),
+           ("Parkinson's Disease", "Alzheimer's Disease"), ('Irritable Bowel Syndrome (IBS)', 'PCOS'), ('Irritable Bowel Syndrome (IBS)', 'IBD'),
+           ('Tourette Syndrome', 'PCOS'), ('Skin Health / Acne', 'Melanoma'), ('Depression (Major Depressive Disorder)', 'Tourette Syndrome'),
+           ('Arthritis / Joint Pain', 'Fibromyalgia'), ('Neuropathic Pain', 'Fibromyalgia'), ('Anti-Inflammatory', 'Antibacterial'),
+           ('Anti-Inflammatory', 'Anticonvulsant'), ('Stress / Cortisol', 'Antioxidant'), ('Bone Health / Osteoporosis', 'Cardiovascular Health'),
+           ('Chronic Prostatitis / Pelvic Pain', 'Endometriosis'), ('Chronic Prostatitis / Pelvic Pain', 'Chronic Liver Disease')]
+    for lab, t in bad:
+        if t in topics.get(lab, []):
+            fail(name, 'cross-topic mapping is back: %s → %s' % (lab, t))
+    specific = {'Glioblastoma', 'Breast Cancer', 'Lung Cancer', 'Colorectal Cancer', 'Leukemia', 'Prostate Cancer', 'Melanoma',
+                'Pancreatic Cancer', 'Ovarian Cancer', 'Cervical Cancer'}
+    for lab in specific:
+        if topics.get(lab) != [lab]:
+            fail(name, '%s must map only to its own research topic, got %r' % (lab, topics.get(lab)))
+    if topics.get('Liver Cancer (HCC)') != ['Liver Cancer']:
+        fail(name, 'Liver Cancer (HCC) must map only to Liver Cancer')
+    if "if (CONDITION_TOPICS.hasOwnProperty(condLabel)) {" not in src:
+        fail(name, 'matchedIndication() no longer consults the explicit map first')
+    try:
+        frc = src[src.index('function findRelevantCites('):]
+        frc = frc[:frc.index('\n}\n')]
+    except ValueError:
+        fail(name, 'findRelevantCites not found (zero-match tripwire)')
+        return
+    if re.search(r'var\s+(rawTerms|scored|relevant)\b', frc):
+        fail(name, 'the keyword citation fallback is back — every citation must be explicitly tagged')
+    def field(rec, key):
+        mm = re.search(r"\b%s:'((?:[^'\\]|\\.)*)'" % key, rec)
+        return mm.group(1) if mm else None
+    human = {'RCT', 'Meta', 'Clin', 'Reg', 'Obs'}
+    n = 0
+    for r in re.findall(r"\{[^{}]*pmid:'\d+'[^{}]*\}", src):
+        if 'indications:[' not in r:
+            continue
+        pv = field(r, 'prep')
+        if pv is not None and pv not in ('single', 'combo', 'plant', 'pooled'):
+            fail(name, 'PMID %s has an unknown prep %r' % (field(r, 'pmid'), pv))
+        t = field(r, 'type')
+        if t in human and not field(r, 'role') and not field(r, 'agent') and field(r, 'base') != 'pre':
+            n += 1
+            if pv is None:
+                fail(name, 'human efficacy study PMID %s says nothing about what was given (prep)' % field(r, 'pmid'))
+    try:
+        ev = src[src.index('V2EVID = (function'):]
+        ev = ev[:ev.index('})();')]
+    except ValueError:
+        fail(name, 'V2EVID not found (zero-match tripwire)')
+        return
+    for needle, what in [("if (best === 'Rev' && pre) return pre;", 'a narrative review never outranks primary studies'),
+                         ("if (c.type === 'Rev' && c.base === 'pre') return 'PreNarr';", 'preclinical narrative reviews are not called systematic'),
+                         ("function prepOf(list, strongest, ind)", 'the preparation is assessed for the lead tier')]:
+        if needle not in ev:
+            fail(name, 'the lead logic lost: %s' % what)
+    if re.search(r"PreNarr\s*:\s*\{[^}]*tone:\s*'[AB]'", ev):
+        fail(name, 'a preclinical review is coloured as human evidence')
+    for needle, what in [("'THC9|Traumatic Brain Injury':", 'the Δ9-THC / TBI qualifier'), ("'THC9|Appetite Stimulant':", 'the dronabinol appetite qualifier'),
+                         ("'CBD|Anxiety':", 'the CBD / Anxiety context note'), ("That drug was <strong>dexanabinol</strong>", 'the TBI banner names dexanabinol')]:
+        if needle not in src:
+            fail(name, 'missing: %s' % what)
+    for r in re.findall(r"\{[^{}]*pmid:'39680411'[^{}]*\}", src):
+        if 'indications:[' in r and field(r, 'roleBy') != 'Anxiety=context':
+            fail(name, 'the scan-anxiety trial must be context-only under CBD / Anxiety')
+    byid = {c['id']: c['molecules'] for c in data['CONDITIONS']}
+    for cid, mol, want, why in [('pain', 'CBD', 6, 'no positive CBD-alone pain evidence'), ('neuropathic', 'CBD', 6, 'no positive CBD-alone pain evidence'),
+                                ('arthritis', 'CBD', 6, 'no positive CBD-alone pain evidence'), ('fibromyalgia', 'THC9', 7, 'no Δ9-THC-alone fibromyalgia study'),
+                                ('pain', 'CBC', 6, 'preclinical only'), ('pain', 'THCP', 5, 'preclinical only'), ('neuropathic', 'CBC', 5, 'in-vitro only'),
+                                ('neuropathic', 'THCP', 5, 'in-vitro only'), ('sleep', 'CBD', 6, 'CBD-alone sleep RCTs null or off-target'),
+                                ('inflammation', 'THC9', 6, 'Δ9-THC-specific evidence is preclinical and partly mixed'),
+                                ('ms', 'THC9', 7, 'SCI-04j: CAMS THC-alone primary endpoint missed; rest is combination evidence'),
+                                ('ms', 'CBD', 6, 'SCI-04j: CBD only alongside THC'), ('spasm', 'THC9', 7, 'SCI-04j: same evidence as MS'),
+                                ('spasm', 'CBD', 6, 'SCI-04j: CBD only alongside THC')]:
+        if byid.get(cid, {}).get(mol) != want:
+            fail(name, '%s / %s must be %d (owner-approved SCI-04b: %s)' % (mol, cid, want, why))
+    # SCI-04f: MS-Related Spasticity — nabiximols is a THC + CBD product; never single-molecule evidence
+    if topics.get('Multiple Sclerosis') != ['MS Spasticity'] or 'MS Spasticity' not in topics.get('Muscle Spasm / Spasticity', []):
+        fail(name, 'Multiple Sclerosis / Muscle Spasm must map to the MS-Related Spasticity topic')
+    for mol in ('THC9', 'CBD'):
+        if 'MS Spasticity' not in (data['M'][mol].get('indications') or []):
+            fail(name, '%s lost its MS-Related Spasticity research topic' % mol)
+        if "'%s|MS Spasticity':" % mol not in src:
+            fail(name, 'the %s / MS-Related Spasticity combination-product note is missing' % mol)
+    ms = [r for r in re.findall(r"\{[^{}]*indications:\['MS Spasticity'\][^{}]*\}", src)]
+    if len(ms) != 18:
+        fail(name, 'expected 9 MS-Related Spasticity citations under each of THC9 and CBD, found %d records' % len(ms))
+    for r in ms:
+        # SCI-04i: CAMS (14615106) had a Δ9-THC-alone arm — single under THC9 only; its extract arm is combo under CBD
+        if field(r, 'pmid') == '14615106':
+            continue
+        if field(r, 'prep') not in ('combo', 'pooled'):
+            fail(name, 'MS-Related Spasticity PMID %s must be labelled combination or pooled evidence' % field(r, 'pmid'))
+    cams = [r for r in ms if field(r, 'pmid') == '14615106']
+    if sorted(field(r, 'prep') for r in cams) != ['combo', 'single'] or any(field(r, 'finding') != 'mixed' for r in cams):
+        fail(name, 'CAMS (14615106) must be single (THC9) + combo (CBD), both finding mixed')
+    # SCI-04j: under CBD, CAMS is a context-only cross-reference (combination arm) — never counted as CBD-alone evidence
+    if [field(r, 'role') for r in cams if field(r, 'prep') == 'combo'] != ['context'] or [field(r, 'role') for r in cams if field(r, 'prep') == 'single'] != [None]:
+        fail(name, 'CAMS must be context-only under CBD and counted (no role) under THC9')
+    for r in cams:
+        if 'did NOT improve' not in r or 'patient-reported spasticity improved' not in r.lower():
+            fail(name, 'CAMS note must state the failed primary endpoint and the patient-reported improvement')
+        if field(r, 'pmid') == '37209500' and field(r, 'role') != 'context':
+            fail(name, 'the 2023 re-analysis (37209500) must be context-only: overlapping trial data')
+    # SCI-04h: without a plain-language entry the fallback lowercases the topic to "ms spasticity"
+    if "'HIV/AIDS':'HIV/AIDS', 'PCOS':'PCOS / PMOS'" not in src:   # SCI-04j: capitals kept in plain-language lists
+        fail(name, 'HIV/AIDS and PCOS need their plain-language labels (otherwise they render as "hiv/aids" / "pcos")')
+    if "'MS Spasticity':'MS-related spasticity'" not in src:
+        fail(name, 'MS Spasticity needs its plain-language label (otherwise it renders as "ms spasticity")')
+    sleep =[c for c in data['CONDITIONS'] if c['id'] == 'sleep']
+    if not sleep or sleep[0]['molecules'].get('CBN') != 7:
+        fail(name, 'CBN / Sleep must be 7 (owner-approved SCI-04; one RCT that missed its primary endpoint)')
+    note('evidence mapping: %d conditions explicitly mapped, no cross-topic pairs; keyword fallback retired; '
+         '%d human efficacy studies labelled by preparation' % (len(topics), n))
+
+
+def check_primary_designation(src, data):
+    """SCI-04g (guard 45): Primary requires evidence-based eligibility, not just a score of 8+.
+
+    Owner-approved 2026-10-25. Of 30 score-8+ associations, six met the human-evidence standard; each
+    carries a scope qualifier that must appear wherever it is called Primary. No condition may have a
+    molecule promoted to Primary to fill an empty tier. Also holds the apigenin / limonene corrections.
+    """
+    name = 'primary designation'
+    want = {'pain': 'THC9', 'neuropathic': 'THC9', 'seizures': 'CBD', 'hiv': 'THC9', 'nausea': 'THC9', 'appetite': 'THC9'}
+    try:
+        blk = src[src.index('var PRIMARY_EVIDENCE = {'):]
+        blk = blk[:blk.index('\n};')]
+    except ValueError:
+        fail(name, 'PRIMARY_EVIDENCE not found (zero-match tripwire)')
+        return
+    got = re.findall(r"^\s*'([a-z-]+)':\s*\{(\w+):", blk, re.M)
+    if sorted(got) != sorted(want.items()):
+        fail(name, 'Primary-eligible set changed: %r (approved: %r)' % (sorted(got), sorted(want.items())))
+    # each qualifier is checked on its own topic's entry (pain and neuropathic share wording)
+    entry = dict((k, v) for k, v in re.findall(r"^\s*'([a-z-]+)':\s*\{\w+:\s*'(.*)'\},?\s*$", blk, re.M))
+    for cid, needle, what in [('hiv', 'Not a treatment for HIV infection', 'HIV qualifier'),
+                              ('seizures', 'Prescription CBD (Epidiolex) for Dravet and Lennox-Gastaut', 'epilepsy qualifier'),
+                              ('nausea', 'Chemotherapy-related nausea', 'nausea qualifier'),
+                              ('appetite', 'AIDS-related anorexia', 'appetite qualifier'),
+                              ('pain', 'mainly in neuropathic or central pain', 'pain qualifier'),
+                              ('neuropathic', 'mainly in neuropathic or central pain', 'neuropathic-pain qualifier')]:
+        if needle not in entry.get(cid, ''):
+            fail(name, 'missing: %s' % what)
+    for needle, what in [("if (isPrimaryFor(condId, id, weight)) tile.classList.add('cond-primary');", 'tiles use the evidence rule'),
+                         ("var primary=mols.filter(function(m){return isPrimaryFor(dispCond,m.id,m.w);});", 'Guided Match uses the evidence rule'),
+                         ("var pr=list.filter(function(m){return isPrimaryFor(pcid,m.id,m.w);});", 'Guided secondary blocks use the evidence rule'),
+                         ("var primary=mols.filter(function(m){return isPrimaryFor(dc,m.id,m.w);})", 'the Guided print uses the evidence rule'),
+                         ("PT_sec('Primary research matches'", 'the Table print shows Primary qualifiers'),
+                         ("primaryQualHtml(dispCond,pIds,false)", 'Guided Match shows Primary qualifiers'),
+                         ("var primaryHtml = _pIds.length ? primaryQualHtml(condId, _pIds, false) : '<div class=\"pq-note\">' + NO_PRIMARY_NOTE + '</div>';", 'the Table panel shows Primary qualifiers'),
+                         ("'</tbody></table>'+primaryQualHtml(dc,primary.map(function(m){return m.id;}),true)", 'the Guided print shows Primary qualifiers'),
+                         ("function isPrimaryFor(condId, id, weight) { return weight >= 8 && !!primaryQualifier(condId, id); }", 'Primary requires both a score of 8+ and a qualifier')]:
+        if needle not in src:
+            fail(name, 'missing: %s' % what)
+    if 'primary=mols.slice(0,Math.min(4,mols.length))' in src:
+        fail(name, 'the fallback that promotes the top molecules to Primary is back')
+    for bad, what in [('with well-documented anxiolytic effects in humans', 'apigenin overstatement'),
+                      ('documented in both animal models and human observational reports', 'limonene overstatement')]:
+        if bad in src:
+            fail(name, 'description regressed: %s' % what)
+    for cid, mol in want.items():
+        c = [x for x in data['CONDITIONS'] if x['id'] == cid]
+        if not c or c[0]['molecules'].get(mol, 0) < 8:
+            fail(name, '%s / %s lost its score of 8+ (scores must be preserved)' % (mol, cid))
+    note('primary designation: 6 evidence-based Primary associations with scope qualifiers; no promotion fallback; '
+         'apigenin / limonene descriptions corrected')
+
+
+
+def check_evidence_presentation(src, data):
+    """SCI-04i (guard 46): topic results never present a molecule's overall grade as topic evidence.
+
+    Owner-approved 2026-10-25. 256 of 405 ranked Supporting pairs showed "A — Clinical" or "B — Observational"
+    beside a topic for which The Table held no human study. Asserts: the score legend, the overall-grade labels
+    and the topic evidence line on every topic surface (Table chips, Table print, Guided Research detail, Guided
+    print), the preclinical-kind map, and the four Entourage wording corrections plus the other synergy claims.
+    """
+    name = 'evidence presentation'
+    m = re.search(r"var PRE_MODEL = buildPreModel\(\{a:'([^']*)', l:'([^']*)', c:'([^']*)'\}\);", src)
+    if not m:
+        fail(name, 'PRE_MODEL not found (zero-match tripwire)')
+        return
+    kinds = {'a': m.group(1).split(','), 'l': m.group(2).split(','), 'c': m.group(3).split(',')}
+    pre = set(re.findall(r"type:'Pre'[^{}]*?pmid:'(\d+)'", src))
+    allp = [p for v in kinds.values() for p in v if p]
+    if len(allp) != len(set(allp)):
+        fail(name, 'a PMID is listed under more than one preclinical kind')
+    stray = [p for p in allp if p not in pre]
+    if stray:
+        fail(name, 'PRE_MODEL lists PMIDs that are not preclinical citations: %s' % stray[:5])
+    if '41069302' not in kinds['c']:
+        fail(name, 'the isovitexin theoretical study (41069302) must be classed computational')
+    for needle, what in [
+            ('Primary — human evidence, within stated limits', 'score legend: Primary'),
+            ('Supporting · score 5–9', 'score legend: Supporting'),
+            ("V2PLAIN.evidenceTag(id, M[id], cond.label)", 'Table chips carry the topic evidence tag'),
+            ("overall research grade &mdash; all topics</strong>, not evidence for this topic", 'Table panel key'),
+            ("Overall research grade &mdash; all topics: ' + M[id].evidence", 'Table print labels the overall grade'),
+            ("'<div class=\"pt-print-ev\">For this topic: ' + V2PLAIN.evidenceLine(id, M[id], cond.label)", 'Table print topic line'),
+            ("'<div class=\"gx-clin-ev\">For this topic: '+V2PLAIN.evidenceLine(m.id,mm,condLabel)", 'Guided Research detail topic line'),
+            ("'<span class=\"gx-ev\">Overall '+mm.evidence", 'Guided Research detail labels the overall grade'),
+            ("'<span class=\"pt-mol-ev\">For this topic: '+V2PLAIN.evidenceLine(m.id,mm,condLabel)", 'Guided print topic line'),
+            ("Filter by Overall Research Grade (all topics)", 'filter heading'),
+            ("if (pk) return V2EVID.PRE_KIND[pk].plain;", 'topic line names the kind of preclinical work'),
+            ("(pr.direct ? 'includes ' : '')", 'combination evidence named even beside a single-molecule study'),
+            ('>⬢ POTENTIAL MOLECULAR INTERACTIONS</div>', 'Entourage heading, all capitals (owner-approved 2026-10-25)'),
+            ('Exploring how cannabis plant molecules may interact. Most proposed combinations are supported by preclinical or limited human research.', 'Entourage subtitle'),
+            ('with anxiety-reducing and sedative effects in animal studies (mice)', 'linalool description'),
+            ('its antioxidant activity in a computer-modelling (theoretical) study', 'isovitexin description'),
+            ('not a treatment trial in patients', 'Spindle 2024 reference note')]:
+        if needle not in src:
+            fail(name, 'missing: %s' % what)
+    for bad, what in [('Strong evidence (8–10)', 'legend equating 8–10 with strong evidence'),
+                      ('Synergistic Molecule Combinations', 'Entourage "Synergistic" subtitle'),
+                      ('to produce anxiolytic and sedative effects', 'linalool overstatement'),
+                      ('Human aromatherapy and topical studies support', 'linalool human claim'),
+                      ('potent antioxidant activity via TRPA1', 'isovitexin overstatement'),
+                      ('First human clinical trial evidence of the cannabis entourage effect', 'Spindle overstatement (references)'),
+                      ('first clinical evidence', 'Spindle overstatement (interaction cards)'),
+                      ("broadening THC", 'nabiximols synergy claim'),
+                      ('greater analgesia than THC alone', 'Johnson 2010 overstatement'),
+                      ('work better together than any one alone', 'Guided Entourage teaser overstatement'),
+                      ('Notable Synergies', '"Notable Synergies" heading'),
+                      ('known molecular interactions', 'FAQ describing interactions as known'),
+                      ('Entourage Effect Mapping', 'retired Entourage heading'),
+                      ('synergistic molecule', 'synergy wording in the button, how-to or prompt'),
+                      ("'Ev '+mm.evidence", 'unlabelled grade in Guided Research detail'),
+                      ("<span class=\"pt-print-grade\">Evidence ' + M[id].evidence", 'unlabelled grade in the Table print')]:
+        if bad in src:
+            fail(name, 'regressed: %s' % what)
+    note('evidence presentation: overall grades labelled on every topic surface; topic evidence line beside each molecule; '
+         '%d preclinical papers classed (%d animal, %d laboratory, %d computational); Entourage wording corrected'
+         % (len(allp), len([p for p in kinds['a'] if p]), len([p for p in kinds['l'] if p]), len([p for p in kinds['c'] if p])))
+
+
+def check_build_identifier(src, data):
+    """RELEASE-01 (guard 47): every approved release carries one unique, visible build identifier.
+
+    Owner-approved 2026-10-26. The footer label and the <meta name="v2-build"> tag must agree, use the form
+    YYYY.MM.DD-N, and have a release record (V4 Build/Release_Records/<id>.md) listing the changes it contains.
+    """
+    name = 'build identifier'
+    m1 = re.search(r'<meta name="v2-build" content="([^"]+)">', src)
+    m2 = re.search(r'<div id="buildId"[^>]*>Build ([^<]+)</div>', src)
+    if not m1 or not m2:
+        fail(name, 'build identifier missing from the head or the footer (zero-match tripwire)')
+        return
+    if m1.group(1) != m2.group(1):
+        fail(name, 'head (%s) and footer (%s) build identifiers differ' % (m1.group(1), m2.group(1)))
+    bid = m1.group(1)
+    if not re.fullmatch(r'20\d\d\.\d\d\.\d\d-\d+', bid):
+        fail(name, 'build identifier %r is not YYYY.MM.DD-N' % bid)
+    rec = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'Release_Records', bid + '.md')
+    if not os.path.exists(rec):
+        fail(name, 'no release record for build %s (expected %s)' % (bid, rec))
+    if src.count('id="buildId"') != 1:
+        fail(name, 'the footer build label must appear exactly once')
+    if os.path.exists(rec):
+        note('build identifier: %s (footer + head agree; release record present)' % bid)
+
+def check_research_only_cancer(src, data):
+    """SCI-02 (guard 42): the 13 malignancy topics are research-only — never a ranked recommendation.
+
+    Owner-approved 2026-10-24. None of the 148 molecule–cancer pairings has controlled human evidence of
+    antitumor efficacy, yet Cancer / Anti-Tumor ranked Δ9-THC "Primary" and Guided Match's Cancer Symptom
+    Support "Skip" button led straight to that list. Asserts the topic set, every entry point's branch
+    (tiles, Table panel, Table print, Entourage, Guided browse / scRec / print), the qualifier and ASCO
+    wording, and that Cancer Symptom Support offers no skip.
+    """
+    name = 'research-only cancer'
+    want = {'cancer', 'glioblastoma', 'breast-cancer', 'lung-cancer', 'colorectal', 'leukemia', 'prostate-cancer',
+            'melanoma', 'pancreatic-cancer', 'liver-cancer', 'ovarian-cancer', 'cervical-cancer', 'testicular-cancer'}
+    m = re.search(r"var RESEARCH_ONLY_CONDS = \{(.*?)\};", src, re.S)
+    if not m:
+        fail(name, 'RESEARCH_ONLY_CONDS not found (zero-match tripwire)')
+        return
+    got = set(re.findall(r"'([a-z-]+)':1", m.group(1)))
+    if got != want:
+        fail(name, 'research-only set differs from the 13 malignancy topics: missing %s, extra %s'
+             % (sorted(want - got), sorted(got - want)))
+    ids = {c.get('id') for c in data['CONDITIONS']}
+    for c in sorted(want - ids):
+        fail(name, 'malignancy topic "%s" no longer exists in CONDITIONS' % c)
+    note_m = re.search(r"var RESEARCH_ONLY_NOTE = (.*?);\n", src, re.S)
+    nt = note_m.group(1) if note_m else ''
+    for needle in ('not treatment recommendations', 'does not establish effectiveness in people',
+                   'recommends against using cannabis or', 'cancer-directed treatment outside a clinical trial'):
+        if needle not in nt:
+            fail(name, 'RESEARCH_ONLY_NOTE lost "%s"' % needle)
+    checks = [
+        ("if (isResearchOnlyCond(condId)) {          // SCI-02: unranked", 'tiles: unranked neutral highlight'),
+        ("if (_ro) {                                   // SCI-02: research-only", 'Table panel: research-only branch'),
+        ("if (isResearchOnlyCond(cond.id)) {           // SCI-02: research-only print", 'Table print: research-only'),
+        ("if (isResearchOnlyCond(condId)) {            // SCI-02: no \"combination\"", 'Entourage: no combination'),
+        ("if(isResearchOnlyCond(id)){st.researchCond=id;go('researchOnly',scResearchOnly);return;}", 'Guided browse → research-only'),
+        ("var _ro=currentCondIds().filter(isResearchOnlyCond)[0];          // SCI-02 defence", 'scRec never ranks a cancer topic'),
+        ("var _ro=currentCondIds().filter(isResearchOnlyCond)[0];      // SCI-02: research-only print", 'Guided print: research-only'),
+        ("express:function(){if(st.intent==='cancer'&&!st.refineKey){go('cancerHelp',scCancerHelp);return;}", 'no cancer skip via express()'),
+        ("(st.intent==='cancer'\n      ? '<p class=\"gx-hint\"", 'Cancer Symptom Support shows no Skip button'),
+        ("'cond-research','rec-dim'", 'highlight cleared on condition change'),
+    ]
+    for needle, what in checks:
+        if needle not in src:
+            fail(name, 'missing: %s' % what)
+    fn = js_literal(src, 'function researchOnlyMolIds(', '{')
+    if 'molecules[' in fn or '.w' in fn or 'weight' in fn:
+        fail(name, 'researchOnlyMolIds() reads scores — the research-only list must be unranked')
+    note('research-only cancer: %d malignancy topics unranked at every entry point (Table, print, Entourage, '
+         'Guided Match); Cancer Symptom Support has no skip' % len(got))
+
+
 def main():
     online = '--online' in sys.argv
     src = open(SRC, encoding='utf-8').read()
@@ -2615,6 +3157,13 @@ def main():
     check_reviewed_registry(src, data)
     check_demo_pos_copy(src)
     check_research_association_labels(src, data)
+    check_evidence_classification(src, data)
+    check_research_only_cancer(src, data)
+    check_lead_attribution(src, data)
+    check_evidence_mapping(src, data)
+    check_primary_designation(src, data)
+    check_evidence_presentation(src, data)
+    check_build_identifier(src, data)
     check_evidence_attribution(data)
     check_backlog()
 
