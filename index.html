@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta name="v2-build" content="2026.10.26-1"><meta name="viewport" content="width=device-width, initial-scale=1">
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta name="v2-build" content="2026.10.26-2"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The Table &middot; Acannability&rsquo;s Cannabis Periodic Table of Molecules&trade;</title>
 <style>
 :root {
@@ -1328,7 +1328,7 @@ body.is-mobile-view.is-touch-device #imDoneBtn{right:10px;bottom:calc(56px + env
             <div class="faq-content" style="font-size:.82rem">
               <p><strong>Cannabinoids</strong> interact with the body’s endocannabinoid system to regulate pain, mood, appetite, and immune function. Over 100 have been identified in cannabis.</p>
               <p><strong>Terpenes</strong> are aromatic organic compounds produced in cannabis trichomes alongside cannabinoids. Common examples include myrcene, limonene, and caryophyllene, and they are believed to offer therapeutic benefits.</p>
-              <p><strong>Flavonoids</strong> are polyphenol plant compounds that may work synergistically with cannabinoids and terpenes to enhance medicinal properties—the “Entourage Effect.”</p>
+              <p><strong>Flavonoids</strong> are polyphenol plant compounds that some researchers propose may work together with cannabinoids and terpenes (the “Entourage Effect”); this has not been established in human studies.</p>
               <p><strong>Precursor Acids</strong> are biosynthetic forms of cannabinoids that convert to their active counterparts upon decarboxylation (heat exposure).</p>
               <p><strong>Rare / Emerging Cannabinoids</strong> are low-abundance but pharmacologically significant compounds such as THCP, CBDP, and CBND.</p>
             </div>
@@ -2575,7 +2575,7 @@ body.is-mobile-view .panel.panel-condensed .panel-sym{font-size:1.05rem}
       <div style="font-family:Georgia,serif;font-size:.95rem;color:var(--accent);letter-spacing:.06em">Acannability<sup style="font-size:.5rem;font-family:system-ui,sans-serif">™</sup> © 2026</div>
       <div style="font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);margin-top:2px">Acannability&rsquo;s Cannabis Periodic Table of Molecules&trade;</div>
       <!-- RELEASE-01 (owner-approved 2026-10-26): unique identifier of each approved release; see V4 Build/Release_Records. Guard 47. -->
-      <div id="buildId" style="font-size:.55rem;letter-spacing:.04em;color:var(--mute);margin-top:6px;opacity:.8">Build 2026.10.26-1</div>
+      <div id="buildId" style="font-size:.55rem;letter-spacing:.04em;color:var(--mute);margin-top:6px;opacity:.8">Build 2026.10.26-2</div>
     </div>
     <div style="flex:1;min-width:280px;max-width:700px;font-size:.62rem;color:var(--mute);line-height:1.6">
       <strong style="color:var(--dim);font-size:.62rem;letter-spacing:.06em;text-transform:uppercase">Disclaimer</strong><br>
@@ -8319,7 +8319,7 @@ function renderMedListResults(ddiHits, cannabisHits) {
         var onm = othM.map(function(m){ return cleanMolName(M[m].symbol); });
         var oj = onm.length <= 1 ? onm.join('') : onm.slice(0,-1).join(', ') + ' and ' + onm[onm.length-1];
         var oneO = onm.length === 1;
-        var onote = '<b>' + oj + '</b> ' + (oneO?'was':'were') + ' not among the molecules recommended for ' + condName + ', but ' + (oneO?'is':'are') + ' included here because ' + (oneO?'it':'they') + ' may be present in some full-spectrum cannabis products.';
+        var onote = '<b>' + oj + '</b> ' + (oneO?'was':'were') + ' not among the research-linked molecules for ' + condName + ', but ' + (oneO?'is':'are') + ' included here because ' + (oneO?'it':'they') + ' may be present in some full-spectrum cannabis products.';
         html += '<div style="'+subhdr+'">Other cannabis molecules that also interact</div>'
           + '<div style="font-size:.66rem;color:var(--dim);font-style:italic;line-height:1.5;margin:-2px 0 8px">' + onote + '</div>'
           + othM.map(cannMolCard).join('');
@@ -11977,7 +11977,11 @@ function renderEntourageAnalysis(condId) {
   var hasTerp   = selected.some(function(s) { return s.mol.category === 'terpene'; });
   var hasFlavy  = selected.some(function(s) { return s.mol.category === 'flavonoid'; });
   var hasAcid   = selected.some(function(s) { return s.mol.category === 'acid'; });
-  var effectType = catSet.length >= 3 ? 'Potentially Synergistic' : catSet.length === 2 ? 'Complementary' : 'Additive';
+  // SCI-05 (owner-approved 2026-10-26): composition labels, not pharmacological terms. The rule only counts
+  // molecule classes, so it may only describe the combination's make-up — never "synergistic"/"additive".
+  var effectType = catSet.length >= 3 ? 'Multi-class molecule profile' : catSet.length === 2 ? 'Two-class molecule profile' : 'Single-class molecule profile';
+  var profClasses = catSet.map(function(c) { return c === 'rare' ? 'rare / emerging cannabinoid' : String(ENT_CAT_LABEL[c] || c).toLowerCase(); });
+  var profClassTxt = profClasses.length > 1 ? profClasses.slice(0, -1).join(', ') + ' and ' + profClasses[profClasses.length - 1] : profClasses[0];
 
   // ── Section 1: Combination tiles ──────────────────────────────
   var tilesHtml = selected.map(function(s, i) {
@@ -12008,7 +12012,8 @@ function renderEntourageAnalysis(condId) {
 
   // ── Section 3: Entourage interpretation ───────────────────────
   var recNames = allRecs.map(function(r) { return ENT_REC_NAMES[r] || r; });
-  var interpText = 'These molecules may collectively engage <strong>' + allRecs.length + ' distinct biological pathway' + (allRecs.length !== 1 ? 's' : '') + '</strong> relevant to ' + cond.label + ': ' + recNames.join('; ') + '.';
+  // SCI-05: "relevant to" implied the pathways matter clinically for the condition.
+  var interpText = 'These molecules may act on <strong>' + allRecs.length + ' biological target' + (allRecs.length !== 1 ? 's' : '') + '</strong> that have been studied in relation to ' + cond.label + ': ' + recNames.join('; ') + '.';
 
   if (hasCanTab && (hasTerp || hasFlavy)) {
     var crossCatTypes = [];
@@ -12020,11 +12025,11 @@ function renderEntourageAnalysis(condId) {
     var ccJoined = crossCatTypes.length > 1
       ? crossCatTypes.slice(0, -1).join(', ') + ' and ' + crossCatTypes[crossCatTypes.length - 1]
       : crossCatTypes[0];
-    interpText += ' The combination of <strong>' + ccJoined + '</strong> represents the classical entourage hypothesis: phytochemicals from distinct molecular classes — each with its own receptor affinity profile — may work through complementary mechanisms to provide broader biological coverage than any single compound alone.';
+    interpText += ' This mix of <strong>' + ccJoined + '</strong> is what the entourage hypothesis describes: molecules from different classes, each with its own receptor profile, are proposed to act through different mechanisms.';   // SCI-05
   }
 
   if (allRecs.indexOf('CB1') !== -1 && allRecs.indexOf('CB2') !== -1) {
-    interpText += ' Both <strong>CB1</strong> (CNS-targeted, central pain and mood) and <strong>CB2</strong> (peripheral immune modulation) pathways are represented, potentially addressing the central and peripheral dimensions of ' + cond.label.toLowerCase() + ' simultaneously.';
+    interpText += ' Both <strong>CB1</strong> (central nervous system) and <strong>CB2</strong> (immune and peripheral) receptors are represented.';   // SCI-05: benefit clause removed
   }
 
   // AUDIT-22: this named "TRP channels and/or 5-HT serotonin receptors" whenever EITHER was
@@ -12039,11 +12044,12 @@ function renderEntourageAnalysis(condId) {
     var _relev = (_hasTRP && _has5HT) ? 'pain sensitization and mood regulation'
                : _hasTRP              ? 'pain sensitization'
                :                        'mood regulation';
-    interpText += ' Non-endocannabinoid targets — ' + _nonEc + ' — contribute mechanistic diversity'
-      + ' that may be relevant to ' + _relev + '.';
+    interpText += ' Non-endocannabinoid targets — ' + _nonEc + ' — are also represented; their relevance to '
+      + cond.label.toLowerCase() + ' in people is not established.';   // SCI-05: was "may be relevant to " + _relev
   }
 
-  interpText += ' Whether these interactions prove additive, complementary, or truly synergistic in human clinical settings remains an open research question — most combination data is currently preclinical.';
+  // SCI-05: was "Whether these interactions prove additive, complementary, or truly synergistic…", which presumed the interactions.
+  interpText += ' Whether these molecules interact in people — and whether any combined effect would be additive or synergistic — remains an open research question; most combination data is currently preclinical.';
 
   // ── Full HTML assembly ─────────────────────────────────────────
   return '<div>'
@@ -12069,7 +12075,7 @@ function renderEntourageAnalysis(condId) {
     + '<div class="ent-section">'
     + '<div class="ent-sec-title">Entourage Effect Interpretation</div>'
     + '<div class="ent-interp">' + interpText + '</div>'
-    + '<div class="ent-effect-tag">Interaction type: <strong>' + effectType + '</strong> — based on cross-category molecular diversity and receptor pathway coverage</div>'
+    + '<div class="ent-effect-tag"><strong>' + effectType + '</strong> — ' + catSet.length + ' molecule class' + (catSet.length !== 1 ? 'es' : '') + ' (' + profClassTxt + ') and ' + allRecs.length + ' biological target' + (allRecs.length !== 1 ? 's' : '') + '. This describes what the combination contains — not evidence that these molecules interact or work better together.</div>'   // SCI-05
     + '</div>'
 
     + '<div class="ent-section">'
@@ -13943,7 +13949,7 @@ var ROUTE_KEYS=['inhalation_vapor','inhalation_smoked','oral','sublingual','topi
       if(sel.length<2) sel=avail.slice(0,Math.min(3,avail.length));
       var cats={};sel.forEach(function(s){cats[M[s.id].category]=1;});
       var nCat=Object.keys(cats).length;
-      var effType=nCat>=3?'Potentially synergistic':nCat===2?'Complementary':'Additive';
+      var effType=nCat>=3?'Multi-class molecule profile':nCat===2?'Two-class molecule profile':'Single-class molecule profile';   // SCI-05: composition, not a pharmacological claim
       var comboChips=sel.map(function(s){return chip(s.id);}).join('');
       // Surface one real, cited synergy if a recommended molecule pairs with another recommended molecule.
       var recIds=mols.map(function(m){return m.id;}),eg='';
@@ -13954,8 +13960,8 @@ var ROUTE_KEYS=['inhalation_vapor','inhalation_smoked','oral','sublingual','topi
       return '<details class="gx-ent"><summary>🔬 How these molecules may interact — the Entourage Effect</summary>'+
         '<div class="gx-ent-body">'+
         '<p>Some researchers propose that cannabis plant molecules may interact &mdash; an idea called the <b>Entourage Effect</b>. Most proposed combinations are supported by preclinical or limited human research; a combined clinical benefit has not been established.</p>'+   // SCI-04i
-        '<p><b>A suggested combination for '+esc(condLabel)+':</b></p><div class="gx-chips">'+comboChips+'</div>'+
-        '<p class="gx-ent-type" style="margin-top:8px">'+effType+' — based on how many molecule families it spans.</p>'+
+        '<p><b>An example combination for '+esc(condLabel)+':</b></p><div class="gx-chips">'+comboChips+'</div>'+   // SCI-05: was "A suggested combination"
+        '<p class="gx-ent-type" style="margin-top:8px">'+effType+' — spans '+nCat+' molecule famil'+(nCat!==1?'ies':'y')+'. This describes the combination\u2019s make-up, not a demonstrated interaction or benefit.</p>'+
         eg+
         '<p class="gx-ent-safe">Educational only — a combination is not a dose or a product recommendation. Your dispensary refinement applies here too: narrow to in-stock molecules and this updates to match.</p>'+
         '<button class="gx-cta ghost" onclick="V4GX.entourage()">See the full Entourage Effect analysis for '+esc(condLabel)+' →</button>'+
@@ -14045,7 +14051,7 @@ var ROUTE_KEYS=['inhalation_vapor','inhalation_smoked','oral','sublingual','topi
     else{html='<p class="gx-summary">Best matches, ranked by fit</p>'+top.map(function(p){
       var mols=Object.keys(p.profile).sort(function(a,b){return p.profile[b]-p.profile[a];}).slice(0,4).map(function(m){return '<span>'+(G().names[m]||m)+'</span>';}).join('');
       var matched=recIds.filter(function(id){return p.profile[id]!=null;});
-      var why=matched.length?'<div class="gx-why">✓ Matches '+matched.length+' of '+recIds.length+' recommended — '+matched.map(function(id){return G().names[id]||id;}).join(', ')+'</div>':'';
+      var why=matched.length?'<div class="gx-why">✓ Contains '+matched.length+' of '+recIds.length+' research-linked molecules — '+matched.map(function(id){return G().names[id]||id;}).join(', ')+'</div>':'';
       return '<div class="gx-prod"><div class="sw">'+p.icon+'</div><div class="info"><b>'+p.name+'</b>'+
         '<div class="meta">'+(p.brand?esc(p.brand)+' · ':'')+cap(p.type)+(p.stype?' · '+esc(p.stype):'')+' · $'+p.price+' · '+p.count+' in stock</div><div class="mols">'+mols+'</div>'+why+
         '<span class="gx-badge '+p.label+'">'+p.label+' match</span></div>'+
@@ -14329,7 +14335,7 @@ var ROUTE_KEYS=['inhalation_vapor','inhalation_smoked','oral','sublingual','topi
       var recMols=molHits.filter(function(m){return recIds.indexOf(m)>=0;});
       var otherMols=molHits.filter(function(m){return recIds.indexOf(m)<0;});
       var molCard=function(mid){var isRec=recIds.indexOf(mid)>=0;var entries=byMol[mid];
-        return '<div class="dj-di '+entries[0].sev+(isRec?' rec':'')+'"><div class="t">'+(sevIc[entries[0].sev]||'')+' '+djMolName(mid)+(isRec?'<span class="recflag">recommended</span>':'')+'</div>'+
+        return '<div class="dj-di '+entries[0].sev+(isRec?' rec':'')+'"><div class="t">'+(sevIc[entries[0].sev]||'')+' '+djMolName(mid)+(isRec?'<span class="recflag">research-linked</span>':'')+'</div>'+
           entries.map(function(e){return '<div class="m"><b>'+esc(medLabel(e))+':</b> '+(e.effect||e.mech||'')+'</div>';}).join('')+'</div>';};
       // AUDIT-18: was "your recommended molecules".
       if(recMols.length){html+='<div class="dj-med-h">Cannabis ↔ medication — your associated molecules</div>'+recMols.map(molCard).join('');}
@@ -14337,7 +14343,7 @@ var ROUTE_KEYS=['inhalation_vapor','inhalation_smoked','oral','sublingual','topi
         var onm=otherMols.map(djMolName);
         var oj=onm.length<=1?onm.join(''):onm.slice(0,-1).join(', ')+' and '+onm[onm.length-1];
         var oneO=onm.length===1;
-        var onote='<b>'+oj+'</b> '+(oneO?'was':'were')+' not among the molecules recommended for this health condition, but '+(oneO?'is':'are')+' included here because '+(oneO?'it':'they')+' may be present in some full-spectrum cannabis products.';
+        var onote='<b>'+oj+'</b> '+(oneO?'was':'were')+' not among the research-linked molecules for this health condition, but '+(oneO?'is':'are')+' included here because '+(oneO?'it':'they')+' may be present in some full-spectrum cannabis products.';
         html+='<div class="dj-med-h">Other cannabis molecules that also interact</div>'+
         '<div style="font-size:.68rem;color:var(--dim);font-style:italic;line-height:1.5;margin:-2px 0 7px">'+onote+'</div>'+
         otherMols.map(molCard).join('');}
@@ -14431,7 +14437,7 @@ var ROUTE_KEYS=['inhalation_vapor','inhalation_smoked','oral','sublingual','topi
     else{html='<p class="gx-summary">In-stock products remaining after your preferences and molecule filters, ranked by how closely their reported composition matches. Educational comparison only — not a medical recommendation.</p>'+top.map(function(p){
       var mols=Object.keys(p.profile).sort(function(a,b){return p.profile[b]-p.profile[a];}).slice(0,4).map(function(m){return '<span>'+(G().names[m]||m)+'</span>';}).join('');
       var matched=recIds.filter(function(id){return p.profile[id]!=null;});
-      var why=matched.length?'<div class="gx-why">✓ Matches '+matched.length+' of '+recIds.length+' recommended — '+matched.map(function(id){return G().names[id]||id;}).join(', ')+'</div>':'';
+      var why=matched.length?'<div class="gx-why">✓ Contains '+matched.length+' of '+recIds.length+' research-linked molecules — '+matched.map(function(id){return G().names[id]||id;}).join(', ')+'</div>':'';
       return '<div class="gx-prod"><div class="sw">'+p.icon+'</div><div class="info"><b>'+esc(p.name)+'</b>'+
         '<div class="meta">'+(p.brand?esc(p.brand)+' · ':'')+cap(p.type)+(p.stype?' · '+esc(p.stype):'')+' · $'+p.price+' · '+p.count+' in stock</div><div class="mols">'+mols+'</div>'+why+
         '<span class="gx-badge '+p.label+'">'+p.label+' match</span>'+
@@ -14618,7 +14624,7 @@ var ROUTE_KEYS=['inhalation_vapor','inhalation_smoked','oral','sublingual','topi
         var prRev=st.meds.filter(diIsReviewed),prQ=prRev.length?DI_QUALIFIER:'';   // MEDREVIEW-01
         body+='<div class="pt-print-sec"><h3>Medication check</h3><div style="font-size:.8rem;line-height:1.6">'+st.meds.length+' medication'+(st.meds.length>1?'s':'')+' reviewed: '+
           (ddiN?ddiN+' drug–drug interaction'+(ddiN>1?'s':''):'no drug–drug interactions'+prQ)+'; '+
-          (totalMolN?totalMolN+' cannabis molecule'+(totalMolN>1?'s':'')+' interact'+(totalMolN>1?'':'s')+' with these medications'+(recHitN?' ('+recHitN+' recommended for you)':' (none of them recommended for you)'):'no cannabis–medication interactions'+prQ)+'. Please review with your Product Specialist (Budtender) or provider before use.</div>'+
+          (totalMolN?totalMolN+' cannabis molecule'+(totalMolN>1?'s':'')+' interact'+(totalMolN>1?'':'s')+' with these medications'+(recHitN?' ('+recHitN+' linked to your topic)':' (none of them linked to your topic)'):'no cannabis–medication interactions'+prQ)+'. Please review with your Product Specialist (Budtender) or provider before use.</div>'+
           '<div style="font-size:.72rem;color:#555 !important;margin-top:4px">Medications reviewed: '+st.meds.map(function(m){return esc(medLabel(m)||String(m.id));}).join(', ')+'.</div>'+
           prRev.map(function(r){return '<div style="font-size:.72rem;margin-top:4px"><b>'+esc(r.drug)+'</b> — '+DI_REVIEWED_LABEL+'. '+DI_REVIEWED_MSG+'</div>';}).join('')+'</div>';
         // Detailed drug–drug interactions (each card can break across pages on its own).
@@ -14639,7 +14645,7 @@ var ROUTE_KEYS=['inhalation_vapor','inhalation_smoked','oral','sublingual','topi
           var onm=otherMolIds.map(molNm);
           var oj=onm.length<=1?onm.join(''):onm.slice(0,-1).join(', ')+' and '+onm[onm.length-1];
           var oneO=onm.length===1;
-          var onote='<b>'+oj+'</b> '+(oneO?'was':'were')+' not among the molecules recommended for this health condition, but '+(oneO?'is':'are')+' included here because '+(oneO?'it':'they')+' may be present in some full-spectrum cannabis products.';
+          var onote='<b>'+oj+'</b> '+(oneO?'was':'were')+' not among the research-linked molecules for this health condition, but '+(oneO?'is':'are')+' included here because '+(oneO?'it':'they')+' may be present in some full-spectrum cannabis products.';
           body+='<div style="font-size:.74rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin:8px 0 3px">Other cannabis molecules that also interact</div>'+
           '<div style="font-size:.7rem;color:#555 !important;margin:0 0 5px;font-style:italic">'+onote+'</div>'+
           otherMolIds.map(molCard).join('');}

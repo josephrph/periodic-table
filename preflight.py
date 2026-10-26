@@ -3061,6 +3061,45 @@ def check_build_identifier(src, data):
     if os.path.exists(rec):
         note('build identifier: %s (footer + head agree; release record present)' % bid)
 
+def check_molecule_profile_terms(src, data):
+    """SCI-05 (guard 48): combination labels describe composition, never a demonstrated interaction.
+
+    Owner-approved 2026-10-26. The explorer and Guided Match label rules count molecule classes only, so they
+    must use "Multi-/Two-/Single-class molecule profile" and carry the "not evidence of an interaction"
+    qualifier. The benefit phrases that implied clinical value from pathway coverage stay removed, and no
+    user-facing Guided Match, shelf, medication or print string calls a molecule "recommended".
+    """
+    name = 'molecule profile terms'
+    labels = ("'Multi-class molecule profile'", "'Two-class molecule profile'", "'Single-class molecule profile'")
+    rules = [ln for ln in src.split('\n') if 'molecule profile' in ln and '?' in ln and ('effectType =' in ln or 'effType=' in ln)]
+    if len(rules) != 2:
+        fail(name, 'expected 2 molecule-profile label rules (explorer + Guided), found %d (zero-match tripwire)' % len(rules))
+    for ln in rules:
+        for lab in labels:
+            if lab not in ln:
+                fail(name, 'label rule missing %s: %s' % (lab, ln.strip()[:120]))
+    for bad in ("'Potentially Synergistic'", "'Potentially synergistic'", "'Complementary'", "'Additive'",
+                'Interaction type: <strong>'):
+        if bad in src:
+            fail(name, 'interaction label reintroduced: %s' % bad)
+    for q in ('not evidence that these molecules interact or work better together',
+              'not a demonstrated interaction or benefit'):
+        if src.count(q) != 1:
+            fail(name, 'qualifier missing or duplicated: %r (found %d)' % (q, src.count(q)))
+    for phrase in ('broader biological coverage', 'potentially addressing the central and peripheral',
+                   "' that may be relevant to '", 'distinct biological pathway', 'to enhance medicinal properties',
+                   'A suggested combination for'):
+        if phrase in src:
+            fail(name, 'benefit wording reintroduced: %r' % phrase)
+    for phrase in ('<span class="recflag">recommended</span>', "+' recommended — '", 'recommended for you',
+                   'not among the molecules recommended for'):
+        if phrase in src:
+            fail(name, 'recommendation wording reintroduced: %r' % phrase)
+    if src.count('<span class="recflag">research-linked</span>') != 1 or src.count("research-linked molecules — '") != 2:
+        fail(name, 'research-linked replacements missing (badge 1, shelf cards 2)')
+    note('molecule profile terms: 2 label rules use composition terms with qualifiers; no synergy/additive labels, '
+         'benefit phrases or "recommended" wording on Guided, shelf, medication or print surfaces')
+
 def check_research_only_cancer(src, data):
     """SCI-02 (guard 42): the 13 malignancy topics are research-only — never a ranked recommendation.
 
@@ -3164,6 +3203,7 @@ def main():
     check_primary_designation(src, data)
     check_evidence_presentation(src, data)
     check_build_identifier(src, data)
+    check_molecule_profile_terms(src, data)
     check_evidence_attribution(data)
     check_backlog()
 
