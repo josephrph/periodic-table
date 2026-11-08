@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta name="v2-build" content="2026.11.06-2"><meta name="viewport" content="width=device-width, initial-scale=1">
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta name="v2-build" content="2026.11.08-1"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The Table &middot; Acannability&rsquo;s Cannabis Periodic Table of Molecules&trade;</title>
 <style>
 :root {
@@ -1247,7 +1247,7 @@ body.is-mobile-view.is-touch-device #imDoneBtn{right:10px;bottom:calc(56px + env
           <details class="faq-item">
             <summary><span class="faq-q" style="font-size:.95rem">Can I print or save my results as a PDF?</span><span class="faq-icon" style="width:22px;height:22px;font-size:1.1rem">+</span></summary>
             <div class="faq-content" style="font-size:.82rem">
-              <p>Yes. Four places have a print button: the <strong>Guided Match</strong> recommendation (<strong>🖨 Print this summary</strong>), the <strong>Drug Interaction Checker</strong> results (<strong>🖨 Print</strong>), any <strong>molecule tile</strong> you open (<strong>🖨 Print this molecule profile</strong>), and the <strong>Associated Molecules</strong> panel (<strong>🖨 Print this match</strong>). Each opens your device's print dialog, where you can send it to a printer or choose <strong>Save as PDF</strong> as the destination. Every printout carries the same educational-use footer and the note that individual responses vary.</p>
+              <p>Yes. Four places have a print button: the <strong>Guided Match</strong> recommendation (<strong>🖨 Print / Save as PDF</strong>), the <strong>Drug Interaction Checker</strong> results (<strong>🖨 Print</strong>), any <strong>molecule tile</strong> you open (<strong>🖨 Print this molecule profile</strong>), and the <strong>Associated Molecules</strong> panel (<strong>🖨 Print this match</strong>). Each opens your device's print dialog, where you can send it to a printer or choose <strong>Save as PDF</strong> as the destination. Every printout carries the same educational-use footer and the note that individual responses vary.</p>
               <p>The printout is a clean, ink-friendly summary carrying The Table&rsquo;s letterhead, the date, and the full educational disclaimer — the rest of the interface is hidden. If it includes medications you entered, it notes that it may contain personal information, so handle it privately. Nothing is uploaded — the summary is generated on your device.</p>
             </div>
           </details>
@@ -2304,7 +2304,7 @@ body.is-mobile-view .panel.panel-condensed .panel-sym{font-size:1.05rem}
   <details class="faq-item">
     <summary><span class="faq-q">Can I print or save my results as a PDF?</span><span class="faq-icon">+</span></summary>
     <div class="faq-content">
-      <p>Yes. Four places have a print button: the <strong>Guided Match</strong> recommendation (<strong>🖨 Print this summary</strong>), the <strong>Drug Interaction Checker</strong> results (<strong>🖨 Print</strong>), any <strong>molecule tile</strong> you open (<strong>🖨 Print this molecule profile</strong>), and the <strong>Associated Molecules</strong> panel (<strong>🖨 Print this match</strong>). Each opens your device's native print dialog, where you can send it to a printer or choose <strong>Save as PDF</strong> as the destination. Every printout carries the same educational-use footer and the note that individual responses vary.</p>
+      <p>Yes. Four places have a print button: the <strong>Guided Match</strong> recommendation (<strong>🖨 Print / Save as PDF</strong>), the <strong>Drug Interaction Checker</strong> results (<strong>🖨 Print</strong>), any <strong>molecule tile</strong> you open (<strong>🖨 Print this molecule profile</strong>), and the <strong>Associated Molecules</strong> panel (<strong>🖨 Print this match</strong>). Each opens your device's native print dialog, where you can send it to a printer or choose <strong>Save as PDF</strong> as the destination. Every printout carries the same educational-use footer and the note that individual responses vary.</p>
       <p>The printout is a clean, ink-friendly summary carrying The Table&rsquo;s letterhead, the date, and the full educational disclaimer — the rest of the interface is hidden. If it includes medications you entered, it notes that the page may contain personal information, so please handle it privately. Nothing is uploaded — the summary is generated on your device.</p>
     </div>
   </details>
@@ -2576,7 +2576,7 @@ body.is-mobile-view .panel.panel-condensed .panel-sym{font-size:1.05rem}
       <div style="font-family:Georgia,serif;font-size:.95rem;color:var(--accent);letter-spacing:.06em">Acannability<sup style="font-size:.5rem;font-family:system-ui,sans-serif">™</sup> © 2026</div>
       <div style="font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);margin-top:2px">Acannability&rsquo;s Cannabis Periodic Table of Molecules&trade;</div>
       <!-- RELEASE-01 (owner-approved 2026-10-26): unique identifier of each approved release; see V4 Build/Release_Records. Guard 47. -->
-      <div id="buildId" style="font-size:.55rem;letter-spacing:.04em;color:var(--mute);margin-top:6px;opacity:.8">Build 2026.11.06-2</div>
+      <div id="buildId" style="font-size:.55rem;letter-spacing:.04em;color:var(--mute);margin-top:6px;opacity:.8">Build 2026.11.08-1</div>
     </div>
     <div style="flex:1;min-width:280px;max-width:700px;font-size:.62rem;color:var(--mute);line-height:1.6">
       <strong style="color:var(--dim);font-size:.62rem;letter-spacing:.06em;text-transform:uppercase">Disclaimer</strong><br>
@@ -11127,16 +11127,27 @@ function PT_shell(titleText, ctxLine, bodyHtml, opts){
   var logo=PT_logoSrc();
   var now=new Date();
   var when=now.toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric'})+' · '+now.toLocaleTimeString(undefined,{hour:'2-digit',minute:'2-digit'});
+  // RPT-01: the Guided Match report also states the build it came from, so a saved PDF can be traced
+  // to the exact data version. Other printed reports are unchanged.
+  var bm=opts.build?document.querySelector('meta[name="v2-build"]'):null, bid=bm?bm.getAttribute('content'):'';
   var head='<div class="pt-print-hd">'+(logo?'<img src="'+logo+'" alt="Acannability">':'')+
     '<div><div class="pt-print-brand">The Table</div>'+
     '<div class="pt-print-desc">Acannability&rsquo;s Cannabis Periodic Table of Molecules&trade;</div>'+
-    '<div class="pt-print-meta">Generated '+when+'</div></div></div>';
+    '<div class="pt-print-meta">Generated '+when+(bid?' &middot; Build '+bid:'')+'</div></div></div>';
   var title='<div class="pt-print-title">'+titleText+'</div>'+(ctxLine?'<div class="pt-print-ctx">'+ctxLine+'</div>':'');
   var phi=opts.phi?'<div class="pt-print-phi">This summary was generated on your device and now exists on paper — it may contain your personal medication information, so please handle and store it privately.</div>':'';
   var foot='<div class="pt-print-foot"><strong>Educational use only — not medical advice.</strong> This summary is generated from published research for educational and informational purposes. It is not a diagnosis, a treatment recommendation, or a claim of efficacy or safety for any individual. Evidence grades (A–D) reflect the quality of published research, not clinical approval. Always consult a licensed healthcare professional before making any health decision.'+
     phi+
     '<div style="margin-top:6px">The Table · Acannability&trade; · josephrph.github.io/periodic-table</div></div>';
   return head+title+bodyHtml+foot;
+}
+// RPT-01: PubMed IDs as links in the Guided Match report. Every token is kept: a token that is not a
+// PubMed ID is printed as text, never dropped, so no citation can disappear from the report.
+function PT_pmidLinks(raw){
+  return String(raw==null?'':raw).split(/[,;]/).map(function(t){return t.replace(/^\s+|\s+$/g,'');}).filter(function(t){return t;})
+    .map(function(t){return /^[0-9]{5,8}$/.test(t)
+      ?'<a class="pt-pmid" href="https://pubmed.ncbi.nlm.nih.gov/'+t+'/" target="_blank" rel="noopener">PubMed '+t+'</a>'
+      :t.replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}).join(' &middot; ');
 }
 function PT_doPrint(titleText, ctxLine, bodyHtml, opts){
   var root=document.getElementById('printRoot'); if(!root) return;
@@ -11891,6 +11902,8 @@ function resetToEntryGate() {
   // PRINT-01: empty the last printed report. It may hold the previous customer's condition and
   // medications, and afterprint no longer clears it (see PT_doPrint).
   try { var _pr = document.getElementById('printRoot'); if (_pr) _pr.innerHTML = ''; } catch(e) {}
+  // RPT-01: the on-screen report holds the same personal information; empty and hide it as well.
+  try { var _rd = document.getElementById('gxRptDoc'); if (_rd) _rd.innerHTML = ''; var _rv = document.getElementById('gxRptView'); if (_rv) _rv.style.display = 'none'; } catch(e) {}
   // Clear the in-progress feedback DRAFT + sign staff out (stored suggestions are KEPT for review)
   try { if (window.Feedback) Feedback.clearDraft(); } catch(e) {}
   // UX-110: the session-scoped demonstration review queue dies with the session. This is the one
@@ -14362,7 +14375,10 @@ var ROUTE_KEYS=['inhalation_vapor','inhalation_smoked','oral','sublingual','topi
         V2PLAIN.rows(researchOnlyMolIds(cond),cond.label)+'</div>'+
       (st.dj?'':'<button class="gx-cta" onclick="V4GX.intent(\'cancer\')">🎗️ Cancer symptom support</button>')+
       '<button class="gx-cta ghost" onclick="V4GX.seeScience()">🔬 See this research in the Periodic Table</button>'+
-      '<button class="gx-cta ghost" onclick="V4GX.printRec()">🖨 Print this research list</button>'+
+      '<button class="gx-cta ghost gx-rpt-btn" id="gxRptBtn" onclick="V4GX.viewReport()">📄 View Full Report &amp; Research</button>'+
+      '<div id="gxRptView" class="gx-rpt" style="display:none"><div class="gx-rpt-bar"><b>Full report &amp; research</b><button class="gx-rpt-close" onclick="V4GX.closeReport()">✕ Close Report</button></div><div id="gxRptDoc"></div><button class="gx-cta ghost" onclick="V4GX.closeReport()">✕ Close Report</button></div>'+
+      '<button class="gx-cta ghost" onclick="V4GX.printRec()">🖨 Print / Save as PDF</button>'+'<p class="gx-hint" style="margin-top:6px">To save a PDF in Chrome, set <b>Destination</b> to <b>Save as PDF</b>; this keeps the PubMed links clickable. In other browsers, choose <b>Save as PDF</b> in the print window. On a recent iPhone or iPad, tap <b>Share</b> in the print preview, then <b>Save to Files</b>. On older iPads, print the report instead. On a shared device, print rather than save, or delete the saved file before you leave.</p>'+
+      '<div class="gx-cta ghost gx-soon" role="note" aria-label="Email This Report: coming soon, not yet available">✉️ Email This Report — Coming Soon</div>'+
       '<button class="gx-cta ghost" onclick="V4GX.back()">&larr; Back</button>');}
   function scThc(){
     // GX-THC (2026-09-03): this is a PRODUCT/MOLECULE PREFERENCE, not a dose, a potency target or a
@@ -14831,8 +14847,11 @@ var ROUTE_KEYS=['inhalation_vapor','inhalation_smoked','oral','sublingual','topi
       (detail==='clinical'?prefRecap+prefGuide:'')+hdMeds+medSummary+
       (detail==='clinical'?entHtml+irHtml:'')+
       '<p class="gx-hint" style="margin-top:12px">In the Periodic Table, use <b>⚙ Refine Inventory Match</b> (in the Associated Molecules panel) to remove any molecules — or whole categories — your dispensary doesn’t carry. The recommendation updates instantly.</p>'+
-      '<button class="gx-cta" onclick="V4GX.seeScience()">🔬 Explore these in the Periodic Table →</button>'+
-      '<button class="gx-cta ghost" onclick="V4GX.printRec()">🖨 Print this summary</button>'+
+      '<button class="gx-cta gx-rpt-primary" id="gxRptBtn" onclick="V4GX.viewReport()">📄 View Full Report &amp; Research Articles<span class="gx-rpt-sub">Tap PubMed references to open the studies directly.</span></button>'+
+      '<div id="gxRptView" class="gx-rpt" style="display:none"><div class="gx-rpt-bar"><b>Full report &amp; research</b><button class="gx-rpt-close" onclick="V4GX.closeReport()">✕ Close Report</button></div><p class="gx-rpt-tip">Tap a PubMed number to open the study in a new tab. Your results stay here.</p><div id="gxRptDoc"></div><button class="gx-cta ghost" onclick="V4GX.closeReport()">✕ Close Report</button></div>'+
+      '<button class="gx-cta ghost" onclick="V4GX.seeScience()">🔬 Explore these in the Periodic Table →</button>'+
+      '<button class="gx-cta ghost" onclick="V4GX.printRec()">🖨 Print / Save as PDF</button>'+'<p class="gx-hint" style="margin-top:6px">To save a PDF in Chrome, set <b>Destination</b> to <b>Save as PDF</b>; this keeps the PubMed links clickable. In other browsers, choose <b>Save as PDF</b> in the print window. On a recent iPhone or iPad, tap <b>Share</b> in the print preview, then <b>Save to Files</b>. On older iPads, print the report instead. On a shared device, print rather than save, or delete the saved file before you leave.</p>'+
+      '<div class="gx-cta ghost gx-soon" role="note" aria-label="Email This Report: coming soon, not yet available">✉️ Email This Report — Coming Soon</div>'+
       '<button class="gx-cta ghost" onclick="V4GX.restart()">Start over</button>'+rdResearchPrompt());
     try{if(window.ResearchData&&document.getElementById('rgState'))ResearchData.fillStates('rgState');}catch(e){}}
   function scProducts(){var rec=activeRec();var res=G().match(rec);var top=res.shown.slice(0,6);
@@ -15341,13 +15360,28 @@ var ROUTE_KEYS=['inhalation_vapor','inhalation_smoked','oral','sublingual','topi
     restart:function(){this.start();},
     rdShare:function(){try{if(window.ResearchData)ResearchData.submitGuided();}catch(e){}scRec();},
     rdSkip:function(){try{if(window.ResearchData)ResearchData.dismissGuided();}catch(e){}scRec();},
+    // RPT-01: Screen 8 "View Full Report & Research". Shows the SAME report as Print / Save as PDF (printRec(true) +
+    // PT_shell), so findings, grades, severity order, warnings, disclaimer and PubMed links cannot drift from the
+    // printed copy. Emptied on close and at every session reset (resetToEntryGate).
+    viewReport:function(){var v=el('gxRptView'),d=el('gxRptDoc');if(!v||!d||typeof PT_shell!=='function')return;
+      var r=this.printRec(true);if(!r)return;
+      d.innerHTML=PT_shell(r.title,r.ctx,r.body,{build:true});v.style.display='block';
+      try{if(typeof resetInactivityTimer==='function')resetInactivityTimer();}catch(e){}
+      try{v.scrollIntoView(true);}catch(e){}},
+    closeReport:function(){var v=el('gxRptView'),d=el('gxRptDoc');if(d)d.innerHTML='';if(v)v.style.display='none';
+      try{var b=el('gxRptBtn');if(b)b.scrollIntoView(true);}catch(e){}},
     // UX-06 print: clean, branded summary of the standard Guided Match recommendation.
-    printRec:function(){
+    printRec:function(returnOnly){   // RPT-01: returnOnly=true returns {title,ctx,body,opts} instead of printing (one builder for print, PDF and any later delivery)
+      function out(t,c,b,o){o=o||{};o.build=true;
+        // RPT-01: PMIDs quoted in the text (mechanism prose, the individual-response reference) become links too
+        b=b.replace(/\bPMID (\d{5,8})\b(?![^<]*<\/a>)/g,function(m,id){return '<a class="pt-pmid" href="https://pubmed.ncbi.nlm.nih.gov/'+id+'/" target="_blank" rel="noopener">PMID '+id+'</a>';});
+        // RPT-01: how to look up a citation on paper or in a PDF viewer that does not open links
+        b+='<p class="pt-print-p pt-cite-help" style="font-size:.72rem;color:#333 !important"><b>Looking up a citation:</b> each PubMed reference can be opened at https://pubmed.ncbi.nlm.nih.gov/ followed by its number (PMID). For example, PubMed 17712819 is at https://pubmed.ncbi.nlm.nih.gov/17712819/</p>';
+        if(returnOnly)return {title:t,ctx:c,body:b,opts:o};if(typeof PT_doPrint==='function')PT_doPrint(t,c,b,o);}
       var _ro=currentCondIds().filter(isResearchOnlyCond)[0];      // SCI-02: research-only print
       if(_ro){var _c=CONDITIONS.find(function(c){return c.id===_ro;});
-        if(typeof PT_doPrint==='function')PT_doPrint('Guided Match — Research Associations','Topic: '+esc(_c.label),
-          PT_sec('About this list','<p class="pt-print-p">'+RESEARCH_ONLY_NOTE+'</p>')+PT_sec('Research associations (unranked)',researchOnlyListHtml(_c,true)));
-        return;}
+        return out('Guided Match — Research Associations','Topic: '+esc(_c.label),
+          PT_sec('About this list','<p class="pt-print-p">'+RESEARCH_ONLY_NOTE+'</p>')+PT_sec('Research associations (unranked)',researchOnlyListHtml(_c,true)));}
       var condIds=currentCondIds();var dc=SCI_ALIAS[condIds[0]]||condIds[0];
       var cond=(typeof CONDITIONS!=='undefined')?CONDITIONS.find(function(c){return c.id===dc;}):null;
       var condLabel=cond?cond.label:'your selection';
@@ -15426,7 +15460,7 @@ var ROUTE_KEYS=['inhalation_vapor','inhalation_smoked','oral','sublingual','topi
         if(ddiN){body+='<div style="font-size:.74rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin:6px 0 5px">Drug–drug interactions within your list</div>'+
           ddiHits.map(function(d){return '<div class="di-card '+(d.sev||'')+'"><div style="font-weight:700;font-size:.82rem;margin-bottom:2px">'+esc(d.label||(d.drugs||[]).join(' + '))+(d.sev?' — '+(sevLbl[d.sev]||d.sev):'')+evTag(d.ev)+'</div>'+
             detRow('Mechanism',d.mech||'')+detRow('Clinical effect',d.effect||'')+detRow('Monitoring / action',d.monitor||'')+
-            (d.pmid?'<div style="font-size:.7rem;color:#555 !important;margin-top:2px">PubMed '+esc(String(d.pmid))+'</div>'
+            (d.pmid?'<div style="font-size:.7rem;color:#555 !important;margin-top:2px">'+PT_pmidLinks(d.pmid)+'</div>'
               : (d.source==='label'?'<div style="font-size:.7rem;color:#555 !important;margin-top:2px">Basis: FDA prescribing information</div>':''))+'</div>';}).join('');}
         // Cannabis ↔ medication interactions — split into (1) your recommended molecules and (2) other molecules
         // that also interact (not recommended here, but may be present in full-spectrum products). Kept for safety.
@@ -15434,7 +15468,7 @@ var ROUTE_KEYS=['inhalation_vapor','inhalation_smoked','oral','sublingual','topi
           return '<div class="di-card '+worst+'"><div style="font-weight:700;font-size:.82rem;margin-bottom:2px">'+molNm(mid)+'</div>'+
             byM[mid].map(function(e){return '<div style="margin:4px 0 0;padding-top:4px;border-top:1px solid #ddd"><div style="font-size:.78rem;font-weight:700">'+esc(medLabel(e))+(e.sev?' — '+(sevLbl[e.sev]||e.sev):'')+evTag(e.ev)+'</div>'+
               detRow('Mechanism',e.mech||'')+detRow('Clinical effect',e.effect||'')+detRow('Monitoring / action',e.monitor||'')+
-              (e.pmid?'<div style="font-size:.7rem;color:#555 !important">PubMed '+esc(String(e.pmid))+'</div>':'')+'</div>';}).join('')+'</div>';}
+              (e.pmid?'<div style="font-size:.7rem;color:#555 !important">'+PT_pmidLinks(e.pmid)+'</div>':'')+'</div>';}).join('')+'</div>';}
         if(recMolIds.length){body+='<div style="font-size:.74rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin:8px 0 5px">Cannabis ↔ medication — your associated molecules</div>'+recMolIds.map(molCard).join('');}
         if(otherMolIds.length){
           var onm=otherMolIds.map(molNm);
@@ -15446,7 +15480,7 @@ var ROUTE_KEYS=['inhalation_vapor','inhalation_smoked','oral','sublingual','topi
           otherMolIds.map(molCard).join('');}
       }
 if(typeof PT_individualResponse==='function')body+=PT_individualResponse();   // UX-43
-      if(typeof PT_doPrint==='function')PT_doPrint('Guided Match — Recommendation Summary','Prepared for: '+esc(condLabel),body,{phi:(st.meds||[]).length>0});
+      return out('Guided Match — Recommendation Summary','Prepared for: '+esc(condLabel),body,{phi:(st.meds||[]).length>0});
     },
     persona:function(p){st.persona=p;st.intent=null;st.refineKey=null;st.seconds=[];st.directCond=null;
       // UX-64: a consumer always lands on plain language, even if an earlier run in the same
@@ -15818,6 +15852,63 @@ function djToast(msg){try{var t=document.getElementById('djToastEl');if(!t){t=do
 #printRoot .pt-print-molrow{font-size:.8rem;line-height:1.5;padding:1px 0 1px 9px}
 #printRoot .pt-print-flag{font-size:.68rem;font-weight:700;color:#8B1000 !important}
 #printRoot a{color:#111 !important;text-decoration:none}
+#printRoot a.pt-pmid{text-decoration:underline}   /* RPT-01: citations read as links in a saved PDF */
+/* RPT-01: on-screen full report (Screen 8). Derived copy of the report print styles above, under #gxRptDoc. */
+#gxRptDoc,#gxRptDoc *{color:#111 !important;box-sizing:border-box}
+#gxRptDoc{font-family:Georgia,'Times New Roman',serif;background:#fff;max-width:720px;margin:0 auto;padding:8px;line-height:1.5}
+#gxRptDoc .pt-print-hd{display:flex;align-items:center;gap:14px;border-bottom:2px solid #6B1E2E;padding-bottom:10px;margin-bottom:14px}
+#gxRptDoc .pt-print-hd img{height:46px;width:auto}
+#gxRptDoc .pt-print-brand{font-size:1.35rem;font-weight:700;letter-spacing:.02em}
+#gxRptDoc .pt-print-desc{font-size:.72rem;color:#555 !important;letter-spacing:.03em}
+#gxRptDoc .pt-print-meta{font-size:.66rem;color:#555 !important;margin-top:2px}
+#gxRptDoc .pt-print-title{font-size:1.05rem;font-weight:700;margin:2px 0 6px}
+#gxRptDoc .pt-print-ctx{font-size:.82rem;color:#333 !important;margin-bottom:12px;font-style:italic}
+#gxRptDoc .pt-print-sec{margin:0 0 14px;break-inside:avoid;page-break-inside:avoid}
+#gxRptDoc .pt-print-sec h3{font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid #ccc;padding-bottom:3px;margin:0 0 7px}
+#gxRptDoc .pt-mol-tbl{width:100%;border-collapse:collapse;margin:2px 0 0;font-size:.8rem}
+#gxRptDoc .pt-mol-tbl th{text-align:left;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;
+  color:#555 !important;border-bottom:1px solid #999;padding:0 6px 3px 0;font-weight:700}
+#gxRptDoc .pt-mol-tbl td{padding:4px 6px 4px 0;border-bottom:1px solid #ddd;vertical-align:top}
+#gxRptDoc .pt-mol-tbl tr:last-child td{border-bottom:none}
+#gxRptDoc .pt-mol-score{text-align:right;white-space:nowrap;width:9em;font-variant-numeric:tabular-nums}
+#gxRptDoc .pt-mol-full{display:block;font-size:.68rem;color:#555 !important;font-weight:400}
+#gxRptDoc .pt-mol-grp td{font-size:.66rem;letter-spacing:.07em;text-transform:uppercase;font-weight:700;
+  color:#333 !important;padding-top:8px;border-bottom:none}
+#gxRptDoc .pt-print-chip{display:inline-block;border:1px solid #999;border-radius:4px;padding:2px 8px;margin:0 4px 5px 0;font-size:.8rem}
+#gxRptDoc .pt-print-foot{margin-top:18px;border-top:1px solid #ccc;padding-top:8px;font-size:.64rem;color:#555 !important;line-height:1.55}
+#gxRptDoc .pt-print-phi{margin-top:6px;font-size:.64rem;color:#6B1E2E !important;font-weight:700}
+#gxRptDoc .di-card{background:#fff !important;border:1px solid #bbb !important;border-left-width:4px !important;padding:8px 10px;margin-bottom:7px;border-radius:4px;break-inside:avoid;page-break-inside:avoid}
+#gxRptDoc .di-card.major{border-left-color:#CC2200 !important}
+#gxRptDoc .di-card.moderate{border-left-color:#E07000 !important}
+#gxRptDoc .di-card.minor{border-left-color:#C8A800 !important}
+/* Phase 2 print blocks (molecule profile + Associated Molecules) */
+#gxRptDoc .pt-print-p{font-size:.8rem;margin:0 0 7px;line-height:1.55}
+#gxRptDoc .pt-print-kv{font-size:.8rem;margin-bottom:3px}
+#gxRptDoc .pt-print-item{border:1px solid #ccc;border-radius:4px;padding:7px 10px;margin-bottom:7px;break-inside:avoid;page-break-inside:avoid}
+#gxRptDoc .pt-print-item-hd{font-size:.82rem;font-weight:700;margin-bottom:3px}
+#gxRptDoc .pt-print-grade{font-size:.66rem;font-weight:600;color:#555 !important;white-space:nowrap}
+#gxRptDoc .pt-print-sub{font-size:.68rem;color:#555 !important;font-style:italic;margin-bottom:4px}
+#gxRptDoc .pt-print-body{font-size:.78rem;line-height:1.55;margin-bottom:4px}
+#gxRptDoc .pt-print-cite{font-size:.66rem;color:#333 !important;line-height:1.5;margin-top:4px;padding-left:9px;border-left:2px solid #ccc}
+#gxRptDoc .pt-print-citenote{font-size:.63rem;color:#555 !important;font-style:italic}
+#gxRptDoc .pt-print-grp{margin-bottom:9px;break-inside:avoid;page-break-inside:avoid}
+#gxRptDoc .pt-print-grplbl{font-size:.66rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#555 !important;margin-bottom:3px}
+#gxRptDoc .pt-print-molrow{font-size:.8rem;line-height:1.5;padding:1px 0 1px 9px}
+#gxRptDoc .pt-print-flag{font-size:.68rem;font-weight:700;color:#8B1000 !important}
+#gxRptDoc a{color:#111 !important;text-decoration:none}
+#gxRptDoc a.pt-pmid{text-decoration:underline}   
+#gxRptDoc{max-width:none;margin:0;padding:14px;border:1px solid #ccc;border-radius:10px;overflow-wrap:break-word;word-wrap:break-word}
+#gxRptDoc a.pt-pmid{color:#0B57D0 !important;text-decoration:underline;font-weight:600}
+#gxRptDoc .pt-print-hd img{height:38px}
+#gxRptDoc .pt-print-meta,#gxRptDoc .pt-print-foot,#gxRptDoc .pt-print-cite{font-size:.74rem}
+#gxRptDoc .pt-mol-score{width:auto}
+#gxOverlay .gx-rpt-sub{display:block;margin-top:4px;font-size:.82rem;font-weight:600;line-height:1.3;color:#fff}   /* RPT-01: primary View button sub-line */
+#gxOverlay .gx-soon{display:block;box-sizing:border-box;text-align:center;border-style:dashed;cursor:default;opacity:.75;user-select:none;-webkit-user-select:none}   /* RPT-01: inactive Coming Soon placeholder */
+#gxOverlay .gx-rpt-btn{color:var(--accent,#2E7D57);border-color:var(--accent,#2E7D57);font-weight:700}
+#gxOverlay .gx-rpt{margin:10px 0 4px}
+#gxOverlay .gx-rpt-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 4px}
+#gxOverlay .gx-rpt-close{min-height:40px;padding:8px 14px;border-radius:10px;border:1px solid var(--border,#ccc);background:var(--surface,#fff);color:var(--text,#111);font-weight:600;font-size:.9rem;cursor:pointer}
+#gxOverlay .gx-rpt-tip{font-size:.85rem;color:var(--dim,#777);margin:0 0 8px}
 #printRoot button,#printRoot .di-btn{display:none !important}
 </style>
 <div id="printRoot" aria-hidden="true"></div>

@@ -3855,6 +3855,89 @@ def check_build_identifier(src, data):
     if os.path.exists(rec):
         note('build identifier: %s (footer + head agree; release record present)' % bid)
 
+def check_report_saving(src, data):
+    """RPT-01 Phase 1 (owner approval 2026-11-07): Guided Match Screen 8 "Print / Save as PDF".
+
+    One report builder (V4GX.printRec) serves print and Save as PDF and can return the report for later reuse;
+    PubMed IDs in it are links; the report states its generation date and build; no PDF library or network call.
+    """
+    name = 'report saving'
+    n0 = len(FAILURES)
+    try:
+        pr = js_literal(src, 'printRec:function(', '{')
+        shell = js_literal(src, 'function PT_shell(', '{')
+        links = js_literal(src, 'function PT_pmidLinks(', '{')
+    except ValueError:
+        fail(name, 'printRec, PT_shell or PT_pmidLinks not found (zero-match tripwire)')
+        return
+    if pr.count('PT_doPrint(') != 1 or pr.count('return out(') != 2 or 'if(returnOnly)return {title:t,ctx:c,body:b,opts:o};' not in pr:
+        fail(name, 'printRec must stay the single Screen 8 builder: one print call, two report returns, a returnOnly path')
+    if 'PT_pmidLinks(d.pmid)' not in pr or 'PT_pmidLinks(e.pmid)' not in pr or "'PubMed '+esc(" in pr:
+        fail(name, 'drug-drug and cannabis citations in the Guided Match report must use PT_pmidLinks')
+    if 'b=b.replace(/\\bPMID (\\d{5,8})\\b(?![^<]*<\\/a>)/g' not in pr:
+        fail(name, 'PMIDs quoted in the Guided Match report text must become links')
+    if 'o.build=true' not in pr:
+        fail(name, 'the Guided Match report must request the build line')
+    if "opts.build" not in shell or "' &middot; Build '+bid" not in shell or "Generated '+when" not in shell:
+        fail(name, 'PT_shell must print the generation date and, for the Guided Match report, the build')
+    if 'https://pubmed.ncbi.nlm.nih.gov/' not in links or 'esc(' in links:
+        fail(name, 'PT_pmidLinks must link PubMed IDs and escape other tokens itself (esc is not global)')
+    if src.count('onclick="V4GX.printRec()">🖨 Print / Save as PDF</button>') != 2:
+        fail(name, 'both Screen 8 variants must offer "🖨 Print / Save as PDF"')
+    if src.count('On a shared device, print rather than save') != 2:
+        fail(name, 'both Screen 8 variants must carry the save-as-PDF and shared-device guidance')
+    if src.count('On a recent iPhone or iPad, tap <b>Share</b> in the print preview, then <b>Save to Files</b>. On older iPads, print the report instead.') != 2:
+        fail(name, 'both Screen 8 hints must say older iPads print the report (iOS 12 has no PDF save; owner decision 2026-11-07)')
+    # RPT-01 on-screen report: same builder and shell, links, close, cleared at reset, print CSS untouched
+    VPRI = '<button class="gx-cta gx-rpt-primary" id="gxRptBtn" onclick="V4GX.viewReport()">📄 View Full Report &amp; Research Articles<span class="gx-rpt-sub">Tap PubMed references to open the studies directly.</span></button>'
+    EXG = '<button class="gx-cta ghost" onclick="V4GX.seeScience()">🔬 Explore these in the Periodic Table →</button>'
+    PRB = 'onclick="V4GX.printRec()">🖨 Print / Save as PDF</button>'
+    iv = src.find(VPRI); ie = src.find(EXG, iv) if iv >= 0 else -1; ip = src.find(PRB, ie) if ie >= 0 else -1
+    if src.count(VPRI) != 1 or src.count(EXG) != 1 or ip < 0 or ip - iv > 4000 \
+            or '<button class="gx-cta" onclick="V4GX.seeScience()">' in src:
+        fail(name, 'standard Screen 8 must show View Full Report & Research Articles (primary) first, then Explore (outlined), then Print')
+    if src.count('<button class="gx-cta ghost gx-rpt-btn" id="gxRptBtn" onclick="V4GX.viewReport()">📄 View Full Report &amp; Research</button>') != 1:
+        fail(name, 'research-only Screen 8 must keep its original View button and hierarchy')
+    if src.count('<div id="gxRptDoc"></div>') != 2 \
+            or src.count('onclick="V4GX.closeReport()">✕ Close Report</button>') != 4:
+        fail(name, 'both Screen 8 variants must offer View Full Report & Research with a report panel and Close Report controls')
+    try:
+        vr = js_literal(src, 'viewReport:function(', '{')
+        cr = js_literal(src, 'closeReport:function(', '{')
+    except ValueError:
+        fail(name, 'viewReport / closeReport not found (zero-match tripwire)'); vr = cr = ''
+    if vr and ('this.printRec(true)' not in vr or 'PT_shell(r.title,r.ctx,r.body,' not in vr or 'pubmed' in vr.lower() or 'PT_doPrint' in vr):
+        fail(name, 'the on-screen report must be the existing builder output (printRec(true) + PT_shell), with no citation logic of its own')
+    if cr and "d.innerHTML=''" not in cr:
+        fail(name, 'Close Report must empty the on-screen report')
+    if "var _rd = document.getElementById('gxRptDoc'); if (_rd) _rd.innerHTML = '';" not in src:
+        fail(name, 'session reset must also empty the on-screen report (shared-kiosk privacy)')
+    if '#gxRptDoc a.pt-pmid{' not in src or src.count('#printRoot a.pt-pmid{text-decoration:underline}') != 1:
+        fail(name, 'on-screen report styles missing, or the print link rule changed')
+    SOON = '<div class="gx-cta ghost gx-soon" role="note" aria-label="Email This Report: coming soon, not yet available">✉️ Email This Report — Coming Soon</div>'
+    if src.count(SOON) != 2:
+        fail(name, 'both Screen 8 variants must show the inactive Email This Report — Coming Soon placeholder')
+    low = src.lower()
+    if 'mailto:' in low or 'sendreport' in low or 'emailreport' in low or 'reports@acannability.com' in low:
+        fail(name, 'email delivery code or address found; email is not authorised (placeholder only)')
+    if src.count('Tap a PubMed number to open the study in a new tab.') != 1:
+        fail(name, 'the PubMed tip must appear only on the standard report panel (the research-only report has no PubMed citations)')
+    if 'Print this summary' in src or 'Print this research list' in src:
+        fail(name, 'an old Screen 8 print label is still present (screen or FAQ)')
+    if src.count('To save a PDF in Chrome, set <b>Destination</b> to <b>Save as PDF</b>; this keeps the PubMed links clickable.') != 2:
+        fail(name, 'both Screen 8 hints must tell Chrome users to choose Destination: Save as PDF (keeps links clickable)')
+    if pr.count('pt-cite-help') != 1 or 'https://pubmed.ncbi.nlm.nih.gov/ followed by its number (PMID)' not in pr \
+            or pr.find('pt-cite-help') < pr.find('b=b.replace(/\\bPMID') or pr.find('pt-cite-help') > pr.find('if(returnOnly)return'):
+        fail(name, 'the Guided Match report must carry the citation lookup line, added after PMID linking and before the report is returned')
+    low = src.lower()
+    for lib in ('jspdf', 'html2pdf', 'html2canvas', 'pdfmake', 'pdf-lib'):
+        if lib in low:
+            fail(name, 'a PDF library (%s) was added; Phase 1 uses the browser print engine only' % lib)
+    if "try { var _pr = document.getElementById('printRoot'); if (_pr) _pr.innerHTML = ''; } catch(e) {}" not in src:
+        fail(name, 'session reset must still empty the printed report (PRINT-01 / RESET-03)')
+    if len(FAILURES) == n0:
+        note('report saving: Screen 8 Print / Save as PDF uses the one builder; PubMed links; build and date; no PDF library')
+
 def check_molecule_profile_terms(src, data):
     """SCI-05 (guard 48): combination labels describe composition, never a demonstrated interaction.
 
@@ -3997,6 +4080,7 @@ def main():
     check_primary_designation(src, data)
     check_evidence_presentation(src, data)
     check_build_identifier(src, data)
+    check_report_saving(src, data)
     check_molecule_profile_terms(src, data)
     check_medication_identity(src, data)
     check_evidence_attribution(data)
