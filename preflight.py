@@ -2333,14 +2333,23 @@ def check_reviewed_registry(src, data):
                    ('renderMedListResults', "✓ No cannabis interactions found' + (_medList.some(diIsReviewed) ? DI_QUALIFIER"),
                    ('djMedResults', "'✓ No drug–drug interactions within the list'+revQ"),
                    ('djMedResults', "'✓ No cannabis interactions with the associated molecules'+revQ"),
-                   ('scRec', "'no drug–drug interactions'+_revQ"),
-                   ('scRec', "'none with associated molecules'+_revQ"),
                    ('scRec', "(_rev.length?'ℹ️ ':'✓ ')"),
-                   ('printRec', "'no drug–drug interactions'+prQ"),
-                   ('printRec', "'no cannabis–medication interactions'+prQ")]:
+                   # AIQA-02 rev 2026.11.08-4: scRec and printRec now take their summary from gxMedSummary,
+                   # which carries the same qualifier on both "No … identified" lines (checked below)
+                   ('scRec', "var _ms=gxMedSummary(st.meds);"),
+                   ('printRec', "var _ms=gxMedSummary(st.meds);")]:
         if nd not in bodies[fn]:
             fail(name, '%s(): a ✓ / "no interactions" line is no longer qualified when a reviewed-only '
                        'medication is listed (%s…)' % (fn, nd[:48]))
+    try:
+        _gms = js_literal(src, 'function gxMedSummary(meds){', '{')
+    except ValueError:
+        _gms = ''
+    for nd in ("q=meds.filter(diIsReviewed).length?DI_QUALIFIER:''", "'No cannabis–medication interactions identified'+q+'. '",
+               "'medication–medication interactions identified'+q+'.'"):
+        if nd not in _gms:
+            fail(name, 'gxMedSummary(): a "no interactions" line is no longer qualified when a reviewed-only '
+                       'medication is listed (%s…)' % nd[:48])
     for fn in ('renderMedListResults', 'djMedResults'):
         for m in re.finditer(r"'[^']*✓ No [^']*'", bodies[fn]):
             tail = bodies[fn][m.end():m.end() + 70]
@@ -3855,6 +3864,147 @@ def check_build_identifier(src, data):
     if os.path.exists(rec):
         note('build identifier: %s (footer + head agree; release record present)' % bid)
 
+
+def check_aiqa02(src, data):
+    """AIQA-02 (owner authorisation 2026-11-08): one THC exclusion, one set of safety cautions, honest
+    medication messaging and no published credentials.
+
+    Defects this guards against, all found in production 2026.11.08-1 by AIQA-01:
+      * the full report / print (printRec) re-derived its molecule list and listed Δ9-THC as Primary for a user
+        who chose "Avoid intoxicating THC", and dropped the safety-check cautions and the topic's safety findings;
+      * the full Entourage analysis opened from Guided Match never received the THC exclusion;
+      * the Screen 8 medication summary showed a green ✓ and "none with associated molecules" while the same
+        session's report named CBD ↔ warfarin (Major) under "Other cannabis molecules that also interact";
+      * two username/password pairs were written in plain text in comments of this public file.
+    """
+    name = 'AIQA-02 safety integrity'
+    n0 = len(FAILURES)
+    try:
+        pr = js_literal(src, 'printRec:function(', '{')
+        rec = js_literal(src, 'function scRec(){', '{')
+        ent = js_literal(src, 'entourage:function(){', '{')
+        hof = js_literal(src, 'handoffTo:function(c){', '{')
+        std = js_literal(src, 'function stdRecMolIds(){', '{')
+        split = js_literal(src, 'function gxThcSplit(mols){', '{')
+        msgs = js_literal(src, 'function gxSafetyMsgs(where){', '{')
+        sync = js_literal(src, 'function gxSyncThcExclusions(){', '{')
+    except ValueError:
+        fail(name, 'an AIQA-02 function is missing (zero-match tripwire)')
+        return
+    nc = strip_comments(src)
+    # 1. one definition of the exclusion, applied by every Guided Match output path
+    if not re.search(r"var GX_THC_INTOX=\['THC9','THC8','THCP'\];", src):
+        fail(name, "GX_THC_INTOX must be exactly ['THC9','THC8','THCP']")
+    if "st.ceiling!=='none'" not in split or 'GX_THC_INTOX' not in split:
+        fail(name, 'gxThcSplit no longer applies the THC choice')
+    m = re.search(r'gxThcSplit\(mols\);\s*mols=_rs\.mols;', pr)
+    p_at = pr.find('var primary=')
+    if not m or p_at < 0 or m.start() > p_at:
+        fail(name, 'the report must apply gxThcSplit before it builds its Primary / Supporting tiers')
+    if 'gxThcNote(_rs.leftOut' not in pr:
+        fail(name, 'the report must state which THC molecules were left out')
+    if not re.search(r'_split=gxThcSplit\(mols\);\s*var thcLeftOut=_split\.leftOut;\s*mols=_split\.mols;', rec):
+        fail(name, 'the results screen must use the shared gxThcSplit')
+    if 'gxThcNote(' not in rec:
+        fail(name, 'the results screen must use the shared gxThcNote')
+    if "st.ceiling==='none'&&GX_THC_INTOX.indexOf(id)>=0" not in std:
+        fail(name, 'stdRecMolIds must not count excluded THC molecules as the topic\'s molecules')
+    if "_excludedMols[id]=true" not in sync or "st.ceiling==='none'" not in sync:
+        fail(name, 'gxSyncThcExclusions no longer writes the THC choice into _excludedMols')
+    for fn, label in ((ent, 'entourage()'), (hof, 'handoffTo()')):
+        a, b = fn.find('gxSyncThcExclusions()'), max(fn.find('showEntourage('), fn.find('selectCondition('))
+        if a < 0 or b < 0 or a > b:
+            fail(name, '%s must sync the THC exclusion before it opens its view' % label)
+    # 2. one set of safety cautions, carried into the report
+    if "gxSafetyMsgs('screen')" not in rec or "gxSafetyMsgs('report')" not in pr:
+        fail(name, 'the screen and the report must both use gxSafetyMsgs()')
+    # AIQA-02 wording (owner 2026-11-08): scope of the cautions, the findings note, CBD-only pregnancy advice,
+    # and no "go back to the medication step" once the check has run
+    for fn, label in ((rec, 'screen'), (pr, 'report')):
+        if 'gxCautionScope()' not in fn:
+            fail(name, 'the %s must say the safety answers do not change the list' % label)
+        if 'gxFindingsNote()' not in fn:
+            fail(name, 'the %s must say safety findings are not recommendations' % label)
+    if not re.search(r"if\(condSafety\) condSafety='<p class=\"gx-hint gx-findings-note\"[^']*'\+gxFindingsNote\(\)\+'</p>'\+condSafety;", rec):
+        fail(name, "the screen must put the findings note in front of the topic's safety findings")
+    if 'they do not change which molecules are listed' not in src or 'it <b>does</b> remove &Delta;9-THC' not in src:
+        fail(name, 'gxCautionScope must distinguish the safety answers from the THC exclusion')
+    if 'Safety findings are not recommendations.' not in src or 'left out because of your THC preference' not in src:
+        fail(name, 'gxFindingsNote wording is missing')
+    if 'including CBD-only products</b>' not in msgs or 'Choosing to avoid intoxicating THC does not remove this concern' not in msgs:
+        fail(name, 'the pregnancy caution must cover CBD-only products and the THC preference')
+    if 'st.medsDone&&(st.meds||[]).length' not in msgs or 'later in this report' not in msgs:
+        fail(name, 'a completed medication check must point to its findings, not back to the step')
+    # feedback privacy wording: no anonymity or staff-review promise while the console is disabled
+    for bad in ('so our staff can review it', 'are stored for staff review only', 'Suggestions are anonymous'):
+        if bad in nc:
+            fail(name, 'feedback wording promises "%s"' % bad)
+    if nc.count('not currently sent to Acannability') != 2 or nc.count('could read ') < 2:
+        fail(name, 'both feedback statements must say: this device only, not sent, readable by anyone with the browser')
+    for k in ('preg', 'bf', 'ttc', 'resp', 'cardio', 'psych', 'rx'):
+        if "indexOf('%s')" % k not in msgs:
+            fail(name, 'gxSafetyMsgs has lost the "%s" answer' % k)
+    for phrase in ('Pregnancy / breastfeeding / trying to conceive:', 'Serious mental-health history:', 'Respiratory condition:',
+                   'Heart / cardiovascular condition:', 'Prescription medications:</b> cannabis can interact'):
+        if nc.count(phrase) != 1:
+            fail(name, 'the caution "%s" must be defined once (found %d)' % (phrase, nc.count(phrase)))
+    if 'buildConditionSafetyHTML(cond)' not in pr or '<h3>Safety cautions</h3>' not in pr:
+        fail(name, "the report must carry a Safety cautions section with the topic's safety findings")
+    if pr.find('<h3>Safety cautions</h3>') > pr.find('<h3>Associated molecules'):
+        fail(name, 'report cautions must come before the molecules (UX-109)')
+    if 'st.expressed&&!st.safetyDone' not in pr or 'st.expressed&&!st.medsDone' not in pr:
+        fail(name, 'the report must say when the quick route skipped a check')
+    if "min:'Keep the" not in pr:
+        fail(name, 'the report must not drop the "keep the high to a minimum" preference')
+    # 3. the screen's medication summary names every interacting molecule the report names
+    if '_otherIds=Object.keys(byM).filter(function(m){return recSet.indexOf(m)<0;})' not in rec \
+            or 'anyI=ddiN||recHitN||otherN' not in rec or 'Other cannabis molecules that also interact' not in rec:
+        fail(name, 'the Screen 8 medication summary must count and name other interacting molecules')
+    # 3b. rev 2026.11.08-4: one generated medication summary; Major interactions go to a pharmacist / prescriber
+    try:
+        ms = js_literal(src, 'function gxMedSummary(meds){', '{')
+    except ValueError:
+        fail(name, 'gxMedSummary is missing (zero-match tripwire)'); ms = ''
+    if 'var _ms=gxMedSummary(st.meds);' not in rec or "_ms.text" not in rec or "'+_ms.advice+'" not in rec:
+        fail(name, 'Screen 8 must use the shared medication summary and its advice')
+    if 'var _ms=gxMedSummary(st.meds);' not in pr or "'+_ms.text+(_ms.advice?'<div class=\"pt-med-advice\"" not in pr:
+        fail(name, 'the report must use the shared medication summary and its advice')
+    for need in ('findDdiInteractions(mIds)', 'buildCannabisHitsByMol(mIds)', 'cannabis–medication interaction',
+                 'medication–medication interaction', 'GX_SEVLBL[', "adv='<b>Major interaction:</b><br>Before using cannabis or CBD, consult your '", "['pharmacist','prescriber'].concat(spec.map(",
+                 'GX_SPECIALIST', 'DI_QUALIFIER', "x.sev==='major'", "d.sev==='major'"):
+        if need not in ms:
+            fail(name, 'gxMedSummary has lost: %s' % need)
+    if 'Budtender' in ms[ms.find("if(majC.length||majD.length)"):ms.find('} else if(any)')]:
+        fail(name, 'Major-interaction advice must not point to the Product Specialist (Budtender)')
+    if re.search(r'Budtender\) or provider', nc):
+        fail(name, 'the old "Product Specialist (Budtender) or provider" medication advice is back')
+    if "GX_SPECIALIST={warfarin:'anticoagulation clinic (if taking warfarin)'}" not in src:
+        fail(name, 'warfarin must name the anticoagulation clinic')
+    # 4. no published credentials, and no client-side gate protecting real kiosk feedback
+    if re.search(r'(?i)temp cred|credentials \(pending', nc + src):
+        fail(name, 'a temporary-credential note is back in the file')
+    if re.search(r"cyrb53\('[^']*:[^']*'\)", src):
+        fail(name, 'a plain-text username:password appears in the file')
+    if re.search(r'(?i)\b(user|username)\s*"[^"]+"\s*/\s*pass(word)?\s*"[^"]+"', src):
+        fail(name, 'a plain-text username / password pair appears in the file')
+    if not re.search(r"var STAFF_CONSOLE_ENABLED = false;", src):
+        fail(name, 'the staff feedback console must stay disabled until real access control exists')
+    if not re.search(r"var ADMIN_USER = '';\s*\n\s*var AUTH_HASH  = '';", src):
+        fail(name, 'the staff console must hold no username or hash')
+    lg = js_literal(src, 'function login(ev){', '{')
+    if 'if(!STAFF_CONSOLE_ENABLED||!ADMIN_USER||!AUTH_HASH)return false;' not in lg:
+        fail(name, 'staff login must refuse while the console is disabled')
+    for fnm in ('exportJSON', 'exportCSV', 'exportApproved', 'setItem', 'clearAll', 'setStatus', 'setNote'):
+        if not re.search(r'function %s\([^)]*\)\{\s*if\(!_authed\)return;' % fnm, src):
+            fail(name, 'feedback %s() must refuse unless signed in' % fnm)
+    if 'STAFF_CONSOLE_ENABLED&&/[?&]feedback-admin=1' not in src:
+        fail(name, 'the ?feedback-admin deep link must not open the console while it is disabled')
+    if not re.search(r"var AUTH_HASH='\d*';   // AIQA-02: retired", src) or "AUTH_HASH!=='' &&" not in src:
+        fail(name, 'the demo gate must hold only a locally set hash (or none) and refuse when empty')
+    if len(FAILURES) == n0:
+        note('AIQA-02: one THC exclusion on screen, report, print and Entourage; cautions and skipped checks in the report; '
+             'other interacting molecules named on Screen 8; no credential in the file; staff console disabled')
+
 def check_report_saving(src, data):
     """RPT-01 Phase 1 (owner approval 2026-11-07): Guided Match Screen 8 "Print / Save as PDF".
 
@@ -4081,6 +4231,7 @@ def main():
     check_evidence_presentation(src, data)
     check_build_identifier(src, data)
     check_report_saving(src, data)
+    check_aiqa02(src, data)
     check_molecule_profile_terms(src, data)
     check_medication_identity(src, data)
     check_evidence_attribution(data)

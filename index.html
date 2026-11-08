@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta name="v2-build" content="2026.11.08-1"><meta name="viewport" content="width=device-width, initial-scale=1">
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta name="v2-build" content="2026.11.08-5"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The Table &middot; Acannability&rsquo;s Cannabis Periodic Table of Molecules&trade;</title>
 <style>
 :root {
@@ -1060,7 +1060,7 @@ body.is-mobile-view.is-touch-device #imDoneBtn{right:10px;bottom:calc(56px + env
       </div>
       <div class="eg-section">
         <div class="eg-section-title">🔒 Privacy, Data Handling &amp; HIPAA</div>
-        <div class="eg-section-body">This platform runs entirely in your browser and has no backend server or database — it does not collect, store, or transmit Protected Health Information (PHI) as defined under HIPAA. Any medication list you enter in the Drug Interaction Checker exists only in your browser's temporary memory for the current session; it is never saved to a server, never transmitted over the internet, and is cleared when you end your session, close the tab, or refresh the page. If this platform is used on a shared or public device (for example, a dispensary kiosk), select <strong>End Session</strong> (shown as <strong>I'm Done — End My Session</strong> on larger screens) when finished so no information you entered remains visible to the next person. This platform is not itself a HIPAA-covered entity's medical record or communication system; organizations that are HIPAA-covered entities or business associates remain independently responsible for their own compliance obligations when using this tool in a patient-facing setting, and should consult their own legal or compliance counsel. <strong>One limited exception:</strong> the optional "Suggest an addition" feedback form. If you <em>voluntarily choose</em> to submit a suggestion, only the item you type (for example, the name of a medication or condition you feel is missing) is saved anonymously in this browser so our staff can review it and improve this educational resource. It is never linked to your identity — please do not enter your name or any personal health information in it. <strong>Optional research contribution:</strong> if you opt in at the end of a Guided Match, the anonymous, non-identifying details you provide (age group, sex, and city/state) are saved on this device and, where that feature is enabled, shared with Acannability’s research database to help improve this platform — never linked to your identity and never including personal or health information. Leave those fields blank to skip.</div>
+        <div class="eg-section-body">This platform runs entirely in your browser and has no backend server or database — it does not collect, store, or transmit Protected Health Information (PHI) as defined under HIPAA. Any medication list you enter in the Drug Interaction Checker exists only in your browser's temporary memory for the current session; it is never saved to a server, never transmitted over the internet, and is cleared when you end your session, close the tab, or refresh the page. If this platform is used on a shared or public device (for example, a dispensary kiosk), select <strong>End Session</strong> (shown as <strong>I'm Done — End My Session</strong> on larger screens) when finished so no information you entered remains visible to the next person. This platform is not itself a HIPAA-covered entity's medical record or communication system; organizations that are HIPAA-covered entities or business associates remain independently responsible for their own compliance obligations when using this tool in a patient-facing setting, and should consult their own legal or compliance counsel. <strong>One limited exception:</strong> the optional "Suggest an addition" feedback form. If you <em>voluntarily choose</em> to submit a suggestion, only the item you type (for example, the name of a medication or condition you feel is missing) is saved in this browser, on this device only. It is not currently sent to Acannability, and staff review through The Table is not yet available. Anyone with access to this device&rsquo;s browser could read it, so please do not enter your name or other identifying details, a list of your medications, or any sensitive health information. <strong>Optional research contribution:</strong> if you opt in at the end of a Guided Match, the anonymous, non-identifying details you provide (age group, sex, and city/state) are saved on this device and, where that feature is enabled, shared with Acannability’s research database to help improve this platform — never linked to your identity and never including personal or health information. Leave those fields blank to skip.</div>
       </div>
       <!-- (The optional research opt-in that used to sit here is now entry-sequence screen 3,
            #researchGate — same field IDs, so ResearchData.captureFromGate() is unchanged.) -->
@@ -2576,7 +2576,7 @@ body.is-mobile-view .panel.panel-condensed .panel-sym{font-size:1.05rem}
       <div style="font-family:Georgia,serif;font-size:.95rem;color:var(--accent);letter-spacing:.06em">Acannability<sup style="font-size:.5rem;font-family:system-ui,sans-serif">™</sup> © 2026</div>
       <div style="font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);margin-top:2px">Acannability&rsquo;s Cannabis Periodic Table of Molecules&trade;</div>
       <!-- RELEASE-01 (owner-approved 2026-10-26): unique identifier of each approved release; see V4 Build/Release_Records. Guard 47. -->
-      <div id="buildId" style="font-size:.55rem;letter-spacing:.04em;color:var(--mute);margin-top:6px;opacity:.8">Build 2026.11.08-1</div>
+      <div id="buildId" style="font-size:.55rem;letter-spacing:.04em;color:var(--mute);margin-top:6px;opacity:.8">Build 2026.11.08-5</div>
     </div>
     <div style="flex:1;min-width:280px;max-width:700px;font-size:.62rem;color:var(--mute);line-height:1.6">
       <strong style="color:var(--dim);font-size:.62rem;letter-spacing:.06em;text-transform:uppercase">Disclaimer</strong><br>
@@ -3201,9 +3201,11 @@ window.V4DEMO=(function(){
      obfuscation + a "keep general users out" gate — NOT cryptographic security. The password is not stored
      in plaintext (only a hash of user:pass is), but a determined reader of the public source could bypass it.
      For provable access control, put demo.acannability.com behind edge auth (Cloudflare Access / Basic Auth).
-     Temp credentials (pending owner approval):  user "acannability" / pass "AcannDemo2026!".
+     AIQA-02 (8 Nov 2026): the earlier demo username/password were published in this public file's
+     comments and git history, so that pair is RETIRED. AUTH_HASH is empty, so check() always fails and
+     the demo stays locked until the owner sets a NEW pair locally with AIQA-02/tools/set_demo_login.py.
      To change: recompute cyrb53(username.toLowerCase().trim()+':'+password) and replace AUTH_HASH below. */
-  var AUTH_HASH='5509931723576402';
+  var AUTH_HASH='';   // AIQA-02: retired; set locally by the owner, never written in a comment
   function cyrb53(str){var h1=0xdeadbeef,h2=0x41c6ce57;for(var i=0,ch;i<str.length;i++){ch=str.charCodeAt(i);
     h1=Math.imul(h1^ch,2654435761);h2=Math.imul(h2^ch,1597334677);}
     h1=Math.imul(h1^(h1>>>16),2246822507);h1^=Math.imul(h2^(h2>>>13),3266489909);
@@ -3216,7 +3218,7 @@ window.V4DEMO=(function(){
     allow:ALLOW_DEMO,
     active:active,
     /* Verify entered credentials against the stored hash. */
-    check:function(u,p){return ALLOW_DEMO && (cyrb53(String(u||'').toLowerCase().trim()+':'+String(p||''))+'')===AUTH_HASH;},
+    check:function(u,p){return ALLOW_DEMO && AUTH_HASH!=='' && (cyrb53(String(u||'').toLowerCase().trim()+':'+String(p||''))+'')===AUTH_HASH;},
     /* Called after a successful login: persist the unlock for this browser session, then reload into the
        demo on a CLEAN url (no ?demo= needed). */
     enter:function(){try{sessionStorage.setItem('acann_demo_on','1');sessionStorage.setItem('acann_demo_hub','1');}catch(e){}try{location.reload();}catch(e){}},
@@ -14466,9 +14468,127 @@ var ROUTE_KEYS=['inhalation_vapor','inhalation_smoked','oral','sublingual','topi
   // ONB-13: optional medications / drug-interaction step in the STANDARD flow. Reuses the demo meds engine
   // (findDdiInteractions + buildCannabisHitsByMol + djMedResults + djRenderMedSearch), but screens against the
   // molecules THIS flow recommends (table-consistent set), and re-renders screen-aware via reRenderMeds().
+  // ── AIQA-02: ONE definition of what the user's THC choice and safety answers do ─────────────
+  // The results screen honoured "Avoid intoxicating THC" and showed the safety cautions, but the
+  // full report / print (printRec) and the full Entourage analysis each re-derived their own
+  // molecule set and never saw either answer — so a user who asked to avoid THC was handed a
+  // report listing Δ9-THC as Primary, without the pregnancy / psychosis / medication cautions.
+  // Every output path now calls these helpers instead of keeping its own copy.
+  var GX_THC_INTOX=['THC9','THC8','THCP'];   // the same three handoffTo() and GX-06 already use
+  function gxThcSplit(mols){   // mols: [{id,w}] → {mols: kept, leftOut: [ids removed]}
+    if(st.ceiling!=='none')return {mols:mols,leftOut:[]};
+    return {mols:mols.filter(function(m){return GX_THC_INTOX.indexOf(m.id)<0;}),
+            leftOut:mols.filter(function(m){return GX_THC_INTOX.indexOf(m.id)>=0;}).map(function(m){return m.id;})};
+  }
+  function gxThcNote(leftOut,nLeft,nPrimary){   // the exclusion sentence, shared by screen and report
+    if(!leftOut.length)return '';
+    var LBL={THC9:'&Delta;9-THC',THC8:'&Delta;8-THC',THCP:'THCP'};
+    var names=GX_THC_INTOX.filter(function(id){return leftOut.indexOf(id)>=0;}).map(function(id){return LBL[id];});
+    names=names.length>1?names.slice(0,-1).join(', ')+' and '+names[names.length-1]:names[0];
+    return 'Based on your preference, '+names+' '+(leftOut.length>1?'have':'has')+
+      ' been left out of these results. The remaining molecules keep their existing evidence tiers.'+
+      (!nLeft
+        ? ' <strong>The published research The Table holds for this topic centres on those molecules, so there is nothing else to show here — which is itself worth knowing.</strong>'
+        : (!nPrimary
+            ? ' <strong>No molecule for this topic meets The Table\'s Primary evidence threshold once they are excluded, so everything below is Supporting.</strong> Nothing has been promoted to fill the gap.'
+            : ''))+
+      ' <strong>This reflects the preference you chose. It is not a guarantee about any particular product &mdash; the product label and COA remain the source of truth.</strong>';
+  }
+  function gxSafetyMsgs(where){   // the safety-check answers as caution sentences, shared by screen and report ('report' | screen)
+    var sf=st.safetyFlags||[], out=[];
+    // AIQA-02 wording (owner 2026-11-08): avoiding intoxicating THC does not make cannabis — CBD-only included — advisable here.
+    if(sf.indexOf('preg')>=0||sf.indexOf('bf')>=0||sf.indexOf('ttc')>=0)
+      out.push('<b>Pregnancy / breastfeeding / trying to conceive:</b> current medical guidance advises avoiding cannabis in these situations, <b>including CBD-only products</b>. Choosing to avoid intoxicating THC does not remove this concern. Please talk with your obstetric provider before using any product.');
+    if(sf.indexOf('resp')>=0)
+      out.push('<b>Respiratory condition:</b> smoking or vaping any product can irritate the airways and may worsen asthma or COPD; research generally favors non-inhaled routes here. Please discuss with your provider.');
+    if(sf.indexOf('cardio')>=0)
+      out.push('<b>Heart / cardiovascular condition:</b> THC can raise heart rate and change blood pressure; published research advises caution with significant cardiovascular disease. Please review with your provider.');
+    if(sf.indexOf('psych')>=0)
+      out.push('<b>Serious mental-health history:</b> research has associated THC with anxiety and, in people with a personal or family history, with triggering or worsening psychosis. Please discuss with your mental-health provider first.');
+    if(sf.indexOf('rx')>=0){
+      // AIQA-02: once the medication check has run, point to its findings instead of sending the user back to it.
+      var _rxHead='<b>Prescription medications:</b> cannabis can interact with some medications';
+      if(st.medsDone&&(st.meds||[]).length)
+        out.push(_rxHead+'. Your medication check is complete &mdash; see the interaction findings '+(where==='report'?'under <b>Medication check</b> later in this report':'under <b>Medication interactions</b> below')+', and review them with your pharmacist or prescriber.');
+      else if(st.medsDone)
+        out.push(_rxHead+', and no medications were entered in the medication check. Please ask your pharmacist or prescriber to review your medicines before using any product.');
+      else
+        out.push(_rxHead+' — use the medications step to screen for interactions and review with your pharmacist or prescriber.');
+    }
+    return out;
+  }
+  // AIQA-02: what the safety answers do — and do not do — to the list, kept apart from the THC preference, which does exclude.
+  function gxCautionScope(){
+    return 'These answers add cautions; they do not change which molecules are listed or how they are ranked.'+
+      (st.ceiling==='none'?' Your choice to avoid intoxicating THC is different: it <b>does</b> remove &Delta;9-THC, &Delta;8-THC and THCP from the list.':'');
+  }
+  // AIQA-02: a safety finding is not a recommendation, and may name a molecule the list left out.
+  function gxFindingsNote(){
+    return '<b>Safety findings are not recommendations.</b> They report published cautions for this topic and may discuss molecules that are not on your list'+
+      (st.ceiling==='none'?', including molecules left out because of your THC preference':'')+'.';
+  }
+  function gxSyncThcExclusions(){   // carry the THC choice into the table and Entourage (was inline in handoffTo)
+    try{
+      if(window._excludedMols){
+        if(st.ceiling==='none'){GX_THC_INTOX.forEach(function(id){if(typeof M!=='undefined'&&M[id])window._excludedMols[id]=true;});}
+        else{GX_THC_INTOX.forEach(function(id){delete window._excludedMols[id];});}
+      }
+    }catch(e){}
+  }
+  // ── AIQA-02 rev 2026.11.08-4: ONE medication summary for Screen 8 and the report ─────────────────
+  // Owner, after device acceptance: "1 cannabis molecule interacts with these medications (none of them linked
+  // to your topic)" was technically true and read as reassurance while the interaction was Major. The summary
+  // now names the medicines, counts each category by severity, names what is involved, and keeps
+  // cannabis–medication separate from medication–medication. Built from the SAME lookups as the details
+  // below it (findDdiInteractions, buildCannabisHitsByMol); no record, severity or grade is changed.
+  var GX_NUMW=['no','one','two','three','four','five','six','seven','eight','nine','ten'];
+  function gxNum(n,cap){var w=n<GX_NUMW.length?GX_NUMW[n]:String(n);return cap?w.charAt(0).toUpperCase()+w.slice(1):w;}
+  function gxList(a){return a.length<=1?a.join(''):a.slice(0,-1).join(', ')+' and '+a[a.length-1];}
+  var GX_SEVORDER=['major','moderate','minor'],GX_SEVLBL={major:'Major',moderate:'Moderate',minor:'Minor'};
+  // Who to see for a Major interaction, beyond the pharmacist and prescriber. Wording only, per medicine id.
+  var GX_SPECIALIST={warfarin:'anticoagulation clinic (if taking warfarin)'};   // rev -5: owner wording
+  // the canonical symbol ("&Delta;9-THC", not the short "THC"): a summary must not blur Δ9-THC with THC in general
+  function gxMolName(id){try{return (typeof M!=='undefined'&&M[id])?(M[id].symbol||M[id].fullName):((G().names||{})[id]||id);}catch(e){return id;}}
+  function gxSevGroups(items,labelOf){   // items:[{sev,...}] → "one Major (x) and two Moderate (y, z)"
+    return gxList(GX_SEVORDER.map(function(sv){var g=items.filter(function(x){return (x.sev||'minor')===sv;});
+      return g.length?gxNum(g.length)+' '+GX_SEVLBL[sv]+' ('+gxList(g.map(labelOf))+')':'';}).filter(Boolean));
+  }
+  function gxMedSummary(meds){
+    meds=meds||[];var mIds=meds.map(function(m){return m.id;});
+    var ddi=(typeof findDdiInteractions==='function')?(findDdiInteractions(mIds)||[]):[];
+    var byM=(typeof buildCannabisHitsByMol==='function')?(buildCannabisHitsByMol(mIds)||{}):{};
+    var multi=meds.length>1,q=meds.filter(diIsReviewed).length?DI_QUALIFIER:'';   // MEDREVIEW-01 qualifier kept
+    var cp=[];Object.keys(byM).forEach(function(mol){(byM[mol]||[]).forEach(function(e){cp.push({sev:e.sev||'minor',mol:mol,drug:medLabel(e)||e.drug||e.id,drugId:e.id});});});
+    var cLbl=function(x){return gxMolName(x.mol)+(multi?' with '+esc(x.drug):'');};
+    var dLbl=function(d){return esc(d.label||(d.drugs||[]).join(' + '));};
+    var s=gxNum(meds.length,true)+' medication'+(meds.length===1?'':'s')+' reviewed: '+gxList(meds.map(function(m){return esc(medLabel(m)||String(m.id));}))+'. ';
+    if(!cp.length) s+='No cannabis–medication interactions identified'+q+'. ';
+    else if(cp.length===1) s+='One '+GX_SEVLBL[cp[0].sev]+' cannabis–medication interaction identified involving '+cLbl(cp[0])+'. ';
+    else s+=gxNum(cp.length,true)+' cannabis–medication interactions identified: '+gxSevGroups(cp,cLbl)+'. ';
+    // "separate" / "Separately," only when cannabis–medication interactions were named first, so the two categories never merge
+    var lead=cp.length?'Separately, ':'',cap=!cp.length;
+    if(!ddi.length) s+='No '+(cp.length?'separate ':'')+'medication–medication interactions identified'+q+'.';
+    else if(ddi.length===1) s+=lead+gxNum(1,cap)+' '+GX_SEVLBL[ddi[0].sev||'minor']+' medication–medication interaction identified ('+dLbl(ddi[0])+').';
+    else s+=lead+gxNum(ddi.length,cap)+' medication–medication interactions identified: '+gxSevGroups(ddi,dLbl)+'.';
+    var majC=cp.filter(function(x){return x.sev==='major';}),majD=ddi.filter(function(d){return d.sev==='major';});
+    var any=cp.length||ddi.length,adv='';
+    if(majC.length||majD.length){
+      var ids={};majC.forEach(function(x){ids[x.drugId]=1;});majD.forEach(function(d){(d.drugs||[]).forEach(function(x){ids[x]=1;});});
+      var spec=Object.keys(ids).filter(function(k){return GX_SPECIALIST[k];}).map(function(k){return GX_SPECIALIST[k];});
+      // rev 2026.11.08-5 (owner, after device testing): shorter, so it no longer wraps awkwardly beside the button
+      // a parenthetical never splits across lines, and the label sits on its own line, so no word is left stranded
+      var who=['pharmacist','prescriber'].concat(spec.map(function(t){return t.replace(/\(([^)]*)\)/g,'<span style="white-space:nowrap">($1)</span>');}));
+      adv='<b>Major interaction:</b><br>Before using cannabis or CBD, consult your '+(who.length>2?who.slice(0,-1).join(', ')+', or '+who[who.length-1]:who.join(' or '))+'.';
+    } else if(any){
+      adv='Please review these interactions with your pharmacist or prescribing clinician before use. Your Product Specialist (Budtender) can help with product questions.';
+    }
+    return {text:s,advice:adv,any:!!any,major:!!(majC.length||majD.length)};
+  }
+  // AIQA-02: under "Avoid intoxicating THC" the excluded molecules are not "your associated molecules\", so their
+  // medication interactions move to "Other cannabis molecules that also interact" — still shown, never dropped.
   function stdRecMolIds(){var condIds=currentCondIds();var dc=SCI_ALIAS[condIds[0]]||condIds[0];
     var cond=(typeof CONDITIONS!=='undefined')?CONDITIONS.find(function(c){return c.id===dc;}):null;
-    if(cond)return Object.keys(cond.molecules).filter(function(id){return typeof M!=='undefined'&&M[id];});
+    if(cond)return Object.keys(cond.molecules).filter(function(id){return typeof M!=='undefined'&&M[id]&&!(st.ceiling==='none'&&GX_THC_INTOX.indexOf(id)>=0);});
     return currentRec().molecules.map(function(m){return m.molId;});}
   function reRenderMeds(){var top=hist[hist.length-1];if(top==='meds')scMeds();else scDJMeds();}
   function scMeds(){
@@ -14554,12 +14674,10 @@ var ROUTE_KEYS=['inhalation_vapor','inhalation_smoked','oral','sublingual','topi
     // same thing; a Δ9-only rule here would have listed Δ8-THC and THCP for a user who asked to be
     // free of them, then removed them one tap later. This is V2's existing software definition, not
     // a claim that these are the only intoxicating molecules in cannabis.
-    var THC_INTOX_GX=['THC9','THC8','THCP'];
-    var thcLeftOut=[];
-    if(st.ceiling==='none'){
-      thcLeftOut=mols.filter(function(m){return THC_INTOX_GX.indexOf(m.id)>=0;}).map(function(m){return m.id;});
-      mols=mols.filter(function(m){return THC_INTOX_GX.indexOf(m.id)<0;});
-    }
+    var THC_INTOX_GX=GX_THC_INTOX;                       // AIQA-02: shared definition
+    var _split=gxThcSplit(mols);
+    var thcLeftOut=_split.leftOut;
+    mols=_split.mols;
     var primary=mols.filter(function(m){return isPrimaryFor(dispCond,m.id,m.w);});      // SCI-04g: evidence-based
     var supporting=mols.filter(function(m){return !isPrimaryFor(dispCond,m.id,m.w);});
     // GX-02: the existing fallback promotes the top molecules when NOTHING meets the Primary
@@ -14616,20 +14734,8 @@ var ROUTE_KEYS=['inhalation_vapor','inhalation_smoked','oral','sublingual','topi
     }
     var thcNote='';
     if(st.ceiling==='none'&&thcLeftOut.length){
-      // fixed canonical labels in canonical order — molNm() returns display names that vary
-      // (Δ9-THC renders as plain "THC"), and this sentence needs to name exactly what was removed.
-      var _THCLBL={THC9:'&Delta;9-THC',THC8:'&Delta;8-THC',THCP:'THCP'};
-      var leftNames=['THC9','THC8','THCP'].filter(function(id){return thcLeftOut.indexOf(id)>=0;})
-        .map(function(id){return _THCLBL[id];});
-      leftNames=leftNames.length>1?leftNames.slice(0,-1).join(', ')+' and '+leftNames[leftNames.length-1]:leftNames[0];
-      thcNote='<p class="gx-hint">Based on your preference, '+leftNames+' '+(thcLeftOut.length>1?'have':'has')+
-        ' been left out of these results. The remaining molecules keep their existing evidence tiers.'+
-        (!mols.length
-          ? ' <strong>The published research The Table holds for this topic centres on those molecules, so there is nothing else to show here — which is itself worth knowing.</strong>'
-          : (!primary.length
-              ? ' <strong>No molecule for this topic meets The Table\'s Primary evidence threshold once they are excluded, so everything below is Supporting.</strong> Nothing has been promoted to fill the gap.'
-              : ''))+
-        ' <strong>This reflects the preference you chose. It is not a guarantee about any particular product &mdash; the product label and COA remain the source of truth.</strong></p>';
+      // fixed canonical labels in canonical order (AIQA-02: sentence now built by gxThcNote, shared with the report)
+      thcNote='<p class="gx-hint">'+gxThcNote(thcLeftOut,mols.length,primary.length)+'</p>';
     } else if(st.ceiling==='min'&&mols.some(function(m){return m.id==='THC9';})){
       thcNote='<p class="gx-hint">You asked to keep the &ldquo;high&rdquo; to a minimum. &Delta;9-THC is still listed because published research links it to your topic. Lower-THC products exist, and which one suits you is a conversation for a pharmacist or your prescriber — <strong>The Table does not advise on amounts.</strong></p>';
     }
@@ -14707,7 +14813,13 @@ var ROUTE_KEYS=['inhalation_vapor','inhalation_smoked','oral','sublingual','topi
       var ddiN=((typeof findDdiInteractions==='function')?findDdiInteractions(mIds):[]).length;
       var byM=(typeof buildCannabisHitsByMol==='function')?buildCannabisHitsByMol(mIds):{};
       var recSet=stdRecMolIds();var recHitN=Object.keys(byM).filter(function(m){return recSet.indexOf(m)>=0;}).length;
-      var anyI=ddiN||recHitN;
+      // AIQA-02: the report has always listed "Other cannabis molecules that also interact" (e.g. CBD ↔ warfarin,
+      // Major), but this summary counted only the topic's molecules — so it showed a green ✓ and "none with
+      // associated molecules" while the same session's report named a Major interaction. The other molecules are
+      // now counted and named here too; cannabis–medication stays separate from drug–drug.
+      var _otherIds=Object.keys(byM).filter(function(m){return recSet.indexOf(m)<0;});
+      var otherN=_otherIds.length;
+      var anyI=ddiN||recHitN||otherN;
       // GX-02: buildCannabisHitsByMol() already returns {molId:[DI_DATA entries]} — the named pairs
       // were computed and then thrown away in favour of a count. A customer told "1 with an
       // associated molecule" cannot act on it; told "Warfarin ↔ CBD" they can. Existing DI_DATA
@@ -14725,23 +14837,23 @@ var ROUTE_KEYS=['inhalation_vapor','inhalation_smoked','oral','sublingual','topi
         return '<div class="gx-medpair"><span class="gx-medpair-sev sev-'+p.sev+'">'+p.sev+'</span>'+
           '<span class="gx-medpair-txt">'+esc(p.drug)+' <span class="gx-medpair-arrow">↔</span> '+molNm(p.mol)+'</span></div>';
       }).join('');
+      var _otherPairs=[];
+      _otherIds.forEach(function(molId){(byM[molId]||[]).forEach(function(e){_otherPairs.push({mol:molId,drug:e.drug||e.id,sev:(e.sev||'minor')});});});
+      _otherPairs.sort(function(a,b){return (_sevRank[b.sev]||0)-(_sevRank[a.sev]||0);});
+      var _otherHtml=otherN?'<div class="gx-medother" style="margin-top:8px"><b>Other cannabis molecules that also interact</b> &mdash; not linked to your topic, but they may be present in some full-spectrum cannabis products:</div>'+
+        _otherPairs.map(function(p){
+          return '<div class="gx-medpair"><span class="gx-medpair-sev sev-'+p.sev+'">'+p.sev+'</span>'+
+            '<span class="gx-medpair-txt">'+esc(p.drug)+' <span class="gx-medpair-arrow">↔</span> '+molNm(p.mol)+'</span></div>';
+        }).join(''):'';
       var _rev=st.meds.filter(diIsReviewed),_revQ=_rev.length?DI_QUALIFIER:'';   // MEDREVIEW-01
-      medSummary='<div class="gx-note gx-medblock" style="margin-top:12px;border-left:3px solid var('+(anyI?'--accent2':'--accent')+')">'+(anyI?'⚠️ ':(_rev.length?'ℹ️ ':'✓ '))+'<b>Medication check</b> — '+st.meds.length+' reviewed: '+(ddiN?ddiN+' drug–drug interaction'+(ddiN>1?'s':''):'no drug–drug interactions'+_revQ)+', '+(recHitN?recHitN+' with an associated molecule'+(recHitN>1?'s':''):'none with associated molecules'+_revQ)+'.'+_pairHtml
-        +_rev.map(function(r){return '<div style="margin-top:6px"><b>'+esc(r.drug)+'</b> — '+DI_REVIEWED_LABEL+'. '+DI_REVIEWED_MSG+'</div>';}).join('')+(anyI?'<div style="margin-top:7px">Please review with your Product Specialist (Budtender) or provider before use. <button class="gx-express-run" onclick="V4GX.close();if(typeof toggleDrugPanel===\'function\')toggleDrugPanel();">See full interaction details</button></div>':'')+'</div>';}
+      var _ms=gxMedSummary(st.meds);   // AIQA-02 rev -4: shared with the report
+      medSummary='<div class="gx-note gx-medblock" style="margin-top:12px;border-left:3px solid var('+(anyI?'--accent2':'--accent')+')">'+(anyI?'⚠️ ':(_rev.length?'ℹ️ ':'✓ '))+'<b>Medication check</b> — '+_ms.text+
+        (_pairHtml?'<div class="gx-medrec" style="margin-top:8px"><b>With molecules linked to your topic:</b></div>'+_pairHtml:'')+_otherHtml
+        +_rev.map(function(r){return '<div style="margin-top:6px"><b>'+esc(r.drug)+'</b> — '+DI_REVIEWED_LABEL+'. '+DI_REVIEWED_MSG+'</div>';}).join('')+(anyI?'<div style="margin-top:7px">'+_ms.advice+'</div><div style="margin-top:6px"><button class="gx-express-run" onclick="V4GX.close();if(typeof toggleDrugPanel===\'function\')toggleDrugPanel();">See full interaction details</button></div>':'')+'</div>';}
     var prefRecap=prefBits.length?'<div class="dj-lbl" style="margin-top:12px">Your preferences</div><div class="gx-chips">'+prefBits.map(function(b){return '<span class="gx-chip">'+b+'</span>';}).join('')+'</div>':'';
     var prefGuide=guide.length?'<ul style="margin:8px 0 0;padding-left:18px;font-size:.72rem;color:var(--dim);line-height:1.6">'+guide.map(function(g){return '<li>'+g+'</li>';}).join('')+'</ul>':'';
-    var sf=st.safetyFlags||[]; var sfMsgs=[];
-    if(sf.indexOf('preg')>=0||sf.indexOf('bf')>=0||sf.indexOf('ttc')>=0)
-      sfMsgs.push('<b>Pregnancy / breastfeeding / trying to conceive:</b> current medical guidance advises avoiding cannabis in these situations. Please talk with your obstetric provider before using any product.');
-    if(sf.indexOf('resp')>=0)
-      sfMsgs.push('<b>Respiratory condition:</b> smoking or vaping any product can irritate the airways and may worsen asthma or COPD; research generally favors non-inhaled routes here. Please discuss with your provider.');
-    if(sf.indexOf('cardio')>=0)
-      sfMsgs.push('<b>Heart / cardiovascular condition:</b> THC can raise heart rate and change blood pressure; published research advises caution with significant cardiovascular disease. Please review with your provider.');
-    if(sf.indexOf('psych')>=0)
-      sfMsgs.push('<b>Serious mental-health history:</b> research has associated THC with anxiety and, in people with a personal or family history, with triggering or worsening psychosis. Please discuss with your mental-health provider first.');
-    if(sf.indexOf('rx')>=0)
-      sfMsgs.push('<b>Prescription medications:</b> cannabis can interact with some medications — use the medications step to screen for interactions and review with your pharmacist or prescriber.');
-    var safetyNote=sfMsgs.length?'<div class="gx-note" style="margin-top:12px;border-left:3px solid var(--accent2)"><b>A few things to review with a healthcare professional first.</b><ul style="margin:6px 0 0;padding-left:18px;line-height:1.55">'+sfMsgs.map(function(m){return '<li>'+m+'</li>';}).join('')+'</ul></div>':'';
+    var sfMsgs=gxSafetyMsgs('screen');   // AIQA-02: shared with the report, so the two can never differ
+    var safetyNote=sfMsgs.length?'<div class="gx-note" style="margin-top:12px;border-left:3px solid var(--accent2)"><b>A few things to review with a healthcare professional first.</b><ul style="margin:6px 0 0;padding-left:18px;line-height:1.55">'+sfMsgs.map(function(m){return '<li>'+m+'</li>';}).join('')+'</ul><p style="margin:6px 0 0">'+gxCautionScope()+'</p></div>':'';
     // ── Optional Entourage Effect teaser (collapsed) ─────────────────────────────
     // Educational only; does NOT change the recommendation. Reuses the SAME condition + molecule scoring as
     // the Periodic Table and the full Entourage analysis, and respects Refine Inventory Match (_excludedMols),
@@ -14816,6 +14928,7 @@ var ROUTE_KEYS=['inhalation_vapor','inhalation_smoked','oral','sublingual','topi
     // a caution the reader has to scroll past the recommendation to find is not a caution.
     var condSafety='';
     try{ if(cond && typeof buildConditionSafetyHTML==='function') condSafety=buildConditionSafetyHTML(cond)||''; }catch(e){}
+    if(condSafety) condSafety='<p class="gx-hint gx-findings-note" style="margin:10px 0 4px">'+gxFindingsNote()+'</p>'+condSafety;   // AIQA-02
     // GX-02: three kinds of information share this screen and previously shared one visual
     // treatment, so a customer could not tell a molecule recommendation from a caution from an
     // interaction. Restrained labelling only — no redesign. Cautions stay ABOVE the molecules,
@@ -15387,6 +15500,7 @@ var ROUTE_KEYS=['inhalation_vapor','inhalation_smoked','oral','sublingual','topi
       var condLabel=cond?cond.label:'your selection';
       function molNm(id){return G().names[id]||((typeof M!=='undefined'&&M[id])?(M[id].fullName||M[id].symbol):id);}
       var mols=cond?Object.keys(cond.molecules).filter(function(id){return typeof M!=='undefined'&&M[id];}).map(function(id){return {id:id,w:cond.molecules[id]};}).sort(function(a,b){return b.w-a.w;}):[];
+      var _rs=gxThcSplit(mols);mols=_rs.mols;   // AIQA-02: the report honours "Avoid intoxicating THC" exactly as the screen does
       var primary=mols.filter(function(m){return isPrimaryFor(dc,m.id,m.w);}),supporting=mols.filter(function(m){return !isPrimaryFor(dc,m.id,m.w);});   // SCI-04g: no promotion
       // UX-69: the evidence score used to sit immediately after the molecule name — "THC 9",
       // "THCA 8". In cannabinoid nomenclature a trailing number IS part of the name, so that
@@ -15417,7 +15531,20 @@ var ROUTE_KEYS=['inhalation_vapor','inhalation_smoked','oral','sublingual','topi
             +' &middot; Overall research grade &mdash; all topics: '+mm.evidence+'</span>':'')+'</td><td class="pt-mol-score">'+m.w+'</td></tr>';
         }).join('');
       }
-      var body='<div class="pt-print-sec"><h3>Associated molecules — '+esc(condLabel)+'</h3>'+
+      // AIQA-02: the cautions the screen shows ABOVE the molecules (UX-109) now lead the report too:
+      // the user's safety-check answers, the topic's own safety findings, and any check that was skipped.
+      var _sfm=gxSafetyMsgs('report'),_cs='';
+      try{ if(cond && typeof buildConditionSafetyHTML==='function') _cs=(buildConditionSafetyHTML(cond)||'').replace(/<a href="https:\/\/pubmed/g,'<a class="pt-pmid" href="https://pubmed'); }catch(e){}
+      var _pend=[];if(st.expressed&&!st.safetyDone)_pend.push('the safety check (for example pregnancy, a heart condition, or a history of psychosis)');if(st.expressed&&!st.medsDone)_pend.push('the medication check');
+      var body='';
+      if(_sfm.length||_cs||_pend.length){
+        body+='<div class="pt-print-sec pt-safety"><h3>Safety cautions</h3>'+
+          (_sfm.length?'<p class="pt-print-p"><b>A few things to review with a healthcare professional first.</b></p><ul style="margin:0 0 6px;padding-left:18px;font-size:.8rem;line-height:1.55">'+_sfm.map(function(m){return '<li>'+m+'</li>';}).join('')+'</ul><p class="pt-print-p">'+gxCautionScope()+'</p>':'')+
+          (_pend.length?'<p class="pt-print-p"><b>Not checked:</b> you chose the quick route, so '+_pend.join(' and ')+' '+(_pend.length>1?'were':'was')+' not run. These may identify important cautions or interactions.</p>':'')+
+          (_cs?'<p class="pt-print-p pt-findings-note">'+gxFindingsNote()+'</p><div style="font-size:.78rem;line-height:1.55">'+_cs+'</div>':'')+'</div>';
+      }
+      body+='<div class="pt-print-sec"><h3>Associated molecules — '+esc(condLabel)+'</h3>'+
+        (_rs.leftOut.length?'<p class="pt-print-p pt-thc-excl">'+gxThcNote(_rs.leftOut,mols.length,primary.length)+'</p>':'')+   // AIQA-02: stated above the table it describes
         '<table class="pt-mol-tbl"><thead><tr><th>Molecule</th><th class="pt-mol-score">Evidence score (1&ndash;10)</th></tr></thead><tbody>'+
         (primary.length?'<tr class="pt-mol-grp"><td colspan="2">Primary</td></tr>'+molRows(primary):'<tr class="pt-mol-grp"><td colspan="2">'+NO_PRIMARY_NOTE+'</td></tr>')+
         (supporting.length?'<tr class="pt-mol-grp"><td colspan="2">Supporting</td></tr>'+molRows(supporting):'')+
@@ -15426,9 +15553,11 @@ var ROUTE_KEYS=['inhalation_vapor','inhalation_smoked','oral','sublingual','topi
         '<b>Evidence score (1&ndash;10)</b> indicates the relative strength of the published research '+
         'supporting the association between the molecule and the selected health topic. '+
         'It is not a dose, a potency, or a product recommendation. A score of 8&ndash;10 does not by itself mean strong clinical evidence: '+
-        'Primary requires human evidence and is shown with its limits; every other molecule is Supporting.</div></div>';
+        'Primary requires human evidence and is shown with its limits; every other molecule is Supporting.</div>'+
+        (st.ceiling==='min'&&mols.some(function(m){return m.id==='THC9';})?'<p class="pt-print-p">You asked to keep the &ldquo;high&rdquo; to a minimum. &Delta;9-THC is still listed because published research links it to your topic. Lower-THC products exist, and which one suits you is a conversation for a pharmacist or your prescriber &mdash; <strong>The Table does not advise on amounts.</strong></p>':'')+   // AIQA-02: the screen's note, carried over
+        '</div>';
       var prefBits=[];
-      var ceilMap={none:'Prefer to avoid THC effects',low:'Comfortable with some THC effects',any:'THC effects not a deciding factor'};
+      var ceilMap={none:'Prefer to avoid THC effects',min:'Keep the “high” to a minimum',low:'Comfortable with some THC effects',any:'THC effects not a deciding factor'};   // AIQA-02: 'min' was silently dropped
       if(st.ceiling&&ceilMap[st.ceiling])prefBits.push('THC preference — '+ceilMap[st.ceiling]);
       if(st.experience)prefBits.push('Experience — '+({'new':'New to cannabis',some:'Some experience',exp:'Experienced'}[st.experience]||st.experience));
       if(st.timeOfDay)prefBits.push('Time of day — '+({day:'Daytime',evening:'Evening',any:'Anytime'}[st.timeOfDay]||st.timeOfDay));
@@ -15451,9 +15580,8 @@ var ROUTE_KEYS=['inhalation_vapor','inhalation_smoked','oral','sublingual','topi
         function detRow(lbl,val){return val?'<div style="font-size:.75rem;margin:1px 0"><b>'+lbl+':</b> '+val+'</div>':'';}
         // Summary (lead-in) — counts reflect exactly what is listed below, plus the reviewed medication list.
         var prRev=st.meds.filter(diIsReviewed),prQ=prRev.length?DI_QUALIFIER:'';   // MEDREVIEW-01
-        body+='<div class="pt-print-sec"><h3>Medication check</h3><div style="font-size:.8rem;line-height:1.6">'+st.meds.length+' medication'+(st.meds.length>1?'s':'')+' reviewed: '+
-          (ddiN?ddiN+' drug–drug interaction'+(ddiN>1?'s':''):'no drug–drug interactions'+prQ)+'; '+
-          (totalMolN?totalMolN+' cannabis molecule'+(totalMolN>1?'s':'')+' interact'+(totalMolN>1?'':'s')+' with these medications'+(recHitN?' ('+recHitN+' linked to your topic)':' (none of them linked to your topic)'):'no cannabis–medication interactions'+prQ)+'. Please review with your Product Specialist (Budtender) or provider before use.</div>'+
+        var _ms=gxMedSummary(st.meds);   // AIQA-02 rev -4: the same summary sentence and advice as Screen 8
+        body+='<div class="pt-print-sec"><h3>Medication check</h3><div style="font-size:.8rem;line-height:1.6">'+_ms.text+(_ms.advice?'<div class="pt-med-advice" style="margin-top:4px">'+_ms.advice+'</div>':'')+'</div>'+
           '<div style="font-size:.72rem;color:#555 !important;margin-top:4px">Medications reviewed: '+st.meds.map(function(m){return esc(medLabel(m)||String(m.id));}).join(', ')+'.</div>'+
           prRev.map(function(r){return '<div style="font-size:.72rem;margin-top:4px"><b>'+esc(r.drug)+'</b> — '+DI_REVIEWED_LABEL+'. '+DI_REVIEWED_MSG+'</div>';}).join('')+'</div>';
         // Detailed drug–drug interactions (each card can break across pages on its own).
@@ -15608,18 +15736,15 @@ if(typeof PT_individualResponse==='function')body+=PT_individualResponse();   //
     seeScience:function(){this.handoffTo(currentCondIds()[0]);},
     // Open the full Entourage Effect analysis scoped to this session's condition. The Guided overlay stays
     // open underneath (Entourage overlay is z-index 9100 > gxOverlay 9000), so closing it returns here.
-    entourage:function(){var ids=currentCondIds();var c=SCI_ALIAS[ids[0]]||ids[0];try{if(typeof showEntourage==='function')showEntourage(c);}catch(e){}},
+    // AIQA-02: the full analysis honours _excludedMols, but only handoffTo() wrote the THC choice into it — so opening
+    // Entourage from Guided Match showed Δ9-THC in combinations for a user who asked to avoid it. Same sync here.
+    entourage:function(){var ids=currentCondIds();var c=SCI_ALIAS[ids[0]]||ids[0];gxSyncThcExclusions();try{if(typeof showEntourage==='function')showEntourage(c);}catch(e){}},
     seeAlso:function(c){this.handoffTo(c);},
     // GX-10: shared hand-off into the Periodic Table. Carries the guided THC preference through as Refine Inventory
     // Match exclusions — deterministic for the 3 intoxicants (Δ9-THC, Δ8-THC, THCP), and non-destructive to any
     // other molecules an operator excluded. "A little"/"any" clears these 3 so the choice is authoritative.
     handoffTo:function(c){c=SCI_ALIAS[c]||c;
-      try{var THC_INTOX=['THC9','THC8','THCP'];
-        if(window._excludedMols){
-          if(st.ceiling==='none'){THC_INTOX.forEach(function(id){if(typeof M!=='undefined'&&M[id])window._excludedMols[id]=true;});}
-          else{THC_INTOX.forEach(function(id){delete window._excludedMols[id];});}
-        }
-      }catch(e){}
+      gxSyncThcExclusions();   // AIQA-02: same rule as before (THC_INTOX), now shared with entourage()
       this.close();
       try{if(typeof selectCondition==='function')selectCondition(c);}catch(e){}}
   };
@@ -16071,7 +16196,7 @@ body.no-button-flex .mtb-btn>*{display:inline-block;vertical-align:middle}
     <div class="fb-privacy">&#128274; <b>Do not enter any personal health information.</b> No names, dates of birth, phone numbers or details about you or anyone else &mdash; and nothing about your own diagnosis or treatment.<br>
       <b>Enter only the name</b> of the medication or health condition.<br>
       <b>Spelling does not need to be perfect.</b> Our reviewers will recognize and verify what you meant before anything is added to The Table.<br>
-      <span class="fb-privacy-fine">Suggestions are anonymous, are stored for staff review only, and nothing you submit appears in The Table until a reviewer has checked it.</span></div>
+      <span class="fb-privacy-fine">Suggestions are saved only in this browser, on this device. They are not currently sent to Acannability, and staff review is not yet available. Anyone with access to this device&rsquo;s browser could read them, so do not include identifying details, medication lists or sensitive health information. Nothing you submit appears in The Table until a reviewer has checked it.</span></div>
     <div id="fbErr" class="fb-err" role="alert" hidden></div>
     <div class="fb-actions">
       <button type="button" class="fb-btn ghost" onclick="Feedback.close()">Cancel</button>
@@ -16138,8 +16263,14 @@ window.Feedback = (function(){
   var KEY = 'acann_feedback_v1';          // fixed, NOT demo-namespaced: one store, staff sees all
   var MAX = 500;                          // cap stored entries (drop oldest beyond this)
   var PURGE_DAYS = 30;                    // auto-purge submissions older than this
-  var ADMIN_USER = 'acannadmin';         // temp creds pending owner approval (see security note above)
-  var AUTH_HASH  = '882482690860192';    // cyrb53('acannadmin:AcannFeedback2026!')
+  // AIQA-02 (8 Nov 2026): the staff username/password were published in this public file and its git
+  // history, and a client-side password can never protect kiosk feedback (anyone with the file can
+  // bypass it). The staff review console is therefore DISABLED until genuine (server-side) access
+  // control exists. Feedback is still accepted and kept on the device exactly as before; nothing is
+  // deleted. No credential is stored here any more.
+  var STAFF_CONSOLE_ENABLED = false;
+  var ADMIN_USER = '';
+  var AUTH_HASH  = '';
   /* ── FEED-02 SYNC SCAFFOLD (flag-off; document/dev only, NOT deployed) ──────────────
      With SYNC_ENABLED=false this is a COMPLETE NO-OP: no network, no behavior change —
      the box is byte-for-byte Phase 1 (local capture + console + export). When the owner
@@ -16407,6 +16538,10 @@ window.Feedback = (function(){
 
   /* ---- staff sign-in ---- */
   function openLogin(){
+    // AIQA-02: with the console disabled, live kiosks never open it. In Demo Mode (already behind the demo
+    // sign-in) the console shows only that session's demonstration queue, held in sessionStorage — never
+    // real kiosk feedback — so it stays available there without a second, client-side password.
+    if(!STAFF_CONSOLE_ENABLED){ if(sessionMode()){_authed=true;_filter='all';renderAdmin();var dv=document.getElementById('fbAdmOv');if(dv)dv.classList.add('open');} return; }
     var ov=document.getElementById('fbLoginOv'); if(!ov)return;
     document.getElementById('fbUser').value='';
     document.getElementById('fbPass').value='';
@@ -16417,6 +16552,7 @@ window.Feedback = (function(){
   function closeLogin(){var ov=document.getElementById('fbLoginOv'); if(ov)ov.classList.remove('open');}
   function login(ev){
     if(ev&&ev.preventDefault)ev.preventDefault();
+    if(!STAFF_CONSOLE_ENABLED||!ADMIN_USER||!AUTH_HASH)return false;   // AIQA-02: no credential exists; never authenticates
     var u=(document.getElementById('fbUser').value||'').toLowerCase().trim();
     var p=document.getElementById('fbPass').value||'';
     if(u===ADMIN_USER && (cyrb53(u+':'+p)+'')===AUTH_HASH){
@@ -16532,7 +16668,7 @@ window.Feedback = (function(){
   function setNote(id, v){ if(!_authed)return; patch(id,{review_note:String(v||'').slice(0,200)}); }
   // UX-106: keeps the visitor's original wording in item_original the first time it is corrected,
   // so an edit can never quietly destroy what was actually submitted.
-  function setItem(id, v){
+  function setItem(id, v){if(!_authed)return;   /* AIQA-02 */
     if(!_authed)return;
     v=String(v||'').trim().slice(0,120); if(!v)return;
     var arr=load();
@@ -16556,8 +16692,8 @@ window.Feedback = (function(){
   }
   function stamp(){var d=new Date();function p(n){return(n<10?'0':'')+n;}
     return d.getFullYear()+p(d.getMonth()+1)+p(d.getDate())+'_'+p(d.getHours())+p(d.getMinutes());}
-  function exportJSON(){download('phytotable_feedback_'+stamp()+'.json','application/json',JSON.stringify(load(),null,2));}
-  function exportCSV(){
+  function exportJSON(){if(!_authed)return;   /* AIQA-02 */ download('phytotable_feedback_'+stamp()+'.json','application/json',JSON.stringify(load(),null,2));}
+  function exportCSV(){if(!_authed)return;   /* AIQA-02 */
     var arr=load();
     // UX-101: status and reviewer note travel with the export, so triage done on the kiosk is not
     // lost the moment the queue is pulled into a spreadsheet.
@@ -16576,7 +16712,7 @@ window.Feedback = (function(){
      is that shortlist — accepted items only, deduplicated by category+name (the same medication
      gets suggested by many people), with a count so the most-requested rise to the top. Opens
      directly in Excel. */
-  function exportApproved(){
+  function exportApproved(){if(!_authed)return;   /* AIQA-02 */
     var arr=load().filter(function(e){return (e.status||'new')==='accepted';});
     if(!arr.length){alert('Nothing is marked "Accepted — research it" yet. Triage some submissions first.');return;}
     var byKey={};
@@ -16597,7 +16733,7 @@ window.Feedback = (function(){
       q(r.first),q(r.last),q(r.notes.join(' | '))].join(','));});
     download('v2_approved_for_review_'+stamp()+'.csv','text/csv','﻿'+lines.join('\r\n'));
   }
-  function clearAll(){
+  function clearAll(){if(!_authed)return;   /* AIQA-02 */
     // UX-110: in demonstration mode nothing is stored on the device, so the old warning would have
     // been false; and the demo queue must be cleared from sessionStorage, not localStorage.
     if(sessionMode()){
@@ -16617,7 +16753,9 @@ window.Feedback = (function(){
     if(document.getElementById('fbOv').classList.contains('open')){close();return;}
   });
   // ?feedback-admin deep-link OPENS the sign-in (never bypasses it)
-  try{if(/[?&]feedback-admin=1(&|$)/.test(location.search||''))setTimeout(openLogin,400);}catch(e){}
+  try{if(STAFF_CONSOLE_ENABLED&&/[?&]feedback-admin=1(&|$)/.test(location.search||''))setTimeout(openLogin,400);}catch(e){}
+  // AIQA-02: outside Demo Mode the "Staff review" link is hidden while the console is disabled.
+  try{if(!STAFF_CONSOLE_ENABLED&&!sessionMode()){var _sl=document.querySelectorAll('.fb-staff-link');for(var _si=0;_si<_sl.length;_si++){_sl[_si].style.display='none';var _sp=_sl[_si].nextElementSibling;if(_sp&&_sp.tagName==='SPAN')_sp.style.display='none';}}}catch(e){}
 
   // FEED-02 init — wire retry triggers ONLY when sync is actually configured (else nothing runs).
   // The initial flush also migrates any pre-existing Phase-1 entries the first time sync goes live.
