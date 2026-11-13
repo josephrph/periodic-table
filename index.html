@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta name="v2-build" content="2026.11.08-5"><meta name="viewport" content="width=device-width, initial-scale=1">
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta name="v2-build" content="2026.11.12-4"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The Table &middot; Acannability&rsquo;s Cannabis Periodic Table of Molecules&trade;</title>
 <style>
 :root {
@@ -337,6 +337,9 @@ body.is-mobile-view.is-touch-device #imDoneBtn{right:10px;bottom:calc(56px + env
 .cite-base{font-size:.56rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#906800;margin-left:6px}
 /* SCI-03: what a citation can support (role / compound / design / finding), and the show-all control */
 /* SCI-04g: Primary scope qualifier */
+/* AIQA-03: "About this evidence" box (Guided Match nausea routes) and the table hand-off note */
+.aq3-box{font-size:.72rem;line-height:1.6;color:var(--text);background:var(--surface);border-left:3px solid var(--accent2);border-radius:5px;padding:9px 12px;margin:8px 0 10px}
+.aq3-box .aq3-hd{font-weight:700;margin-bottom:4px}.aq3-box p{margin:0 0 6px}.aq3-box p:last-child{margin-bottom:0}
 .pq-note{font-size:.66rem;line-height:1.5;color:var(--dim);background:var(--surface2);border-left:3px solid var(--accent2);padding:6px 9px;margin:6px 0 8px;border-radius:4px}
 .cite-qual{font-size:.58rem;font-weight:700;color:var(--dim);background:var(--surface2);border-left:2px solid var(--mute);padding:2px 6px;margin:3px 0 2px;border-radius:3px;line-height:1.4}
 .cite-more[hidden]{display:none}
@@ -2576,7 +2579,7 @@ body.is-mobile-view .panel.panel-condensed .panel-sym{font-size:1.05rem}
       <div style="font-family:Georgia,serif;font-size:.95rem;color:var(--accent);letter-spacing:.06em">Acannability<sup style="font-size:.5rem;font-family:system-ui,sans-serif">™</sup> © 2026</div>
       <div style="font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);margin-top:2px">Acannability&rsquo;s Cannabis Periodic Table of Molecules&trade;</div>
       <!-- RELEASE-01 (owner-approved 2026-10-26): unique identifier of each approved release; see V4 Build/Release_Records. Guard 47. -->
-      <div id="buildId" style="font-size:.55rem;letter-spacing:.04em;color:var(--mute);margin-top:6px;opacity:.8">Build 2026.11.08-5</div>
+      <div id="buildId" style="font-size:.55rem;letter-spacing:.04em;color:var(--mute);margin-top:6px;opacity:.8">Build 2026.11.12-4</div>
     </div>
     <div style="flex:1;min-width:280px;max-width:700px;font-size:.62rem;color:var(--mute);line-height:1.6">
       <strong style="color:var(--dim);font-size:.62rem;letter-spacing:.06em;text-transform:uppercase">Disclaimer</strong><br>
@@ -4061,7 +4064,7 @@ const ADVERSE_FINDINGS = {
       evidence: 'A',
       summary: 'In a human study that measured drug levels directly, patients with <strong>CKD stage 4 or 5</strong> reached <strong>higher total &Delta;9-THC exposure than healthy controls given exactly the same dose</strong>.<br><br>Median area under the curve for &Delta;9-THC was <strong>2.76</strong> (IQR 1.77&ndash;3.48) h&times;ng/ml in controls, <strong>4.16</strong> (3.35&ndash;5.28) at CKD stage 4 and <strong>4.31</strong> (3.16&ndash;5.42) at stage 5 &mdash; significantly higher in both CKD groups. Peak concentration and urinary metabolite excretion also differed significantly.<br><br>At 1.5&nbsp;hours, self-rated <strong>dizziness</strong> was significantly higher in both CKD groups than in controls (mean numeric rating 0.7 at stage 4 and 1.5 at stage 5, versus 0.1).<br><br><strong>The practical point.</strong> A dose that is unremarkable for someone with normal kidney function can deliver more drug in advanced kidney disease, and the effect people noticed was light-headedness &mdash; which matters most in a group already at risk of falls. <em>Medicinal cannabis is already advised against in severe CKD; this study set out to measure what had not previously been characterised.</em> Anyone with advanced kidney disease should raise any cannabis or CBD product with the clinician managing their kidney care before starting, stopping or changing it.<br><br><strong>What the grade A attaches to.</strong> <em>Grade A here describes one thing: the <strong>directly measured drug exposure</strong> in this study. Exposure was measured, not reported or inferred, which is why it carries the highest grade. <strong>It does not grade the broader statement that &ldquo;advanced CKD makes cannabis more dangerous&rdquo;</strong> &mdash; that is an inference this study was not designed to test, and no clinical outcome such as a fall, an injury or a hospital visit was measured. The dizziness scores are graded lower in practice: the study was <strong>nonrandomized and unblinded</strong>, and dizziness was self-rated on a numeric scale, so participants and investigators knew who had kidney failure.</em><br><br><strong>The limits of what was studied, stated exactly.</strong> A <strong>single dose</strong> of one <strong>oromucosal spray product</strong> (Sativex, 5.4&nbsp;mg &Delta;9-THC with 5&nbsp;mg CBD). <strong>29 patients, all at CKD stage 4 or 5</strong>, against 20 healthy controls. <em><strong>It says nothing about CKD stages 1&ndash;3</strong>, nothing about repeated or long-term dosing, nothing about inhaled, edible or high-dose CBD products, and nothing about dialysis timing. Intersubject variability was high, so these medians do not predict any individual&rsquo;s exposure.</em> <strong>Nothing here suggests cannabis treats chronic kidney disease.</strong> No molecule in this platform is linked to CKD as a treatment, and no such claim is made.',
       citations: [
-        {type:'Clin', authors:'Kjeldsen SAS, et al.', year:'2025', title:'Pharmacokinetics and Side Effects of &Delta;9-Tetrahydrocannabinol and Cannabidiol in Patients with Different Stages of CKD', journal:'Kidney Int Rep', vol:'10(4):1064-1074', pmid:'40225360'}
+        {type:'Clin', authors:'Sønderskov MB, et al.', year:'2025', title:'Pharmacokinetics and Side Effects of &Delta;9-Tetrahydrocannabinol and Cannabidiol in Patients with Different Stages of CKD', journal:'Kidney Int Rep', vol:'10(3):707-719', pmid:'40225360'}
       ]
     },
     {
@@ -4070,8 +4073,8 @@ const ADVERSE_FINDINGS = {
       evidence: 'B',
       summary: 'An earlier version of this table listed <strong>&ldquo;Organ Transplant Anti-Rejection&rdquo;</strong> as an indication for &Delta;9-THC. <strong>That claim had no citation behind it and has been removed</strong>, because the human evidence points the other way.<br><br><strong>What the human data show.</strong> In a single-centre cohort of 3,734 patients referred for kidney transplant, of whom 2,091 were transplanted, reported cannabis use was associated with a <strong>higher rate of biopsy-proven acute rejection (adjusted HR 1.55, 95% CI 1.06&ndash;2.27)</strong> and a <strong>lower likelihood of being cleared for transplant (adjusted HR 0.82, 95% CI 0.72&ndash;0.94)</strong>. Death-censored graft failure was elevated but did not reach significance (aHR 1.60, 95% CI 0.95&ndash;2.72), and total graft failure, death with a functioning graft and first-year readmission were not significantly different. A separate meta-analysis of four cohorts covering <strong>55,897 kidney transplant recipients</strong> found cannabis use significantly associated with <strong>death-censored graft failure (pooled OR 1.72, 95% CI 1.13&ndash;2.60)</strong>, with no significant association for all-cause allograft failure or mortality.<br><br><strong>What this is and is not.</strong> Both are <strong>observational</strong>, which is why this entry is graded B. They cannot establish that cannabis causes rejection &mdash; use may track with other factors that affect adherence and outcomes, and the meta-analysis itself reported wide prevalence estimates. <em>They are, however, the best human evidence available, they point consistently in one direction, and nothing in the literature supports the opposite claim.</em><br><br><strong>The separate and better-established concern is pharmacokinetic.</strong> CBD raises tacrolimus exposure several-fold through CYP3A4 and P-glycoprotein &mdash; measured in people, and recorded in this platform as a <strong>major</strong> interaction. Anyone with a transplant should treat any cannabis or CBD product as something the transplant team needs to know about before it is started, stopped or changed.<br><br><em>One preclinical study reported that a CB2-selective synthetic agonist reduced skin-graft rejection in mice. That is a different molecule, a different organ and a different species, and it does not support a human claim for &Delta;9-THC.</em>',
       citations: [
-        {type:'Obs', authors:'Ruiz JC, et al.', year:'2024', title:'Cannabis use is associated with reduced access to kidney transplantation and an increased risk of acute rejection post-transplant', journal:'Clin Transplant', vol:'38(3):e15268', pmid:'38375934'},
-        {type:'Meta', authors:'Kaewput W, Thongprayoon C, et al.', year:'2021', title:'Epidemiology of cannabis use and associated outcomes among kidney transplant recipients: A meta-analysis', journal:'J Evid Based Med', vol:'14(2):124-132', pmid:'32558277'}
+        {type:'Obs', authors:'Rodríguez-Ramírez S, et al.', year:'2024', title:'Cannabis use is associated with reduced access to kidney transplantation and an increased risk of acute rejection post-transplant', journal:'Clin Transplant', vol:'38(2):e15264', pmid:'38375934'},
+        {type:'Meta', authors:'Vaitla PK, Thongprayoon C, et al.', year:'2021', title:'Epidemiology of cannabis use and associated outcomes among kidney transplant recipients: A meta-analysis', journal:'J Evid Based Med', vol:'14(2):90-96', pmid:'32558277'}
       ]
     },
     {
@@ -4106,7 +4109,7 @@ const ADVERSE_FINDINGS = {
       title: 'Cannabinoid Hyperemesis Syndrome',
       condition: 'Antiemetic / Nausea',
       evidence: 'B',
-      summary: 'Chronic, heavy THC-dominant cannabis use is associated with a paradoxical syndrome of cyclic vomiting and abdominal pain (CHS) &mdash; the inverse of THC&rsquo;s typical antiemetic effect &mdash; classically relieved by hot showers/bathing and resolving with cannabis cessation. A systematic review of 183 published reports found a history of regular cannabis use in <strong>100&#37;</strong> of cases and cyclic nausea and vomiting in <strong>100&#37;</strong>, with resolution of symptoms after stopping cannabis in <strong>96.8&#37;</strong>, compulsive hot bathing in <strong>92.3&#37;</strong>, abdominal pain in <strong>85.1&#37;</strong> and at least weekly use in <strong>97.4&#37;</strong>. <em>Those figures describe the exposure relationship. They are not evidence that any molecule treats the syndrome &mdash; no cannabis molecule has any treatment evidence for CHS, and the published management literature is entirely non-cannabis.</em>',
+      summary: 'Chronic, heavy THC-dominant cannabis use is associated with a paradoxical syndrome of cyclic vomiting and abdominal pain (CHS) &mdash; the inverse of THC&rsquo;s typical antiemetic effect &mdash; classically relieved by hot showers/bathing and resolving with cannabis cessation. A systematic review of 183 published articles found a history of regular cannabis use in <strong>100&#37;</strong> of cases and cyclic nausea and vomiting in <strong>100&#37;</strong>, with resolution of symptoms after stopping cannabis in <strong>96.8&#37;</strong>, compulsive hot bathing in <strong>92.3&#37;</strong>, abdominal pain in <strong>85.1&#37;</strong> and at least weekly use in <strong>97.4&#37;</strong>. <em>Those figures describe the link between cannabis use and the syndrome; they are not evidence that any molecule treats it. The Table cites no evidence that any cannabis molecule treats CHS. The reviews it cites identify stopping cannabis as the treatment that appears most effective, with supportive care &mdash; such as fluids, certain anti-nausea medicines and topical capsaicin &mdash; for acute episodes.</em>',
       citations: [
         // CHS-01: added so the grade B rests on a GRADE-assessed systematic review rather than on a
         // single narrative review in adolescents. Grade stays B — the underlying literature is still
@@ -4187,7 +4190,7 @@ const ADVERSE_FINDINGS = {
       evidence: 'A',
       summary: 'The same human study measured <strong>CBD</strong> alongside &Delta;9-THC. Exposure to <strong>CBD and its metabolites</strong>, peak concentration, and <strong>urinary excretion of metabolites</strong> all differed significantly between patients with <strong>CKD stage 4 or 5</strong> and healthy controls given the same single dose.<br><br><em><strong>Read this narrowly.</strong> The study reported that CBD and metabolite pharmacokinetics <strong>differed</strong>; the headline exposure figures quoted in this platform are the &Delta;9-THC ones, and the CBD finding should not be restated as a specific multiple. What it establishes is that <strong>kidney function changes how much of these molecules is present and how they are cleared</strong> &mdash; for CBD as well as for &Delta;9-THC.</em><br><br>CBD was given here as part of a <strong>combination oromucosal spray at 5&nbsp;mg</strong>, far below the doses used in epilepsy or sold for pain and sleep. <em>Nothing in this study addresses high-dose oral CBD in kidney disease, and CBD carries its own separate liver-enzyme and drug-interaction cautions recorded elsewhere in this platform.</em><br><br><strong>What the grade A attaches to.</strong> <em>Grade A here describes one thing: the <strong>directly measured drug exposure</strong> in this study. Exposure was measured, not reported or inferred, which is why it carries the highest grade. <strong>It does not grade the broader statement that &ldquo;advanced CKD makes cannabis more dangerous&rdquo;</strong> &mdash; that is an inference this study was not designed to test, and no clinical outcome such as a fall, an injury or a hospital visit was measured. The dizziness scores are graded lower in practice: the study was <strong>nonrandomized and unblinded</strong>, and dizziness was self-rated on a numeric scale, so participants and investigators knew who had kidney failure.</em><br><br><strong>The limits of what was studied, stated exactly.</strong> A <strong>single dose</strong> of one <strong>oromucosal spray product</strong> (Sativex, 5.4&nbsp;mg &Delta;9-THC with 5&nbsp;mg CBD). <strong>29 patients, all at CKD stage 4 or 5</strong>, against 20 healthy controls. <em><strong>It says nothing about CKD stages 1&ndash;3</strong>, nothing about repeated or long-term dosing, nothing about inhaled, edible or high-dose CBD products, and nothing about dialysis timing. Intersubject variability was high, so these medians do not predict any individual&rsquo;s exposure.</em> <strong>Nothing here suggests cannabis treats chronic kidney disease.</strong> No molecule in this platform is linked to CKD as a treatment, and no such claim is made.',
       citations: [
-        {type:'Clin', authors:'Kjeldsen SAS, et al.', year:'2025', title:'Pharmacokinetics and Side Effects of &Delta;9-Tetrahydrocannabinol and Cannabidiol in Patients with Different Stages of CKD', journal:'Kidney Int Rep', vol:'10(4):1064-1074', pmid:'40225360'}
+        {type:'Clin', authors:'Sønderskov MB, et al.', year:'2025', title:'Pharmacokinetics and Side Effects of &Delta;9-Tetrahydrocannabinol and Cannabidiol in Patients with Different Stages of CKD', journal:'Kidney Int Rep', vol:'10(3):707-719', pmid:'40225360'}
       ]
     },
     {
@@ -6103,9 +6106,29 @@ function buildConditionSafetyHTML(cond) {
     + rows
     + '<div style="margin-top:6px;font-style:italic">Educational only &mdash; these are associations or preclinical signals, not treatment claims. Always discuss with a licensed healthcare professional.</div>';
 }
+// AIQA-03 D3 (owner-approved 11 Nov 2026): when Guided Match withheld Primary for nausea (the route did not
+// identify chemotherapy), the table explains its own chemotherapy-only Primary instead of appearing to contradict
+// the result. The context is set ONLY by the Guided Match hand-off, kept while the same topic stays open (including
+// a return from Guided Match to it), and cleared when another topic is chosen, the topic is cleared, or a new
+// session starts. It never changes scores, tiers, tile highlighting, citations or the Primary qualifier.
+var _gxTableCtx = null;
+var GX_TABLE_CTX_NOTE = 'You arrived here from Guided Match for nausea not specifically identified as chemotherapy-related. '
+  + 'In this research view, &Delta;9-THC is designated Primary only for chemotherapy-induced nausea and vomiting. '
+  + 'That designation does not establish effectiveness for other causes of nausea.';
+function gxSetTableCtx(condId, route) {
+  _gxTableCtx = (condId === 'nausea' && (route === 'general' || route === 'cancer-other' || route === 'secondary'))
+    ? {cond: 'nausea', route: route} : null;
+}
+function gxTableCtxNote(condId, forPrint) {
+  if (!_gxTableCtx || _gxTableCtx.cond !== condId) return '';
+  return forPrint
+    ? '<p class="pt-print-p pt-aq3-ctx"><b>About this evidence:</b> ' + GX_TABLE_CTX_NOTE + '</p>'
+    : '<div class="pq-note aq3-tctx" role="note"><strong>About this evidence:</strong> ' + GX_TABLE_CTX_NOTE + '</div>';
+}
 function selectCondition(condId, btn) {
   if (activeCond === condId) { clearCondition(); return; }
   activeCond = condId;
+  if (_gxTableCtx && _gxTableCtx.cond !== condId) _gxTableCtx = null;   // AIQA-03 D3: another topic chosen
   window._activeCondId = condId;
   const cond = CONDITIONS.find(function(c) { return c.id === condId; });
   if (!cond) return;
@@ -6155,7 +6178,9 @@ var PRIMARY_EVIDENCE = {
   'neuropathic': {THC9: 'Modest benefit in small trials of dronabinol (pharmaceutical &Delta;9-THC) and THC-dominant cannabis, mainly in neuropathic or central pain.'},
   'seizures':    {CBD:  'Prescription CBD (Epidiolex) for Dravet and Lennox-Gastaut syndromes. This does not extend to other seizure types or to over-the-counter CBD products.'},
   'hiv':         {THC9: 'For AIDS-related appetite loss (dronabinol) and HIV-associated neuropathic pain (small trials). Not a treatment for HIV infection.'},
-  'nausea':      {THC9: 'Chemotherapy-related nausea and vomiting, with pharmaceutical dronabinol &mdash; typically added when standard anti-nausea medicines are not enough.'},
+  // AIQA-03 rev (owner-approved 12 Nov 2026): wording only. It must not imply that every historical dronabinol trial
+  // enrolled refractory patients — the refractory positioning is the current guidance (ASCO 2024), not the trial population.
+  'nausea':      {THC9: 'Chemotherapy-induced nausea and vomiting: Human studies include prescription dronabinol, a pharmaceutical form of &Delta;9-THC. Current clinical guidance supports considering prescription cannabinoids as additional treatment for refractory symptoms despite guideline-recommended antiemetic therapy. Most historical trials predate modern antiemetic regimens. These findings do not establish equivalent effectiveness or safety for dispensary cannabis products.'},
   'appetite':    {THC9: 'Dronabinol (pharmaceutical &Delta;9-THC) is FDA-approved for AIDS-related anorexia with weight loss; trials in cancer-related appetite loss and in older adults did not show benefit. This does not extend to other appetite conditions.'}
 };
 var NO_PRIMARY_NOTE = 'No molecule currently has the human evidence needed for a Primary designation for this topic; the molecules below are research associations.';
@@ -6319,6 +6344,7 @@ function updateFilterCount() {
 }
 function clearCondition() {
   activeCond = null;
+  _gxTableCtx = null;   // AIQA-03 D3
   document.querySelectorAll('.cc').forEach(function(c) { c.classList.remove('on'); });
   document.getElementById('fpClear').classList.remove('on');
   document.querySelectorAll('.mol-tile').forEach(function(tile) {
@@ -11377,7 +11403,7 @@ function printRecoReport() {
 
   // Section header stays generic — the report title above it already names the condition.
   var _pp = included.filter(function(id) { return isPrimaryFor(cond.id, id, (cond.molecules || {})[id] || 0); });   // SCI-04g
-  var body = PT_sec('Primary research matches', _pp.length ? primaryQualHtml(cond.id, _pp, true) : '<p class="pt-print-p">' + NO_PRIMARY_NOTE + '</p>')
+  var body = PT_sec('Primary research matches', _pp.length ? gxTableCtxNote(cond.id, true) + primaryQualHtml(cond.id, _pp, true) : '<p class="pt-print-p">' + NO_PRIMARY_NOTE + '</p>')
     + PT_sec('Matched Molecules', listHtml
     || '<p class="pt-print-p">No molecules match the current selection.</p>');
 
@@ -11821,6 +11847,7 @@ function resetToEntryGate() {
   // Clear all filter state
   try {
     activeCond = null;
+    _gxTableCtx = null;   // AIQA-03 D3: a new session never inherits the note
     activeRec = null;
     activeEv = null;
     activeCat = null;
@@ -12654,7 +12681,7 @@ function renderFpRecommendation(condId) {
 
   var listEl = document.getElementById('fpRecoList');
   var _pIds = includedIds.filter(function(id) { return isPrimaryFor(condId, id, (cond.molecules || {})[id] || 0); });   // SCI-04g
-  var primaryHtml = _pIds.length ? primaryQualHtml(condId, _pIds, false) : '<div class="pq-note">' + NO_PRIMARY_NOTE + '</div>';
+  var primaryHtml = _pIds.length ? gxTableCtxNote(condId, false) + primaryQualHtml(condId, _pIds, false) : '<div class="pq-note">' + NO_PRIMARY_NOTE + '</div>';
   var evKey = chipsHtml ? '<div class="fp-ev-key">Each tag shows how the molecule has been studied <strong>for ' + cond.label + '</strong>. '
     + 'Letter grades on the tiles and in the filter are each molecule&rsquo;s <strong>overall research grade &mdash; all topics</strong>, not evidence for this topic.</div>' : '';   // SCI-04i
   if (listEl) listEl.innerHTML = diWarningHtml + (chipsHtml ? primaryHtml : '') + (chipsHtml || '<div class="ent-refine-sub">No molecules match the current selection.</div>') + evKey;
@@ -13960,7 +13987,7 @@ document.addEventListener('keydown', function(e) {
     pain:{cond:['pain'],refine:{joint:['arthritis'],nerve:['neuropathic'],fibro:['fibromyalgia'],muscle:['spasm'],inflam:['inflammation'],migraine:['migraine'],menstrual:['dysmenorrhea'],gen:['pain']}},
     anxiety:{cond:['anxiety'],refine:{day:['anxiety'],night:['anxiety','sleep'],social:['anxiety'],ptsd:['ptsd'],mood:['depression']}},
     appetite:{cond:['appetite-stim'],refine:{lowapp:['appetite-stim'],nausea:['nausea-relief'],chemo:['nausea-relief'],ibs:['ibs'],gut:['ibd']}},
-    cancer:{cond:['cancer'],refine:{nausea:['nausea-relief'],appetite:['appetite-stim'],pain:['pain'],sleep:['sleep'],anx:['anxiety']}},
+    cancer:{cond:['cancer'],refine:{chemo:['nausea-relief'],nausea:['nausea-relief'],appetite:['appetite-stim'],pain:['pain'],sleep:['sleep'],anx:['anxiety']}},
     relax:{cond:['stress'],refine:{body:['stress','sleep'],light:['stress'],social:['stress','anxiety']}},
     other:{cond:['antioxidant'],refine:{well:['antioxidant'],energy:['appetite'],mood:['depression']}},
     seizure:{cond:['seizures'],refine:{freq:['seizures'],breakthrough:['seizures'],adjunct:['seizures'],unsure:['seizures']}},
@@ -14081,11 +14108,11 @@ document.addEventListener('keydown', function(e) {
       {k:'social',ic:'🫂',label:'Social situations'},{k:'ptsd',ic:'🛡️',label:'Trauma / PTSD'},
       {k:'mood',ic:'☁️',label:'Low mood / feeling down'}]},
     appetite:{ic:'🍽️',label:'Appetite & Nausea',rq:'What are you dealing with?',opts:[
-      {k:'lowapp',ic:'🍽️',label:"Low appetite / can't eat"},{k:'nausea',ic:'🤢',label:'Nausea or upset stomach'},
-      {k:'chemo',ic:'💉',label:'Nausea from chemo or treatment'},{k:'ibs',ic:'🌀',label:'IBS / irritable bowel'},{k:'gut',ic:'🔥',label:'IBD / Crohn’s / colitis'}]},
+      {k:'lowapp',ic:'🍽️',label:"Low appetite / can't eat"},{k:'nausea',ic:'🤢',label:'Nausea or upset stomach',sub:'Including nausea from other treatments, or if you’re not sure of the cause'},
+      {k:'chemo',ic:'💉',label:'Nausea from chemotherapy'},{k:'ibs',ic:'🌀',label:'IBS / irritable bowel'},{k:'gut',ic:'🔥',label:'IBD / Crohn’s / colitis'}]},
     cancer:{ic:'🎗️',label:'Cancer Symptom Support',rq:'Which symptom is the focus?',
       note:'Research here relates to comfort and symptom support — not a cancer treatment. Please talk with your care team.',opts:[
-      {k:'nausea',ic:'🤢',label:'Nausea / vomiting'},{k:'appetite',ic:'🍽️',label:'Poor appetite'},
+      {k:'chemo',ic:'💉',label:'Nausea / vomiting from chemotherapy'},{k:'nausea',ic:'🤢',label:'Nausea / vomiting — other cause or not sure',sub:'For example radiation therapy, pain medicines or the illness itself'},{k:'appetite',ic:'🍽️',label:'Poor appetite'},
       {k:'pain',ic:'🌿',label:'Pain'},{k:'sleep',ic:'😴',label:'Trouble sleeping'},
       {k:'anx',ic:'💭',label:'Anxiety / stress'}]},
     relax:{ic:'🛋️',label:'Relaxation',rq:'What kind of calm?',opts:[
@@ -14351,18 +14378,21 @@ var ROUTE_KEYS=['inhalation_vapor','inhalation_smoked','oral','sublingual','topi
     // SCI-02: Cancer Symptom Support has no skip — skipping produced the cancer-directed research list.
     (st.intent==='cancer'
       ? '<p class="gx-hint" style="margin-top:10px">Choose the symptom closest to yours. The Table does not rank molecules for treating cancer itself.</p>'+
-        '<button class="gx-cta ghost" onclick="V4GX.cancerHelp()">Not sure which symptom? See the five support areas</button>'
+        '<button class="gx-cta ghost" onclick="V4GX.cancerHelp()">Not sure which symptom? See the support areas</button>'
       : '<button class="gx-express" onclick="V4GX.express()">'+
     '&#x23E9; Skip the questions &mdash; show me the molecules'+
     '<small>You can still run the medication check afterwards</small></button>'));}
   // SCI-02: "Not sure?" for Cancer Symptom Support — the five areas explained; nothing is chosen for the user.
   function scCancerHelp(){
-    var A=[{k:'nausea',ic:'🤢',label:'Nausea / vomiting',sub:'Feeling sick or being sick, for example around chemotherapy'},
+    // AIQA-03 D1: the two nausea options reuse REASONS.cancer's labels (one definition) with help-screen sub-text.
+    var _cn=function(k){return REASONS.cancer.opts.filter(function(o){return o.k===k;})[0];};
+    var A=[{k:'chemo',ic:_cn('chemo').ic,label:_cn('chemo').label,sub:'Feeling sick or being sick because of chemotherapy treatment'},
+           {k:'nausea',ic:_cn('nausea').ic,label:_cn('nausea').label,sub:_cn('nausea').sub},
            {k:'appetite',ic:'🍽️',label:'Poor appetite',sub:'Eating less than usual, or unwanted weight loss'},
            {k:'pain',ic:'🌿',label:'Pain',sub:'Aches or pain that are hard to manage'},
            {k:'sleep',ic:'😴',label:'Trouble sleeping',sub:'Difficulty falling or staying asleep'},
            {k:'anx',ic:'💭',label:'Anxiety / stress',sub:'Worry, tension or feeling on edge'}];
-    stage('<h2 class="gx-q">The five symptom-support areas</h2>'+
+    stage('<h2 class="gx-q">The symptom-support areas</h2>'+
       '<p class="gx-note">Each area shows research on easing that symptom. None of it is a treatment for cancer itself. Your care team can help you decide which matters most.</p>'+
       A.map(function(o){return optBtn("V4GX.refine('"+o.k+"')",o.ic,o.label,o.sub);}).join('')+
       '<button class="gx-cta ghost" onclick="V4GX.back()">&larr; Back</button>');}
@@ -14479,6 +14509,58 @@ var ROUTE_KEYS=['inhalation_vapor','inhalation_smoked','oral','sublingual','topi
     if(st.ceiling!=='none')return {mols:mols,leftOut:[]};
     return {mols:mols.filter(function(m){return GX_THC_INTOX.indexOf(m.id)<0;}),
             leftOut:mols.filter(function(m){return GX_THC_INTOX.indexOf(m.id)>=0;}).map(function(m){return m.id;})};
+  }
+  // ── AIQA-03 (owner-approved 11 Nov 2026) ───────────────────────────────────────────────────────
+  // Guided Match shows the nausea topic's Primary designation ONLY when the user explicitly chose chemotherapy.
+  // Every route maps to the same science topic ('nausea'); scores, tiers in the data, qualifiers and citations are
+  // unchanged. Presentation only. Browse (st.directCond) shows the science topic as the table does.
+  // AIQA-03 rev (R8b, owner-approved 12 Nov 2026): Browse keeps the Primary designation and adds the existing
+  // chemotherapy note wherever Δ9-THC is shown as Primary. 'browse' never withholds Primary and never sets the table note.
+  function gxNauseaRoute(dc){
+    if(dc!=='nausea')return '';
+    if(st.directCond)return 'browse';
+    if(st.refineKey==='chemo'&&(st.intent==='appetite'||st.intent==='cancer'))return 'chemo';
+    if(st.refineKey==='nausea'&&st.intent==='appetite')return 'general';
+    if(st.refineKey==='nausea'&&st.intent==='cancer')return 'cancer-other';
+    return '';
+  }
+  function gxNauseaWithheld(r){return r==='general'||r==='cancer-other';}
+  function gxNauseaChemoShown(r,primary){return r==='chemo'||(r==='browse'&&primary.some(function(m){return m.id==='THC9';}));}
+  var AQ3_CHEMO_NOTE='The human evidence The Table cites here is for nausea and vomiting caused by chemotherapy.';
+  var AQ3_CHS='If you use cannabis regularly and experience repeated episodes of nausea or vomiting, cannabis itself may be contributing to your symptoms. This condition is called cannabinoid hyperemesis syndrome (CHS). Stopping cannabis is the principal long-term treatment. Seek prompt medical attention for persistent vomiting, dehydration, blood in vomit, or severe abdominal pain.';
+  var AQ3_WHY='these are the molecules The Table links to research on nausea and vomiting, listed by research score. A higher score does not mean the molecule has been tested in people &mdash; see the evidence line under each one.';
+  var AQ3_SEC_NOTE='None of these is shown as Primary here. The human studies The Table currently cites for nausea are in nausea and vomiting caused by chemotherapy.';
+  function gxNauseaTitle(r){
+    return (r==='cancer-other'?'Nausea / vomiting &mdash; other cause or not sure':'Nausea or upset stomach')+' (research topic: Antiemetic / Nausea)';
+  }
+  function gxNauseaFoot(r){
+    return r==='cancer-other'
+      ? 'Primary is not shown here because The Table does not currently cite human studies of nausea from causes other than chemotherapy.'
+      : 'Primary is not shown here because The Table does not currently cite human studies of everyday nausea.';
+  }
+  // tier statement + Δ9-THC scope line + "About this evidence" (THC allowed / avoid THC) + the CHS caution
+  function gxNauseaBlock(r,mols,thcOut,forPrint){
+    var cancer=r==='cancer-other';
+    var tier=cancer
+      ? 'None of these molecules is shown as Primary for nausea that is not from chemotherapy. The human studies The Table currently cites for this topic are in nausea and vomiting caused by chemotherapy. If your nausea is linked to chemotherapy, go back and choose <b>Nausea / vomiting from chemotherapy</b>. Your care team can help identify the cause.'
+      : 'None of these molecules is shown as Primary for everyday nausea or an upset stomach. The human studies The Table currently cites for this topic are in nausea and vomiting caused by chemotherapy, not everyday nausea.';
+    var hasThc=mols.some(function(m){return m.id==='THC9';});
+    var thcLine=hasThc?'<b>&Delta;9-THC &mdash; human evidence currently cited in The Table:</b> '+primaryQualifier('nausea','THC9'):'';
+    var applies=cancer?'nausea from other causes, such as radiation therapy, pain medicines or the illness itself':'everyday nausea or an upset stomach';
+    var other='The Table has not comprehensively reviewed research on cannabinoids for other causes of nausea.';   // AIQA-03 rev
+    var about=(thcOut.indexOf('THC9')>=0)
+      ? 'The human studies The Table currently cites for this topic are of &Delta;9-THC (dronabinol) in nausea and vomiting caused by chemotherapy; &Delta;9-THC is left out here at your request. The molecules listed have been studied only in animals or described in review articles, not in people with nausea. '+other
+      : 'Human studies have evaluated prescription dronabinol for chemotherapy-induced nausea and vomiting. These studies included different treatment settings and generally predated modern antiemetic regimens. Current clinical guidance considers prescription cannabinoids as additional treatment for refractory symptoms despite guideline-recommended antiemetic therapy. Those results may not apply to '+applies+'. '+other+' The other molecules listed have been studied only in animals or described in review articles.';
+    if(forPrint)
+      return '<p class="pt-print-p pt-aq3-tier"><b>'+tier+'</b></p>'+(thcLine?'<p class="pt-print-p">'+thcLine+'</p>':'')+
+        '<div class="pt-aq3-box" style="border:1px solid #999;border-radius:4px;padding:6px 9px;margin:6px 0 8px">'+
+        '<p class="pt-print-p"><b>About this evidence.</b> '+about+'</p><p class="pt-print-p">'+AQ3_CHS+'</p></div>';
+    return '<p class="pq-note aq3-tier"><strong>'+tier+'</strong></p>'+(thcLine?'<p class="pq-note aq3-thc">'+thcLine+'</p>':'')+
+      '<div class="aq3-box" role="note" aria-label="About this evidence"><div class="aq3-hd">About this evidence</div>'+
+      '<p>'+about+'</p><p>'+AQ3_CHS+'</p></div>';
+  }
+  function gxNauseaChemoNote(forPrint){
+    return forPrint?'<p class="pt-print-p pt-aq3-chemo"><b>'+AQ3_CHEMO_NOTE+'</b></p>':'<p class="pq-note aq3-chemo">'+AQ3_CHEMO_NOTE+'</p>';
   }
   function gxThcNote(leftOut,nLeft,nPrimary){   // the exclusion sentence, shared by screen and report
     if(!leftOut.length)return '';
@@ -14680,6 +14762,9 @@ var ROUTE_KEYS=['inhalation_vapor','inhalation_smoked','oral','sublingual','topi
     mols=_split.mols;
     var primary=mols.filter(function(m){return isPrimaryFor(dispCond,m.id,m.w);});      // SCI-04g: evidence-based
     var supporting=mols.filter(function(m){return !isPrimaryFor(dispCond,m.id,m.w);});
+    var _nz=gxNauseaRoute(dispCond),_nzW=gxNauseaWithheld(_nz);   // AIQA-03
+    if(_nzW){primary=[];supporting=mols.slice();}                 // AIQA-03: all Supporting, existing score order
+    var _nzC=gxNauseaChemoShown(_nz,primary);                     // AIQA-03 rev: chemotherapy note (chemo routes; Browse with Primary)
     // GX-02: the existing fallback promotes the top molecules when NOTHING meets the Primary
     // threshold. That is right for a condition with no high-weight molecule and wrong when the
     // user's own THC choice emptied the tier — a weight-6 molecule would be relabelled "Primary"
@@ -14703,9 +14788,10 @@ var ROUTE_KEYS=['inhalation_vapor','inhalation_smoked','oral','sublingual','topi
         var pIds=primary.map(function(m){return m.id;});
         var sIds=supporting.map(function(m){return m.id;});
         plainBlock='<div class="v2p-wrap">'+
-          '<p class="v2p-why"><b>Why these molecules:</b> these are the molecules with the most '+
-          'published research for '+esc(condLabel)+', strongest evidence first.</p>'+
-          (pIds.length?'<div class="dj-lbl">Primary</div>'+V2PLAIN.rows(pIds,condLabel)+primaryQualHtml(dispCond,pIds,false):'<p class="pq-note">'+NO_PRIMARY_NOTE+'</p>')+
+          '<p class="v2p-why"><b>Why these molecules:</b> '+(_nzW?AQ3_WHY:'these are the molecules with the most '+
+          'published research for '+esc(condLabel)+', strongest evidence first.')+'</p>'+
+          (_nzC?gxNauseaChemoNote(false):'')+
+          (pIds.length?'<div class="dj-lbl">Primary</div>'+V2PLAIN.rows(pIds,condLabel)+primaryQualHtml(dispCond,pIds,false):(_nzW?gxNauseaBlock(_nz,mols,thcLeftOut,false):'<p class="pq-note">'+NO_PRIMARY_NOTE+'</p>'))+
           (sIds.length?'<div class="dj-lbl" style="margin-top:10px">Supporting</div>'+V2PLAIN.rows(sIds,condLabel):'')+
           V2PLAIN.classPanel(pIds.concat(sIds))+
         '</div>';
@@ -14776,6 +14862,8 @@ var ROUTE_KEYS=['inhalation_vapor','inhalation_smoked','oral','sublingual','topi
             var pcid=SCI_ALIAS[cid]||cid;                                                     // SCI-04g
             var pr=list.filter(function(m){return isPrimaryFor(pcid,m.id,m.w);});
             var su=list.filter(function(m){return !isPrimaryFor(pcid,m.id,m.w);});
+            var _secNz=(pcid==='nausea');                                   // AIQA-03: no chemotherapy stated
+            if(_secNz){pr=[];su=list.slice();}
             var row=function(m){
               var dup=_primaryIds.indexOf(m.id)>=0?'<span class="gx-sec-dup">also above</span>':'';
               return '<span class="gx-chip'+(G().terps[m.id]?' terp':'')+'">'+molNm(m.id)+dup+'</span>';
@@ -14783,6 +14871,7 @@ var ROUTE_KEYS=['inhalation_vapor','inhalation_smoked','oral','sublingual','topi
             return '<div class="gx-secblock">'+
               '<div class="gx-sec-hd">Also researched for: '+esc(lbl)+'</div>'+
               (fromGuided?'<p class="gx-hint" style="margin:0 0 7px">Focused molecule set used by Guided Match for this concern.</p>':'')+
+              (_secNz?'<p class="gx-hint aq3-sec" style="margin:0 0 7px">'+AQ3_SEC_NOTE+'</p>':'')+
               (pr.length?'<div class="gx-sec-tier">Primary</div><div class="gx-chips">'+pr.map(row).join('')+'</div>':'')+
               (su.length?'<div class="gx-sec-tier"'+(pr.length?' style="margin-top:8px"':'')+'>Supporting</div><div class="gx-chips">'+su.map(row).join('')+'</div>':'')+
               '</div>';
@@ -14938,7 +15027,7 @@ var ROUTE_KEYS=['inhalation_vapor','inhalation_smoked','oral','sublingual','topi
     var hdMols='<div class="gx-sec-label gx-sl-mols">Research-linked molecules</div>';
     var hdMeds=medSummary?'<div class="gx-sec-label gx-sl-meds">Medication interactions</div>':'';
     stage('<h2 class="gx-q">Research-Linked Molecules for Your Health Topic</h2>'+hdSafety+safetyNote+condSafety+expressNote+hdMols+
-      '<div class="gx-rec"><div class="kind">'+esc(condLabel)+'</div>'+
+      '<div class="gx-rec"><div class="kind">'+(_nzW?gxNauseaTitle(_nz):esc(condLabel))+'</div>'+
       '<div class="because">'+
         // UX-103 made this branch REACHABLE. It used to be insurance only — the evidenceNegative
         // topics were kept out of the funnel's INTENT map — but the browse-all-conditions screen
@@ -14953,7 +15042,8 @@ var ROUTE_KEYS=['inhalation_vapor','inhalation_smoked','oral','sublingual','topi
           : 'The following molecules have been linked in published scientific research to the health topic you selected. This information is educational and should not be interpreted as medical advice.')+
       '</div>'+
       (detail==='clinical'
-        ? (primaryChips?'<div class="dj-lbl" style="margin-top:10px">Primary</div><div class="gx-chips">'+primaryChips+'</div>'+primaryQualHtml(dispCond,primary.map(function(m){return m.id;}),false):'<p class="pq-note">'+NO_PRIMARY_NOTE+'</p>')+
+        ? (_nzC?gxNauseaChemoNote(false):'')+
+          (primaryChips?'<div class="dj-lbl" style="margin-top:10px">Primary</div><div class="gx-chips">'+primaryChips+'</div>'+primaryQualHtml(dispCond,primary.map(function(m){return m.id;}),false):(_nzW?gxNauseaBlock(_nz,mols,thcLeftOut,false):'<p class="pq-note">'+NO_PRIMARY_NOTE+'</p>'))+
           (supporting.length?'<div class="dj-lbl" style="margin-top:12px">Supporting</div><div class="gx-chips">'+supportingChips+'</div>':'')
         : plainBlock)+'</div>'+
       detailToggle+clin+thcNote+secBlocks+secNote+
@@ -15502,6 +15592,9 @@ var ROUTE_KEYS=['inhalation_vapor','inhalation_smoked','oral','sublingual','topi
       var mols=cond?Object.keys(cond.molecules).filter(function(id){return typeof M!=='undefined'&&M[id];}).map(function(id){return {id:id,w:cond.molecules[id]};}).sort(function(a,b){return b.w-a.w;}):[];
       var _rs=gxThcSplit(mols);mols=_rs.mols;   // AIQA-02: the report honours "Avoid intoxicating THC" exactly as the screen does
       var primary=mols.filter(function(m){return isPrimaryFor(dc,m.id,m.w);}),supporting=mols.filter(function(m){return !isPrimaryFor(dc,m.id,m.w);});   // SCI-04g: no promotion
+      var _nz=gxNauseaRoute(dc),_nzW=gxNauseaWithheld(_nz);   // AIQA-03: the report follows the screen exactly
+      if(_nzW){primary=[];supporting=mols.slice();}
+      var _nzC=gxNauseaChemoShown(_nz,primary);   // AIQA-03 rev: same rule as the screen
       // UX-69: the evidence score used to sit immediately after the molecule name — "THC 9",
       // "THCA 8". In cannabinoid nomenclature a trailing number IS part of the name, so that
       // reads as Δ9-THC, and the score was landing in exactly the position the real name part
@@ -15545,15 +15638,16 @@ var ROUTE_KEYS=['inhalation_vapor','inhalation_smoked','oral','sublingual','topi
       }
       body+='<div class="pt-print-sec"><h3>Associated molecules — '+esc(condLabel)+'</h3>'+
         (_rs.leftOut.length?'<p class="pt-print-p pt-thc-excl">'+gxThcNote(_rs.leftOut,mols.length,primary.length)+'</p>':'')+   // AIQA-02: stated above the table it describes
+        (_nzW?gxNauseaBlock(_nz,mols,_rs.leftOut,true):(_nzC?gxNauseaChemoNote(true):''))+   // AIQA-03
         '<table class="pt-mol-tbl"><thead><tr><th>Molecule</th><th class="pt-mol-score">Evidence score (1&ndash;10)</th></tr></thead><tbody>'+
-        (primary.length?'<tr class="pt-mol-grp"><td colspan="2">Primary</td></tr>'+molRows(primary):'<tr class="pt-mol-grp"><td colspan="2">'+NO_PRIMARY_NOTE+'</td></tr>')+
+        (primary.length?'<tr class="pt-mol-grp"><td colspan="2">Primary</td></tr>'+molRows(primary):(_nzW?'':'<tr class="pt-mol-grp"><td colspan="2">'+NO_PRIMARY_NOTE+'</td></tr>'))+
         (supporting.length?'<tr class="pt-mol-grp"><td colspan="2">Supporting</td></tr>'+molRows(supporting):'')+
         '</tbody></table>'+primaryQualHtml(dc,primary.map(function(m){return m.id;}),true)+
         '<div style="font-size:.66rem;color:#555 !important;margin-top:7px;line-height:1.5">'+
         '<b>Evidence score (1&ndash;10)</b> indicates the relative strength of the published research '+
         'supporting the association between the molecule and the selected health topic. '+
         'It is not a dose, a potency, or a product recommendation. A score of 8&ndash;10 does not by itself mean strong clinical evidence: '+
-        'Primary requires human evidence and is shown with its limits; every other molecule is Supporting.</div>'+
+        'Primary requires human evidence and is shown with its limits; every other molecule is Supporting.'+(_nzW?' '+gxNauseaFoot(_nz):'')+'</div>'+
         (st.ceiling==='min'&&mols.some(function(m){return m.id==='THC9';})?'<p class="pt-print-p">You asked to keep the &ldquo;high&rdquo; to a minimum. &Delta;9-THC is still listed because published research links it to your topic. Lower-THC products exist, and which one suits you is a conversation for a pharmacist or your prescriber &mdash; <strong>The Table does not advise on amounts.</strong></p>':'')+   // AIQA-02: the screen's note, carried over
         '</div>';
       var prefBits=[];
@@ -15608,7 +15702,7 @@ var ROUTE_KEYS=['inhalation_vapor','inhalation_smoked','oral','sublingual','topi
           otherMolIds.map(molCard).join('');}
       }
 if(typeof PT_individualResponse==='function')body+=PT_individualResponse();   // UX-43
-      return out('Guided Match — Recommendation Summary','Prepared for: '+esc(condLabel),body,{phi:(st.meds||[]).length>0});
+      return out('Guided Match — Recommendation Summary','Prepared for: '+(_nzW?gxNauseaTitle(_nz):esc(condLabel)),body,{phi:(st.meds||[]).length>0});
     },
     persona:function(p){st.persona=p;st.intent=null;st.refineKey=null;st.seconds=[];st.directCond=null;
       // UX-64: a consumer always lands on plain language, even if an earlier run in the same
@@ -15733,19 +15827,23 @@ if(typeof PT_individualResponse==='function')body+=PT_individualResponse();   //
       var inCat=currentRec().molecules.filter(function(m){return (!!G().terps[m.molId])===isTerp;});
       var allOff=inCat.length&&inCat.every(function(m){return st.excluded[m.molId];});
       inCat.forEach(function(m){if(allOff)delete st.excluded[m.molId];else st.excluded[m.molId]=1;});scRec();},
-    seeScience:function(){this.handoffTo(currentCondIds()[0]);},
+    seeScience:function(){var c=currentCondIds()[0];this.handoffTo(c,demoMode()?'':gxNauseaRoute(SCI_ALIAS[c]||c));},   // AIQA-03 D3
     // Open the full Entourage Effect analysis scoped to this session's condition. The Guided overlay stays
     // open underneath (Entourage overlay is z-index 9100 > gxOverlay 9000), so closing it returns here.
     // AIQA-02: the full analysis honours _excludedMols, but only handoffTo() wrote the THC choice into it — so opening
     // Entourage from Guided Match showed Δ9-THC in combinations for a user who asked to avoid it. Same sync here.
     entourage:function(){var ids=currentCondIds();var c=SCI_ALIAS[ids[0]]||ids[0];gxSyncThcExclusions();try{if(typeof showEntourage==='function')showEntourage(c);}catch(e){}},
-    seeAlso:function(c){this.handoffTo(c);},
+    seeAlso:function(c){this.handoffTo(c,(!demoMode()&&(SCI_ALIAS[c]||c)==='nausea')?'secondary':'');},   // AIQA-03 D3: 'Nausea too'
     // GX-10: shared hand-off into the Periodic Table. Carries the guided THC preference through as Refine Inventory
     // Match exclusions — deterministic for the 3 intoxicants (Δ9-THC, Δ8-THC, THCP), and non-destructive to any
     // other molecules an operator excluded. "A little"/"any" clears these 3 so the choice is authoritative.
-    handoffTo:function(c){c=SCI_ALIAS[c]||c;
+    handoffTo:function(c,route){c=SCI_ALIAS[c]||c;
       gxSyncThcExclusions();   // AIQA-02: same rule as before (THC_INTOX), now shared with entourage()
       this.close();
+      try{if(typeof gxSetTableCtx==='function')gxSetTableCtx(c,route);}catch(e){}   // AIQA-03 D3: set by this hand-off only
+      // AIQA-03 D3: selectCondition() TOGGLES — handing off to the topic already open used to clear it. A return from
+      // Guided Match to the same topic now re-opens it (and re-applies the THC exclusion just synced).
+      try{if(typeof activeCond!=='undefined'&&activeCond===c)activeCond=null;}catch(e){}
       try{if(typeof selectCondition==='function')selectCondition(c);}catch(e){}}
   };
 })();
@@ -16164,6 +16262,14 @@ body.no-flex-gap.is-mobile-view .mtb-btn>*+*{margin-left:5px}
 /* the toggle chip's own gap, whichever of the two capabilities is missing */
 body.no-flex-gap #gxOverlay .gx-tog .x,
 body.no-button-flex #gxOverlay .gx-tog .x{margin-left:5px}
+/* AIQA-03r2-X2 (owner-approved 12 Nov 2026): .gx-stage spaces its children with gap:12px, which Safari < 14.1
+   ignores, so the exclusion note's -6px top margin pulled it 6px into the Plain language / Research detail bar.
+   This restores the modern net spacing (12 - 6 = 6px). Legacy only: unscoped, a modern browser would get 18px.
+   Two adjacencies (extended 12 Nov 2026 after the iPad retest of 2026.11.12-3):
+     Plain language  - the note follows the toggle (.gx-detail);
+     Research Detail - the note follows the bordered molecule table (.gx-clin), which has its own 10px top margin. */
+body.no-flex-gap #gxOverlay .gx-detail+.gx-hint,
+body.no-flex-gap #gxOverlay .gx-clin+.gx-hint{margin-top:6px}
 
 /* <button> as a flex container — unsupported before Safari 14 */
 body.no-button-flex #gxOverlay .gx-tog .x{vertical-align:middle}

@@ -2956,7 +2956,7 @@ def check_primary_designation(src, data):
     entry = dict((k, v) for k, v in re.findall(r"^\s*'([a-z-]+)':\s*\{\w+:\s*'(.*)'\},?\s*$", blk, re.M))
     for cid, needle, what in [('hiv', 'Not a treatment for HIV infection', 'HIV qualifier'),
                               ('seizures', 'Prescription CBD (Epidiolex) for Dravet and Lennox-Gastaut', 'epilepsy qualifier'),
-                              ('nausea', 'Chemotherapy-related nausea', 'nausea qualifier'),
+                              ('nausea', 'Chemotherapy-induced nausea and vomiting', 'nausea qualifier'),   # AIQA-03 rev re-pin (owner wording 12 Nov)
                               ('appetite', 'AIDS-related anorexia', 'appetite qualifier'),
                               ('pain', 'mainly in neuropathic or central pain', 'pain qualifier'),
                               ('neuropathic', 'mainly in neuropathic or central pain', 'neuropathic-pain qualifier')]:
@@ -2968,7 +2968,7 @@ def check_primary_designation(src, data):
                          ("var primary=mols.filter(function(m){return isPrimaryFor(dc,m.id,m.w);})", 'the Guided print uses the evidence rule'),
                          ("PT_sec('Primary research matches'", 'the Table print shows Primary qualifiers'),
                          ("primaryQualHtml(dispCond,pIds,false)", 'Guided Match shows Primary qualifiers'),
-                         ("var primaryHtml = _pIds.length ? primaryQualHtml(condId, _pIds, false) : '<div class=\"pq-note\">' + NO_PRIMARY_NOTE + '</div>';", 'the Table panel shows Primary qualifiers'),
+                         ("var primaryHtml = _pIds.length ? gxTableCtxNote(condId, false) + primaryQualHtml(condId, _pIds, false) : '<div class=\"pq-note\">' + NO_PRIMARY_NOTE + '</div>';", 'the Table panel shows Primary qualifiers'),   # AIQA-03 D3 re-pin
                          ("'</tbody></table>'+primaryQualHtml(dc,primary.map(function(m){return m.id;}),true)", 'the Guided print shows Primary qualifiers'),
                          ("function isPrimaryFor(condId, id, weight) { return weight >= 8 && !!primaryQualifier(condId, id); }", 'Primary requires both a score of 8+ and a qualifier')]:
         if needle not in src:
@@ -3865,6 +3865,268 @@ def check_build_identifier(src, data):
         note('build identifier: %s (footer + head agree; release record present)' % bid)
 
 
+def check_aiqa03(src, data):
+    """AIQA-03 (owner authorisation 11 Nov 2026, D1-D3): the nausea topic's Primary designation is shown in Guided
+    Match only when the user explicitly chose chemotherapy; the table explains its chemotherapy-only Primary after a
+    hand-off from a non-chemotherapy route; three kidney citations corrected; science data unchanged.
+    """
+    name = 'AIQA-03 nausea routes'
+    try:
+        rec = js_literal(src, 'function scRec(){', '{')
+        pr = js_literal(src, 'printRec:function(', '{')
+        route = js_literal(src, 'function gxNauseaRoute(dc){', '{')
+        block = js_literal(src, 'function gxNauseaBlock(r,mols,thcOut,forPrint){', '{')
+        hof = js_literal(src, 'handoffTo:function(c,route){', '{')
+        sel = js_literal(src, 'function selectCondition(condId, btn) {', '{')
+        clr = js_literal(src, 'function clearCondition() {', '{')
+        rst = js_literal(src, 'function resetToEntryGate() {', '{')
+        tnote = js_literal(src, 'function gxTableCtxNote(condId, forPrint) {', '{')
+        setc = js_literal(src, 'function gxSetTableCtx(condId, route) {', '{')
+    except ValueError:
+        fail(name, 'an AIQA-03 function is missing (zero-match tripwire)')
+        return
+    # 1. science data unchanged (presentation-only package)
+    pins = [
+        ("{id:'nausea',label:'Antiemetic / Nausea',group:'gastro',molecules:{THC9:9,THC8:7,THCA:8,CBDA:5}}", 'nausea topic scores'),
+        ("'nausea':      {THC9: 'Chemotherapy-induced nausea and vomiting: Human studies include prescription dronabinol, a pharmaceutical form of &Delta;9-THC. Current clinical guidance supports considering prescription cannabinoids as additional treatment for refractory symptoms despite guideline-recommended antiemetic therapy. Most historical trials predate modern antiemetic regimens. These findings do not establish equivalent effectiveness or safety for dispensary cannabis products.'},", 'nausea Primary qualifier (AIQA-03 rev re-pin, owner wording 12 Nov)'),
+        ("var GUIDED_MOL={ 'appetite-stim':{THC9:9,CBG:6,MY:5,CBN:4}, 'nausea-relief':{THC9:9,CBD:6,LI:5} };", 'GUIDED_MOL (Demo lock)'),
+        ("var SCI_ALIAS={'appetite-stim':'appetite','nausea-relief':'nausea'};", 'SCI_ALIAS'),
+        ("appetite:{cond:['appetite-stim'],refine:{lowapp:['appetite-stim'],nausea:['nausea-relief'],chemo:['nausea-relief'],ibs:['ibs'],gut:['ibd']}},", 'appetite routing'),
+        ("cancer:{cond:['cancer'],refine:{chemo:['nausea-relief'],nausea:['nausea-relief'],appetite:['appetite-stim'],pain:['pain'],sleep:['sleep'],anx:['anxiety']}},", 'cancer routing (D1: chemo key, same topic)'),
+        ("function isPrimaryFor(condId, id, weight) { return weight >= 8 && !!primaryQualifier(condId, id); }", 'isPrimaryFor'),
+    ]
+    for lit, label in pins:
+        if src.count(lit) != 1:
+            fail(name, 'changed or duplicated: %s' % label)
+    # 2. D1 / D2 labels; the retired label is gone
+    for lit, label in [
+        ("{k:'chemo',ic:'💉',label:'Nausea from chemotherapy'}", 'D2 chemotherapy label'),
+        ("label:'Nausea or upset stomach',sub:'Including nausea from other treatments, or if you’re not sure of the cause'}", 'D2 general sub-text'),
+        ("{k:'chemo',ic:'💉',label:'Nausea / vomiting from chemotherapy'}", 'D1 cancer chemotherapy option'),
+        ("{k:'nausea',ic:'🤢',label:'Nausea / vomiting — other cause or not sure',sub:'For example radiation therapy, pain medicines or the illness itself'}", 'D1 cancer other/not-sure option'),
+    ]:
+        if src.count(lit) != 1:
+            fail(name, 'missing or duplicated: %s' % label)
+    if 'Nausea from chemo or treatment' in src:
+        fail(name, 'the retired label "Nausea from chemo or treatment" is still present')
+    if "_cn('chemo').label" not in src or "_cn('nausea').label" not in src:
+        fail(name, 'the cancer "Not sure?" screen must take its nausea labels from REASONS.cancer')
+    # 3. one rule: only the chemotherapy key keeps Primary
+    if "st.refineKey==='chemo'&&(st.intent==='appetite'||st.intent==='cancer'))return 'chemo'" not in route or 'st.directCond' not in route:
+        fail(name, 'gxNauseaRoute must return chemo only for the explicit chemotherapy choice, and nothing for Browse')
+    for fn, label in ((rec, 'screen'), (pr, 'report')):
+        if 'if(_nzW){primary=[];supporting=mols.slice();}' not in fn:
+            fail(name, 'the %s must withhold Primary on the non-chemotherapy nausea routes' % label)
+    if "gxNauseaBlock(_nz,mols,_rs.leftOut,true)" not in pr or "gxNauseaFoot(_nz)" not in pr or "gxNauseaTitle(_nz)" not in pr:
+        fail(name, 'the report must carry the box, footnote and header of the screen')
+    if rec.count('gxNauseaBlock(_nz,mols,thcLeftOut,false)') != 2:
+        fail(name, 'both screen views (plain and research detail) must show the nausea evidence block')
+    if rec.count('gxNauseaChemoNote(false)') != 2 or 'gxNauseaChemoNote(true)' not in pr:
+        fail(name, 'the chemotherapy note must appear in both screen views and the report')
+    if 'if(_secNz){pr=[];su=list.slice();}' not in rec:
+        fail(name, 'the secondary "Nausea too" block must not show Primary')
+    # 4. approved wording, verbatim
+    for lit, label in [
+        ('If you use cannabis regularly and experience repeated episodes of nausea or vomiting, cannabis itself may be contributing to your symptoms. This condition is called cannabinoid hyperemesis syndrome (CHS). Stopping cannabis is the principal long-term treatment. Seek prompt medical attention for persistent vomiting, dehydration, blood in vomit, or severe abdominal pain.', 'CHS caution'),
+        ("The human evidence The Table cites here is for nausea and vomiting caused by chemotherapy.", 'chemotherapy note'),
+        ("The Table has not comprehensively reviewed research on cannabinoids for other causes of nausea.", 'scope statement (AIQA-03 rev re-pin, owner wording 12 Nov)'),
+    ]:
+        if lit not in src:
+            fail(name, 'approved wording missing: %s' % label)
+    ctx = ("'You arrived here from Guided Match for nausea not specifically identified as chemotherapy-related. '\n"
+           "  + 'In this research view, &Delta;9-THC is designated Primary only for chemotherapy-induced nausea and vomiting. '\n"
+           "  + 'That designation does not establish effectiveness for other causes of nausea.';")
+    if src.count(ctx) != 1:
+        fail(name, 'the D3 table note must be the owner\'s wording, defined once')
+    if 'There is no human' in block or 'not been studied in people' in block:
+        fail(name, 'the evidence box must describe what The Table cites, not the literature as a whole')
+    # 5. D3: set only by the hand-off; cleared by another topic, clearing, and a new session; screen = print
+    if 'gxSetTableCtx(c,route)' not in hof or 'activeCond=null' not in hof:
+        fail(name, 'handoffTo must set the route context and re-open (not toggle off) the topic already shown')
+    a, b = hof.find('gxSyncThcExclusions()'), hof.find('selectCondition(')
+    if a < 0 or b < 0 or a > b:
+        fail(name, 'handoffTo must sync the THC exclusion before it opens the topic')
+    if src.count('gxSetTableCtx(') != 2:
+        fail(name, 'the table context may be set only by the Guided Match hand-off')
+    if "route === 'general' || route === 'cancer-other' || route === 'secondary')" not in setc or 'chemo' in setc:
+        fail(name, 'the table context must be limited to the non-chemotherapy nausea routes')
+    if '_gxTableCtx.cond !== condId) _gxTableCtx = null' not in sel or '_gxTableCtx = null' not in clr or '_gxTableCtx = null' not in rst:
+        fail(name, 'the table context must clear on another topic, on clearing the topic, and on a new session')
+    if src.count('gxTableCtxNote(condId, false) + primaryQualHtml(condId, _pIds, false)') != 1 or src.count('gxTableCtxNote(cond.id, true) + primaryQualHtml(cond.id, _pp, true)') != 1:
+        fail(name, 'the table note must sit above the Primary block in the panel and in the table print')
+    if 'demoMode()' not in js_literal(src, 'seeScience:function(){', '{'):
+        fail(name, 'Demo Mode hand-offs must not set the table context (Demo lock)')
+    # 6. kidney citations (4 records) corrected; menopause record preserved
+    for lit, n, label in [
+        ("authors:'Sønderskov MB, et al.', year:'2025'", 2, '40225360 authors'),
+        ("vol:'10(3):707-719', pmid:'40225360'", 2, '40225360 volume'),
+        ("authors:'Rodríguez-Ramírez S, et al.', year:'2024'", 1, '38375934 authors'),
+        ("vol:'38(2):e15264', pmid:'38375934'", 1, '38375934 volume'),
+        ("authors:'Vaitla PK, Thongprayoon C, et al.', year:'2021'", 1, '32558277 authors'),
+        ("vol:'14(2):90-96', pmid:'32558277'", 1, '32558277 pages'),
+    ]:
+        if src.count(lit) != n:
+            fail(name, 'kidney citation %s: expected %d, found %d' % (label, n, src.count(lit)))
+    for old in ('Kjeldsen SAS', 'Ruiz JC, et al.', 'Kaewput W'):
+        if old in src:
+            fail(name, 'superseded kidney citation author still present: %s' % old)
+    note('AIQA-03: nausea Primary only on the explicit chemotherapy choice (screen, research detail, report, print, "Nausea too"); '
+         'D1 cancer split and D2 labels; D3 table note set by the hand-off only and cleared by another topic, clearing or a new session; '
+         'nausea scores, qualifier, GUIDED_MOL and routing targets unchanged; 3 kidney citations (4 records) corrected')
+    check_citation_consistency(src)
+
+
+def check_citation_consistency(src):
+    """AIQA-03 I5 — REPORT-ONLY. The same PMID cited with different authors or volume in different records. Never fails;
+    known, owner-acknowledged items live in AIQA03_citation_exceptions.tsv (PMID <tab> reason)."""
+    exc = {}
+    path = os.path.join(HERE, 'AIQA03_citation_exceptions.tsv')
+    if os.path.exists(path):
+        for line in open(path, encoding='utf-8'):
+            if line.strip() and not line.startswith('#'):
+                k, _, why = line.rstrip('\n').partition('\t')
+                exc[k.strip()] = why.strip()
+    seen = {}
+    for m in re.finditer(r"authors:'([^']*)'[^{}]*?vol:'([^']*)'[^{}]*?pmid:'(\d+)'", src):
+        seen.setdefault(m.group(3), set()).add((m.group(1), m.group(2)))
+    multi = sorted(k for k, v in seen.items() if len(v) > 1 and k not in exc)
+    known = sorted(k for k in exc if k in seen)
+    note('citation consistency (report-only): %d PMIDs with authors+volume; %d cited with differing metadata%s; %d known exception(s): %s'
+         % (len(seen), len(multi), (' (' + ', '.join(multi[:12]) + ('…' if len(multi) > 12 else '') + ')') if multi else '',
+            len(known), ', '.join('%s — %s' % (k, exc[k]) for k in known) or 'none'))
+
+
+def check_aiqa03r(src, data):
+    """AIQA-03 revision (owner authorisation 12 Nov 2026): five approved wording corrections. Presentation only — the
+    nausea scores, the Primary designation (isPrimaryFor), GUIDED_MOL, routing targets and the CHS grade are unchanged."""
+    name = 'AIQA-03 rev wording'
+    try:
+        rec = js_literal(src, 'function scRec(){', '{')
+        pr = js_literal(src, 'printRec:function(', '{')
+        route = js_literal(src, 'function gxNauseaRoute(dc){', '{')
+        block = js_literal(src, 'function gxNauseaBlock(r,mols,thcOut,forPrint){', '{')
+        setc = js_literal(src, 'function gxSetTableCtx(condId, route) {', '{')
+    except ValueError:
+        fail(name, 'an AIQA-03 function is missing (zero-match tripwire)')
+        return
+    # R1 — Δ9-THC line label
+    if block.count("<b>&Delta;9-THC &mdash; human evidence currently cited in The Table:</b> '+primaryQualifier('nausea','THC9')") != 1:
+        fail(name, 'R1: the Δ9-THC line must read "human evidence currently cited in The Table" and reuse the qualifier')
+    if 'human evidence limited to' in src:
+        fail(name, 'R1: retired label "human evidence limited to" still present')
+    # R2 — qualifier: verbatim (pinned in check_aiqa03) and the retired positioning is gone
+    for old in ('typically added when standard anti-nausea medicines are not enough', 'Chemotherapy-related nausea and vomiting, with pharmaceutical dronabinol'):
+        if old in src:
+            fail(name, 'R2: retired qualifier wording still present: %s' % old)
+    if src.count('These findings do not establish equivalent effectiveness or safety for dispensary cannabis products.') != 1:
+        fail(name, 'R2: the dispensary-product limitation must appear once, in the qualifier')
+    # R3 — scope statement replaces the unsupported characterisation, in both box variants
+    if 'limited, and their results are mixed' in src or 'The Table has not yet reviewed them' in src:
+        fail(name, 'R3: the retired "limited and mixed" characterisation is still present')
+    if block.count("+other") != 2 or "var other='The Table has not comprehensively reviewed research on cannabinoids for other causes of nausea.';" not in block:
+        fail(name, 'R3: both "About this evidence" variants must carry the scope statement')
+    if 'everyday nausea or an upset stomach' not in block or 'nausea and vomiting caused by chemotherapy' not in block:
+        fail(name, 'R3: the box must keep the distinction between chemotherapy-related nausea and other causes')
+    # R4 — CHS safety finding: grade B, two citations, approved sentence, no categorical claim
+    chs_hdr = "title: 'Cannabinoid Hyperemesis Syndrome',\n      condition: 'Antiemetic / Nausea',\n      evidence: 'B',"
+    if src.count(chs_hdr) != 1:
+        fail(name, 'R4: the CHS finding must keep evidence grade B')
+    for lit, label in [
+        ('A systematic review of 183 published articles found', '"183 published articles"'),
+        ('<em>Those figures describe the link between cannabis use and the syndrome; they are not evidence that any molecule treats it. '
+         'The Table cites no evidence that any cannabis molecule treats CHS. The reviews it cites identify stopping cannabis as the treatment '
+         'that appears most effective, with supportive care &mdash; such as fluids, certain anti-nausea medicines and topical capsaicin &mdash; '
+         'for acute episodes.</em>', 'qualified CHS sentence'),
+        ("pmid:'28000146'", 'Sorensen 2017 citation'),
+        ("pmid:'40700063'", 'Pietrantoni 2025 citation'),
+    ]:
+        if lit not in src:
+            fail(name, 'R4: missing %s' % label)
+    for old in ('183 published reports', 'entirely non-cannabis', 'no cannabis molecule has any treatment evidence'):
+        if old in src:
+            fail(name, 'R4: retired categorical CHS wording still present: %s' % old)
+    # R5 — Browse keeps Primary, gains the chemotherapy note on screen (both views) and in the report/print
+    if "if(dc!=='nausea')return '';" not in route or "if(st.directCond)return 'browse';" not in route:
+        fail(name, 'R5: Browse must be identified as its own route')
+    if src.count("function gxNauseaWithheld(r){return r==='general'||r==='cancer-other';}") != 1:
+        fail(name, 'R5: only the general and cancer-other routes may withhold Primary (Browse must not)')
+    if src.count("function gxNauseaChemoShown(r,primary){return r==='chemo'||(r==='browse'&&primary.some(function(m){return m.id==='THC9';}));}") != 1:
+        fail(name, 'R5: the chemotherapy note rule must cover the chemotherapy routes and Browse when Δ9-THC is Primary')
+    if 'var _nzC=gxNauseaChemoShown(_nz,primary);' not in rec or rec.count("(_nzC?gxNauseaChemoNote(false):'')") != 2:
+        fail(name, 'R5: both screen views must use the shared chemotherapy-note rule')
+    if 'var _nzC=gxNauseaChemoShown(_nz,primary);' not in pr or "(_nzC?gxNauseaChemoNote(true):'')" not in pr:
+        fail(name, 'R5: View Full Report and Print must use the same chemotherapy-note rule as the screen')
+    if "_nz==='chemo'?gxNauseaChemoNote" in src:
+        fail(name, 'R5: a chemotherapy-note site still ignores Browse')
+    if 'browse' in setc:
+        fail(name, 'R5: Browse must never set the table hand-off note')
+    note('AIQA-03 rev: "human evidence currently cited in The Table"; owner qualifier; scope statement; CHS finding qualified '
+         '(grade B, 183 articles); Browse keeps Primary and shows the chemotherapy note on screen, research detail, report and print')
+
+
+def check_aiqa03r2(src, data):
+    """AIQA-03 revision 2 (owner authorisation 12 Nov 2026), R6: the THC-allowed "About this evidence" box must not
+    describe the historical dronabinol trials as refractory populations; refractory use is attributed to current guidance."""
+    name = 'AIQA-03 rev2 evidence box'
+    try:
+        block = js_literal(src, 'function gxNauseaBlock(r,mols,thcOut,forPrint){', '{')
+    except ValueError:
+        fail(name, 'gxNauseaBlock is missing (zero-match tripwire)')
+        return
+    new = ("Human studies have evaluated prescription dronabinol for chemotherapy-induced nausea and vomiting. "
+           "These studies included different treatment settings and generally predated modern antiemetic regimens. "
+           "Current clinical guidance considers prescription cannabinoids as additional treatment for refractory symptoms "
+           "despite guideline-recommended antiemetic therapy. Those results may not apply to '+applies+'. '+other+'")
+    if src.count(new) != 1 or block.count(new) != 1:
+        fail(name, 'R6: the THC-allowed box must carry the owner-approved wording exactly once, in gxNauseaBlock')
+    for old in ('usually when standard anti-nausea medicines were not enough', 'tested dronabinol &mdash; a prescription form',
+                'when standard anti-nausea medicines', 'after standard anti'):
+        if old in src:
+            fail(name, 'R6: retired trial-population wording still present: %s' % old)
+    # the box must still distinguish chemotherapy from other causes, in both variants
+    if block.count("+other") != 2 or 'Those results may not apply to' not in block:
+        fail(name, 'R6: the box must keep the applicability limit and the scope statement')
+    note('AIQA-03 rev2: "About this evidence" attributes refractory use to current guidance, not to the historical trials')
+
+
+def check_aiqa03r3_x2(src, data):
+    """AIQA-03r2-X2 (owner authorisation 12 Nov 2026; extended to Research Detail for 2026.11.12-4): on browsers without
+    flex gap, the exclusion note keeps the modern 6px clearance in BOTH views - below the toggle (Plain language) and
+    below the molecule table (Research Detail). The rule must exist exactly once, inside the IOS-04 legacy block, with
+    EVERY selector scoped to body.no-flex-gap (check_legacy_fallback_scoping also enforces scope)."""
+    name = 'AIQA-03r2-X2 legacy spacing'
+    rule = ('body.no-flex-gap #gxOverlay .gx-detail+.gx-hint,\n'
+            'body.no-flex-gap #gxOverlay .gx-clin+.gx-hint{margin-top:6px}')
+    m = re.search(r'/\* ══ IOS-04: LEGACY-SAFARI FALLBACKS.*?/\* ══ END IOS-04', src, re.S)
+    if not m:
+        fail(name, 'the IOS-04 block is missing (zero-match tripwire)')
+        return
+    if src.count(rule) != 1 or m.group(0).count(rule) != 1:
+        fail(name, 'the two-selector X2 rule (toggle -> note, table -> note) must appear exactly once, inside the IOS-04 block')
+    css = '\n'.join(re.findall(r'<style[^>]*>(.*?)</style>', src, re.S))
+    css = re.sub(r'/\*.*?\*/', ' ', css, flags=re.S)
+    found = {'detail': 0, 'clin': 0}
+    for group in re.findall(r'([^{}]+)\{', css):
+        for part in group.split(','):
+            part = ' '.join(part.split())
+            key = 'detail' if re.search(r'\.gx-detail\s*\+\s*\.gx-hint', part) else ('clin' if re.search(r'\.gx-clin\s*\+\s*\.gx-hint', part) else None)
+            if not key:
+                continue
+            found[key] += 1
+            if not part.startswith('body.no-flex-gap '):
+                fail(name, 'an unscoped %s rule would change modern-browser spacing: %s' % (key, part))
+    for key, n in found.items():
+        if n != 1:
+            fail(name, 'expected exactly one .gx-%s+.gx-hint selector, found %d' % (key, n))
+    # the spacing values the 6px compensates for (modern net = 12 gap - 6 margin) and that keep the table off the toggle
+    for lit, label in [('#gxOverlay .gx-stage{display:flex;flex-direction:column;gap:12px;', '.gx-stage gap:12px'),
+                       ('#gxOverlay .gx-hint{color:var(--dim,#777);font-size:.9rem;margin:-6px 0 2px}', '.gx-hint margin -6px'),
+                       ('#gxOverlay .gx-clin{margin-top:10px;', '.gx-clin margin-top:10px')]:
+        if lit not in src:
+            fail(name, '%s changed: the X2 compensation must be recalculated' % label)
+    note('AIQA-03r2-X2: legacy (no-flex-gap) exclusion note keeps 6px below the toggle (Plain language) and below the molecule table (Research Detail)')
+
+
 def check_aiqa02(src, data):
     """AIQA-02 (owner authorisation 2026-11-08): one THC exclusion, one set of safety cautions, honest
     medication messaging and no published credentials.
@@ -3883,7 +4145,7 @@ def check_aiqa02(src, data):
         pr = js_literal(src, 'printRec:function(', '{')
         rec = js_literal(src, 'function scRec(){', '{')
         ent = js_literal(src, 'entourage:function(){', '{')
-        hof = js_literal(src, 'handoffTo:function(c){', '{')
+        hof = js_literal(src, 'handoffTo:function(c,route){', '{')   # AIQA-03 D3 re-pin: the hand-off carries the route
         std = js_literal(src, 'function stdRecMolIds(){', '{')
         split = js_literal(src, 'function gxThcSplit(mols){', '{')
         msgs = js_literal(src, 'function gxSafetyMsgs(where){', '{')
@@ -4232,6 +4494,10 @@ def main():
     check_build_identifier(src, data)
     check_report_saving(src, data)
     check_aiqa02(src, data)
+    check_aiqa03(src, data)
+    check_aiqa03r(src, data)
+    check_aiqa03r2(src, data)
+    check_aiqa03r3_x2(src, data)
     check_molecule_profile_terms(src, data)
     check_medication_identity(src, data)
     check_evidence_attribution(data)
